@@ -77,9 +77,22 @@
               "localisation":{
                 "required":true,
                 "prefix": "TRADELICENSE_TRADETYPE",
-                "module": "rainmaker-tl"
+                "module": "rainmaker-tl",
+                "isCategoryRequired":true
              }
           },
+          {
+            "variable": "passSubCategory",
+            "value": {
+              "path": "$.tradeLicenseDetail.tradeUnits[0].tradeType"
+            },
+            "localisation":{
+              "required":true,
+              "prefix": "TRADELICENSE_TRADETYPE",
+              "module": "rainmaker-tl",
+              "isMainTypeRequired":true
+           }
+        },
               {
                   "variable": "accessories",
                   "value": {
@@ -91,6 +104,12 @@
                     "module": "rainmaker-tl"
                  }
               },
+              {
+                "variable": "purpose_content",
+                "value": {
+                  "path": "$.tradeLicenseDetail.additionalDetail.purpose"
+                }
+            },
               {
                   "variable": "licenseIssueDate",
                   "value": {
@@ -127,7 +146,7 @@
               {
                   "variable": "municipal_corportaion",
                   "value": {
-                    "path": "PDF_STATIC_LABEL_CONSOLIDATED_TLCERTIFICATE_MUNICIPAL_CORPORATION"
+                    "path": "PDF_STATIC_LABEL_CONSOLIDATED_PASS_CITY_POLICE_LABLE"
                   },
                   "type": "label",
                   "localisation":{
@@ -175,7 +194,7 @@
               {
                   "variable": "trade_license_certifcate",
                   "value": {
-                    "path": "PDF_STATIC_LABEL_CONSOLIDATED_TLCERTIFICATE_LICENSE_CERTIFICATE"
+                    "path": "PDF_STATIC_LABEL_CONSOLIDATED_PASS_CERTIFICATE"
                   },
                   "type": "label",
                   "localisation":{
@@ -187,7 +206,7 @@
               {
                   "variable": "trade_license_no",
                   "value": {
-                    "path": "PDF_STATIC_LABEL_CONSOLIDATED_TLCERTIFICATE_LICENSE_NO"
+                    "path": "PDF_STATIC_LABEL_CONSOLIDATED_PASS_NO"
                   },
                   "type": "label",
                   "localisation":{
@@ -283,7 +302,7 @@
               {
                   "variable": "trade_type",
                   "value": {
-                    "path": "PDF_STATIC_LABEL_CONSOLIDATED_TLCERTIFICATE_TRADE_TYPE"
+                    "path": "PDF_STATIC_LABEL_CONSOLIDATED_PASS_TRADE_TYPE"
                   },
                   "type": "label",
                   "localisation":{
@@ -292,6 +311,30 @@
                     "module":"rainmaker-common"
                  }
               },
+              {
+                "variable": "pass_subCategory",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_PASS_TRADE_SUB_TYPE"
+                },
+                "type": "label",
+                "localisation":{
+                  "required":true,
+                  "prefix": null,
+                  "module":"rainmaker-common"
+               }
+            },
+            {
+              "variable": "purpose_label",
+              "value": {
+                "path": "PDF_STATIC_LABEL_CONSOLIDATED_PASS_PURPOSE_LABEL"
+              },
+              "type": "label",
+              "localisation":{
+                "required":true,
+                "prefix": null,
+                "module":"rainmaker-common"
+             }
+          },
               {
                   "variable": "accessories_label",
                   "value": {
@@ -341,6 +384,30 @@
                  }
               },
               {
+                "variable": "license_validity_from",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_PASS_LICENSE_VALIDITY_FROM"
+                },
+                "type": "label",
+                "localisation":{
+                  "required":true,
+                  "prefix": null,
+                  "module":"rainmaker-common"
+               }
+            },
+            {
+              "variable": "license_validity_to",
+              "value": {
+                "path": "PDF_STATIC_LABEL_CONSOLIDATED_PASS_LICENSE_VALIDITY_TO"
+              },
+              "type": "label",
+              "localisation":{
+                "required":true,
+                "prefix": null,
+                "module":"rainmaker-common"
+             }
+          },
+              {
                   "variable": "approved_by",
                   "value": {
                     "path": "PDF_STATIC_LABEL_CONSOLIDATED_TLCERTIFICATE_APPROVED_BY"
@@ -363,63 +430,22 @@
                     "prefix": null,
                     "module":"rainmaker-common"
                  }
-              }
+              },
+              {
+                "variable":"userpic",
+                "url":"https://egov-covid-assets.s3.ap-south-1.amazonaws.com/Bangalore_Police.jpeg",
+                "type":"image"
+              },
+              {
+                "variable": "tenantID",
+                "value": {
+                  "path": "$.tenantId"
+                }
+            }
           ]
         },
         {
           "externalAPI": [     
-            { 
-                "path": "http://egov-mdms-service:8080/egov-mdms-service/v1/_get",
-                "queryParam": "moduleName=tenant&masterName=tenants&tenantId=pb&filter=%5B?(@.code=='{$.tenantId}')%5D",
-                "apiRequest": null,
-                "responseMapping":[
-                  {             
-                    "variable":"ulb-address",
-                    "value":"$.MdmsRes.tenant.tenants[0].address"
-                  },
-                  {
-                    "variable":"corporationContact",
-                    "value":"$.MdmsRes.tenant.tenants[0].contactNumber"
-                  },
-                  {
-                    "variable":"corporationWebsite",
-                    "value":"$.MdmsRes.tenant.tenants[0].domainUrl"
-                  },
-                  {
-                    "variable":"corporationEmail",
-                    "value":"$.MdmsRes.tenant.tenants[0].emailId"
-                  }
-                ]
-            },
-            {
-              "path": "http://collection-services:8080/collection-services/payments/_search",
-              "queryParam": "tenantId=$.tenantId,consumerCodes=$.applicationNumber,businessServices=TL",
-              "apiRequest": null,
-              "responseMapping":[
-                {            
-                  "variable":"tradeLicenseFee",
-                  "value":"$.Payments[0].totalDue"
-                },
-                {            
-                  "variable":"recieptNo",
-                  "value":"$.Payments[0].paymentDetails[0].receiptNumber"
-                }
-
-              ]
-          },
-          { 
-            "path": "http://egov-filestore:8080/filestore/v1/files/url",
-            "queryParam": "tenantId=pb,fileStoreIds=$.tradeLicenseDetail.applicationDocuments[?(@.documentType== 'OWNERPHOTO')].fileStoreId",
-            "apiRequest": null,
-            "requesttype": "GET",
-            "responseMapping":[
-              {             
-                "variable":"userpic",
-                "value":"$.fileStoreIds[0].url",
-                "type": "image"
-              }
-            ]
-        },  
         {
           "path": "http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search",
           "queryParam": "businessIds=$.applicationNumber,history=true,tenantId=$.tenantId",
@@ -434,7 +460,15 @@
       }
         
      ]
-   }
+   },
+   {
+    "qrcodeConfig": [
+       {
+          "variable": "qr",
+          "value":"https://egov-micro-dev.egovernments.org/employee/tradelicence/search-preview?applicationNumber={{applicationNo}}&tenantId={{tenantID}}"
+       }
+    ]
+ }
  ]
 
 }
