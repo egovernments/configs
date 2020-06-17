@@ -76,6 +76,75 @@ SearchDefinitions:
       jsonFormat: {"ResponseInfo": {}}
       outJsonPath: $.Localities
       responseInfoPath: $.ResponseInfo
+
+  - name: bpa-services
+    query:
+      baseQuery: |
+        Select row_to_json(result) from
+        (
+          select applicationNo as referenceNumber,locality from eg_bpa_buildingplan bpa
+          INNER JOIN eg_land_Address ad ON ad.landInfoId = bpa.landid
+        ) result  $where
+      groupBy:
+      orderBy:
+    searchParams:
+      condition: AND
+      params:
+      - name: result.referenceNumber
+        isMandatory: true
+        jsonPath: $.searchCriteria.referenceNumber
+        operator: 
+
+    output:
+      jsonFormat: {"ResponseInfo": {}}
+      outJsonPath: $.Localities
+      responseInfoPath: $.ResponseInfo
+
+  - name: pt-services
+    query:
+      baseQuery: |
+        Select row_to_json(result) from
+        (
+          select property.propertyid as referenceNumber,locality from eg_pt_property property
+          INNER JOIN eg_pt_address ptadd ON ptadd.propertyid = property.id
+        ) result  $where
+      groupBy:
+      orderBy:
+    searchParams:
+      condition: AND
+      params:
+      - name: result.referenceNumber
+        isMandatory: true
+        jsonPath: $.searchCriteria.referenceNumber
+        operator: 
+
+    output:
+      jsonFormat: {"ResponseInfo": {}}
+      outJsonPath: $.Localities
+      responseInfoPath: $.ResponseInfo  
+
+  - name: PT
+    query:
+      baseQuery: |
+        Select row_to_json(result) from
+        (
+          select property.propertyid as referenceNumber,locality from eg_pt_property property
+          INNER JOIN eg_pt_address ptadd ON ptadd.propertyid = property.id
+        ) result  $where
+      groupBy:
+      orderBy:
+    searchParams:
+      condition: AND
+      params:
+      - name: result.referenceNumber
+        isMandatory: true
+        jsonPath: $.searchCriteria.referenceNumber
+        operator: 
+
+    output:
+      jsonFormat: {"ResponseInfo": {}}
+      outJsonPath: $.Localities
+      responseInfoPath: $.ResponseInfo    
       
   - name: ws-services
     query:
@@ -105,7 +174,7 @@ SearchDefinitions:
       baseQuery: |
         Select row_to_json(result) from
         (
-          select applicationno as referenceNumber,locality from eg_sw_connection conn
+         select applicationno as referenceNumber,locality from eg_sw_connection conn
           INNER JOIN eg_pt_property property ON property.id = conn.property_id
           INNER JOIN eg_pt_address ptadd ON ptadd.propertyid = property.id
         ) result  $where

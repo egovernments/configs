@@ -4,7 +4,7 @@
     "serviceName": "rainmaker-common",
     "version": "1.0.0",
     "baseKeyPath": "$.Payments.*",
-    "entityIdPath":"$.paymentDetails[0].receiptNumber",
+    "entityIdPath":"$.id",
     "isCommonTableBorderRequired": true,
     "mappings": [
       {
@@ -225,6 +225,18 @@
                }
               },
               {
+                "variable": "total_bill_amount",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_TOTAL_BILL_AMOUNT"
+                },
+                "type": "label",
+                "localisation":{
+                  "required":true,
+                  "prefix": null,
+                  "module":"rainmaker-common"
+               }
+              },
+              {
                 "variable": "pending_amount",
                 "value": {
                   "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_PENDING_AMOUNT"
@@ -355,15 +367,31 @@
                   "prefix": null,
                   "module":"rainmaker-common"
                }
+              },
+              {
+                "variable": "excess_amount_paid",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_EXCESS_AMOUNT_PAID"
+                },
+                "type": "label",
+                "localisation":{
+                  "required":true,
+                  "prefix": null,
+                  "module":"rainmaker-common"
+               }
               }
             ]
           },
           {
             "derived": [
-               {
-                  "variable": "pendingAmount",
-                  "formula": "{{dueAmount}}-{{paidAmount}}"
-               }
+              {
+                "variable": "pendingAmount",
+                "formula": "{{dueAmount}}>{{paidAmount}}?{{dueAmount}}-{{paidAmount}}:0"
+             },
+             {
+              "variable": "excessAmountPaid",
+              "formula": "{{paidAmount}}>{{dueAmount}}?{{paidAmount}}-{{dueAmount}}:0"
+           }
             ]
          },
           {

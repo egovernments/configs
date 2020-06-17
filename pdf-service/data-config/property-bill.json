@@ -1,10 +1,11 @@
 {
   "key": "property-bill",
+  "documentType": "PROPERTYBILL",
   "DataConfigs": {
-    "serviceName": "rainmaker-common",
+    "moduleName": "PT",
     "version": "1.0.0",
     "baseKeyPath": "$.Bill.*",
-    "entityIdPath":"$.billNumber",
+    "entityIdPath":"$.id",
     "isCommonTableBorderRequired": true,
     "mappings": [
       {
@@ -29,6 +30,42 @@
                 "variable": "payer_name",
                 "value": {
                   "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_PAYER_NAME"
+                },
+                "type": "label",
+                "localisation":{
+                  "required":true,
+                  "prefix": null,
+                  "module":"rainmaker-common"
+               }
+              },
+              {
+                "variable": "scanpay_label",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_SCAN_PAY"
+                },
+                "type": "label",
+                "localisation":{
+                  "required":true,
+                  "prefix": null,
+                  "module":"rainmaker-common"
+               }
+              },
+              {
+                "variable": "bankupi_label",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_BANK_UPI"
+                },
+                "type": "label",
+                "localisation":{
+                  "required":true,
+                  "prefix": null,
+                  "module":"rainmaker-common"
+               }
+              },
+              {
+                "variable": "app_label",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_APP"
                 },
                 "type": "label",
                 "localisation":{
@@ -353,12 +390,11 @@
               {
                 "variable": "consumer_id",
                 "value": {
-                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_CONSUMER_ID"
+                  "path": "$.businessService"
                 },
-                "type": "label",
                 "localisation":{
                   "required":true,
-                  "prefix": null,
+                  "prefix": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_CONSUMER_ID",
                   "module":"rainmaker-common"
                }
               },
@@ -445,6 +481,18 @@
                 }
               },
               {
+                "variable": "tenantId",
+                "value": {
+                  "path": "$.tenantId"
+                }
+              },
+              {
+                "variable": "businessServiceCode",
+                "value": {
+                  "path": "$.businessService"
+                }
+              },
+              {
                 "variable": "fromPeriod",
                 "value": {
                   "path": "$.billDetails[0].fromPeriod"
@@ -481,7 +529,10 @@
                 },
                 "type": "date"
               },
-              
+              {
+                "variable":"hostname",
+                "type": "external_host"
+              },
           {
                 "variable": "propertyID",
                 "value": {
@@ -491,85 +542,97 @@
               {
                 "variable": "fees",
                 "value":{
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_TAX')].amount"
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_TAX')].amount"
                 }
               },
               {
                 "variable": "pt_penalty",
                 "value":{
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_TIME_PENALTY')].amount"
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_TIME_PENALTY')].amount"
                 }
               },
               {
                 "variable": "pt_rebate",
                 "value":{
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_TIME_REBATE')].amount"
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_TIME_REBATE')].amount"
                 }
               },
               {
                 "variable": "pt_adhoc_penalty",
                 "value":{
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_ADHOC_PENALTY')].amount"
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_ADHOC_PENALTY')].amount"
                 }
               },
               {
                 "variable": "pt_adhoc_rebate",
                 "value":{
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_ADHOC_REBATE')].amount"
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_ADHOC_REBATE')].amount"
                 }
               },
               {
                 "variable": "pt_owner_exemption",
                 "value":{
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_OWNER_EXEMPTION')].amount"
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_OWNER_EXEMPTION')].amount"
                 }
               },
               {
                 "variable": "pt_unit_usage_exemption",
                 "value":{
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_UNIT_USAGE_EXEMPTION')].amount"
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_UNIT_USAGE_EXEMPTION')].amount"
                 }
               },
               {
                 "variable": "pt_fire_cess",
                 "value":{
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_FIRE_CESS')].amount"
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_FIRE_CESS')].amount"
                 }
               },
               {
                 "variable": "pt_cancer_cess",
                 "value":{
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_CANCER_CESS')].amount"
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_CANCER_CESS')].amount"
                 }
               },
               {
                 "variable": "pt_time_interest",
                 "value":{
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_TIME_INTEREST')].amount"
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_TIME_INTEREST')].amount"
                 }
               },
               {
                 "variable": "pt_decimal_ceiling_debit",
                 "value":{
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_DECIMAL_CEILING_DEBIT')].amount"
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_DECIMAL_CEILING_DEBIT')].amount"
                 }
               },
               {
                 "variable": "pt_decimal_ceiling_credit",
                 "value":{
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_DECIMAL_CEILING_CREDIT')].amount"
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_DECIMAL_CEILING_CREDIT')].amount"
                 }
               },
               {
                 "variable": "pt_roundoff",
                 "value":{
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_ROUNDOFF')].amount"
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_ROUNDOFF')].amount"
+                }
+              },
+              {
+                "variable": "pt_arrearrs",
+                "value":{
+                  "path": "$.billDetails[(@.length-1)].amount"
                 }
               },
               {
                 "variable": "pt_advance_carryforward",
                 "value":{
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_ADVANCE_CARRYFORWARD')].amount"
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_ADVANCE_CARRYFORWARD')].amount"
+                }
+              },
+              {
+                "variable": "adjustment",
+                "value": {
+                  "path": "$.billDetails[(@.length-1)].billAccountDetails[?(@.taxHeadCode == 'PT_ADJUSTMENT')].amount"
                 }
               },
               {
@@ -728,6 +791,30 @@
                   "prefix": null,
                   "module":"rainmaker-common"
                }
+              },
+              {
+                "variable": "arrears_label",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_DECIMAL_ARREARS"
+                },
+                "type": "label",
+                "localisation":{
+                  "required":true,
+                  "prefix": null,
+                  "module":"rainmaker-common"
+               }
+              },
+              {
+                "variable": "adjustment_label",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_ADJUSTMENT"
+                },
+                "type": "label",
+                "localisation":{
+                  "required":true,
+                  "prefix": null,
+                  "module":"rainmaker-common"
+               }
               }
             ]
           },
@@ -788,6 +875,14 @@
               {
                 "variable": "roundoff",
                 "formula": "{{pt_roundoff}}"
+              },
+              {
+                "variable": "arrearrs",
+                "formula": "{{totalAmountDue}} - {{pt_arrearrs}}"
+              },
+              {
+                "variable": "adjustments/paid",
+                "formula": "{{adjustment}}"
               }
             ]
           },
@@ -858,7 +953,15 @@
                 ]
             }
             ]
-          }
+          },
+          {
+            "qrcodeConfig": [
+               {
+                  "variable": "qrcodeimage",
+                  "value":"{{hostname}}citizen/egov-common/pay?consumerCode={{propertyID}}&tenantId={{tenantId}}&businessService={{businessServiceCode}}"
+               }
+            ]
+         }
         ]
       }
     ]
