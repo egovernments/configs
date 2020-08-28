@@ -270,20 +270,50 @@
         "requestQueryMap": "{\"module\" : \"dataObject.paymentDetails.businessService.keyword\", \"tenantId\" : \"dataObject.tenantData.code\", \"district\" : \"dataObject.tenantData.city.districtCode\"}",
         "dateRefField": "dataObject.paymentDetails.receiptDate",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}]}},\"aggs\":{\"License Instrument Type\":{\"terms\":{\"field\":\"dataObject.instrument.typeName.keyword\"},\"aggs\":{\"Licens Issued\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
-      }
-    ],
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}]}},\"aggs\":{\"attrs_root\":{\"nested\":{\"path\":\"domainObject.tradeLicense.tradeLicenseDetail.tradeUnits\"},\"aggs\":{\"Trade Type\":{\"terms\":{\"field\":\"domainObject.tradeLicense.tradeLicenseDetail.tradeUnits.tradeType.keyword\",\"size\":200}}}}}}}}"
+        }
+        ],
     "chartType": "pie",
     "valueType": "number",
     "action": "",
     "documentType": "_doc",
-    "drillChart": "none",
+    "drillChart": "licenseByTradeType",
+    "drillFields": [
+      "tradeType",
+      ""
+    ],
     "aggregationPaths": [
-      "License Instrument Type"
+      "Trade Type"
     ],
     "insight": {
     },
     "_comment": " License Application which are issued by License Type"
+  },
+    "licenseByTradeType": {
+    "chartName": "DSS_TL_LICENSE_BY_TRADE_TYPE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"module\" : \"dataObject.paymentDetails.businessService.keyword\", \"tenantId\" : \"dataObject.tenantData.code\", \"district\" : \"dataObject.tenantData.city.districtCode\", \"tradeType\" : \"domainObject.tradeLicense.tradeLicenseDetail.tradeUnits.tradeType.keyword\"}",
+        "dateRefField": "dataObject.paymentDetails.receiptDate",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"tenant\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}]}},\"aggs\":{\"Payment Mode\":{\"terms\":{\"field\":\"dataObject.paymentMode.keyword\"},\"aggs\":{\"Amount Paid\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"     
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "amount",
+    "action": "",
+    "documentType": "_doc",
+     "filterKeys": [
+      {"key": "tradeType", "column": "tradeType"}
+    ],
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Payment Mode"
+    ],
+    "insight": {
+    },
+    "_comment": " "
   },
 
   "_comment": "COMMON NON-COLLECTION CHARTS",
@@ -921,7 +951,7 @@
     ],
     "chartType": "table",
     "valueType": "number",
-    "drillChart": "none",
+    "drillChart": "wardDrillDown",
     "documentType": "_doc",
     "action": "",
     "plotLabel": "Ward",
