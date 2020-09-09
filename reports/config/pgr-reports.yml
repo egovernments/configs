@@ -2153,6 +2153,10 @@ ReportDefinitions:
     apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=common-masters&masterName=Department&tenantId=$tenantId
     keyOrder: name,code
     tableName: tbl_def_dept
+  - entity: $.MdmsRes.common-masters.Designation
+    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=common-masters&masterName=Designation&tenantId=$tenantId
+    keyOrder: name,code
+    tableName: tbl_def_desig 
   sourceColumns:
   - name: employee
     label: reports.pgr.employee
@@ -2248,8 +2252,8 @@ ReportDefinitions:
     select 
       coalesce((select name from eg_user where id::varchar = assignee),'-- Unassigned --') as employee, 
       deptmap_def.name as department,    
-      (select desig.name from egeis_assignment assign, egeis_designation desig 
-       where assign.employeeid::varchar = assignee and desig.id = assign.designationid and assign.isprimary= true and desig.tenantid=$tenantid) as designation,      
+      (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in 
+      (select designationid from hr_employee_v2_schema.egeis_assignment where isprimary=true and employeeid::varchar=assignee)) as designation,   
       SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedwithinsla,
       SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
       SUM (CASE WHEN status in ('assigned', 'reassignrequested') THEN 1 ELSE 0 END) as assigned,
@@ -2276,6 +2280,10 @@ ReportDefinitions:
     apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=common-masters&masterName=Department&tenantId=$tenantId
     keyOrder: name,code
     tableName: tbl_def_dept
+  - entity: $.MdmsRes.common-masters.Designation
+    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=common-masters&masterName=Designation&tenantId=$tenantId
+    keyOrder: name,code
+    tableName: tbl_def_desig  
   sourceColumns:
   - name: employee
     label: reports.pgr.employee
@@ -2349,14 +2357,14 @@ ReportDefinitions:
     select 
       coalesce((select name from eg_user where id::varchar = assignee),'-- Unassigned --') as employee, 
       deptmap_def.name as department,    
-      (select desig.name from egeis_assignment assign, egeis_designation desig 
-       where assign.employeeid::varchar = assignee and desig.id = assign.designationid and assign.isprimary= true and desig.tenantid=$tenantid) as designation,      
+     (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in 
+      (select designationid from hr_employee_v2_schema.egeis_assignment where isprimary=true and employeeid::varchar=assignee)) as designation, 
       SUM (CASE WHEN status in ('assigned', 'reassignrequested') THEN 1 ELSE 0 END) as assigned,
       SUM (CASE WHEN status in ('reopen') THEN 1 ELSE 0 END) as reopen      
       from pgr_data
       INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
       INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
-      WHERE 1=1
+       WHERE 1=1
   orderby: ORDER BY assignee NULLS FIRST,deptmap_def.name
   groupby: GROUP BY assignee,deptmap_def.name
 
