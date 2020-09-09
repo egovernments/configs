@@ -2212,13 +2212,13 @@ ReportDefinitions:
     label: reports.pgr.datefrom
     type: epoch
     source: eg_pgr_service
-    isMandatory: false
+    isMandatory: true
     searchClause: AND pgr_data.createdtime >= $fromDate
   - name: toDate
     label: reports.pgr.dateto
     type: epoch
     source: eg_pgr_service
-    isMandatory: false
+    isMandatory: true
     searchClause: AND pgr_data.createdtime <= $toDate
   - name: deptname
     label: reports.pgr.dept.name
@@ -2315,13 +2315,13 @@ ReportDefinitions:
     label: reports.pgr.datefrom
     type: epoch
     source: eg_pgr_service
-    isMandatory: false
+    isMandatory: true
     searchClause: AND pgr_data.createdtime >= $fromDate
   - name: toDate
     label: reports.pgr.dateto
     type: epoch
     source: eg_pgr_service
-    isMandatory: false
+    isMandatory: true
     searchClause: AND pgr_data.createdtime <= $toDate
   - name: deptname
     label: reports.pgr.dept.name
@@ -2374,7 +2374,7 @@ ReportDefinitions:
     keyOrder: name,code
     tableName: tbl_def_dept
   - entity: $.TenantBoundary[0].boundary
-    apiURL: http://egov-location.egov/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantId
+    apiURL: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantId
     keyOrder: name,code
     tableName: tbl_boundary
   sourceColumns:
@@ -2459,7 +2459,7 @@ ReportDefinitions:
     isMandatory: true
     searchClause: AND eg_pgr_service.createdtime >= $fromDate
   - name: toDate
-    label: reports.rainmaker-pgr.dateto
+    label: reports.pgr.dateto
     type: epoch
     source: eg_pgr_service
     isMandatory: true
@@ -2477,8 +2477,8 @@ ReportDefinitions:
     ua.name as lastassignedto,
     servicerequestid AS complaintId, 
     regexp_replace(servicecode, '([a-z])([A-Z])', '\1 \2','g') AS complainttype, 
-    to_char(to_timestamp(TRUNC(CAST(eg_pgr_service.createdtime AS bigint) / 1000)), 'DD/MM/YYYY') AS dateofcomplaint, 
-    to_char(to_timestamp(TRUNC(CAST(epa.when AS bigint) / 1000)), 'DD/MM/YYYY') AS dateofassignment,
+    to_char(to_timestamp(TRUNC(CAST(eg_pgr_service.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofcomplaint, 
+    to_char(to_timestamp(TRUNC(CAST(epa.when AS bigint) / 1000)), 'DD/MM/YY') AS dateofassignment,
     Initcap(eg_pgr_service.status) as status,
     (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) where code=eg_pgr_address.mohalla) as ward, 
     eg_user.name, 
@@ -2489,9 +2489,9 @@ ReportDefinitions:
     (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000), ' days remaining') END) as slaHours)
     FROM eg_pgr_service
     left outer join eg_pgr_address on eg_pgr_address.uuid = eg_pgr_service.addressid
-    left outer join eg_user on eg_user.id = eg_pgr_service.accountid::int
+    left outer join eg_user on eg_user.id = eg_pgr_service.accountid::bigint
     left outer join eg_pgr_action as epa on epa.businesskey = eg_pgr_service.servicerequestid and epa.action in ('assign','reassign')
-    left outer join eg_user as ua on ua.id = epa.assignee::int
+    left outer join eg_user as ua on ua.id = epa.assignee::bigint
     WHERE 
     eg_pgr_service.tenantid LIKE  $tenantid 
     AND eg_pgr_address.uuid = eg_pgr_service.addressid
