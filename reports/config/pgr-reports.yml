@@ -2506,7 +2506,8 @@ ReportDefinitions:
     left outer join eg_user on eg_user.id = eg_pgr_service.accountid::bigint
     left outer join eg_pgr_action as epa on epa.businesskey = eg_pgr_service.servicerequestid and epa.action in ('assign','reassign')
     left outer join eg_user as ua on ua.id = epa.assignee::bigint
-    INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
+    INNER JOIN (VALUES tbl_dept) AS departmap(serviceCode, department) ON departmap.serviceCode = eg_pgr_service.servicecode
+    INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON departmap.department = deptmap_def.code
     WHERE 
     eg_pgr_service.tenantid LIKE  $tenantid 
     AND eg_pgr_address.uuid = eg_pgr_service.addressid
