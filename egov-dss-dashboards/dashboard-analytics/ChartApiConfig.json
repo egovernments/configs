@@ -61,7 +61,7 @@
         "dateRefField": "Data.dateOfComplaint",
         "requestQueryMap": "{\"wardId\" : \"Data.complaintWard.name.keyword\",\"tenantId\" : \"Data.tenantId\"}",
         "indexName": "pgrindex-v1",
-        "aggrQuery":"{\"aggs\":{\"Event Average Turn Around Time\":{\"date_histogram\":{\"field\":\"Data.dateOfComplaint\",\"interval\":\"month\"},\"aggs\":{\"average_time\":{\"scripted_metric\":{\"init_script\":\"state.transactions = []\",\"map_script\":\"state.transactions.add(doc['Data.addressDetail.auditDetails.lastModifiedTime'].value - doc['Data.addressDetail.auditDetails.createdTime'].value)\",\"combine_script\":\"double total = 0;int count = 0; for (t in state.transactions) { total += t; count +=1 } return total\/count\",\"reduce_script\":\"double total = 0;int count = 0; for (a in states) { if(a!=null){ total += a; count +=1 }} return total\/count\"}}}}}}"
+        "aggrQuery":"{\"aggs\":{\"Event Average Turn Around Time\":{\"date_histogram\":{\"field\":\"Data.dateOfComplaint\",\"interval\":\"month\"},\"aggs\":{\"average_time\":{\"scripted_metric\":{\"init_script\":\"state.transactions = []\",\"map_script\":\"state.transactions.add(doc['Data.auditDetails.lastModifiedTime'].value - doc['Data.auditDetails.createdTime'].value)\",\"combine_script\":\"double total = 0;int count = 0; for (t in state.transactions) { total += t; count +=1 } return total\/count\",\"reduce_script\":\"double total = 0;int count = 0; for (a in states) { if(a!=null){ total += a; count +=1 }} return total\/count\"}}}}}}"
     }
     ],
     "chartType": "line",
@@ -2230,6 +2230,48 @@
     },
     "_comment": ""
   },
+    "complaintDrillDown": {
+    "kind": "drillDown",
+    "chartName": "DSS_PGR_COMPLAINT_LIST",
+    "queries": [
+        {
+        "module": "PGR",
+        "requestQueryMap": "{\"wardId\" : \"Data.complaintWard.name.keyword\",\"tenantId\" : \"Data.tenantId\", \"district\" : \"Data.tenantData.city.districtTenantCode\" }",
+        "dateRefField": "Data.dateOfComplaint",
+        "indexName": "pgrindex-v1",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"tenant\"}},{\"terms\":{\"Data.status.keyword\":[\"Cancelled\"]}}]}},\"aggs\":{\"Complaint No \":{\"terms\":{\"field\":\"Data.serviceRequestId.keyword\",\"size\":200},\"aggs\":{\"Complaint Type\":{\"terms\":{\"field\":\"Data.complainCategory.keyword\",\"size\":200}},\"Complaint Date\":{\"terms\":{\"field\":\"Data.dateOfComplaint.keyword\"}},\"Status\":{\"terms\":{\"field\":\"Data.status.keyword\",\"size\":200}}}}}}}}"
+         }
+    ],
+    "chartType": "table",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Complaint No",     
+    "aggregationPaths": [
+        "Complaint No",
+        "Complaint Type",
+        "Complaint Date",
+        "Status"       
+    ],
+    "pathDataTypeMapping": [
+        {
+        "Complaint No": "string"
+        },
+         {
+        "Complaint Type": "string"
+        },
+         {
+        "Complaint Date": "string"
+        },
+        {
+        "Status": "string"
+        }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+    },
   "xpgrStatusByComplaintCategory": {
     "chartName": "DSS_PGR_STATUS_BY_COMPLAINT_CATEGORY",
     "queries": [
@@ -2238,7 +2280,7 @@
         "requestQueryMap": "{\"wardId\" : \"Data.complaintWard.name.keyword\", \"tenantId\" : \"Data.tenantId.keyword\" , \"departmentId\" : \"Data.department.keyword\"}",
         "dateRefField": "Data.dateOfComplaint",
         "indexName": "pgrindex-v1",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Category \":{\"terms\":{\"field\":\"Data.complainCategory.keyword\",\"size\":1000},\"aggs\":{\"withinSLA\":{\"range\":{\"script\":{\"lang\":\"painless\",\"source\":\"doc['Data.slaHours'].value\"},\"ranges\":[{\"key\":\"withinSLA\",\"from\":0,\"to\":360}]}},\"Total Complaints\":{\"value_count\":{\"field\":\"Data.dateOfComplaint\"}},\"Closed_Complaints\":{\"filter\":{\"terms\":{\"Data.status.keyword\":[\"closed\",\"rejected\",\"resolved\"]}},\"aggs\":{\"Closed Complaints\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}},\"Open_Complaints\":{\"filter\":{\"terms\":{\"Data.status.keyword\":[\"open\"]}},\"aggs\":{\"Open Complaints\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}},\"Reopened_Complaints\":{\"filter\":{\"terms\":{\"Data.status.keyword\":[\"reopen\"]}},\"aggs\":{\"Reopened Complaints\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Department \":{\"terms\":{\"field\":\"Data.department.keyword\",\"size\":1000},\"aggs\":{\"withinSLA\":{\"range\":{\"script\":{\"lang\":\"painless\",\"source\":\"doc['Data.slaHours'].value\"},\"ranges\":[{\"key\":\"withinSLA\",\"from\":0,\"to\":360}]}},\"Total Complaints\":{\"value_count\":{\"field\":\"Data.dateOfComplaint\"}},\"Closed_Complaints\":{\"filter\":{\"terms\":{\"Data.status.keyword\":[\"closed\",\"rejected\",\"resolved\"]}},\"aggs\":{\"Closed Complaints\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}},\"Open_Complaints\":{\"filter\":{\"terms\":{\"Data.status.keyword\":[\"open\"]}},\"aggs\":{\"Open Complaints\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}},\"Reopened_Complaints\":{\"filter\":{\"terms\":{\"Data.status.keyword\":[\"reopen\"]}},\"aggs\":{\"Reopened Complaints\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -2246,7 +2288,7 @@
     ],
     "chartType": "xtable",
     "valueType": "number",
-    "drillChart": "none",
+    "drillChart": "complaintDrillDown",
 
     "documentType": "_doc",
     "action": "",
