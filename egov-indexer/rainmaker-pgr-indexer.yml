@@ -2,7 +2,7 @@ ServiceMaps:
  serviceName: PGR - rainmaker
  version: 1.0.0
  mappings:
-                         
+
   - topic: save-pgr-index-service
     configKey: INDEX
     indexes:
@@ -14,7 +14,7 @@ ServiceMaps:
       timeStampField: $.auditDetails.createdTime
       fieldsToBeMasked: ["$.phone", "$.citizen.mobileNumber", "$.citizen.address", "$.citizen.aadhaarNumber", "$.citizen.pan", "$.citizen.emailId", "$.citizen.password"]
       customJsonMapping:
-        indexMapping: {"Data":{"serviceRequestId":"serviceRequestId","tenantId":"tenantId","complainCategory":"complainCategory","citizen":{},"phone":"phone","dateOfComplaint":null,"address":"","addressDetail":{},"status":"status","assignee":"assignee","gro":"gro","department":"department","complaintWard":{},"source":"source","description":"","slaHours":"slaHours","tenantData":{},"actionHistory":{},"@timestamp":"timestamp"}}
+        indexMapping: {"Data":{"serviceRequestId":"serviceRequestId","tenantId":"tenantId","complainCategory":"complainCategory","citizen":{},"phone":"phone","dateOfComplaint":null,"address":"","addressDetail":{},"status":"status","assignee":"assignee","gro":"gro","department":"department","complaintWard":{},"source":"source","description":"","slaHours":"slaHours","tenantData":{},"actionHistory":{},"auditDetails":{},"@timestamp":"timestamp"}}
         fieldMapping:
         - inJsonPath: $.serviceRequestId
           outJsonPath: $.Data.serviceRequestId
@@ -40,6 +40,8 @@ ServiceMaps:
           outJsonPath: $.Data.actionHistory
         - inJsonPath: $.citizen
           outJsonPath: $.Data.citizen
+        - inJsonPath: $.auditDetails
+          outJsonPath: $.Data.auditDetails
         - inJsonPath: $.@timestamp
           outJsonPath: $.Data.@timestamp
         externalUriMapping:
@@ -91,8 +93,8 @@ ServiceMaps:
           uriResponseMapping:
           - inJsonPath: $.MdmsRes.tenant.tenants
             outJsonPath: $.Data.tenantData
-            
-      
+
+
   - topic: update-pgr-index-service
     configKey: INDEX
     indexes:
@@ -104,7 +106,7 @@ ServiceMaps:
       timeStampField: $.auditDetails.createdTime
       fieldsToBeMasked: ["$.phone", "$.citizen.mobileNumber", "$.citizen.address", "$.citizen.aadhaarNumber", "$.citizen.pan", "$.citizen.emailId", "$.citizen.password"]
       customJsonMapping:
-        indexMapping: {"Data":{"serviceRequestId":"serviceRequestId","tenantId":"tenantId","complainCategory":"complainCategory","citizen":{},"phone":"phone","dateOfComplaint":null,"address":"","addressDetail":{},"status":"status","assignee":"assignee","gro":"gro","department":"department","complaintWard":{},"source":"source","description":"","slaHours":"slaHours","tenantData":{},"actionHistory":{},"@timestamp":"timestamp"}}
+        indexMapping: {"Data":{"serviceRequestId":"serviceRequestId","tenantId":"tenantId","complainCategory":"complainCategory","citizen":{},"phone":"phone","dateOfComplaint":null,"address":"","addressDetail":{},"status":"status","assignee":"assignee","gro":"gro","department":"department","complaintWard":{},"source":"source","description":"","slaHours":"slaHours","tenantData":{},"actionHistory":{},"auditDetails":{},"@timestamp":"timestamp"}}
         fieldMapping:
         - inJsonPath: $.serviceRequestId
           outJsonPath: $.Data.serviceRequestId
@@ -130,6 +132,8 @@ ServiceMaps:
           outJsonPath: $.Data.actionHistory
         - inJsonPath: $.citizen
           outJsonPath: $.Data.citizen
+        - inJsonPath: $.auditDetails
+          outJsonPath: $.Data.auditDetails
         - inJsonPath: $.@timestamp
           outJsonPath: $.Data.@timestamp
         externalUriMapping:
@@ -195,7 +199,7 @@ ServiceMaps:
           uriResponseMapping:
           - inJsonPath: $.MdmsRes.tenant.tenants
             outJsonPath: $.Data.tenantData
-   
+
   - topic: pgr-service-reindex
     configKey: REINDEX
     indexes:
@@ -205,7 +209,7 @@ ServiceMaps:
       isBulk: true
       jsonPath: $.hits
       timeStampField: $.Data.auditDetails.createdTime
-      
+
   - topic: pgr-service-legacyindex
     configKey: LEGACYINDEX
     indexes:
@@ -217,7 +221,7 @@ ServiceMaps:
       fieldsToBeMasked: ["$.phone", "$.citizen.mobileNumber", "$.citizen.address", "$.citizen.aadhaarNumber", "$.citizen.pan", "$.citizen.emailId", "$.citizen.password"]
       timeStampField: $.auditDetails.createdTime
       customJsonMapping:
-        indexMapping: {"Data":{"serviceRequestId":"serviceRequestId","tenantId":"tenantId","complainCategory":"complainCategory","citizen":{},"phone":"phone","dateOfComplaint":null,"address":"","addressDetail":{},"status":"status","assignee":"assignee","gro":"gro","department":"department","complaintWard":{},"source":"source","description":"","slaHours":"slaHours","tenantData":{},"actionHistory":{},"@timestamp":"timestamp"}}
+        indexMapping: {"Data":{"serviceRequestId":"serviceRequestId","tenantId":"tenantId","complainCategory":"complainCategory","citizen":{},"phone":"phone","dateOfComplaint":null,"address":"","addressDetail":{},"status":"status","assignee":"assignee","gro":"gro","department":"department","complaintWard":{},"source":"source","description":"","slaHours":"slaHours","tenantData":{},"actionHistory":{},"auditDetails":{},"@timestamp":"timestamp"}}
         fieldMapping:
         - inJsonPath: $.serviceRequestId
           outJsonPath: $.Data.serviceRequestId
@@ -243,6 +247,8 @@ ServiceMaps:
           outJsonPath: $.Data.actionHistory
         - inJsonPath: $.citizen
           outJsonPath: $.Data.citizen
+        - inJsonPath: $.auditDetails
+          outJsonPath: $.Data.auditDetails
         - inJsonPath: $.@timestamp
           outJsonPath: $.Data.@timestamp
         externalUriMapping:
@@ -308,13 +314,13 @@ ServiceMaps:
           uriResponseMapping:
           - inJsonPath: $.MdmsRes.tenant.tenants
             outJsonPath: $.Data.tenantData
-      
-      
+
+
 #JOURNEY: rainmakerpgr -> pgrreindextest -> pgrreindex -> pgrnew
 #configKey=INDEX: Index that currently receives live data from the services
 #configKey=REINDEX: Configuration for reindexing that will be enabled only during reindexing activity.
 #configKey=LEGACYINDEX: Configuration for reindexing the database to es that will be enabled only during reindexing activity.
 
-      
-      
+
+
 #there was custom mapping config for this index, that needs to be redesigned so has been removed for now. Take from any commit before 22/11/2018.
