@@ -133,8 +133,7 @@ ReportDefinitions:
     searchClause: AND eg_pgr_service.createdtime <= $toDate
   query: |
     SELECT 
-    DISTINCT ON (servicerequestid)
-    ua.name as lastassignedto,
+    (SELECT name from eg_user eas where eas.id::varchar in (select assignee from eg_pgr_action epa1 where epa1.businesskey = eg_pgr_service.servicerequestid and epa1.action in ('assign','reassign') and "when" = (select max("when") from eg_pgr_action epa where epa.businesskey = eg_pgr_service.servicerequestid and action in ('assign','reassign') group by epa.businesskey) and epa1.businesskey = eg_pgr_service.servicerequestid)) as lastassignedto, 
     (SELECT deptmap_def.name FROM (VALUES tbl_def_dept) AS deptmap_def(name,code) INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) on deptmap.serviceCode = eg_pgr_service.servicecode and deptmap_def.code = deptmap.department) AS department, 
     regexp_replace(servicecode, '([a-z])([A-Z])', '\1 \2','g') AS servicecode, 
     (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) where code=eg_pgr_address.mohalla) as locality, 
@@ -146,17 +145,13 @@ ReportDefinitions:
     eg_pgr_address.housenoandstreetname as address, 
     description, 
     (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000), ' days remaining') END) as slaHours), 
-    Initcap(eg_pgr_service.status) as status
-    FROM eg_pgr_service
-    left outer join eg_pgr_address on eg_pgr_address.uuid = eg_pgr_service.addressid
-    left outer join eg_user on eg_user.id = eg_pgr_service.accountid::int
-    left outer join eg_pgr_action as epa on epa.businesskey = eg_pgr_service.servicerequestid and epa.action in ('assign','reassign')
-    left outer join eg_user as ua on ua.id = epa.assignee::int
-    WHERE 
-    eg_pgr_service.tenantid LIKE  $tenantid 
+    Initcap(status) as status
+    FROM eg_pgr_service, eg_user, eg_pgr_address 
+    WHERE eg_pgr_service.accountid = eg_user.id::VARCHAR 
+    AND eg_pgr_service.tenantid LIKE $tenantid 
     AND eg_pgr_address.uuid = eg_pgr_service.addressid
-    AND eg_pgr_service.status IN ('open','assigned','reassigrequested','rejected')
-  orderby: ORDER BY servicerequestid, epa."when" desc
+    AND status IN ('open','assigned','reassigrequested','rejected')
+  orderby: ORDER BY eg_pgr_service.createdtime asc
 
 - reportName: StateSourceReport
   summary: Source of complaints across tenants

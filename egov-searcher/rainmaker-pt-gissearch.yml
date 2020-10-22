@@ -1,0 +1,47 @@
+SearchDefinitions:
+ moduleName: rainmaker-pt-gissearch
+ summary: Searcher configuration for Adhoc Requirment
+ version: 1.0.0
+ definitions:
+
+ - name: searchNewTaxPayments
+   query:
+    baseQuery: |
+      select array_to_json(array_agg(row_to_json(data))) from (
+        select
+          pt.propertyid as propertyid,
+          pt.oldpropertyid as oldpropertyid,
+          rh.receiptnumber as receiptnumber,
+          pt.tenantid as tenantid
+        from
+        egcl_receiptheader AS rh
+        INNER JOIN eg_pt_property_v2 AS pt
+        ON pt.propertyid = split_part(rh.consumercode, ':', 1)
+        AND
+        pt.oldpropertyid IS NOT NULL
+        AND
+        pt.oldpropertyid != '' $where) data
+    groupBy:
+    orderBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: rh.receiptdate
+      isMandatory: true
+      jsonPath: $.searchCriteria.fromDate
+      operator: GE
+    - name: rh.receiptdate
+      isMandatory: true
+      jsonPath: $.searchCriteria.toDate
+      operator: LE
+    - name: pt.tenantid
+      isMandatory: true
+      jsonPath: $.searchCriteria.tenantId
+      operator: =
+
+
+   output:
+    jsonFormat: {"ResponseInfo": {}}
+    outJsonPath: $.data
+    responseInfoPath: $.ResponseInfo
+
