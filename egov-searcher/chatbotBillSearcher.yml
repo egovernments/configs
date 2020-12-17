@@ -23,13 +23,14 @@ SearchDefinitions:
       b.additionaldetails as b_additionaldetails,  bd.additionaldetails as bd_additionaldetails 
       FROM egbs_bill_v1 b LEFT OUTER JOIN egbs_billdetail_v1 bd ON b.id = bd.billid AND b.tenantid = bd.tenantid 
       LEFT OUTER JOIN egbs_billaccountdetail_v1 ad ON bd.id = ad.billdetail AND bd.tenantid = ad.tenantid $where) 
-      SELECT * FROM billresult INNER JOIN (SELECT bd_consumercode, max(b_createddate) as maxdate FROM billresult GROUP BY bd_consumercode) as uniqbill ON uniqbill.bd_consumercode=billresult.bd_consumercode AND uniqbill.maxdate=billresult.b_createddate
+      SELECT * FROM billresult INNER JOIN (SELECT bd_consumercode, max(b_createddate) as maxdate FROM billresult GROUP BY bd_consumercode) as uniqbill ON uniqbill.maxdate=billresult.b_createddate
    searchParams: 
     condition: AND
     params:
     - name: b.status
       isMandatory: false
       jsonPath: $.searchCriteria.billActive
+      operator: IN
     - name: b.tenantid
       isMandatory: false
       jsonPath: $.searchCriteria.tenantId
