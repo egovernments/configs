@@ -7,7 +7,7 @@ serviceMaps:
     fromTopic: save-hrms-employee
     isTransaction: true
     queryMaps:
-    - query: INSERT INTO eg_hrms_employee(tenantid, id, uuid, code, dateOfAppointment, employeestatus, employeetype, active, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_employee(tenantid, id, uuid, code, dateOfAppointment, employeestatus, employeetype, active, createdby, createddate, lastmodifiedby, lastModifiedDate, reactivateemployee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
       basePath: Employees.*
       jsonMaps:
@@ -36,6 +36,8 @@ serviceMaps:
       - jsonPath: $.Employees.*.auditDetails.lastModifiedBy
 
       - jsonPath: $.Employees.*.auditDetails.lastModifiedDate
+
+      - jsonPath: $.Employees.*.reActivateEmployee
 
 
 
@@ -247,7 +249,7 @@ serviceMaps:
 
       - jsonPath:  $.Employees.*.uuid
 
-    - query: INSERT INTO eg_hrms_employee(tenantid, id, uuid, code, dateOfAppointment, employeestatus, employeetype, active, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+    - query: INSERT INTO eg_hrms_employee(tenantid, id, uuid, code, dateOfAppointment, employeestatus, employeetype, active, createdby, createddate, lastmodifiedby, lastModifiedDate, reactivateemployee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
       basePath: Employees.*
       jsonMaps:
@@ -276,6 +278,8 @@ serviceMaps:
       - jsonPath: $.Employees.*.auditDetails.lastModifiedBy
 
       - jsonPath: $.Employees.*.auditDetails.lastModifiedDate
+
+      - jsonPath: $.Employees.*.reActivateEmployee
 
 
 
@@ -499,3 +503,31 @@ serviceMaps:
       - jsonPath: $.Employees.*.deactivationDetails.*.auditDetails.lastModifiedBy
 
       - jsonPath: $.Employees.*.deactivationDetails.*.auditDetails.lastModifiedDate
+
+    
+    - query: INSERT INTO eg_hrms_reactivationdetails(uuid, employeeid, reasonforreactivation, effectivefrom, ordernumber, remarks, tenantid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+      basePath: Employees.*.reactivationDetails.*
+      jsonMaps:
+
+      - jsonPath: $.Employees.*.reactivationDetails.*.id
+
+      - jsonPath: $.Employees[*][?({id} in @.reactivationDetails[*].id)].uuid
+
+      - jsonPath: $.Employees.*.reactivationDetails.*.reasonForReactivation
+
+      - jsonPath: $.Employees.*.reactivationDetails.*.effectiveFrom
+
+      - jsonPath: $.Employees.*.reactivationDetails.*.orderNo
+
+      - jsonPath: $.Employees.*.reactivationDetails.*.remarks
+
+      - jsonPath: $.Employees[*][?({id} in @.reactivationDetails[*].id)].tenantId
+
+      - jsonPath: $.Employees.*.reactivationDetails.*.auditDetails.createdBy
+
+      - jsonPath: $.Employees.*.reactivationDetails.*.auditDetails.createdDate
+
+      - jsonPath: $.Employees.*.reactivationDetails.*.auditDetails.lastModifiedBy
+
+      - jsonPath: $.Employees.*.reactivationDetails.*.auditDetails.lastModifiedDate
