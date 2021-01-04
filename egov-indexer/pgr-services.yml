@@ -12,7 +12,7 @@ ServiceMaps:
         timeStampField: $.service.auditDetails.lastModifiedTime
         fieldsToBeMasked: ["$.service.citizen.userName", "$.service.citizen.name", "$.service.citizen.mobileNumber", "$.service.citizen.emailId"]
         customJsonMapping:
-          indexMapping: {"Data":{"ward":{},"tenantData":{}, "history":{}}}
+          indexMapping: {"Data":{"ward":{},"tenantData":{}, "history":{}, "slaHours":"slaHours"}}
           fieldMapping:
           - inJsonPath: $
             outJsonPath: $.Data
@@ -41,6 +41,17 @@ ServiceMaps:
             uriResponseMapping:
             - inJsonPath: $.MdmsRes.tenant.tenants
               outJsonPath: $.Data.tenantData
+          - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+            moduleName: RAINMAKER-PGR
+            masterName: ServiceDefs
+            tenantId: pb
+            filter: "[?((@.serviceCode == $servicecode) && (@.active == true))]"
+            filterMapping:
+            - variable: $servicecode
+              valueJsonpath: $.service.serviceCode
+            uriResponseMapping:
+            - inJsonPath: $.MdmsRes.RAINMAKER-PGR.ServiceDefs.*.slaHours
+              outJsonPath: $.Data.slaHours
              
   - topic: update-pgr-request
     configKey: INDEX
