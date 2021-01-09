@@ -12,7 +12,7 @@ ServiceMaps:
         timeStampField: $.service.auditDetails.lastModifiedTime
         fieldsToBeMasked: ["$.service.citizen.userName", "$.service.citizen.name", "$.service.citizen.mobileNumber", "$.service.citizen.emailId"]
         customJsonMapping:
-          indexMapping: {"Data":{"ward":{},"tenantData":{}, "history":{}, "slaHours":"slaHours"}}
+          indexMapping: {"Data":{"ward":{}, "history":{}, "department":"department", "slaHours":"slaHours", "tenantData":{}}}
           fieldMapping:
           - inJsonPath: $
             outJsonPath: $.Data
@@ -31,16 +31,16 @@ ServiceMaps:
               outJsonPath: $.Data.history
           mdmsMapping:
           - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
-            moduleName: tenant
-            masterName: tenants
+            moduleName: RAINMAKER-PGR
+            masterName: ServiceDefs
             tenantId: pb
-            filter: "[?(@.code == $tenant)]"
+            filter: "[?((@.serviceCode == $servicecode) && (@.active == true))]"
             filterMapping:
-            - variable: $tenant
-              valueJsonpath: $.service.tenantId
+            - variable: $servicecode
+              valueJsonpath: $.service.serviceCode
             uriResponseMapping:
-            - inJsonPath: $.MdmsRes.tenant.tenants
-              outJsonPath: $.Data.tenantData
+            - inJsonPath: $.MdmsRes.RAINMAKER-PGR.ServiceDefs.*.department
+              outJsonPath: $.Data.department
           - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
             moduleName: RAINMAKER-PGR
             masterName: ServiceDefs
@@ -52,7 +52,18 @@ ServiceMaps:
             uriResponseMapping:
             - inJsonPath: $.MdmsRes.RAINMAKER-PGR.ServiceDefs.*.slaHours
               outJsonPath: $.Data.slaHours
-             
+          - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+            moduleName: tenant
+            masterName: tenants
+            tenantId: pb
+            filter: "[?(@.code == $tenant)]"
+            filterMapping:
+            - variable: $tenant
+              valueJsonpath: $.service.tenantId
+            uriResponseMapping:
+            - inJsonPath: $.MdmsRes.tenant.tenants
+              outJsonPath: $.Data.tenantData
+
   - topic: update-pgr-request
     configKey: INDEX
     indexes:
