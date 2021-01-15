@@ -8,14 +8,14 @@ ServiceMaps:
       - name: pgr-services
         type: general
         id: $.service.serviceRequestId
-        jsonPath: $.PGREntity
+        jsonPath: $
         timeStampField: $.service.auditDetails.lastModifiedTime
         fieldsToBeMasked: ["$.service.citizen.userName", "$.service.citizen.name", "$.service.citizen.mobileNumber", "$.service.citizen.emailId"]
         customJsonMapping:
-          indexMapping: {"Data":{"PGREntity":{},"ward":{},"tenantData":{}, "history":{}}}
+          indexMapping: {"Data":{"ward":{}, "history":{}, "department":"department", "slaHours":"slaHours", "tenantData":{}}}
           fieldMapping:
           - inJsonPath: $
-            outJsonPath: $.Data.PGREntity
+            outJsonPath: $.Data
           externalUriMapping:
           - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
             queryParam: hierarchyTypeCode=ADMIN,boundaryType=Locality,codes=$.service.address.locality.code,tenantId=$.service.tenantId
@@ -31,6 +31,28 @@ ServiceMaps:
               outJsonPath: $.Data.history
           mdmsMapping:
           - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+            moduleName: RAINMAKER-PGR
+            masterName: ServiceDefs
+            tenantId: pb
+            filter: "[?((@.serviceCode == $servicecode) && (@.active == true))]"
+            filterMapping:
+            - variable: $servicecode
+              valueJsonpath: $.service.serviceCode
+            uriResponseMapping:
+            - inJsonPath: $.MdmsRes.RAINMAKER-PGR.ServiceDefs.*.department
+              outJsonPath: $.Data.department
+          - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+            moduleName: RAINMAKER-PGR
+            masterName: ServiceDefs
+            tenantId: pb
+            filter: "[?((@.serviceCode == $servicecode) && (@.active == true))]"
+            filterMapping:
+            - variable: $servicecode
+              valueJsonpath: $.service.serviceCode
+            uriResponseMapping:
+            - inJsonPath: $.MdmsRes.RAINMAKER-PGR.ServiceDefs.*.slaHours
+              outJsonPath: $.Data.slaHours
+          - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
             moduleName: tenant
             masterName: tenants
             tenantId: pb
@@ -41,7 +63,7 @@ ServiceMaps:
             uriResponseMapping:
             - inJsonPath: $.MdmsRes.tenant.tenants
               outJsonPath: $.Data.tenantData
-             
+
   - topic: update-pgr-request
     configKey: INDEX
     indexes:
@@ -122,4 +144,12 @@ ServiceMaps:
             uriResponseMapping:
             - inJsonPath: $.MdmsRes.tenant.tenants
               outJsonPath: $.Data.tenantData
-            
+  - topic: pgr-service-reindex
+    configKey: REINDEX
+    indexes:
+      - name: pgrreindex-v2
+        type: general
+        id: $.Data.service.serviceRequestId
+        isBulk: true
+        jsonPath: $.hits
+        timeStampField: $.Data.service.auditDetails.lastModifiedTime
