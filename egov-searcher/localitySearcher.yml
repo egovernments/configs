@@ -214,3 +214,26 @@ SearchDefinitions:
       jsonFormat: {"ResponseInfo": {}}
       outJsonPath: $.Localities
       responseInfoPath: $.ResponseInfo
+
+  - name: FSM
+    query:
+      baseQuery: |
+        Select row_to_json(result) from
+        (
+          select applicationNo as referenceNumber,locality from eg_fsm_application fsm
+          INNER JOIN eg_fsm_address ad ON ad.fsm_id = fsm.id,
+        ) result  $where
+      groupBy:
+      orderBy:
+    searchParams:
+      condition: AND
+      params:
+      - name: result.referenceNumber
+        isMandatory: true
+        jsonPath: $.searchCriteria.referenceNumber
+        operator: 
+
+    output:
+      jsonFormat: {"ResponseInfo": {}}
+      outJsonPath: $.Localities
+      responseInfoPath: $.ResponseInfo
