@@ -2110,17 +2110,17 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND deptmap_def.code = $deptname
   query: |  
-    with pgr_data as (select  
-      servicerequestid, 
+    with pgr_data as (select
+      servicerequestid,
       servicecode,
-      createdtime, 
-      status,
+      createdtime,
+      applicationstatus,
       tenantid,
       rating,
-      (select max("when") from eg_pgr_action where action='resolve' and businesskey = servicerequestid) as resolvedtime,
-      (select min("when") from eg_pgr_action where action='open' and businesskey = servicerequestid) as opentime
-      from eg_pgr_service as ps
-      where 
+      (select max(createdtime) from eg_wf_processinstance_v2 where action='RESOLVE' and businessid = servicerequestid) as resolvedtime,
+      (select min(createdtime) from eg_wf_processinstance_v2 where action='APPLY' and businessid = servicerequestid) as opentime
+      from eg_pgr_service_v2 as ps
+      where
       tenantid = $tenantid)
     select 
       initcap(split_part(tenantid, '.', 2)) as tenantid,      
@@ -2234,23 +2234,23 @@ ReportDefinitions:
     searchClause: AND deptmap_def.code = $deptname
   query: |
     with pgr_data as (select  
-      (select assignee from eg_pgr_action as pa where 
-      pa.businesskey = ps.servicerequestid 
-      and pa."action" in ('assign', 'reassign')
-      order by "when" desc
+      (select asg.assignee from eg_wf_assignee_v2 asg LEFT OUTER JOIN eg_wf_processinstance_v2 wf ON wf.id = asg.processinstanceid  where
+      wf.businessid = ps.servicerequestid
+      and wf."action" in ('ASSIGN', 'REASSIGN')
+      order by wf.createdtime desc
       fetch first 1 rows only
-      ) as assignee, 
-      servicerequestid, 
-      createdtime, 
+      ) as assignee,
+      servicerequestid,
+      createdtime,
       servicecode,
-      status,
+      applicationstatus,
       rating,
       tenantid,
-      (select max("when") from eg_pgr_action where action='resolve' and businesskey = servicerequestid) as resolvedtime,
-      (select min("when") from eg_pgr_action where action='open' and businesskey = servicerequestid) as opentime
-    from eg_pgr_service as ps
-    where 
-    tenantid = $tenantid)
+      (select max(createdtime) from eg_wf_processinstance_v2 where action='RESOLVE' and businessid = servicerequestid) as resolvedtime,
+      (select min(createdtime) from eg_wf_processinstance_v2 where action='APPLY' and businessid = servicerequestid) as opentime
+      from eg_pgr_service_v2 as ps
+      where
+      tenantid = $tenantid)
     select 
       (select name from eg_user where id::varchar = assignee) as employee, 
       deptmap_def.name as department,    
@@ -2343,32 +2343,33 @@ ReportDefinitions:
     searchClause: AND deptmap_def.code = $deptname
   query: |
     with pgr_data as (select  
-      (select assignee from eg_pgr_action as pa where 
-      pa.businesskey = ps.servicerequestid 
-      and pa."action" in ('assign', 'reassign')
-      and pa.by like '%Grievance Routing Officer'
-      order by "when" desc
+      (select asg.assignee from eg_wf_processinstance_v2 pa
+        LEFT OUTER JOIN eg_wf_assignee_v2 asg ON asg.processinstanceid = pa.id where
+      pa.businessId = ps.servicerequestid
+      and pa."action" in ('ASSIGN', 'REASSIGN')
+      and pa.createdby IN (SELECT eu.uuid from eg_user eu LEFT JOIN eg_userrole eur ON eu.id=eur.userid AND eu.tenantid=eur.tenantid LEFT JOIN eg_role er ON eur.roleid=er.id AND eur.roleidtenantid=er.tenantid WHERE er.name LIKE '%Grievance Routing Officer')
+      order by pa.createdtime desc
       fetch first 1 rows only
-      ) as assignee, 
-      servicerequestid, 
-      createdtime, 
+      ) as assignee,
+      servicerequestid,
+      createdtime,
       servicecode,
       status,
       tenantid
-    from eg_pgr_service as ps
-    where 
-    tenantid = $tenantid)
-    select 
-      (select name from eg_user where id::varchar = assignee) as employee, 
-      deptmap_def.name as department,    
-     (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in 
-      (select designationid from hr_employee_v2_schema.egeis_assignment where isprimary=true and employeeid::varchar=assignee)) as designation, 
-      SUM (CASE WHEN status in ('assigned', 'reassignrequested') THEN 1 ELSE 0 END) as assigned,
-      SUM (CASE WHEN status in ('reopen') THEN 1 ELSE 0 END) as reopen      
-      from pgr_data
-      INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
-      INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
-       WHERE 1=1
+      from eg_pgr_service_v2 as ps
+      where
+      tenantid = $tenantid)
+      select
+        (select name from eg_user where uuid = assignee) as employee,
+        deptmap_def.name as department,
+       (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in
+        (select designationid from hr_employee_v2_schema.egeis_assignment where isprimary=true and employeeid::varchar=assignee)) as designation,
+        SUM (CASE WHEN status in ('PENDINGATLME', 'PENDINGFORREASSIGNMENT') THEN 1 ELSE 0 END) as assigned,
+        SUM (CASE WHEN status in ('REOPEN') THEN 1 ELSE 0 END) as reopen
+        from pgr_data
+        INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
+        INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
+         WHERE 1=1
   orderby: ORDER BY assignee NULLS FIRST,deptmap_def.name
   groupby: GROUP BY assignee,deptmap_def.name
 
@@ -2483,27 +2484,28 @@ ReportDefinitions:
     SELECT 
     DISTINCT ON (servicerequestid)
     ua.name as lastassignedto,
-    servicerequestid AS complaintId, 
-    regexp_replace(servicecode, '([a-z])([A-Z])', '\1 \2','g') AS complainttype, 
-    to_char(to_timestamp(TRUNC(CAST(eg_pgr_service.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofcomplaint, 
-    to_char(to_timestamp(TRUNC(CAST(epa.when AS bigint) / 1000)), 'DD/MM/YY') AS dateofassignment,
-    Initcap(eg_pgr_service.status) as status,
-    (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) where code=eg_pgr_address.mohalla) as ward, 
-    eg_user.name, 
-    phone, 
-    eg_pgr_address.landmark, 
-    eg_pgr_address.housenoandstreetname as address, 
+    servicerequestid AS complaintId,
+    regexp_replace(servicecode, '([a-z])([A-Z])', '\1 \2','g') AS complainttype,
+    to_char(to_timestamp(TRUNC(CAST(eg_pgr_service_v2.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofcomplaint,
+    to_char(to_timestamp(TRUNC(CAST(epa.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofassignment,
+    Initcap(eg_pgr_service_v2.applicationstatus) as status,
+    (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) where code=eg_pgr_address.mohalla) as ward,
+    eg_user.name,
+    phone,
+    eg_pgr_address_v2.landmark,
+    eg_pgr_address_v2.housenoandstreetname as address,
     description,
     deptmap_def.name as department,
-    (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000), ' days remaining') END) as slaHours)
-    FROM eg_pgr_service
-    left outer join eg_pgr_address on eg_pgr_address.uuid = eg_pgr_service.addressid
-    left outer join eg_user on eg_user.id = eg_pgr_service.accountid::bigint
-    left outer join eg_pgr_action as epa on epa.businesskey = eg_pgr_service.servicerequestid and epa.action in ('assign','reassign')
-    left outer join eg_user as ua on ua.id = epa.assignee::bigint
+    (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000), ' days remaining') END) as slaHours)
+    FROM eg_pgr_service_v2
+    left outer join eg_pgr_address_v2 on eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
+    left outer join eg_user on eg_user.uuid = eg_pgr_service.accountid
+    left outer join eg_wf_processinstance_v2 as epa on epa.businessId = eg_pgr_service_v2.servicerequestid and epa.action in ('ASSIGN','REASSIGN')
+    left outer join eg_wf_assignee_v2 as asg on asg.processinstanceid =  epa.id
+    left outer join eg_user as ua on ua.uuid = asg.assignee
     INNER JOIN (VALUES tbl_dept) AS departmap(serviceCode, department) USING (servicecode)
     INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON departmap.department = deptmap_def.code
-    WHERE 
-    eg_pgr_address.uuid = eg_pgr_service.addressid
-    AND eg_pgr_service.status IN ('open','assigned','reassigrequested','rejected')
-  orderby: ORDER BY servicerequestid, epa."when" desc
+    WHERE
+    eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
+    AND eg_pgr_service_v2.applicationstatus IN ('APPLIED','PENDINGATLME','PENDINGFORREASSIGNMENT','REJECYED')
+  orderby: ORDER BY servicerequestid, epa.createdtime desc
