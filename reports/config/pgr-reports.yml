@@ -2098,10 +2098,10 @@ ReportDefinitions:
   - name: status
     label: reports.pgr.status
     type: singlevaluelist
-    pattern: 'list://open:open,assigned:assigned,closed:closed,rejected:rejected,reassignrequested:reassignrequested'
+    pattern: 'list://open:PENDINGFORASSIGNMENT,assigned:PENDINGATLME,closed:CLOSEDAFTERRESOLUTION,rejected:REJECTED,reassignrequested:PENDINGFORREASSIGNMENT'
     source: seva
     isMandatory: false
-    searchClause: AND pgr_data.status = $status
+    searchClause: AND pgr_data.applicationstatus = $status
   - name: deptname
     label: reports.pgr.dept.name
     type: singlevaluelist
@@ -2125,13 +2125,13 @@ ReportDefinitions:
     select 
       initcap(split_part(tenantid, '.', 2)) as tenantid,      
       deptmap_def.name as department,    
-      SUM (CASE WHEN status in ('assigned', 'reassignrequested') THEN 1 ELSE 0 END) as assigned,
-      count(status) as received,
+      SUM (CASE WHEN applicationstatus in ('PENDINGATLME', 'PENDINGFORREASSIGNMENT') THEN 1 ELSE 0 END) as assigned,
+      count(applicationstatus) as received,
       rating,
-      SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedwithinsla,
-      SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
-      SUM (CASE WHEN status in ('open') and (extract(epoch from now()) * 1000 - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END)  as opencomplaintswithinsla,
-      SUM (CASE WHEN status in ('open') and (extract(epoch from now()) * 1000 - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as opencomplaintsoutsidesla
+      SUM (CASE WHEN applicationstatus in ('CLOSEDAFTERRESOLUTION', 'RESOLVED') and (resolvedtime - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedwithinsla,
+      SUM (CASE WHEN applicationstatus in ('CLOSEDAFTERRESOLUTION', 'RESOLVED') and (resolvedtime - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
+      SUM (CASE WHEN applicationstatus in ('PENDINGFORASSIGNMENT') and (extract(epoch from now()) * 1000 - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END)  as opencomplaintswithinsla,
+      SUM (CASE WHEN applicationstatus in ('PENDINGFORASSIGNMENT') and (extract(epoch from now()) * 1000 - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as opencomplaintsoutsidesla
       from pgr_data
       INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
       INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
@@ -2256,11 +2256,11 @@ ReportDefinitions:
       deptmap_def.name as department,    
       (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in 
       (select designationid from hr_employee_v2_schema.egeis_assignment where isprimary=true and employeeid::varchar=assignee)) as designation,   
-      SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedwithinsla,
-      SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
-      SUM (CASE WHEN status in ('assigned', 'reassignrequested') THEN 1 ELSE 0 END) as assigned,
-      SUM (CASE WHEN status in ('open') THEN 1 ELSE 0 END) as open,
-      SUM (CASE WHEN status in ('reopen') THEN 1 ELSE 0 END) as reopen,
+      SUM (CASE WHEN applicationstatus in ('CLOSEDAFTERRESOLUTION', 'RESOLVED') and (resolvedtime - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedwithinsla,
+      SUM (CASE WHEN applicationstatus in ('CLOSEDAFTERRESOLUTION', 'RESOLVED') and (resolvedtime - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
+      SUM (CASE WHEN applicationstatus in ('PENDINGATLME', 'PENDINGFORREASSIGNMENT') THEN 1 ELSE 0 END) as assigned,
+      SUM (CASE WHEN applicationstatus in ('PENDINGFORASSIGNMENT') THEN 1 ELSE 0 END) as open,
+      SUM (CASE WHEN applicationstatus in ('REOPEN') THEN 1 ELSE 0 END) as reopen,
       rating    
       from pgr_data
       INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
@@ -2354,7 +2354,7 @@ ReportDefinitions:
       servicerequestid,
       createdtime,
       servicecode,
-      status,
+      applicationstatus,
       tenantid
       from eg_pgr_service_v2 as ps
       where
@@ -2364,8 +2364,8 @@ ReportDefinitions:
         deptmap_def.name as department,
        (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in
         (select designationid from hr_employee_v2_schema.egeis_assignment where isprimary=true and employeeid::varchar=assignee)) as designation,
-        SUM (CASE WHEN status in ('PENDINGATLME', 'PENDINGFORREASSIGNMENT') THEN 1 ELSE 0 END) as assigned,
-        SUM (CASE WHEN status in ('REOPEN') THEN 1 ELSE 0 END) as reopen
+        SUM (CASE WHEN applicationstatus in ('PENDINGATLME', 'PENDINGFORREASSIGNMENT') THEN 1 ELSE 0 END) as assigned,
+        SUM (CASE WHEN applicationstatus in ('REOPEN') THEN 1 ELSE 0 END) as reopen
         from pgr_data
         INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
         INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
@@ -2489,17 +2489,17 @@ ReportDefinitions:
     to_char(to_timestamp(TRUNC(CAST(eg_pgr_service_v2.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofcomplaint,
     to_char(to_timestamp(TRUNC(CAST(epa.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofassignment,
     Initcap(eg_pgr_service_v2.applicationstatus) as status,
-    (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) where code=eg_pgr_address.mohalla) as ward,
+    (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) where code=eg_pgr_address_v2.mohalla) as ward,
     eg_user.name,
     phone,
     eg_pgr_address_v2.landmark,
     eg_pgr_address_v2.housenoandstreetname as address,
     description,
     deptmap_def.name as department,
-    (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000), ' days remaining') END) as slaHours)
+    (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000), ' days remaining') END) as slaHours)
     FROM eg_pgr_service_v2
     left outer join eg_pgr_address_v2 on eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
-    left outer join eg_user on eg_user.uuid = eg_pgr_service.accountid
+    left outer join eg_user on eg_user.uuid = eg_pgr_service_v2.accountid
     left outer join eg_wf_processinstance_v2 as epa on epa.businessId = eg_pgr_service_v2.servicerequestid and epa.action in ('ASSIGN','REASSIGN')
     left outer join eg_wf_assignee_v2 as asg on asg.processinstanceid =  epa.id
     left outer join eg_user as ua on ua.uuid = asg.assignee
@@ -2507,5 +2507,5 @@ ReportDefinitions:
     INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON departmap.department = deptmap_def.code
     WHERE
     eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
-    AND eg_pgr_service_v2.applicationstatus IN ('APPLIED','PENDINGATLME','PENDINGFORREASSIGNMENT','REJECYED')
+    AND eg_pgr_service_v2.applicationstatus IN ('PENDINGFORASSIGNMENT','PENDINGATLME','PENDINGFORREASSIGNMENT','REJECTED')
   orderby: ORDER BY servicerequestid, epa.createdtime desc
