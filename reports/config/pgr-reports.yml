@@ -2240,19 +2240,19 @@ ReportDefinitions:
       order by wf.createdtime desc
       fetch first 1 rows only
       ) as assignee,
-      servicerequestid,
-      createdtime,
-      servicecode,
-      applicationstatus,
-      rating,
-      tenantid,
-      action,
+      ps.servicerequestid,
+      ps.createdtime,
+      ps.servicecode,
+      ps.applicationstatus,
+      ps.rating,
+      ps.tenantid,
+      epa.action,
       (select max(createdtime) from eg_wf_processinstance_v2 where action='RESOLVE' and businessid = servicerequestid) as resolvedtime,
       (select min(createdtime) from eg_wf_processinstance_v2 where action='APPLY' and businessid = servicerequestid) as opentime
       from eg_pgr_service_v2 as ps
       left outer join eg_wf_processinstance_v2 as epa on epa.businessId = ps.servicerequestid
       where
-      tenantid = $tenantid)
+      ps.tenantid = $tenantid)
     select 
       (select name from eg_user where id::varchar = assignee) as employee, 
       deptmap_def.name as department,    
@@ -2353,12 +2353,12 @@ ReportDefinitions:
       order by pa.createdtime desc
       fetch first 1 rows only
       ) as assignee,
-      servicerequestid,
-      createdtime,
-      servicecode,
-      applicationstatus,
-      tenantid,
-      action
+      ps.servicerequestid,
+      ps.createdtime,
+      ps.servicecode,
+      ps.applicationstatus,
+      ps.tenantid,
+      epa.action
       from eg_pgr_service_v2 as ps
       left outer join eg_wf_processinstance_v2 as epa on epa.businessId = ps.servicerequestid
       where
@@ -2495,9 +2495,9 @@ ReportDefinitions:
     Initcap(eg_pgr_service_v2.applicationstatus) as status,
     (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) where code=eg_pgr_address_v2.locality) as ward,
     eg_user.name,
-    phone,
+    eg_user.mobilenumber,
     eg_pgr_address_v2.landmark,
-    eg_pgr_address_v2.housenoandstreetname as address,
+    eg_pgr_address_v2.street as address,
     description,
     deptmap_def.name as department,
     (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000), ' days remaining') END) as slaHours)
