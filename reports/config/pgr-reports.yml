@@ -2246,9 +2246,11 @@ ReportDefinitions:
       applicationstatus,
       rating,
       tenantid,
+      action,
       (select max(createdtime) from eg_wf_processinstance_v2 where action='RESOLVE' and businessid = servicerequestid) as resolvedtime,
       (select min(createdtime) from eg_wf_processinstance_v2 where action='APPLY' and businessid = servicerequestid) as opentime
       from eg_pgr_service_v2 as ps
+      left outer join eg_wf_processinstance_v2 as epa on epa.businessId = ps.servicerequestid
       where
       tenantid = $tenantid)
     select 
@@ -2260,7 +2262,7 @@ ReportDefinitions:
       SUM (CASE WHEN applicationstatus in ('CLOSEDAFTERRESOLUTION', 'RESOLVED') and (resolvedtime - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
       SUM (CASE WHEN applicationstatus in ('PENDINGATLME', 'PENDINGFORREASSIGNMENT') THEN 1 ELSE 0 END) as assigned,
       SUM (CASE WHEN applicationstatus in ('PENDINGFORASSIGNMENT') THEN 1 ELSE 0 END) as open,
-      SUM (CASE WHEN applicationstatus in ('REOPEN') THEN 1 ELSE 0 END) as reopen,
+      SUM (CASE WHEN action in ('REOPEN') THEN 1 ELSE 0 END) as reopen,
       rating    
       from pgr_data
       INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
@@ -2355,17 +2357,19 @@ ReportDefinitions:
       createdtime,
       servicecode,
       applicationstatus,
-      tenantid
+      tenantid,
+      action
       from eg_pgr_service_v2 as ps
+      left outer join eg_wf_processinstance_v2 as epa on epa.businessId = ps.servicerequestid
       where
-      tenantid = $tenantid)
+      ps.tenantid = $tenantid)
       select
         (select name from eg_user where uuid = assignee) as employee,
         deptmap_def.name as department,
        (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in
         (select designationid from hr_employee_v2_schema.egeis_assignment where isprimary=true and employeeid::varchar=assignee)) as designation,
         SUM (CASE WHEN applicationstatus in ('PENDINGATLME', 'PENDINGFORREASSIGNMENT') THEN 1 ELSE 0 END) as assigned,
-        SUM (CASE WHEN applicationstatus in ('REOPEN') THEN 1 ELSE 0 END) as reopen
+        SUM (CASE WHEN action in ('REOPEN') THEN 1 ELSE 0 END) as reopen
         from pgr_data
         INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
         INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
@@ -2489,7 +2493,7 @@ ReportDefinitions:
     to_char(to_timestamp(TRUNC(CAST(eg_pgr_service_v2.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofcomplaint,
     to_char(to_timestamp(TRUNC(CAST(epa.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofassignment,
     Initcap(eg_pgr_service_v2.applicationstatus) as status,
-    (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) where code=eg_pgr_address_v2.mohalla) as ward,
+    (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) where code=eg_pgr_address_v2.locality) as ward,
     eg_user.name,
     phone,
     eg_pgr_address_v2.landmark,
