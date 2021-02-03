@@ -2392,7 +2392,7 @@ ReportDefinitions:
     keyOrder: name,code
     tableName: tbl_def_dept
   - entity: $.TenantBoundary[0].boundary
-    apiURL: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantId
+    apiURL: http://egov-location:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantId
     keyOrder: name,code
     tableName: tbl_boundary
   sourceColumns:
@@ -2490,8 +2490,10 @@ ReportDefinitions:
     Initcap(eg_pgr_service_v2.applicationstatus) as status,
     (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) WHERE boundary_def.code=eg_pgr_address_v2.locality) as ward,
     eg_user.name,
+    eg_user.id,
+    eg_user.tenantid,
     eg_pgr_address_v2.landmark,
-    eg_pgr_address_v2.locality as address,
+    (SELECT eua.address FROM eg_user_address eua WHERE eua.id=eg_user.id AND eua.tenantid=eg_user.tenantid) as address,
     description,
     deptmap_def.name as department,
     (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000), ' days remaining') END) as slaHours)
