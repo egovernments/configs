@@ -2431,11 +2431,6 @@ ReportDefinitions:
     type: string
     source: eg_pgr_service
     total: false
-  - name: phone
-    label: reports.pgr.phone
-    type: string
-    source: eg_pgr_service
-    total: false
   - name: address
     label: reports.pgr.address
     type: string
@@ -2493,11 +2488,10 @@ ReportDefinitions:
     to_char(to_timestamp(TRUNC(CAST(eg_pgr_service_v2.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofcomplaint,
     to_char(to_timestamp(TRUNC(CAST(epa.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofassignment,
     Initcap(eg_pgr_service_v2.applicationstatus) as status,
-    (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) where code=eg_pgr_address_v2.locality) as ward,
+    (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) WHERE boundary_def.code=eg_pgr_address_v2.locality) as ward,
     eg_user.name,
-    eg_user.mobilenumber,
     eg_pgr_address_v2.landmark,
-    eg_pgr_address_v2.street as address,
+    eg_pgr_address_v2.locality as address,
     description,
     deptmap_def.name as department,
     (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000), ' days remaining') END) as slaHours)
