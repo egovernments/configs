@@ -1,0 +1,92 @@
+ReportDefinitions:
+- reportName: EmployeeReport
+  summary: Fetches employee data based on provided search parameters
+  version: 1.0.0
+  moduleName: hrms
+  externalService:
+  - entity: $.MdmsRes.common-masters.Department
+    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=common-masters&masterName=Department&tenantId=$tenantId
+    keyOrder: name,code
+    tableName: tbl_def_dept
+  - entity: $.MdmsRes.common-masters.Designation
+    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=common-masters&masterName=Designation&tenantId=$tenantId
+    keyOrder: name,code
+    tableName: tbl_def_desig
+  sourceColumns:
+  - name: id
+    label: reports.hrms.id
+    type: string
+    source: eg_hrms_employee
+  - name: name
+    label: reports.hrms.name
+    type: string
+    source: eg_hrms_employee
+  - name: role
+    label: reports.hrms.role
+    type: stringarray
+    source: eg_hrms_employee
+  - name: designation
+    label: reports.hrms.designation
+    type: string
+    source: eg_hrms_employee
+  - name: department
+    label: reports.hrms.department
+    type: string
+    source: eg_hrms_employee
+  - name: status
+    label: reports.hrms.status
+    type: string
+    source: eg_hrms_employee
+  searchParams:
+  - name: ulb
+    label: ULB
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+    source: pt
+    wrapper: true
+    isMandatory: true
+    searchClause: AND emp_data.tenantid = $ulb
+  - name: status
+    label: reports.hrms.status
+    type: multivaluelist
+    pattern: 'list://retired:RETIRED,employed:EMPLOYED,permanent:Permanent,approved:APPROVED'
+    source: seva
+    isMandatory: false
+    searchClause: AND emp_data.employeestatus IN ( $status )
+  - name: role
+    label: reports.hrms.role
+    type: multivaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=default&moduleName=ACCESSCONTROL-ROLES&masterName=roles|$.MdmsRes.ACCESSCONTROL-ROLES.roles[*].code|$.MdmsRes.ACCESSCONTROL-ROLES.roles[*].name
+    isMandatory: false
+    searchClause: AND ARRAY[ $role ]::varchar[] <@ emp_data.role
+  - name: deptname
+    label: reports.pgr.dept.name
+    type: multivaluelist
+    source: eg_pgr_service
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=common-masters&masterName=Department|$.MdmsRes.common-masters.Department[*].code|$.MdmsRes.common-masters.Department[*].name
+    isMandatory: false
+    searchClause: AND deptmap_def.code IN ($deptname)
+  query: |
+    WITH emp_data AS (SELECT DISTINCT
+      ehe.id,
+      ehe.uuid,
+      ehe.tenantid,
+      eu.name,
+      (SELECT ARRAY(SELECT er.name from eg_user eu LEFT JOIN eg_userrole eur ON eu.id=eur.userid AND eu.tenantid=eur.tenantid LEFT JOIN eg_role er ON eur.roleid=er.id AND eur.roleidtenantid=er.tenantid WHERE eu.uuid=ehe.uuid)) as role,
+      eha.designation,
+      eha.department,
+      ehe.employeestatus
+      FROM eg_hrms_employee ehe
+      LEFT OUTER JOIN eg_user eu ON ehe.uuid = eu.uuid
+      LEFT OUTER JOIN eg_hrms_assignment eha ON eu.uuid = eha.employeeid)
+    SELECT emp_data.id as id,
+      emp_data.name as name,
+      emp_data.role as role,
+      desigmap_def.name as designation,
+      deptmap_def.name as department,
+      emp_data.employeestatus as status
+    FROM emp_data
+    INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap_def.code=emp_data.department
+    INNER JOIN (VALUES tbl_def_desig) AS desigmap_def(name,code) ON desigmap_def.code=emp_data.designation
+    WHERE 1=1
+  order by: ehe.id ASC
