@@ -2497,7 +2497,7 @@ ReportDefinitions:
     description,
     deptmap_def.name as department,
     (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000), ' days remaining') END) as slaHours)
-    FROM eg_pgr_service_v2
+    FROM eg_pgr_service_v2 eps
     left outer join eg_pgr_address_v2 on eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
     left outer join eg_user on eg_user.uuid = eg_pgr_service_v2.accountid
     left outer join eg_wf_processinstance_v2 as epa on epa.businessId = eg_pgr_service_v2.servicerequestid and epa.action in ('ASSIGN','REASSIGN')
