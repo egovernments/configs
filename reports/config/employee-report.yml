@@ -59,7 +59,7 @@ ReportDefinitions:
     type: multivaluelist
     pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=default&moduleName=ACCESSCONTROL-ROLES&masterName=roles|$.MdmsRes.ACCESSCONTROL-ROLES.roles[*].code|$.MdmsRes.ACCESSCONTROL-ROLES.roles[*].name
     isMandatory: false
-    searchClause: AND ARRAY[ $role ]::varchar[] <@ emp_data.role
+    searchClause: AND ARRAY[ $role ]::varchar[] && emp_data.rolecodes::varchar[]
   - name: deptname
     label: reports.pgr.dept.name
     type: multivaluelist
@@ -74,6 +74,7 @@ ReportDefinitions:
       ehe.tenantid,
       eu.name,
       (SELECT ARRAY(SELECT er.name from eg_user eu LEFT JOIN eg_userrole eur ON eu.id=eur.userid AND eu.tenantid=eur.tenantid LEFT JOIN eg_role er ON eur.roleid=er.id AND eur.roleidtenantid=er.tenantid WHERE eu.uuid=ehe.uuid)) as role,
+      (SELECT ARRAY(SELECT er.code from eg_user eu LEFT JOIN eg_userrole eur ON eu.id=eur.userid AND eu.tenantid=eur.tenantid LEFT JOIN eg_role er ON eur.roleid=er.id AND eur.roleidtenantid=er.tenantid WHERE eu.uuid=ehe.uuid)) as rolecodes,
       eha.designation,
       eha.department,
       ehe.employeestatus
