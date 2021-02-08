@@ -2234,9 +2234,10 @@ ReportDefinitions:
     searchClause: AND deptmap_def.code = $deptname
   query: |
     with pgr_data as (select  
-      (select asg.assignee from eg_wf_assignee_v2 asg LEFT OUTER JOIN eg_wf_processinstance_v2 wf ON wf.id = asg.processinstanceid  where
+      (select wf.createdby from eg_wf_processinstance_v2 wf where
       wf.businessid = ps.servicerequestid
-      and wf."action" in ('ASSIGN', 'REASSIGN')
+      and wf."action" in ('RESOLVE', 'REASSIGN')
+      and wf.createdby NOT IN (SELECT eu.uuid from eg_user eu LEFT JOIN eg_userrole eur ON eu.id=eur.userid AND eu.tenantid=eur.tenantid LEFT JOIN eg_role er ON eur.roleid=er.id AND eur.roleidtenantid=er.tenantid WHERE er.name LIKE '%Grievance Routing Officer')
       order by wf.createdtime desc
       fetch first 1 rows only
       ) as assignee,
@@ -2254,7 +2255,7 @@ ReportDefinitions:
       where
       ps.tenantid = $tenantid)
     select 
-      (select name from eg_user where id::varchar = assignee) as employee, 
+      (select name from eg_user where uuid = assignee) as employee,
       deptmap_def.name as department,    
       (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in 
       (select designationid from hr_employee_v2_schema.egeis_assignment where isprimary=true and employeeid::varchar=assignee)) as designation,   
@@ -2268,7 +2269,7 @@ ReportDefinitions:
       INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
       INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
       WHERE 1=1
-  orderby: ORDER BY assignee NULLS FIRST,deptmap_def.name,rating
+  orderby: ORDER BY assignee NULLS LAST,deptmap_def.name,rating
   groupby: GROUP BY assignee,deptmap_def.name,rating
   
 - reportName: GROPerformanceReport
@@ -2345,8 +2346,7 @@ ReportDefinitions:
     searchClause: AND deptmap_def.code = $deptname
   query: |
     with pgr_data as (select  
-      (select asg.assignee from eg_wf_processinstance_v2 pa
-        LEFT OUTER JOIN eg_wf_assignee_v2 asg ON asg.processinstanceid = pa.id where
+      (select pa.createdby from eg_wf_processinstance_v2 pa where
       pa.businessId = ps.servicerequestid
       and pa."action" in ('ASSIGN', 'REASSIGN')
       and pa.createdby IN (SELECT eu.uuid from eg_user eu LEFT JOIN eg_userrole eur ON eu.id=eur.userid AND eu.tenantid=eur.tenantid LEFT JOIN eg_role er ON eur.roleid=er.id AND eur.roleidtenantid=er.tenantid WHERE er.name LIKE '%Grievance Routing Officer')
@@ -2374,7 +2374,7 @@ ReportDefinitions:
         INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
         INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
          WHERE 1=1
-  orderby: ORDER BY assignee NULLS FIRST,deptmap_def.name
+  orderby: ORDER BY assignee NULLS LAST,deptmap_def.name
   groupby: GROUP BY assignee,deptmap_def.name
 
 - reportName: DescriptionReport
