@@ -73,14 +73,15 @@ ReportDefinitions:
       ehe.uuid,
       ehe.tenantid,
       eu.name,
-      (SELECT ARRAY(SELECT er.name from eg_user eu LEFT JOIN eg_userrole eur ON eu.id=eur.userid AND eu.tenantid=eur.tenantid LEFT JOIN eg_role er ON eur.roleid=er.id AND eur.roleidtenantid=er.tenantid WHERE eu.uuid=ehe.uuid)) as role,
-      (SELECT ARRAY(SELECT er.code from eg_user eu LEFT JOIN eg_userrole eur ON eu.id=eur.userid AND eu.tenantid=eur.tenantid LEFT JOIN eg_role er ON eur.roleid=er.id AND eur.roleidtenantid=er.tenantid WHERE eu.uuid=ehe.uuid)) as rolecodes,
+      (SELECT ARRAY(SELECT DISTINCT er.name from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN eg_role er ON eur.role_code=er.code AND eur.role_tenantid=er.tenantid WHERE eu.uuid=ehe.uuid AND er.name IS NOT NULL)) as role,
+      (SELECT ARRAY(SELECT DISTINCT er.code from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN eg_role er ON eur.role_code=er.code AND eur.role_tenantid=er.tenantid WHERE eu.uuid=ehe.uuid AND er.code IS NOT NULL)) as rolecodes,
       eha.designation,
       eha.department,
       ehe.employeestatus
       FROM eg_hrms_employee ehe
       LEFT OUTER JOIN eg_user eu ON ehe.uuid = eu.uuid
-      LEFT OUTER JOIN eg_hrms_assignment eha ON eu.uuid = eha.employeeid)
+      LEFT OUTER JOIN eg_hrms_assignment eha ON eu.uuid = eha.employeeid
+      WHERE eu.active = true)
     SELECT emp_data.id as id,
       emp_data.name as name,
       ARRAY_TO_STRING(emp_data.role, ',') as role,
