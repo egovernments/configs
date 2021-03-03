@@ -13,6 +13,10 @@ ReportDefinitions:
     apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=common-masters&masterName=Designation&tenantId=$tenantId
     keyOrder: name,code
     tableName: tbl_def_desig
+  - entity: $.MdmsRes.ACCESSCONTROL-ROLES.roles
+    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=ACCESSCONTROL-ROLES&masterName=roles&tenantId=$tenantId
+    keyOrder: name,code
+    tableName: tbl_def_roles
   sourceColumns:
   - name: id
     label: reports.hrms.id
@@ -73,8 +77,8 @@ ReportDefinitions:
       ehe.uuid,
       ehe.tenantid,
       eu.name,
-      (SELECT ARRAY(SELECT DISTINCT er.name from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN eg_role er ON eur.role_code=er.code AND eur.role_tenantid=er.tenantid WHERE eu.uuid=ehe.uuid AND er.name IS NOT NULL)) as role,
-      (SELECT ARRAY(SELECT DISTINCT er.code from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN eg_role er ON eur.role_code=er.code AND eur.role_tenantid=er.tenantid WHERE eu.uuid=ehe.uuid AND er.code IS NOT NULL)) as rolecodes,
+      (SELECT ARRAY(SELECT DISTINCT er.name from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE eu.uuid=ehe.uuid AND er.name IS NOT NULL)) as role,
+      (SELECT ARRAY(SELECT DISTINCT er.code from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE eu.uuid=ehe.uuid AND er.code IS NOT NULL)) as rolecodes,
       eha.designation,
       eha.department,
       ehe.employeestatus
