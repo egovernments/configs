@@ -2157,7 +2157,11 @@ ReportDefinitions:
   - entity: $.MdmsRes.common-masters.Designation
     apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=common-masters&masterName=Designation&tenantId=$tenantId
     keyOrder: name,code
-    tableName: tbl_def_desig 
+    tableName: tbl_def_desig
+  - entity: $.MdmsRes.ACCESSCONTROL-ROLES.roles
+    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=ACCESSCONTROL-ROLES&masterName=roles&tenantId=$tenantId
+    keyOrder: name,code
+    tableName: tbl_def_roles 
   sourceColumns:
   - name: employee
     label: reports.pgr.employee
@@ -2237,7 +2241,7 @@ ReportDefinitions:
       (select wf.createdby from eg_wf_processinstance_v2 wf where
       wf.businessid = ps.servicerequestid
       and wf."action" in ('RESOLVE', 'REASSIGN')
-      and wf.createdby NOT IN (SELECT eu.uuid from eg_user eu LEFT JOIN eg_userrole eur ON eu.id=eur.userid AND eu.tenantid=eur.tenantid LEFT JOIN eg_role er ON eur.roleid=er.id AND eur.roleidtenantid=er.tenantid WHERE er.name LIKE '%Grievance Routing Officer')
+      and wf.createdby NOT IN (SELECT eu.uuid from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE er.name IS NOT NULL AND er.name LIKE '%Grievance Routing Officer')
       order by wf.createdtime desc
       fetch first 1 rows only
       ) as assignee,
@@ -2289,7 +2293,11 @@ ReportDefinitions:
   - entity: $.MdmsRes.common-masters.Designation
     apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=common-masters&masterName=Designation&tenantId=$tenantId
     keyOrder: name,code
-    tableName: tbl_def_desig  
+    tableName: tbl_def_desig
+  - entity: $.MdmsRes.ACCESSCONTROL-ROLES.roles
+    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=ACCESSCONTROL-ROLES&masterName=roles&tenantId=$tenantId
+    keyOrder: name,code
+    tableName: tbl_def_roles 
   sourceColumns:
   - name: employee
     label: reports.pgr.employee
@@ -2349,7 +2357,7 @@ ReportDefinitions:
       (select pa.createdby from eg_wf_processinstance_v2 pa where
       pa.businessId = ps.servicerequestid
       and pa."action" in ('ASSIGN', 'REASSIGN')
-      and pa.createdby IN (SELECT eu.uuid from eg_user eu LEFT JOIN eg_userrole eur ON eu.id=eur.userid AND eu.tenantid=eur.tenantid LEFT JOIN eg_role er ON eur.roleid=er.id AND eur.roleidtenantid=er.tenantid WHERE er.name LIKE '%Grievance Routing Officer')
+      and pa.createdby IN (SELECT eu.uuid from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE er.name IS NOT NULL AND er.name LIKE '%Grievance Routing Officer')
       order by pa.createdtime desc
       fetch first 1 rows only
       ) as assignee,
