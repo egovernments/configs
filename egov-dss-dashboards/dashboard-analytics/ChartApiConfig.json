@@ -4268,7 +4268,7 @@
       {
         "module": "FSM",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"terms\":{\"Data.fsm.applicationStatus\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}},{\"range\":{\"Data.history.businesssServiceSla\":{\"gt\":0}}}]}}}}}",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"SLA Complaince\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}},{\"range\":{\"Data.history.businesssServiceSla\":{\"gt\":0}}}]}}}}}}}",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "dateRefField": "Data.fsm.@timestamp"
       }
@@ -4423,6 +4423,31 @@
     },
     "_comment": " "
   },
+  "fsmTotalCumulativeCollection": {
+    "chartName": "DSS_FSM_TOTAL_CUMULATIVE_COLLECTION",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.fsm.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Total Collection\":{\"date_histogram\":{\"field\":\"Data.fsm.@timestamp\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"Data.payments.paymentDetails.bill.billDetails.amountPaid\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "Total Collection"
+    ],
+    "isCumulative": true,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": " "
+  },
   "fstpCapacityUtilization": {
     "chartName": "DSS_FSTP_CAPACITY_UTILIZATION",
     "queries": [
@@ -4442,6 +4467,117 @@
     "drillChart": "none",
     "aggregationPaths": [
       "Capacity Utilization"
+    ],
+    "insight": {
+    },
+    "_comment": " "
+  },
+  "fsmMonthlyWasteCollectedVsDumped": {
+    "chartName": "DSS_FSM_MONTHLY_WASTE_COLL_VS_DUMPED",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.fsm.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Waste Dumped at Yard\":{\"date_histogram\":{\"field\":\"Data.fsm.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"Data.vehicleTrip.tripDetails.volume\"}}}},\"Waste Collected\":{\"date_histogram\":{\"field\":\"Data.fsm.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"Data.fsm.wasteCollected\"}}}}}}}}"
+      }
+    ],
+    "translateTenantCode": true,
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Waste Collected",
+      "Waste Dumped"
+    ],
+    "insight": {
+    },
+    "_comment": " "
+  },
+  "fsmTotalRquByWard": {
+    "chartName": "DSS_FSM_TOTAL_REQ_BY_WARD",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.fsm.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Closed Application\":{\"filter\":{\"terms\":{\"Data.fsm.applicationStatus\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantData.code.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantData.code.keyword\"}}}}}},\"Open Application\":{\"filter\":{\"bool\":{\"must_not\":{\"terms\":{\"Data.fsm.applicationStatus\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\",\"REJECTED\",\"CANCELED\"]}}}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantData.code.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantData.code.keyword\"}}}}}},\"Total Application\":{\"filter\":{\"exists\":{\"field\":\"Data.fsm.@timestamp\"}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantData.code.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantData.code.keyword\"}}}}}},\"Completion rate\":{\"filter\":{\"terms\":{\"Data.fsm.applicationStatus\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}},\"SLA Complaince\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}},{\"range\":{\"Data.history.businesssServiceSla\":{\"gt\":0}}}]}}},\"Total Collection\":{\"sum\":{\"field\":\"Data.payments.paymentDetails.bill.billDetails.amountPaid\"}}}}}}"
+      }
+    ],
+    "chartType": "table",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "plotLabel":"No of trips",
+    "aggregationPaths": [
+      "Closed Request",
+      "Open Request",
+      "Total Request",
+      "Completion Rate",
+      "SLA Compliance",
+      "Total Collection"
+      ],
+    "PathDataTypeMapping": [
+      {
+        "Closed Request" : "number"
+      },
+      {
+        "Open Request" : "number"
+      },
+      {
+        "Total Request" : "number"
+      },
+      {
+        "Completion Rate":"percentage"
+      },
+      {
+        "SLA Compliance" : "number" 
+      },
+      {
+        "Total Collection" : "amount"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": " "
+  },
+  "fsmVehicleLogReport": {
+    "chartName": "DSS_FSM_VECHILE_LOG_REPORT",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.fsm.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"No Of Trips\":{\"sum\":{\"field\":\"Data.fsm.noOfTrips\"}},\"Total Waste Collected\":{\"sum\":{\"field\":\"Data.fsm.wasteCollected\"}},\"Total Waste Dumped\":{\"sum\":{\"field\":\"Data.vehicleTrip.tripDetails.volume\"}}}}}}"
+      }
+    ],
+    "chartType": "table",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "plotLabel":"No of trips",
+    "aggregationPaths": [
+      "No Of trips",
+      "Total Waste Dumped",
+      "Total Waste Collected"
+    ],
+    "PathDataTypeMapping": [
+      {
+        "No Of trips" : "number"
+      },
+      {
+        "Total Waste Dumped" : "number"
+      },
+      {
+        "Total Waste Collected" : "number"
+      }
     ],
     "insight": {
     },
