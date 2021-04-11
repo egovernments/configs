@@ -4448,7 +4448,7 @@
     },
     "_comment": " "
   },
-  "fstpCapacityUtilization": {
+  "fsmCapacityUtilization": {
     "chartName": "DSS_FSTP_CAPACITY_UTILIZATION",
     "queries": [
       {
@@ -4472,8 +4472,8 @@
     },
     "_comment": " "
   },
-  "fsmMonthlyWasteCollectedVsDumped": {
-    "chartName": "DSS_FSM_MONTHLY_WASTE_COLL_VS_DUMPED",
+  "fsmMonthlyWasteCal": {
+    "chartName": "DSS_FSM_MONTHLY_WASTE_CAL",
     "queries": [
       {
         "module": "FSM",
@@ -4492,6 +4492,55 @@
     "aggregationPaths": [
       "Waste Collected",
       "Waste Dumped"
+    ],
+    "insight": {
+    },
+    "_comment": " "
+  },
+  "fsmTotalReqByWard": {
+    "chartName": "DSS_FSM_TOTAL_REQ_BY_WARD",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.fsm.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Closed Application\":{\"filter\":{\"terms\":{\"Data.fsm.applicationStatus\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantData.code.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantData.code.keyword\"}}}}}},\"Open Application\":{\"filter\":{\"bool\":{\"must_not\":{\"terms\":{\"Data.fsm.applicationStatus\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\",\"REJECTED\",\"CANCELED\"]}}}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantData.code.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantData.code.keyword\"}}}}}},\"Total Application\":{\"value_count\":{\"field\":\"Data.fsm.@timestamp\"}},\"Completion rate\":{\"filter\":{\"terms\":{\"Data.fsm.applicationStatus\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}},\"SLA Complaince\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}},{\"range\":{\"Data.history.businesssServiceSla\":{\"gt\":0}}}]}}},\"Total Collection\":{\"sum\":{\"field\":\"Data.payments.paymentDetails.bill.billDetails.amountPaid\"}}}}}}"
+      }
+    ],
+    "chartType": "table",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "plotLabel":"Closed Application",
+    "aggregationPaths": [
+      "Closed Application",
+      "Open Application",
+      "Total Application",
+      "SLA Compliance",
+      "Completion Rate",
+      "Total Collection"
+      ],
+    "PathDataTypeMapping": [
+      {
+        "Closed Application" : "number"
+      },
+      {
+        "Open Application" : "number"
+      },
+      {
+        "Total Application" : "number"
+      },
+      {
+        "Completion Rate": "number"
+      },
+      {
+        "SLA Compliance" : "number" 
+      },
+      {
+        "Total Collection" : "amount"
+      }
     ],
     "insight": {
     },
