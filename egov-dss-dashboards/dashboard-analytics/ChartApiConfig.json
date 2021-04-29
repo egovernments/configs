@@ -4268,7 +4268,7 @@
       {
         "module": "FSM",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gte\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed Within Sla\":{\"filters\":{\"filters\":{\"Closed Within SLA\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gte\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}}}}}}}}}",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Closed With In Sla\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gt\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.fsm.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}},\"Total Applications\":{\"terms\":{\"field\":\"Data.fsm.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}}}}",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "dateRefField": "Data.fsm.@timestamp"
       }
@@ -4279,10 +4279,11 @@
     "documentType": "_doc",
     "action": "percentage",
     "aggregationPaths": [
-      "Closed Within Sla"
+      "Closed With In Sla",
+      "Total Applications"
     ],
     "insight": {
-      "chartResponseMap" : "closedWithinSla",
+      "chartResponseMap" : "slaCompliance",
       "action" : "differenceOfNumbers",
       "upwardIndicator" : "positive",
       "downwardIndicator" : "negative",
