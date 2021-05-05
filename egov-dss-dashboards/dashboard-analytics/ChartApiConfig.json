@@ -4528,17 +4528,57 @@
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Closed_Applications\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Opened_Applications\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Opened Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Total Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Total Collection\":{\"sum\":{\"field\":\"Data.payments.paymentDetails.bill.billDetails.amountPaid\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gt\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed With In Sla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"Data.fsm.tenantId.keyword\",\"size\":1000},\"aggs\":{\"Closed_Applications\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Opened_Applications\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Opened Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Total Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Total Collection\":{\"sum\":{\"field\":\"Data.payments.paymentDetails.bill.billDetails.amountPaid\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gt\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed With In Sla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}}}}}}"
       }
     ],
     "isMdmsEnabled": true,
     "filterKeys": [
-      {"key": "tenantId", "column": "ULB"}
+      {"key": "tenantId", "column": "Boundary"}
     ],
     "chartType": "xtable",
     "valueType": "number",
-    "drillChart": "fsmVehicleLogReport",
-    "plotLabel": "ULB",
+    "drillChart": "fsmTotalReqByWardByWard",
+    "plotLabel": "Boundary",
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Closed Applications", "Total Applications"],
+        "newField" : "FSM Completion Rate",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Closed With In Sla","Total Applications"],
+        "newField" : "Sla Compliance",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {
+    },
+    "_comment": " "
+  },
+  "fsmTotalReqByWardByWard": {
+    "chartName": "DSS_FSM_TOTAL_REQ_BY_WARD",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.fsm.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"Data.ward.name.keyword\",\"size\":1000},\"aggs\":{\"Closed_Applications\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Opened_Applications\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Opened Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Total Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Total Collection\":{\"sum\":{\"field\":\"Data.payments.paymentDetails.bill.billDetails.amountPaid\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gt\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed With In Sla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": true,
+    "filterKeys": [
+      {"key": "wardId", "column": "Ward"},
+      {"key": "ulbId", "column": "ULB"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "plotLabel": "Ward",
     "computedFields": [
       {
         "postAggregationTheory" : "",
@@ -4567,12 +4607,57 @@
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"No Of Trips\":{\"terms\":{\"field\":\"Data.tenantData.city.name.keyword\"},\"aggs\":{\"Assessed Properties\":{\"sum\":{\"field\":\"Data.fsm.noOfTrips\"}}}},\"Total Waste Collected\":{\"terms\":{\"field\":\"Data.tenantData.city.name.keyword\"},\"aggs\":{\"Assessed Properties\":{\"sum\":{\"field\":\"Data.vehicleTrip.tripDetails.volume\"}}}},\"Total Waste Dumped\":{\"terms\":{\"field\":\"Data.tenantData.city.name.keyword\"},\"aggs\":{\"Assessed Properties\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"Data.fsm.tenantId.keyword\",\"size\":1000},\"aggs\":{\"No Of Trips\":{\"sum\":{\"field\":\"Data.fsm.noOfTrips\"}},\"Total Waste Collected\":{\"sum\":{\"field\":\"Data.vehicleTrip.tripDetails.volume\"}},\"Total Waste Dumped\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}}}"
       }
     ],
     "isMdmsEnabled": true,
     "filterKeys": [
-      {"key": "tenantId", "column": "ULB"}
+      {"key": "tenantId", "column": "Boundary"}
+    ],
+    "isPostResponseHandler": true,
+    "chartType": "table",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "fsmVehicleLogReportByWard",
+    "plotLabel":"Boundary",
+    "aggregationPaths": [
+      "No Of Trips",
+      "Total Waste Dumped",
+      "Total Waste Collected"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "No Of Trips" : "number"
+      },
+      {
+        "Total Waste Dumped" : "number"
+      },
+      {
+        "Total Waste Collected" : "number"
+      }
+    ],
+    "isCumulative": true,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": " "
+  },
+  "fsmVehicleLogReportByWard": {
+    "chartName": "DSS_FSM_VECHILE_LOG_REPORT",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.fsm.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward \":{\"terms\":{\"field\":\"Data.ward.name.keyword\",\"size\":1000},\"aggs\":{\"No Of Trips\":{\"sum\":{\"field\":\"Data.fsm.noOfTrips\"}},\"Total Waste Collected\":{\"sum\":{\"field\":\"Data.vehicleTrip.tripDetails.volume\"}},\"Total Waste Dumped\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": true,
+    "filterKeys": [
+      {"key": "wardId", "column": "Ward"},
+      {"key": "ulbId", "column": "ULB"}
     ],
     "isPostResponseHandler": true,
     "chartType": "table",
@@ -4580,7 +4665,7 @@
     "action": "",
     "documentType": "_doc",
     "drillChart": "none",
-    "plotLabel":"ULB",
+    "plotLabel":"Ward",
     "aggregationPaths": [
       "No Of Trips",
       "Total Waste Dumped",
