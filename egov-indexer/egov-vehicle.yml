@@ -1,0 +1,247 @@
+ServiceMaps:
+ serviceName: vehicle
+ version: 1.0.0
+ mappings:
+  - topic: save-vehicle-application
+    configKey: INDEX
+    indexes:
+    - name: vehicle
+      type: vehicleapplication
+      id: $.id, $.tenantId
+      isBulk: false
+      timeStampField: $.auditDetails.createdTime
+      jsonPath: $.vehicle
+      customJsonMapping:
+        indexMapping: {"Data":{"vehicle":{},"ward":{},"tenantData":{}, "history":{},"vehicleTrip":{}}}
+        fieldMapping:
+        - inJsonPath: $
+          outJsonPath: $.Data.vehicle
+        externalUriMapping:
+        - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
+          queryParam: hierarchyTypeCode=REVENUE,boundaryType=locality,codes=$.address.locality.code,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.TenantBoundary[0].boundary[0]
+            outJsonPath: $.Data.ward
+        - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+          queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.ProcessInstances
+            outJsonPath: $.Data.history
+        - path: http://collection-services:8080/collection-services/payments/FSM.TRIP_CHARGES/_search
+          queryParam: consumerCodes=$.applicationNo,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"FSM_EDITOR_EMP","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.Payments
+            outJsonPath: $.Data.payments
+        - path: http://vehicle.egov:8080/vehicle/trip/v1/_search
+          queryParam: refernceNos=$.applicationNo,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"},{"name":"FSTP OPERATOR","code":"FSM_EMP_FSTPO","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.vehicleTrip
+            outJsonPath: $.Data.vehicleTrip
+        mdmsMapping:
+        - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+          moduleName: tenant
+          masterName: tenants
+          tenantId: pb
+          filter: "[?(@.code == $tenant)]"
+          filterMapping:
+          - variable: $tenant
+            valueJsonpath: $.tenantId
+          uriResponseMapping:
+          - inJsonPath: $.MdmsRes.tenant.tenants
+            outJsonPath: $.Data.tenantData
+          
+          
+          
+  - topic: update-vehicle-application
+    configKey: INDEX
+    indexes:
+    - name: vehicle
+      type: vehicleapplication
+      id: $.id, $.tenantId
+      isBulk: false
+      timeStampField: $.auditDetails.createdTime
+      jsonPath: $.vehicle
+      customJsonMapping:
+        indexMapping: {"Data":{"vehicle":{},"ward":{},"tenantData":{}, "history":{},"vehicleTrip":{}}}
+        fieldMapping:
+        - inJsonPath: $
+          outJsonPath: $.Data.registrationNumber
+        externalUriMapping:
+        - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
+          queryParam: hierarchyTypeCode=REVENUE,boundaryType=locality,codes=$.address.locality.code,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.TenantBoundary[0].boundary[0]
+            outJsonPath: $.Data.ward
+        - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+          queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.ProcessInstances
+            outJsonPath: $.Data.history
+        - path: http://fsm.egov:8080/fsm/v1/_search
+          queryParam: applicationNos=$.applicationNo,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"},{"name":"FSTP OPERATOR","code":"FSM_EMP_FSTPO","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.fsm
+            outJsonPath: $.Data.fsm
+        mdmsMapping:
+        - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+          moduleName: tenant
+          masterName: tenants
+          tenantId: pb
+          filter: "[?(@.code == $tenant)]"
+          filterMapping:
+          - variable: $tenant
+            valueJsonpath: $.tenantId
+          uriResponseMapping:
+          - inJsonPath: $.MdmsRes.tenant.tenants
+            outJsonPath: $.Data.tenantData
+          
+
+          
+  - topic: save-vehicle-trip
+    configKey: INDEX
+    indexes:
+    - name: vehicletrip
+      type: vehicletripapplication
+      id: $.id, $.tenantId
+      isBulk: false
+      timeStampField: $.auditDetails.createdTime
+      jsonPath: $.vehicle
+      customJsonMapping:
+        indexMapping: {"Data":{"vehicleTrip":{},"ward":{},"tenantData":{}, "history":{},"fsm":{}}}
+        fieldMapping:
+        - inJsonPath: $
+          outJsonPath: $.Data.tripOwner
+        externalUriMapping:
+        - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
+          queryParam: hierarchyTypeCode=REVENUE,boundaryType=locality,codes=$.address.locality.code,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.TenantBoundary[0].boundary[0]
+            outJsonPath: $.Data.ward
+        - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+          queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.ProcessInstances
+            outJsonPath: $.Data.history
+        - path: http://fsm.egov:8080/fsm/v1/_search
+          queryParam: applicationNos=$.applicationNo,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"},{"name":"FSTP OPERATOR","code":"FSM_EMP_FSTPO","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.fsm
+            outJsonPath: $.Data.fsm
+        mdmsMapping:
+        - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+          moduleName: tenant
+          masterName: tenants
+          tenantId: pb
+          filter: "[?(@.code == $tenant)]"
+          filterMapping:
+          - variable: $tenant
+            valueJsonpath: $.tenantId
+          uriResponseMapping:
+          - inJsonPath: $.MdmsRes.tenant.tenants
+            outJsonPath: $.Data.tenantData
+          
+
+
+  - topic: update-vehicle-trip
+    configKey: INDEX
+    indexes:
+    - name: vehicletrip
+      type: vehicletripapplication
+      id: $.id, $.tenantId
+      isBulk: false
+      timeStampField: $.auditDetails.createdTime
+      jsonPath: $.vehicleTrip
+      customJsonMapping:
+        indexMapping: {"Data":{"vehicleTrip":{},"ward":{},"tenantData":{}, "history":{},"fsm":{}}}
+        fieldMapping:
+        - inJsonPath: $
+          outJsonPath: $.Data.tripOwner
+        externalUriMapping:
+        - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
+          queryParam: hierarchyTypeCode=REVENUE,boundaryType=locality,codes=$.address.locality.code,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.TenantBoundary[0].boundary[0]
+            outJsonPath: $.Data.ward
+        - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+          queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.ProcessInstances
+            outJsonPath: $.Data.history
+        - path: http://fsm.egov:8080/fsm/v1/_search
+          queryParam: applicationNos=$.applicationNo,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"},{"name":"FSTP OPERATOR","code":"FSM_EMP_FSTPO","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.fsm
+            outJsonPath: $.Data.fsm
+        mdmsMapping:
+        - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+          moduleName: tenant
+          masterName: tenants
+          tenantId: pb
+          filter: "[?(@.code == $tenant)]"
+          filterMapping:
+          - variable: $tenant
+            valueJsonpath: $.tenantId
+          uriResponseMapping:
+          - inJsonPath: $.MdmsRes.tenant.tenants
+            outJsonPath: $.Data.tenantData
+
+
+  - topic: update-workflow-vehicle-trip
+    configKey: INDEX
+    indexes:
+    - name: vehicletrip
+      type: vehicletripapplication
+      id: $.id, $.tenantId
+      isBulk: false
+      timeStampField: $.auditDetails.createdTime
+      jsonPath: $.vehicleTrip
+      customJsonMapping:
+        indexMapping: {"Data":{"vehicleTrip":{},"ward":{},"tenantData":{}, "history":{},"fsm":{}}}
+        fieldMapping:
+        - inJsonPath: $
+          outJsonPath: $.Data.vehicletrip
+        externalUriMapping:
+        - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
+          queryParam: hierarchyTypeCode=REVENUE,boundaryType=locality,codes=$.address.locality.code,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.TenantBoundary[0].boundary[0]
+            outJsonPath: $.Data.ward
+        - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+          queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.ProcessInstances
+            outJsonPath: $.Data.history
+        - path: http://fsm.egov:8080/fsm/v1/_search
+          queryParam: applicationNos=$.applicationNo,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"},{"name":"FSTP OPERATOR","code":"FSM_EMP_FSTPO","tenantId":"pb.amritsar"}]}}}
+          uriResponseMapping:
+          - inJsonPath: $.fsm
+            outJsonPath: $.Data.fsm
+        mdmsMapping:
+        - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+          moduleName: tenant
+          masterName: tenants
+          tenantId: pb
+          filter: "[?(@.code == $tenant)]"
+          filterMapping:
+          - variable: $tenant
+            valueJsonpath: $.tenantId
+          uriResponseMapping:
+          - inJsonPath: $.MdmsRes.tenant.tenants
+            outJsonPath: $.Data.tenantData
+                 
