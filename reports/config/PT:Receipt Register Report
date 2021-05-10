@@ -1,0 +1,84 @@
+---
+ReportDefinitions:
+- reportName: ReceiptRegister
+  summary: Report is used for audit, day-end, and year-end finance reconciliation activities 
+  version: 1.0.0
+  moduleName: rainmaker-pt
+  sourceColumns:
+  - name: S.No
+    label: reports.pt.sNo.
+    type: string
+    source: pt
+    total: false
+  - name: challannumber
+    label: reports.pt.challanNo
+    type: string
+    source: pt
+    total: false
+  - name: receiptnumber
+    label: reports.pt.receiptNo
+    type: string
+    source: pt
+    total: false
+  - name: receiptdate
+    label: reports.pt.receiptDate
+    type: string
+    source: pt
+    total: false
+  - name: consumerName
+    label: reports.pt.consumerName
+    type: string
+    source: pt
+    total: false
+  - name: amountCollected
+    label: reports.pt.amountCollected
+    type: string
+    source: pt
+    total: false
+  - name: payerName
+    label: reports.pt.payerName
+    type: string
+    source: pt
+    total: true
+  - name: transactionNo
+    label: reports.pt.transactionNo
+    type: string
+    source: pt
+    total: true
+  - name: chequeNo
+    label: reports.pt.chequeNo
+    type: string
+    source: pt
+    total: true
+  searchParams:
+  - name: fromDate
+    label: reports.pt.fromDate
+    type: epoch
+    source: pt
+    isMandatory: true
+    searchClause: AND rh.receiptdate >= $fromDate
+  - name: toDate
+    label: reports.pt.toDate
+    type: epoch
+    source: pt
+    isMandatory: true
+    searchClause: AND rh.receiptdate <= $toDate
+  - name: receiptstatus
+    label: Receipt Status
+    type: singlevaluelist
+    pattern: 'list://Open:Open,Closed:Closed,Assigned:Assigned,Rejected:Rejected,Reassigned:Reassigned'
+    source: pt
+    isMandatory: false
+    searchClause: AND collectorName = $collectorName
+  - name: collectorName
+    label: Collector Name
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=egf-master&masterName=FinancialYear|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].code|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].name
+    source: pt
+    wrapper: true
+    isMandatory: false
+  query: |
+      
+      SELECT paymentid AS challanno,receiptnumber,payername,To_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') AS receiptdate,
+      transactionnumber,totalamountpaid,paymentmode FROM egcl_payment AS ep
+      JOIN egcl_paymentdetail AS ed ON ep.tenantid = ed.tenantid  ;
