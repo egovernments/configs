@@ -2255,7 +2255,7 @@ ReportDefinitions:
       (select name from eg_user where id::varchar = assignee) as employee, 
       deptmap_def.name as department,    
       (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in 
-      (select designationid from hr_employee_v2_schema.egeis_assignment where isprimary=true and employeeid::varchar=assignee)) as designation,   
+      (select designation from eg_hrms_assignment where iscurrentassignment=true and employeeid::varchar=(select uuid from eg_user where id::varchar = assignee))) as designation,   
       SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedwithinsla,
       SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
       SUM (CASE WHEN status in ('assigned', 'reassignrequested') THEN 1 ELSE 0 END) as assigned,
@@ -2362,7 +2362,7 @@ ReportDefinitions:
       (select name from eg_user where id::varchar = assignee) as employee, 
       deptmap_def.name as department,    
      (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in 
-      (select designationid from hr_employee_v2_schema.egeis_assignment where isprimary=true and employeeid::varchar=assignee)) as designation, 
+      (select designation from eg_hrms_assignment where iscurrentassignment=true and employeeid::varchar=(select uuid from eg_user where id::varchar = assignee))) as designation, 
       SUM (CASE WHEN status in ('assigned', 'reassignrequested') THEN 1 ELSE 0 END) as assigned,
       SUM (CASE WHEN status in ('reopen') THEN 1 ELSE 0 END) as reopen      
       from pgr_data
