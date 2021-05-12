@@ -1,5 +1,5 @@
 ReportDefinitions:
-- reportName: ReceiptRegister
+- reportName: PTReceiptRegister
   summary: Report is used for audit, day-end, and year-end finance reconciliation activities 
   version: 1.0.0
   moduleName: rainmaker-pt
@@ -12,27 +12,22 @@ ReportDefinitions:
     label: reports.pt.receiptdate
     type: bigint
     source: pt
-    total: false
   - name: amountCollected
     label: reports.pt.amountCollected
     type: string
     source: pt
-    total: false
   - name: payerName
     label: reports.pt.payerName
     type: string
     source: pt
-    total: true
   - name: transactionnumber
     label: reports.pt.transactionnumber
     type: string
     source: pt
-    total: true
   - name: paymentmode
     label: reports.pt.paymentmode
     type: string
     source: pt
-    total: true
   searchParams:
   - name: fromDate
     label: reports.pt.fromDate
@@ -61,8 +56,7 @@ ReportDefinitions:
     wrapper: true
     isMandatory: false
   query: |
-      
-      SELECT receiptnumber,payerName,To_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') AS receiptdate,
-      transactionnumber,totalamountpaid AS amountCollected,paymentmode FROM egcl_payment AS ep
-      JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1;	  
-  
+        SELECT receiptnumber,payerName,To_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') AS receiptdate,
+        transactionnumber,totalamountpaid AS amountCollected,paymentmode FROM egcl_payment AS ep
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1
+  orderby: order by ed.receiptnumber
