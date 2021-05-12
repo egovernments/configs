@@ -2049,6 +2049,11 @@ ReportDefinitions:
     type: string
     source: eg_pgr_service
     total: true
+  - name: escalated
+    label: reports.pgr.escalated
+    type: string
+    source: eg_pgr_service
+    total: true
   - name: resolvedwithinsla
     label: reports.pgr.resolvedwithinsla
     type: string
@@ -2098,7 +2103,7 @@ ReportDefinitions:
   - name: status
     label: reports.pgr.status
     type: singlevaluelist
-    pattern: 'list://open:open,assigned:assigned,closed:closed,rejected:rejected,reassignrequested:reassignrequested'
+    pattern: 'list://open:open,assigned:assigned,closed:closed,rejected:rejected,reassignrequested:reassignrequested,escalatedlevel1pending:escalatedlevel1pending,escalatedlevel2pending:escalatedlevel2pending,escalatedlevel3pending:escalatedlevel3pending,escalatedlevel4pending:escalatedlevel4pending'
     source: seva
     isMandatory: false
     searchClause: AND pgr_data.status = $status
@@ -2125,7 +2130,7 @@ ReportDefinitions:
     select 
       initcap(split_part(tenantid, '.', 2)) as tenantid,      
       deptmap_def.name as department,    
-      SUM (CASE WHEN status in ('assigned', 'reassignrequested') THEN 1 ELSE 0 END) as assigned,
+      SUM (CASE WHEN status in ('assigned', 'reassignrequested') THEN 1 ELSE 0 END) as assigned,SUM (CASE WHEN status in ('escalatedlevel1pending', 'escalatedlevel2pending','escalatedlevel3pending','escalatedlevel4pending') THEN 1 ELSE 0 END) as escalated,
       count(status) as received,
       rating,
       SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedwithinsla,
@@ -2199,6 +2204,11 @@ ReportDefinitions:
     type: string
     source: pgr_data
     total: true
+  - name: escalated
+    label: reports.pgr.escalated
+    type: string
+    source: eg_pgr_service
+    total: true
   - name: rating
     label: reports.pgr.rating
     type: number
@@ -2260,7 +2270,7 @@ ReportDefinitions:
       SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
       SUM (CASE WHEN status in ('assigned', 'reassignrequested') THEN 1 ELSE 0 END) as assigned,
       SUM (CASE WHEN status in ('open') THEN 1 ELSE 0 END) as open,
-      SUM (CASE WHEN status in ('reopen') THEN 1 ELSE 0 END) as reopen,
+      SUM (CASE WHEN status in ('reopen') THEN 1 ELSE 0 END) as reopen,SUM (CASE WHEN status in ('escalatedlevel1pending','escalatedlevel2pending','escalatedlevel3pending','escalatedlevel4pending') THEN 1 ELSE 0 END) as escalated,
       rating    
       from pgr_data
       INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
@@ -2310,6 +2320,11 @@ ReportDefinitions:
     total: true
   - name: reopen
     label: reports.pgr.reopen
+    type: string
+    source: eg_pgr_service
+    total: true
+  - name: escalated
+    label: reports.pgr.escalated
     type: string
     source: eg_pgr_service
     total: true
@@ -2364,7 +2379,7 @@ ReportDefinitions:
      (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in 
       (select designation from eg_hrms_assignment where iscurrentassignment=true and employeeid::varchar=(select uuid from eg_user where id::varchar = assignee))) as designation, 
       SUM (CASE WHEN status in ('assigned', 'reassignrequested') THEN 1 ELSE 0 END) as assigned,
-      SUM (CASE WHEN status in ('reopen') THEN 1 ELSE 0 END) as reopen      
+      SUM (CASE WHEN status in ('reopen') THEN 1 ELSE 0 END) as reopen,SUM (CASE WHEN status in ('escalatedlevel1pending','escalatedlevel2pending','escalatedlevel3pending','escalatedlevel4pending') THEN 1 ELSE 0 END) as escalated      
       from pgr_data
       INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
       INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
@@ -2505,5 +2520,5 @@ ReportDefinitions:
     INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON departmap.department = deptmap_def.code
     WHERE 
     eg_pgr_address.uuid = eg_pgr_service.addressid
-    AND eg_pgr_service.status IN ('open','assigned','reassigrequested','rejected')
+    AND eg_pgr_service.status IN ('open','assigned','reassigrequested','rejected','escalatedlevel1pending','escalatedlevel2pending','escalatedlevel3pending','escalatedlevel4pending')
   orderby: ORDER BY servicerequestid, epa."when" desc
