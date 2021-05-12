@@ -8,26 +8,32 @@ ReportDefinitions:
     label: reports.pt.receiptnumber
     type: string
     source: pt
-  - name: receiptdate
-    label: reports.pt.receiptdate
-    type: bigint
+    total: false
+  - name: paymentdate
+    label: reports.pt.paymentdate
+    type: string
     source: pt
+    total: false
   - name: amountCollected
     label: reports.pt.amountCollected
     type: string
     source: pt
+    total: false
   - name: payerName
     label: reports.pt.payerName
     type: string
     source: pt
+    total: false
   - name: transactionnumber
     label: reports.pt.transactionnumber
     type: string
     source: pt
+    total: false
   - name: paymentmode
     label: reports.pt.paymentmode
     type: string
     source: pt
+    total: false
   searchParams:
   - name: fromDate
     label: reports.pt.fromDate
@@ -41,22 +47,8 @@ ReportDefinitions:
     source: pt
     isMandatory: true
     searchClause: AND ed.receiptdate <= $toDate
-  - name: receiptstatus
-    label: Receipt Status
-    type: singlevaluelist
-    pattern: 'list://Open:Open,Closed:Closed,Assigned:Assigned,Rejected:Rejected,Reassigned:Reassigned'
-    source: pt
-    isMandatory: false
-  - name: collectorName
-    label: Collector Name
-    type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=egf-master&masterName=FinancialYear|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].code|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].name
-    source: pt
-    wrapper: true
-    isMandatory: false
-    searchClause: AND collectorName = $collectorName
   query: |
-        SELECT receiptnumber,payerName,To_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') AS receiptdate,
+        SELECT receiptnumber,payerName,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
         transactionnumber,totalamountpaid AS amountCollected,paymentmode FROM egcl_payment AS ep
         JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1
-  orderby: order by ed.receiptnumber
+  orderby: order by ed.receiptdate desc
