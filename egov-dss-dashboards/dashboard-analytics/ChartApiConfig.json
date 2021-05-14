@@ -4558,7 +4558,7 @@
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Total Requests\":{\"terms\":{\"field\":\"Data.fsm.dsoId.keyword\",\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.fsm.dsoId.keyword\"}}}},\"Closed Within SLA\":{\"terms\":{\"field\":\"Data.fsm.dsoId.keyword\",\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"Count\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gte\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"valueCount\":{\"value_count\":{\"field\":\"Data.fsm.dsoId.keyword\"}}}}}},\"Closed Outside SLA\":{\"terms\":{\"field\":\"Data.fsm.dsoId.keyword\",\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"Count\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"lte\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"valueCount\":{\"value_count\":{\"field\":\"Data.fsm.dsoId.keyword\"}}}}}},\"Citizen Average Rating\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\"]}},{\"term\":{\"Data.history.action.keyword\":\"RATE\"}},{\"exists\":{\"field\":\"Data.history\"}},{\"range\":{\"Data.history.rating\":{\"gte\":1}}}]}},\"aggs\":{\"Citizen_Average_Rating\":{\"terms\":{\"field\":\"Data.fsm.dsoId.keyword\",\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"Citizen Avg Rating\":{\"avg\":{\"script\":\"int sum = 0;int count =0;if(params['_source']['Data']['history']!=null){ for (item in params['_source']['Data']['history']) {if(item.rating!=null){ sum += item.rating;} }} return sum;\"}}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"DSO By Performance\":{\"terms\":{\"field\":\"Data.fsm.dsoId.keyword\",\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.fsm.dsoId.keyword\"}}}},\"Closed Within SLA\":{\"terms\":{\"field\":\"Data.fsm.dsoId.keyword\",\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"Count\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gte\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"valueCount\":{\"value_count\":{\"field\":\"Data.fsm.dsoId.keyword\"}}}}}},\"Closed Outside SLA\":{\"terms\":{\"field\":\"Data.fsm.dsoId.keyword\",\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"Count\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"lte\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"valueCount\":{\"value_count\":{\"field\":\"Data.fsm.dsoId.keyword\"}}}}}},\"Citizen_Average_Rating\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\"]}},{\"term\":{\"Data.history.action.keyword\":\"RATE\"}},{\"exists\":{\"field\":\"Data.history\"}},{\"range\":{\"Data.history.rating\":{\"gte\":1}}}]}},\"aggs\":{\"Citizen Avg Rating\":{\"terms\":{\"field\":\"Data.fsm.dsoId.keyword\",\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"Citizen_Avg_Rating\":{\"avg\":{\"script\":\"int sum = 0;int count =0;if(params['_source']['Data']['history']!=null){ for (item in params['_source']['Data']['history']) {if(item.rating!=null){ sum += item.rating;} }} return sum;\"}}}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -4574,7 +4574,7 @@
     "aggregationPaths": [
       "Closed Outside SLA",
       "Closed Within SLA",
-      "Citizen Average Rating",
+      "Citizen Avg Rating",
       "Total Requests"
     ],
     "pathDataTypeMapping": [
@@ -4585,7 +4585,7 @@
         "Closed Within SLA" : "number"
       },
       {
-        "Citizen Average Rating" : "number"
+        "Citizen Avg Rating" : "number"
       },
       {
         "Total Requests" : "number"
