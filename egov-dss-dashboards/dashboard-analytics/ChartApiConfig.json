@@ -4509,7 +4509,7 @@
     "chartType": "line",
     "valueType": "number",
     "action": "",
-    "drillChart": "none",
+    "drillChart": "dsoDrillChart",
     "documentType": "_doc",
     "aggregationPaths": [
       "Top DSO By Performance",
@@ -4537,7 +4537,7 @@
     "chartType": "line",
     "valueType": "number",
     "action": "",
-    "drillChart": "none",
+    "drillChart": "dsoDrillChart",
     "documentType": "_doc",
     "aggregationPaths": [
       "Bottom DSO By Performance",
@@ -4550,6 +4550,53 @@
     },
     "_comment": ""
   },
+  "dsoDrillChart": {
+    "chartName": "DSS_FSM_DSO_PERFORMANCE",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.fsm.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Total Requests\":{\"terms\":{\"field\":\"Data.fsm.dsoId.keyword\",\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.fsm.dsoId.keyword\"}}}},\"Closed Within SLA\":{\"terms\":{\"field\":\"Data.fsm.dsoId.keyword\",\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"Count\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gte\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"valueCount\":{\"value_count\":{\"field\":\"Data.fsm.dsoId.keyword\"}}}}}},\"Closed Outside SLA\":{\"terms\":{\"field\":\"Data.fsm.dsoId.keyword\",\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"Count\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"lte\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"valueCount\":{\"value_count\":{\"field\":\"Data.fsm.dsoId.keyword\"}}}}}},\"Citizen Average Rating\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\"]}},{\"term\":{\"Data.history.action.keyword\":\"RATE\"}},{\"exists\":{\"field\":\"Data.history\"}},{\"range\":{\"Data.history.rating\":{\"gte\":1}}}]}},\"aggs\":{\"Citizen_Average_Rating\":{\"terms\":{\"field\":\"Data.fsm.dsoId.keyword\",\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"Citizen Avg Rating\":{\"avg\":{\"script\":\"int sum = 0;int count =0;if(params['_source']['Data']['history']!=null){ for (item in params['_source']['Data']['history']) {if(item.rating!=null){ sum += item.rating;} }} return sum;\"}}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "dsoId", "column": "DSOId"}
+    ],
+    "isPostResponseHandler": true,
+    "chartType": "table",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "plotLabel":"DSOId",
+    "aggregationPaths": [
+      "Closed Outside SLA",
+      "Closed Within SLA",
+      "Citizen Average Rating",
+      "Total Requests"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Closed Outside SLA" : "number"
+      },
+      {
+        "Closed Within SLA" : "number"
+      },
+      {
+        "Citizen Average Rating" : "number"
+      },
+      {
+        "Total Requests" : "number"
+      }
+    ],
+    "isCumulative": true,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": " "
+  }
   "fsmTotalReqByDDR": {
     "chartName": "DSS_FSM_TOTAL_REQ_BY_WARD",
     "queries": [
