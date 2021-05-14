@@ -99,13 +99,13 @@ ReportDefinitions:
     type: epoch
     source: pt
     isMandatory: true
-    searchClause: AND ed.receiptdate >= $fromDate
+    searchClause: AND rh.receiptdate >= $fromDate
   - name: toDate
     label: reports.pt.toDate
     type: epoch
     source: pt
     isMandatory: true
-    searchClause: AND ed.receiptdate <= $toDate
+    searchClause: AND rh.receiptdate <= $toDate
   - name: instrumenttype
     label: instrumenttype
     type: singlevaluelist
@@ -120,6 +120,6 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND pt_addr.locality IN ($location)    
   query: |
-        SELECT rh.id,rh.location,rhh.collectiontype,ih.instrumenttype,rh.transactionid,rhh.totalamount,rhh.receiptnumber,To_char(To_timestamp(rh.receiptdate / 1000), 'DD/MM/YYYY') AS receiptdate 
+        SELECT rh.id,rh.location AS locality,rhh.collectiontype AS collectorname,ih.instrumenttype AS paymentinstrument,rh.transactionid AS transactionnumber,rhh.totalamount AS amountcollected,rhh.receiptnumber,To_char(To_timestamp(rh.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate 
         FROM egcl_receiptheader_v1 AS rh JOIN egcl_receiptheader_v1_history AS rhh ON (rh.id=rhh.id) 
         JOIN egcl_receiptinstrument_v1 AS ri ON rhh.id = ri.receiptheader JOIN egcl_instrumentheader_v1 AS ih ON ih.id = ri.instrumentheader
