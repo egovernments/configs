@@ -47,10 +47,17 @@ ReportDefinitions:
     source: pt
     isMandatory: true
     searchClause: AND ed.receiptdate <= $toDate
+  - name: receiptstatus
+    label: receiptstatus
+    type: singlevaluelist
+    pattern: 'list://New:New,Deposited:Deposited,Dishonoured:Dishonoured'
+    source: pt
+    isMandatory: false
+	searchClause: AND ep.paymentstatus <= $receiptstatus
   query: |
         SELECT receiptnumber,payerName,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
-        transactionnumber,totalamountpaid AS amountCollected,paymentmode FROM egcl_payment AS ep
-        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1
+        transactionnumber,totalamountpaid AS amountCollected,paymentmode,ep.paymentstatus AS receiptstatus FROM egcl_payment AS ep
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentstatus in ('NEW','DEPOSITED','DISHONOURED')
   orderby: order by ed.receiptdate desc
 
 - reportName: PTCollectionReport
