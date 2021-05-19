@@ -1,0 +1,115 @@
+ReportDefinitions:
+- reportName: FSMDailyCollectionReport
+  decryptionPathId: FSMDailyCollectionReport 
+  summary: Report is used for check FSM daily collection. 
+  version: 1.0.0
+  moduleName: fsmreport
+  sourceColumns:
+  - name: receiptdate
+    label: reports.fsm.receiptdate
+    type: string
+    source: fsm
+    total: false
+  - name: receiptnumber
+    label: reports.fsm.receiptnumber
+    type: string
+    source: fsm
+    total: false
+  - name: applicationno
+    label: reports.fsm.applicationno
+    type: string
+    source: fsm
+    total: false
+  - name: name
+    label: reports.fsm.applicantname
+    type: string
+    source: fsm
+    total: false
+  - name: instrumenttype
+    label: reports.fsm.paymentMode
+    type: string
+    source: fsm
+    total: false  
+  - name: chequedate
+    label: reports.fsm.chequedate
+    type: string
+    source: fsm
+    total: false
+  - name: chequeno
+    label: reports.fsm.chequeno
+    type: string
+    source: fsm
+    total: false   
+  - name: bankname
+    label: reports.fsm.bankname
+    type: string
+    source: fsm
+    total: false        
+  - name: transactionid
+    label: reports.fsm.transactionid
+    type: string
+    source: fsm
+    total: false
+  - name: carddigit
+    label: reports.fsm.carddigit
+    type: string
+    source: fsm
+    total: false    
+  - name: amount
+    label: reports.fsm.amount
+    type: string
+    source: fsm
+    total: true
+  - name: status
+    label: reports.fsm.status
+    type: string
+    source: fsm
+    total: false
+  searchParams:
+  - name: ulb
+    label: ULB
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+    source: fsm
+    wrapper: true
+    isMandatory: false
+    searchClause: AND app.tenantid = $ulb
+  - name: fromDate
+    label: reports.fsm.fromDate
+    type: epoch
+    source: fsm
+    isMandatory: true
+    searchClause: AND app.createdtime >= $fromDate
+  - name: toDate
+    label: reports.fsm.toDate
+    type: epoch
+    source: fsm
+    isMandatory: true
+    searchClause: AND app.createdtime <= $toDate 
+  - name: instrumentType
+    label: reports.fsm.instrumentType
+    type: singlevaluelist
+    pattern: 'list://Cash:Cash,Online:Online,Card:Card,DD:DD,Cheque:Cheque'
+    source: fsm
+    wrapper: true
+    isMandatory: false
+    searchClause: AND pay.paymentmode = $instrumentType
+  - name: collectionOperator
+    label: reports.fsm.collectionOperator
+    type: singlevaluelist
+    pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=FSM_COLLECTOR|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.username
+    source: fsm
+    wrapper: true
+    isMandatory: false
+    searchClause: AND pay.createdby= $collectionOperator
+  - name: status
+    label: reports.fsm.status
+    type: singlevaluelist
+    pattern: 'list://NEW:NEW,DEPOSITED:DEPOSITED,CANCELLED:CANCELLED,DISHONOURED:DISHONOURED'
+    source: fsm
+    wrapper: true
+    isMandatory: false
+    searchClause: AND pay.paymentstatus = $status
+  query: |
+        select To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY')  as receiptdate, paydl.receiptnumber as receiptnumber,b.consumercode AS applicationno,(select name from eg_user where uuid=app.accountid ) as name,  pay.paymentmode as instrumenttype,pay.instrumentdate as chequedate,(case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.instrumentnumber else  '' end) as chequeno, pay.ifsccode as bankname, pay.transactionnumber as transactionid, (case when pay.paymentmode='CARD' then pay.instrumentnumber else  '' end) as carddigit, bd.amount as amount,pay.paymentstatus as status from egcl_bill b inner join egcl_billdetial bd ON b.id = bd.billid AND b.tenantid = bd.tenantid INNER JOIN eg_fsm_application app on b.consumercode =app.applicationno and b.tenantid =app.tenantid inner join egcl_paymentdetail paydl   ON b.id = paydl.billid    AND b.tenantid = paydl.tenantid inner join egcl_payment pay  ON paydl.paymentid = pay.id and   paydl.tenantid =pay.tenantid where b.businessservice ='FSM.TRIP_CHARGES' 
+  orderby: order by paydl.receiptdate  desc
