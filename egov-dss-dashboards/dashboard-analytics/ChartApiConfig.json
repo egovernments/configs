@@ -4748,7 +4748,7 @@
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtName\"}",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Closed_Applications\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Opened_Applications\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Opened Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Total Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Total Collection\":{\"sum\":{\"field\":\"Data.payments.paymentDetails.bill.billDetails.amountPaid\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gt\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed With In Sla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Open Req\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Open Req\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Closed_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed Req\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Total Req\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gt\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed With In Sla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Total Collection\":{\"sum\":{\"field\":\"Data.payments.paymentDetails.bill.billDetails.amountPaid\"}}}}}}"
       }
     ],
     "isMdmsEnabled": true,
@@ -4759,19 +4759,20 @@
     "valueType": "number",
     "drillChart": "fsmTotalReqByTenant",
     "plotLabel": "DDRs",
+    "excludedColumns": ["Closed With In Sla"],
     "computedFields": [
       {
         "postAggregationTheory" : "",
         "actionName": "PercentageComputedField",
-        "fields" : ["Closed Applications", "Total Applications"],
-        "newField" : "FSM Completion Rate",
+        "fields" : ["Closed Req", "Total Req"],
+        "newField" : "Completion Rate",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
       },
       {
         "postAggregationTheory" : "",
         "actionName": "PercentageComputedField",
-        "fields" : ["Closed With In Sla","Total Applications"],
-        "newField" : "Sla Compliance",
+        "fields" : ["Closed With In Sla","Total Req"],
+        "newField" : "SLA Achieved",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
       }
     ],
@@ -4787,7 +4788,7 @@
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtName\"}",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"Data.fsm.tenantId.keyword\",\"size\":1000},\"aggs\":{\"Closed_Applications\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Opened_Applications\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Opened Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Total Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Total Collection\":{\"sum\":{\"field\":\"Data.payments.paymentDetails.bill.billDetails.amountPaid\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gt\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed With In Sla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"Data.fsm.tenantId.keyword\",\"size\":1000},\"aggs\":{\"Open_Req\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Open Req\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Closed_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed Req\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Total Req\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gt\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed With In Sla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Total Collection\":{\"sum\":{\"field\":\"Data.payments.paymentDetails.bill.billDetails.amountPaid\"}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -4797,19 +4798,20 @@
     "valueType": "number",
     "drillChart": "fsmTotalReqByWard",
     "plotLabel": "Boundary",
+    "excludedColumns": ["Closed With In Sla"],
     "computedFields": [
       {
         "postAggregationTheory" : "",
         "actionName": "PercentageComputedField",
-        "fields" : ["Closed Applications", "Total Applications"],
-        "newField" : "FSM Completion Rate",
+        "fields" : ["Closed Req", "Total Req"],
+        "newField" : "Completion Rate",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
       },
       {
         "postAggregationTheory" : "",
         "actionName": "PercentageComputedField",
-        "fields" : ["Closed With In Sla","Total Applications"],
-        "newField" : "Sla Compliance",
+        "fields" : ["Closed With In Sla","Total Req"],
+        "newField" : "SLA Achieved",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
       }
     ],
@@ -4825,7 +4827,7 @@
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"Data.ward.name.keyword\",\"size\":1000},\"aggs\":{\"Closed_Applications\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Opened_Applications\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Opened Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Total Applications\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Total Collection\":{\"sum\":{\"field\":\"Data.payments.paymentDetails.bill.billDetails.amountPaid\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gt\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed With In Sla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"Data.ward.name.keyword\",\"size\":1000},\"aggs\":{\"Open_Req\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Open Req\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Closed_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed Req\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Total Req\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gt\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Closed With In Sla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Total Collection\":{\"sum\":{\"field\":\"Data.payments.paymentDetails.bill.billDetails.amountPaid\"}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -4838,19 +4840,20 @@
     "action": "",
     "documentType": "_doc",
     "plotLabel": "Ward",
+    "excludedColumns": ["Closed With In Sla"],
     "computedFields": [
       {
         "postAggregationTheory" : "",
         "actionName": "PercentageComputedField",
-        "fields" : ["Closed Applications", "Total Applications"],
-        "newField" : "FSM Completion Rate",
+        "fields" : ["Closed Req", "Total Req"],
+        "newField" : "Completion Rate",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
       },
       {
         "postAggregationTheory" : "",
         "actionName": "PercentageComputedField",
-        "fields" : ["Closed With In Sla","Total Applications"],
-        "newField" : "Sla Compliance",
+        "fields" : ["Closed With In Sla","Total Req"],
+        "newField" : "SLA Achieved",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
       }
     ],
