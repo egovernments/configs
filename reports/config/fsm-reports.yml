@@ -211,23 +211,25 @@ ReportDefinitions:
         source: fsm
         wrapper: true
         isMandatory: false
+        isLocalisationRequired: true
+        localisationPrefix: CS_COMMON
         searchClause: AND address.locality = $locality
     query: |
-      SELECT fsm.applicationno as applicationNo ,fsm.createdtime as applicationDate,boundary.name as locality,
-      statuskeys.message as currentStatus,propertytype.name as proprtyTypeSubType,vendor.name dsoName,
-      pidso.lastmodifiedtime as assignedToDSoOn,picomplete.lastmodifiedtime as dateOfCompletion,payment.amountpaid
-      FROM eg_fsm_application fsm
-      JOIN eg_fsm_address address ON ( address.fsm_id = fsm.id)
-      JOIN eg_vendor vendor ON ( vendor.id = fsm.dso_id)
-      JOIN (select pi.businessId,pi.lastmodifiedtime from eg_wf_processinstance_v2 pi
-      JOIN eg_wf_state_v2 status ON ( status.uuid =pi.status)
-      where pi.businessService='FSM' AND status.applicationstatus='PENDING_DSO_APPROVAL') pidso ON ( pidso.businessId = fsm.applicationno)
-      JOIN (select pi.businessId,pi.lastmodifiedtime from eg_wf_processinstance_v2 pi
-      JOIN eg_wf_state_v2 status ON ( status.uuid =pi.status)
-      where pi.businessService='FSM' AND status.applicationstatus='CITIZEN_FEEDBACK_PENDING') picomplete ON ( picomplete.businessId = fsm.applicationno)
-      JOIN egcl_bill bill ON ( bill.consumercode = fsm.applicationno)
-      JOIN egcl_paymentdetail payment ON ( payment.billid = bill.id )
-      JOIN fsm_boundary boundary ON (boundary.code = address.locality)
-      JOIN fsm_property_type propertytype ON ( propertytype.code = fsm.propertyusage)
-      JOIN fsm_status_keys statuskeys ON ( statuskeys.code = fsm.applicationstatus);
+      SELECT fsm.applicationno as applicationNo ,fsm.createdtime as applicationDate,boundary.name as locality, 
+      statuskeys.message as currentStatus,propertytype.name as proprtyTypeSubType,vendor.name dsoName, 
+      pidso.lastmodifiedtime as assignedToDSoOn,picomplete.lastmodifiedtime as dateOfCompletion,payment.amountpaid 
+      FROM eg_fsm_application fsm 
+      JOIN eg_fsm_address address ON ( address.fsm_id = fsm.id) 
+      JOIN eg_vendor vendor ON ( vendor.id = fsm.dso_id) 
+      JOIN (select pi.businessId,pi.lastmodifiedtime from eg_wf_processinstance_v2 pi 
+      JOIN eg_wf_state_v2 status ON ( status.uuid =pi.status) 
+      where pi.businessService='FSM' AND status.applicationstatus='PENDING_DSO_APPROVAL') pidso ON ( pidso.businessId = fsm.applicationno) 
+      JOIN (select pi.businessId,pi.lastmodifiedtime from eg_wf_processinstance_v2 pi 
+      JOIN eg_wf_state_v2 status ON ( status.uuid =pi.status) 
+      where pi.businessService='FSM' AND status.applicationstatus='CITIZEN_FEEDBACK_PENDING') picomplete ON ( picomplete.businessId = fsm.applicationno) 
+      JOIN egcl_bill bill ON ( bill.consumercode = fsm.applicationno) 
+      JOIN egcl_paymentdetail payment ON ( payment.billid = bill.id ) 
+      JOIN (VALUES fsm_boundary) AS boundary(name,code) ON (boundary.code = address.locality) 
+      JOIN (VALUES fsm_property_type) propertytype(name,code) ON ( propertytype.code = fsm.propertyusage) 
+      JOIN (VALUES fsm_status_keys) statuskeys(message,code) ON ( statuskeys.code = fsm.applicationstatus) 
     orderby: ORDER BY applicationNo
