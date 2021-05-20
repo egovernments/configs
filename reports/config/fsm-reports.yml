@@ -1,0 +1,233 @@
+ReportDefinitions:
+  - reportName: FSMDailyCollectionReport
+    decryptionPathId: FSMDailyCollectionReport 
+    summary: Report is used for check FSM daily collection. 
+    version: 1.0.0
+    moduleName: fsm
+    sourceColumns:
+      - name: receiptdate
+        label: reports.fsm.receiptdate
+        type: string
+        source: fsm
+        total: false
+      - name: receiptnumber
+        label: reports.fsm.receiptnumber
+        type: string
+        source: fsm
+        total: false
+      - name: applicationno
+        label: reports.fsm.applicationno
+        type: string
+        source: fsm
+        total: false
+      - name: name
+        label: reports.fsm.applicantname
+        type: string
+        source: fsm
+        total: false
+      - name: instrumenttype
+        label: reports.fsm.paymentMode
+        type: string
+        source: fsm
+        total: false  
+      - name: chequedate
+        label: reports.fsm.chequedate
+        type: string
+        source: fsm
+        total: false
+      - name: chequeno
+        label: reports.fsm.chequeno
+        type: string
+        source: fsm
+        total: false   
+      - name: bankname
+        label: reports.fsm.bankname
+        type: string
+        source: fsm
+        total: false        
+      - name: transactionid
+        label: reports.fsm.transactionid
+        type: string
+        source: fsm
+        total: false
+      - name: carddigit
+        label: reports.fsm.carddigit
+        type: string
+        source: fsm
+        total: false    
+      - name: amount
+        label: reports.fsm.amount
+        type: string
+        source: fsm
+        total: true
+      - name: status
+        label: reports.fsm.status
+        type: string
+        source: fsm
+        total: false
+    searchParams:
+      - name: ulb
+        label: ULB
+        type: singlevaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND app.tenantid = $ulb
+      - name: fromDate
+        label: reports.fsm.fromDate
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND app.createdtime >= $fromDate
+      - name: toDate
+        label: reports.fsm.toDate
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND app.createdtime <= $toDate 
+      - name: instrumentType
+        label: reports.fsm.instrumentType
+        type: singlevaluelist
+        pattern: 'list://Cash:Cash,Online:Online,Card:Card,DD:DD,Cheque:Cheque'
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND pay.paymentmode = $instrumentType
+      - name: collectionOperator
+        label: reports.fsm.collectionOperator
+        type: singlevaluelist
+        pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=FSM_COLLECTOR|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.username
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND pay.createdby= $collectionOperator
+      - name: status
+        label: reports.fsm.status
+        type: singlevaluelist
+        pattern: 'list://NEW:NEW,DEPOSITED:DEPOSITED,CANCELLED:CANCELLED,DISHONOURED:DISHONOURED'
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND pay.paymentstatus = $status
+    query: |
+          select To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY')  as receiptdate, paydl.receiptnumber as receiptnumber,b.consumercode AS applicationno,(select name from eg_user where uuid=app.accountid ) as name,  pay.paymentmode as instrumenttype,pay.instrumentdate as chequedate,(case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.instrumentnumber else  '' end) as chequeno, pay.ifsccode as bankname, pay.transactionnumber as transactionid, (case when pay.paymentmode='CARD' then pay.instrumentnumber else  '' end) as carddigit, bd.amount as amount,pay.paymentstatus as status from egcl_bill b inner join egcl_billdetial bd ON b.id = bd.billid AND b.tenantid = bd.tenantid INNER JOIN eg_fsm_application app on b.consumercode =app.applicationno and b.tenantid =app.tenantid inner join egcl_paymentdetail paydl   ON b.id = paydl.billid    AND b.tenantid = paydl.tenantid inner join egcl_payment pay  ON paydl.paymentid = pay.id and   paydl.tenantid =pay.tenantid where b.businessservice ='FSM.TRIP_CHARGES' 
+    orderby: order by paydl.receiptdate  desc
+  - reportName: FSMRequestReport
+    summary: Report gives the highlevel information of FSM Requests
+    version: 1.0.0
+    moduleName: fsm
+    externalService:
+      - entity: $.TenantBoundary[0].boundary
+        apiURL: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantId
+        keyOrder: name,code
+        tableName: fsm_boundary
+      - entity: $.MdmsRes.FSM.PropertyType
+        apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=FSM&masterName=PropertyType&tenantId=$tenantId&filter=$.[?(@.active==true)]
+        keyOrder: name,code
+        tableName: fsm_property_type
+      - entity: $.messages
+        apiURL: http://egov-localization.egov:8080/localization/messages/v1/_search?locale=en_IN&tenantId=pb&module=rainmaker-fsm&codes=CS_COMMON_FSM_PENDING_DSO_APPROVAL,CS_COMMON_FSM_CREATED,CS_COMMON_FSM_PENDING_APPL_FEE_PAYMENT,CS_COMMON_FSM_ASSING_DSO,CS_COMMON_FSM_DSO_REJECTED,CS_COMMON_FSM_DSO_INPROGRESS,CS_COMMON_FSM_PENDING_DSO_APPROVAL,CS_COMMON_FSM_COMPLETED,CS_COMMON_FSM_REJECTED,CS_COMMON_FSM_CANCELED,CS_COMMON_FSM_CITIZEN_FEEDBACK_PENDIN
+        keyOrder: message,code
+        tableName: fsm_status_keys
+    sourceColumns:
+      - name: applicationNo
+        label: reports.fsm.request.applicationNo
+        type: string
+        source: fsm
+      - name: applicationDate
+        label: reports.fsm.request.applicationDate
+        type: datetime
+        source: fsm
+      - name: locality
+        label: reports.fsm.request.locality
+        type: string
+        source: fsm
+      - name: currentStatus
+        label: reports.fsm.request.currentStatus
+        type: string
+        source: fsm
+      - name: proprtyTypeSubType
+        label: reports.fsm.request.proprtyTypeSubType
+        type: string
+        source: fsm
+      - name: dsoName
+        label: reports.fsm.request.dsoName
+        type: string
+        source: fsm
+      - name: assignedToDSoOn
+        label: reports.fsm.request.assignedToDSoOn
+        type: datetime
+        source: fsm
+      - name: dateOfCompletion
+        label: reports.fsm.request.dateOfCompletion
+        type: datetime
+        source: fsm
+      - name: amountpaid
+        label: reports.fsm.request.amountpaid
+        type: currency
+        source: fsm
+    searchParams:
+      - name: ulb
+        label: reports.fsm.request.ulb
+        type: singlevaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND fsm.tenantid = $ulb
+      - name: fromDate
+        label: reports.fsm.request.datefrom
+        type: epoch
+        source: fsm
+        isMandatory: false
+        searchClause: AND fsm.createdtime >= $fromDate
+      - name: toDate
+        label: reports.fsm.request.dateto
+        type: epoch
+        source: fsm
+        isMandatory: false
+        searchClause: AND fsm.createdtime <= $toDate
+      - name: dsoId
+        label: reports.fsm.request.dsoname
+        type: singlevaluelist
+        pattern: http://vendor.egov:8080/vendor/v1/_search?tenantId=$tenantid|$.vendor.*.id|$.vendor.*.name
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND fsm.dsoid = $dsoId
+      - name: status
+        label: reports.fsm.request.status
+        type: singlevaluelist
+        pattern: http://egov-workflow-v2.egov:8080/egov-wf/businessservice/_search?tenantId=pb.amritsar&businessServices=FSM|$.BusinessServices[0].states.[?(@.applicationStatus != null )].uuid|$.BusinessServices[0].states.[?(@.applicationStatus  != null )].applicationStatus
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND pi.status = $status
+      - name: locality
+        label: reports.fsm.request.locality
+        type: singlevaluelist
+        pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantId|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.name
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND address.locality = $locality
+    query: |
+      SELECT fsm.applicationno as applicationNo ,fsm.createdtime as applicationDate,boundary.name as locality,
+      statuskeys.message as currentStatus,propertytype.name as proprtyTypeSubType,vendor.name dsoName,
+      pidso.lastmodifiedtime as assignedToDSoOn,picomplete.lastmodifiedtime as dateOfCompletion,payment.amountpaid
+      FROM eg_fsm_application fsm
+      JOIN eg_fsm_address address ON ( address.fsm_id = fsm.id)
+      JOIN eg_vendor vendor ON ( vendor.id = fsm.dso_id)
+      JOIN (select pi.businessId,pi.lastmodifiedtime from eg_wf_processinstance_v2 pi
+      JOIN eg_wf_state_v2 status ON ( status.uuid =pi.status)
+      where pi.businessService='FSM' AND status.applicationstatus='PENDING_DSO_APPROVAL') pidso ON ( pidso.businessId = fsm.applicationno)
+      JOIN (select pi.businessId,pi.lastmodifiedtime from eg_wf_processinstance_v2 pi
+      JOIN eg_wf_state_v2 status ON ( status.uuid =pi.status)
+      where pi.businessService='FSM' AND status.applicationstatus='CITIZEN_FEEDBACK_PENDING') picomplete ON ( picomplete.businessId = fsm.applicationno)
+      JOIN egcl_bill bill ON ( bill.consumercode = fsm.applicationno)
+      JOIN egcl_paymentdetail payment ON ( payment.billid = bill.id )
+      JOIN fsm_boundary boundary ON (boundary.code = address.locality)
+      JOIN fsm_property_type propertytype ON ( propertytype.code = fsm.propertyusage)
+      JOIN fsm_status_keys statuskeys ON ( statuskeys.code = fsm.applicationstatus);
+    orderby: ORDER BY applicationNo
