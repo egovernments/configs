@@ -118,15 +118,15 @@ ReportDefinitions:
     moduleName: fsm
     externalService:
       - entity: $.TenantBoundary[0].boundary
-        apiURL: http://localhost:8091/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantId
+        apiURL: http://location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantId
         keyOrder: name,code
         tableName: fsm_boundary
       - entity: $.MdmsRes.FSM.PropertyType
-        apiURL: http://localhost:8094/egov-mdms-service/v1/_get?moduleName=FSM&masterName=PropertyType&tenantId=$tenantId
+        apiURL: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_get?moduleName=FSM&masterName=PropertyType&tenantId=$tenantId
         keyOrder: name,code
         tableName: fsm_property_type
       - entity: $.messages
-        apiURL: http://localhost:8071/localization/messages/v1/_search?locale=en_IN&tenantId=pb&module=rainmaker-fsm&codes=CS_COMMON_FSM_PENDING_DSO_APPROVAL,CS_COMMON_FSM_CREATED,CS_COMMON_FSM_PENDING_APPL_FEE_PAYMENT,CS_COMMON_FSM_ASSING_DSO,CS_COMMON_FSM_DSO_REJECTED,CS_COMMON_FSM_DSO_INPROGRESS,CS_COMMON_FSM_PENDING_DSO_APPROVAL,CS_COMMON_FSM_COMPLETED,CS_COMMON_FSM_REJECTED,CS_COMMON_FSM_CANCELED,CS_COMMON_FSM_CITIZEN_FEEDBACK_PENDING
+        apiURL: http://egov-localization.egov:8080/localization/messages/v1/_search?locale=en_IN&tenantId=pb&module=rainmaker-fsm&codes=CS_COMMON_FSM_PENDING_DSO_APPROVAL,CS_COMMON_FSM_CREATED,CS_COMMON_FSM_PENDING_APPL_FEE_PAYMENT,CS_COMMON_FSM_ASSING_DSO,CS_COMMON_FSM_DSO_REJECTED,CS_COMMON_FSM_DSO_INPROGRESS,CS_COMMON_FSM_PENDING_DSO_APPROVAL,CS_COMMON_FSM_COMPLETED,CS_COMMON_FSM_REJECTED,CS_COMMON_FSM_CANCELED,CS_COMMON_FSM_CITIZEN_FEEDBACK_PENDING
         keyOrder: message,code
         tableName: fsm_status_keys
     sourceColumns:
@@ -188,7 +188,7 @@ ReportDefinitions:
       - name: ulb
         label: REPORTS_FSM_PARAM_ULB
         type: singlevaluelist
-        pattern: http://localhost:8094/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+        pattern: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
         source: fsm
         wrapper: true
         isMandatory: true
@@ -208,7 +208,7 @@ ReportDefinitions:
       - name: dsoId
         label: REPORTS_FSM_PARAM_DSO_NAME
         type: singlevaluelist
-        pattern: http://localhost:8070/vendor/v1/_search?tenantId=$tenantid|$.vendor.*.id|$.vendor.*.name
+        pattern: http://vendor.egov:8080/vendor/v1/_search?tenantId=$tenantid|$.vendor.*.id|$.vendor.*.name
         source: fsm
         wrapper: true
         isMandatory: false
@@ -216,7 +216,7 @@ ReportDefinitions:
       - name: status
         label: REPORTS_FSM_PARAM_STATUS
         type: singlevaluelist
-        pattern: http://localhost:8096/egov-workflow-v2/egov-wf/businessservice/_search?tenantid=pb.amritsar&businessServices=FSM|$.BusinessServices[0].states.[?(@.applicationStatus != null )].applicationStatus|$.BusinessServices[0].states.[?(@.applicationStatus  != null )].applicationStatus
+        pattern: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/businessservice/_search?tenantid=pb.amritsar&businessServices=FSM|$.BusinessServices[0].states.[?(@.applicationStatus != null )].applicationStatus|$.BusinessServices[0].states.[?(@.applicationStatus  != null )].applicationStatus
         source: fsm
         wrapper: true
         isMandatory: false
@@ -226,7 +226,7 @@ ReportDefinitions:
       - name: locality
         label: REPORTS_FSM_PARAM_LOCALITY
         type: singlevaluelist
-        pattern: http://localhost:8091/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.name
+        pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.name
         source: fsm
         wrapper: true
         isMandatory: false
@@ -248,11 +248,5 @@ ReportDefinitions:
       JOIN egcl_paymentdetail payment ON ( payment.billid = bill.id ) 
       JOIN (VALUES fsm_boundary) AS boundary(name,code) ON (boundary.code = address.locality) 
       JOIN (VALUES fsm_property_type) propertytype(name,code) ON ( propertytype.code = fsm.propertyusage) 
-      JOIN (VALUES fsm_status_keys) statuskeys(message,code) ON ( statuskeys.code = CONCAT('CS_COMMON_FSM_',fsm.applicationstatus)) 
-<<<<<<< Updated upstream
+      JOIN (VALUES fsm_status_keys) statuskeys(message,code) ON ( statuskeys.code = CONCAT('CS_COMMON_FSM_',fsm.applicationstatus))  WHERE 1=1 
     orderby: ORDER BY applicationNo
-=======
-      JOIN eg_wf_processinstance_v2 pi ON ( pi.businessId = fsm.applicationno)
-      JOIN eg_wf_state_v2 wfstatus ON ( wfstatus.id = pi.status) WHERE 1=1 
-    orderby: ORDER BY applicationNo
->>>>>>> Stashed changes
