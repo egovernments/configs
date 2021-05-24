@@ -130,3 +130,62 @@ ReportDefinitions:
         transactionnumber,totalamountpaid AS amountCollected,paymentmode AS paymentinstrument FROM egcl_payment AS ep
         JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentmode in ('DD','CHEQUE','ONLINE','CASH','CARD')
   orderby: order by ed.receiptdate desc
+  
+- reportName: DefaulterReport
+  summary: Report is usually generated weekly/monthly to send notice to the defaulters and used only in the demand-based systems.
+  version: 1.0.0
+  moduleName: pt-reports
+  sourceColumns:
+  - name: propertyid
+    label: reports.pt.propertyid
+    type: string
+    source: pt
+    total: false
+  - name: collectorname
+    label: reports.pt.collectorname
+    type: string
+    source: pt
+    total: false
+  - name: address
+    label: reports.pt.address
+    type: string
+    source: pt
+    total: false
+  - name: propertystatus
+    label: reports.pt.propertystatus
+    type: string
+    source: pt
+    total: false
+  - name: amountCollected
+    label: reports.pt.amountCollected
+    type: string
+    source: pt
+    total: false
+  - name: usagetype
+    label: reports.pt.usagetype
+    type: string
+    source: pt
+    total: false
+  - name: collectorname
+    label: reports.pt.collectorname
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: locality
+    label: reports.pt.locality
+    type: singlevaluelist
+    pattern: 'list://Amritsar:Amritsar,Punjab:Punjab,Maharastra:Maharastra'
+    source: pt
+    isMandatory: false
+    searchClause: AND ea.locality >= $locality
+  - name: usagetype
+    label: reports.pt.usagetype
+    type: singlevaluelist
+    pattern: 'list://Residential:Residential,Non-Residential:Non-Residential,Mixed:Mixed'
+    source: pt
+    isMandatory: false
+    searchClause: AND ep.usagetype <= $usagetype 
+  query: |
+        SELECT ea.propertyid,usagecategory,status AS propertystatus,ea.locality,epp.payername AS collectorname,epp.totalamountpaid AS amountcollected 
+        FROM eg_pt_property ep join eg_pt_address ea ON ea.propertyid = ep.propertyid JOIN egcl_payment epp on ep.tenantid=epp.tenantid where 1=1
