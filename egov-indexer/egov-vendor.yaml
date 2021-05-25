@@ -12,23 +12,19 @@ ServiceMaps:
       timeStampField: $.auditDetails.createdTime
       jsonPath: $.vendor
       customJsonMapping:
-        indexMapping: {"Data":{"vendor":{}}}
+        indexMapping: {"Data":{"vendor":{},"tenantData":{}}}
         fieldMapping:
         - inJsonPath: $
           outJsonPath: $.Data.vendor
-
-
-  - topic: update-vendor-application
-    configKey: INDEX
-    indexes:
-    - name: vendor
-      type: vendorapplication
-      id: $.id, $.tenantId
-      isBulk: false
-      timeStampField: $.auditDetails.createdTime
-      jsonPath: $.vendor
-      customJsonMapping:
-        indexMapping: {"Data":{"vendor":{}}}
-        fieldMapping:
-        - inJsonPath: $
-          outJsonPath: $.Data.vendor
+        mdmsMapping:
+        - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+          moduleName: tenant
+          masterName: tenants
+          tenantId: pb
+          filter: "[?(@.code == $tenant)]"
+          filterMapping:
+          - variable: $tenant
+            valueJsonpath: $.tenantId
+          uriResponseMapping:
+          - inJsonPath: $.MdmsRes.tenant.tenants
+            outJsonPath: $.Data.tenantData
