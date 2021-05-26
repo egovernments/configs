@@ -72,7 +72,7 @@ ReportDefinitions:
         pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
         source: fsm
         wrapper: true
-        isMandatory: false
+        isMandatory: true
         searchClause: AND app.tenantid = $ulb
       - name: fromDate
         label: reports.fsm.fromDate
@@ -259,3 +259,90 @@ ReportDefinitions:
       JOIN (VALUES fsm_property_type) propertytype(name,code) ON ( propertytype.code = fsm.propertyusage) 
       JOIN (VALUES fsm_status_keys) statuskeys(message,code) ON ( statuskeys.code = CONCAT('CS_COMMON_FSM_',fsm.applicationstatus))  WHERE 1=1 
     orderby: ORDER BY applicationNo
+  - reportName: FSMVehicleLogReport
+    summary: Report is used for check FSM Vehicle log report.
+    version: 1.0.0
+    moduleName: fsm
+    sourceColumns:
+      - name: applicationno
+        label: reports.fsm.applicationno
+        type: string
+        source: fsm
+        total: false
+      - name: vehiclelogno
+        label: reports.fsm.vehiclelogno
+        type: string
+        source: fsm
+        total: false
+      - name: dsoname
+        label: reports.fsm.dsoname
+        type: string
+        source: fsm
+        total: false
+      - name: vehicleno
+        label: reports.fsm.vehicleno
+        type: string
+        source: fsm
+        total: false
+      - name: vehicleentrytime
+        label: reports.fsm.vehicleentrytime
+        type: string
+        source: fsm
+        total: false
+      - name: vehicleexittime
+        label: reports.fsm.vehicleexittime
+        type: string
+        source: fsm
+        total: false
+      - name: septagedumped
+        label: reports.fsm.septagedumped
+        type: string
+        source: fsm
+        total: false
+    searchParams:
+      - name: fstpname
+        label: REPORTS_FSM_PARAM_FSTPNAME
+        type: multivaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=FSM&masterName=FSTPPlantInfo|$.MdmsRes.FSM.FSTPPlantInfo.*.PlantCode|$.MdmsRes.FSM.FSTPPlantInfo.*.PlantName
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: 
+      - name: ulb
+        label: REPORTS_FSM_PARAM_ULB
+        type: singlevaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+        source: fsm
+        wrapper: true
+        isMandatory: true
+        searchClause: AND app.tenantid = $ulb
+      - name: fromDate
+        label: REPORTS_FSM_PARAM_FROMDATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND app.createdtime >= $fromDate
+      - name: toDate
+        label: REPORTS_FSM_PARAM_TODATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND app.createdtime <= $toDate
+      - name: dsoId
+        label: REPORTS_FSM_PARAM_DSONAME
+        type: singlevaluelist
+        pattern: http://vendor.egov:8080/vendor/v1/_search?tenantId=$tenantid|$.vendor.*.id|$.vendor.*.name
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND app.dso_id = $dsoId
+      - name: vehicleId
+        label: REPORTS_FSM_PARAM_VEHICLENUMBER
+        type: singlevaluelist
+        pattern: http://vehicle.egov:8080/vehicle/v1/_search?tenantId=$tenantid|$.vehicle.*.id|$.vehicle.*.registrationNumber
+        source: fsm
+        isMandatory: false
+        searchClause: AND vehicle.id = $vehicleId
+    query: |
+          select  app.applicationno as applicationno, vhtrip.applicationno as vehiclelogno, vendor.name as dsoname, vehicle.registrationnumber as vehicleno, vhtrip.tripstarttime as vehicleentrytime, vhtrip.tripendtime as vehicleexittime, vhtrip.volumecarried as septagedumped from eg_fsm_application app join eg_vehicle_trip_detail vhtripdtl  on  app.tenantid  =vhtripdtl.tenantid and app.applicationno=vhtripdtl.referenceno join eg_vehicle_trip vhtrip on vhtrip.tenantid=vhtripdtl.tenantid and vhtripdtl.trip_id=vhtrip.id join eg_vehicle vehicle on vhtrip.tenantid=vehicle.tenantid and  vhtrip.vehicle_id=vehicle.id join eg_vendor vendor ON  app.dso_id =vendor.id where 1=1 
+    orderby: order by app.applicationno  desc
