@@ -4399,7 +4399,7 @@
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"all Applications\":{\"terms\":{\"field\":\"Data.tenantData.code.keyword\",\"size\":3,\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.tenantData.code.keyword\"}}}},\"Closed Within SLA\":{\"terms\":{\"field\":\"Data.tenantData.code.keyword\",\"size\":3,\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"Count\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gte\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"valueCount\":{\"value_count\":{\"field\":\"Data.tenantData.code.keyword\"}}}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"applications\":{\"terms\":{\"field\":\"Data.tenantData.code.keyword\",\"order\":{\"_count\":\"desc\"}},\"aggs\":{\"all\":{\"value_count\":{\"field\":\"Data.fsm.applicationNo.keyword\"}},\"withinsla\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gte\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"valueCount\":{\"value_count\":{\"field\":\"Data.fsm.applicationNo.keyword\"}}}},\"ulbpercentage\":{\"bucket_script\":{\"buckets_path\":{\"whiinsla\":\"withinsla>valueCount\",\"all\":\"all\"},\"script\":\"params.whiinsla / params.all * 100\"}},\"ulbpercentage_sort\":{\"bucket_sort\":{\"sort\":[{\"ulbpercentage\":{\"order\":\"desc\"}}],\"size\":3}}}}}}}}"
       }
     ],
     "chartType": "line",
@@ -4408,20 +4408,11 @@
     "drillChart": "ulbTopDrillChart",
     "documentType": "_doc",
     "aggregationPaths": [
-      "all Applications",
-      "Closed Within SLA"
+      "applications",
+      "ulbpercentage"
     ],
     "isCumulative": false,
     "interval": "month",
-    "computedFields": [
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedField",
-        "fields" : ["Closed Within SLA","all Applications"],
-        "newField" : "Total Applications",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
     "insight": {
     },
     "_comment": ""
@@ -4481,7 +4472,7 @@
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"all Applications\":{\"terms\":{\"field\":\"Data.tenantData.code.keyword\",\"size\":3,\"order\":{\"_count\":\"asc\"}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.tenantData.code.keyword\"}}}},\"Closed Within SLA\":{\"terms\":{\"field\":\"Data.tenantData.code.keyword\",\"size\":3,\"order\":{\"_count\":\"asc\"}},\"aggs\":{\"Count\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gte\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"valueCount\":{\"value_count\":{\"field\":\"Data.tenantData.code.keyword\"}}}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"applications\":{\"terms\":{\"field\":\"Data.tenantData.code.keyword\",\"order\":{\"_count\":\"asc\"}},\"aggs\":{\"all\":{\"value_count\":{\"field\":\"Data.fsm.applicationNo.keyword\"}},\"withinsla\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.history.businesssServiceSla\":{\"gte\":0}}},{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"valueCount\":{\"value_count\":{\"field\":\"Data.fsm.applicationNo.keyword\"}}}},\"ulbpercentage\":{\"bucket_script\":{\"buckets_path\":{\"whiinsla\":\"withinsla>valueCount\",\"all\":\"all\"},\"script\":\"params.whiinsla / params.all * 100\"}},\"ulbpercentage_sort\":{\"bucket_sort\":{\"sort\":[{\"ulbpercentage\":{\"order\":\"asc\"}}],\"size\":3}}}}}}}}"
       }
     ],
     "chartType": "line",
@@ -4490,17 +4481,8 @@
     "documentType": "_doc",
     "drillChart": "ulbBottomDrillChart",
     "aggregationPaths": [
-      "all Applications",
-      "Closed Within SLA"
-    ],
-    "computedFields": [
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedField",
-        "fields" : ["Closed Within SLA","all Applications"],
-        "newField" : "Total Applications",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
+      "applications",
+      "ulbpercentage"
     ],
     "isCumulative": false,
     "interval": "month",
