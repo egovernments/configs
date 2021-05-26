@@ -1,0 +1,191 @@
+ReportDefinitions:
+- reportName: PTReceiptRegister
+  summary: Report is used for audit, day-end, and year-end finance reconciliation activities 
+  version: 1.0.0
+  moduleName: pt-reports
+  sourceColumns:
+  - name: receiptnumber
+    label: reports.pt.receiptnumber
+    type: string
+    source: pt
+    total: false
+  - name: paymentdate
+    label: reports.pt.paymentdate
+    type: string
+    source: pt
+    total: false
+  - name: amountCollected
+    label: reports.pt.amountCollected
+    type: string
+    source: pt
+    total: false
+  - name: payerName
+    label: reports.pt.payerName
+    type: string
+    source: pt
+    total: false
+  - name: transactionnumber
+    label: reports.pt.transactionnumber
+    type: string
+    source: pt
+    total: false
+  - name: paymentmode
+    label: reports.pt.paymentmode
+    type: string
+    source: pt
+    total: false
+  - name: receiptstatus
+    label: reports.pt.receiptstatus
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: fromDate
+    label: reports.pt.fromDate
+    type: epoch
+    source: pt
+    isMandatory: true
+    searchClause: AND ed.receiptdate >= $fromDate
+  - name: toDate
+    label: reports.pt.toDate
+    type: epoch
+    source: pt
+    isMandatory: true
+    searchClause: AND ed.receiptdate <= $toDate
+  - name: receiptstatus
+    label: receiptstatus
+    type: singlevaluelist
+    pattern: 'list://New:New,Deposited:Deposited,Dishonoured:Dishonoured'
+    source: pt
+    isMandatory: false
+    searchClause: AND ep.paymentstatus <= $receiptstatus
+  query: |
+        SELECT receiptnumber,payerName,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
+        transactionnumber,totalamountpaid AS amountCollected,paymentmode,ep.paymentstatus AS receiptstatus FROM egcl_payment AS ep
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentstatus in ('NEW','DEPOSITED','DISHONOURED')
+  orderby: order by ed.receiptdate desc
+
+- reportName: PTCollectionReport
+  summary: It helps administrators track the collection in the ULB and the employee collection performance. 
+  version: 1.0.0
+  moduleName: pt-reports
+  sourceColumns:
+  - name: receiptnumber
+    label: reports.pt.receiptnumber
+    type: string
+    source: pt
+    total: false
+  - name: locality
+    label: reports.pt.locality
+    type: string
+    source: pt
+    total: false
+  - name: collectorname
+    label: reports.pt.collectorname
+    type: string
+    source: pt
+    total: false
+  - name: paymentinstrument
+    label: reports.pt.paymentinstrument
+    type: string
+    source: pt
+    total: false
+  - name: transactionnumber
+    label: reports.pt.transactionnumber
+    type: string
+    source: pt
+    total: false
+  - name: amountCollected
+    label: reports.pt.amountCollected
+    type: string
+    source: pt
+    total: false
+  - name: paymentdate
+    label: reports.pt.paymentdate
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: fromDate
+    label: reports.pt.fromDate
+    type: epoch
+    source: pt
+    isMandatory: true
+    searchClause: AND ed.receiptdate >= $fromDate
+  - name: toDate
+    label: reports.pt.toDate
+    type: epoch
+    source: pt
+    isMandatory: true
+    searchClause: AND ed.receiptdate <= $toDate
+  - name: paymentinstrument
+    label: paymentinstrument
+    type: singlevaluelist
+    pattern: 'list://Cash:Cash,Online:Online,Card:Card,DD:DD,Cheque:Cheque'
+    source: pt
+    isMandatory: false
+    searchClause: AND paymentmode = $paymentinstrument  
+  query: |
+        SELECT receiptnumber,payeraddress AS locality,payerName AS collectorname,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
+        transactionnumber,totalamountpaid AS amountCollected,paymentmode AS paymentinstrument FROM egcl_payment AS ep
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentmode in ('DD','CHEQUE','ONLINE','CASH','CARD')
+  orderby: order by ed.receiptdate desc
+  
+- reportName: DefaulterReport
+  summary: Report is usually generated weekly/monthly to send notice to the defaulters and used only in the demand-based systems.
+  version: 1.0.0
+  moduleName: pt-reports
+  sourceColumns:
+  - name: propertyid
+    label: reports.pt.propertyid
+    type: string
+    source: pt
+    total: false
+  - name: collectorname
+    label: reports.pt.collectorname
+    type: string
+    source: pt
+    total: false
+  - name: locality
+    label: reports.pt.locality
+    type: string
+    source: pt
+    total: false
+  - name: propertystatus
+    label: reports.pt.propertystatus
+    type: string
+    source: pt
+    total: false
+  - name: amountCollected
+    label: reports.pt.amountCollected
+    type: string
+    source: pt
+    total: false
+  - name: usagetype
+    label: reports.pt.usagetype
+    type: string
+    source: pt
+    total: false
+  - name: collectorname
+    label: reports.pt.collectorname
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: locality
+    label: reports.pt.locality
+    type: singlevaluelist
+    pattern: 'list://Amritsar:Amritsar,Punjab:Punjab,Maharastra:Maharastra'
+    source: pt
+    isMandatory: false
+    searchClause: AND ea.locality >= $locality
+  - name: usagetype
+    label: reports.pt.usagetype
+    type: singlevaluelist
+    pattern: 'list://Residential:Residential,Non-Residential:Non-Residential,Mixed:Mixed'
+    source: pt
+    isMandatory: false
+    searchClause: AND ep.usagecategory <= $usagetype 
+  query: |
+        SELECT ea.propertyid,ep.usagecategory AS usagetype,ep.status AS propertystatus,ea.locality,epp.payername AS collectorname,epp.totalamountpaid AS amountcollected 
+        FROM eg_pt_property ep join eg_pt_address ea ON ea.propertyid = ep.propertyid JOIN egcl_payment epp on ep.tenantid=epp.tenantid where 1=1

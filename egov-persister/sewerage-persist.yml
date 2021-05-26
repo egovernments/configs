@@ -7,7 +7,7 @@ serviceMaps:
    fromTopic: save-sw-connection
    isTransaction: true
    queryMaps: 
-    - query: INSERT INTO eg_sw_connection (id, tenantid, property_id, applicationno, applicationstatus, status, connectionno, oldconnectionno,roadcuttingarea,action,roadtype, createdby, lastmodifiedby, createdtime, lastmodifiedtime, applicationtype, dateEffectiveFrom, locality) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?);
+    - query: INSERT INTO eg_sw_connection (id, tenantid, property_id, applicationno, applicationstatus, status, connectionno, oldconnectionno,roadcuttingarea,action,roadtype, createdby, lastmodifiedby, createdtime, lastmodifiedtime, applicationtype, dateEffectiveFrom, locality, isoldapplication, additionaldetails) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?);
       basePath: $.SewerageConnection
       jsonMaps:
        - jsonPath: $.SewerageConnection.id 
@@ -46,7 +46,13 @@ serviceMaps:
 
        - jsonPath: $.SewerageConnection.additionalDetails.locality
 
+       - jsonPath: $.SewerageConnection.oldApplication
 
+       - jsonPath: $.SewerageConnection.additionalDetails
+         type: JSON
+         dbType: JSONB
+
+         
     - query: INSERT INTO eg_sw_service(connection_id,connectionExecutionDate,noOfWaterClosets,noOfToilets,connectiontype,proposedWaterClosets,proposedToilets, appCreatedDate, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES(?,?,?,?,?,?,?,?,?,?,?,?);
       basePath: $.SewerageConnection
       jsonMaps:
@@ -102,7 +108,42 @@ serviceMaps:
        - jsonPath: $.SewerageConnection.auditDetails.lastModifiedBy
 
        - jsonPath: $.SewerageConnection.auditDetails.lastModifiedTime
-       
+
+    - query: INSERT INTO eg_sw_roadcuttinginfo(id, tenantId, swid, active, roadtype, roadcuttingarea, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET active = ?, roadtype =?, roadcuttingarea =?,lastmodifiedby =?, lastmodifiedtime =?;
+      basePath: $.SewerageConnection.roadCuttingInfo.*
+      jsonMaps:
+
+        - jsonPath: $.SewerageConnection.roadCuttingInfo.*.id
+
+        - jsonPath: $.SewerageConnection.tenantId
+
+        - jsonPath: $.SewerageConnection.id
+
+        - jsonPath: $.SewerageConnection.roadCuttingInfo.*.status
+
+        - jsonPath: $.SewerageConnection.roadCuttingInfo.*.roadType
+
+        - jsonPath: $.SewerageConnection.roadCuttingInfo.*.roadCuttingArea
+
+        - jsonPath: $.SewerageConnection.roadCuttingInfo.*.auditDetails.createdBy
+
+        - jsonPath: $.SewerageConnection.roadCuttingInfo.*.auditDetails.lastModifiedBy
+
+        - jsonPath: $.SewerageConnection.roadCuttingInfo.*.auditDetails.createdTime
+
+        - jsonPath: $.SewerageConnection.roadCuttingInfo.*.auditDetails.lastModifiedTime
+
+        - jsonPath: $.SewerageConnection.roadCuttingInfo.*.status
+
+        - jsonPath: $.SewerageConnection.roadCuttingInfo.*.roadType
+
+        - jsonPath: $.SewerageConnection.roadCuttingInfo.*.roadCuttingArea
+
+        - jsonPath: $.SewerageConnection.roadCuttingInfo.*.auditDetails.lastModifiedBy
+
+        - jsonPath: $.SewerageConnection.roadCuttingInfo.*.auditDetails.lastModifiedTime
+
+
  - version: 1.0
    name: SewerageConnection
    description: update ConnectionDetails in connection and eg_sw_service
@@ -115,7 +156,7 @@ serviceMaps:
       jsonMaps:
       - jsonPath: $.SewerageConnection.id
 
-    - query: UPDATE eg_sw_connection SET applicationstatus=?, status=?, connectionno=?, oldconnectionno=?, action=?, roadCuttingArea=?, roadType=?, adhocpenalty=?, adhocrebate=?, adhocpenaltyreason=?, adhocpenaltycomment=?, adhocrebatereason=?, adhocrebatecomment=?, lastmodifiedby=?, lastmodifiedtime=?, dateEffectiveFrom=?, locality=?, property_id=? WHERE id=?;
+    - query: UPDATE eg_sw_connection SET applicationstatus=?, status=?, connectionno=?, oldconnectionno=?, action=?, roadCuttingArea=?, roadType=?, adhocpenalty=?, adhocrebate=?, adhocpenaltyreason=?, adhocpenaltycomment=?, adhocrebatereason=?, adhocrebatecomment=?, lastmodifiedby=?, lastmodifiedtime=?, dateEffectiveFrom=?, locality=?, isoldapplication=?, property_id=?, additionaldetails=? WHERE id=?;
       basePath: $.SewerageConnection
       jsonMaps:
         
@@ -153,7 +194,13 @@ serviceMaps:
 
        - jsonPath: $.SewerageConnection.additionalDetails.locality
 
+       - jsonPath: $.SewerageConnection.oldApplication
+
        - jsonPath: $.SewerageConnection.propertyId
+
+       - jsonPath: $.SewerageConnection.additionalDetails
+         type: JSON
+         dbType: JSONB
 
        - jsonPath: $.SewerageConnection.id   
        
@@ -323,6 +370,39 @@ serviceMaps:
 
        - jsonPath: $.SewerageConnection.auditDetails.lastModifiedTime
           
+    - query: INSERT INTO eg_sw_roadcuttinginfo(id, tenantId, swid, active, roadtype, roadcuttingarea, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET active = ?, roadtype =?, roadcuttingarea =?,lastmodifiedby =?, lastmodifiedtime =?;
+      basePath: $.SewerageConnection.roadCuttingInfo.*
+      jsonMaps:
+
+          - jsonPath: $.SewerageConnection.roadCuttingInfo.*.id
+
+          - jsonPath: $.SewerageConnection.tenantId
+
+          - jsonPath: $.SewerageConnection.id
+
+          - jsonPath: $.SewerageConnection.roadCuttingInfo.*.status
+
+          - jsonPath: $.SewerageConnection.roadCuttingInfo.*.roadType
+
+          - jsonPath: $.SewerageConnection.roadCuttingInfo.*.roadCuttingArea
+
+          - jsonPath: $.SewerageConnection.roadCuttingInfo.*.auditDetails.createdBy
+
+          - jsonPath: $.SewerageConnection.roadCuttingInfo.*.auditDetails.lastModifiedBy
+
+          - jsonPath: $.SewerageConnection.roadCuttingInfo.*.auditDetails.createdTime
+
+          - jsonPath: $.SewerageConnection.roadCuttingInfo.*.auditDetails.lastModifiedTime
+
+          - jsonPath: $.SewerageConnection.roadCuttingInfo.*.status
+
+          - jsonPath: $.SewerageConnection.roadCuttingInfo.*.roadType
+
+          - jsonPath: $.SewerageConnection.roadCuttingInfo.*.roadCuttingArea
+
+          - jsonPath: $.SewerageConnection.roadCuttingInfo.*.auditDetails.lastModifiedBy
+
+          - jsonPath: $.SewerageConnection.roadCuttingInfo.*.auditDetails.lastModifiedTime
 
  - version: 1.0
    name: SewerageConnection
