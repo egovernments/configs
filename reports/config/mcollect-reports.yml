@@ -69,14 +69,8 @@ ReportDefinitions:
     source: pt
     isMandatory: false
     searchClause: AND ep.paymentstatus <= $receiptstatus
-  - name: servicecategory
-    label: servicecategory
-    type: singlevaluelist
-    pattern: 'list://Admin Fees:Admin Fees,Challans:Challans,Others:Others'
-    source: pt
-    isMandatory: false
-    searchClause: AND servicecategory <= $servicecategory
   query: |
         SELECT receiptnumber,payerName,transactionnumber,totaldue,ed.businessservice,paymentmode,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
         totalamountpaid AS amountCollected,ep.paymentstatus AS receiptstatus FROM egcl_payment AS ep
-        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentmode in ('DD','CHEQUE','ONLINE','CASH','CARD')
+  orderby: order by ed.receiptdate desc;
