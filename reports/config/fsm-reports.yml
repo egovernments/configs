@@ -336,14 +336,12 @@ ReportDefinitions:
         wrapper: true
         isMandatory: false
         searchClause: AND app.dso_id = $dsoId
-      - name: vehicleId
+      - name: vehicleNo
         label: REPORTS_FSM_PARAM_VEHICLENUMBER
-        type: singlevaluelist
-        pattern: http://vehicle.egov:8080/vehicle/v1/_search?tenantId=$tenantid|$.vehicle.*.id|$.vehicle.*.registrationNumber
+        type: string
         source: fsm
-        wrapper: true
         isMandatory: false
-        searchClause: AND vehicle.id = $vehicleId
+        searchClause: AND vehicle.registrationnumber ilike '%'||$vehicleNo||'%'
     query: |
           select  app.applicationno as applicationno, vhtrip.applicationno as vehiclelogno, vendor.name as dsoname, vehicle.registrationnumber as vehicleno, vhtrip.tripstarttime as vehicleentrytime, vhtrip.tripendtime as vehicleexittime, vhtrip.volumecarried as septagedumped from eg_fsm_application app join eg_vehicle_trip_detail vhtripdtl  on  app.tenantid  =vhtripdtl.tenantid and app.applicationno=vhtripdtl.referenceno join eg_vehicle_trip vhtrip on vhtrip.tenantid=vhtripdtl.tenantid and vhtripdtl.trip_id=vhtrip.id join eg_vehicle vehicle on vhtrip.tenantid=vehicle.tenantid and  vhtrip.vehicle_id=vehicle.id join eg_vendor vendor ON  app.dso_id =vendor.id where 1=1 
     orderby: order by app.applicationno  desc
