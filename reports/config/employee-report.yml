@@ -26,39 +26,47 @@ ReportDefinitions:
     label: reports.hrms.name
     type: string
     source: eg_hrms_employee
-  - name: role
+  - name: rolecodes
     label: reports.hrms.role
     type: stringarray
     source: eg_hrms_employee
+    isLocalisationRequired: true
+    localisationPrefix: ACCESSCONTROL_ROLES_ROLES_
   - name: designation
     label: reports.hrms.designation
     type: string
     source: eg_hrms_employee
+    isLocalisationRequired: true
+    localisationPrefix: COMMON_MASTERS_DESIGNATION_
   - name: department
     label: reports.hrms.department
     type: string
     source: eg_hrms_employee
+    isLocalisationRequired: true
+    localisationPrefix: COMMON_MASTERS_DEPARTMENT_
   - name: status
     label: reports.hrms.status
     type: string
     source: eg_hrms_employee
+    isLocalisationRequired: true
+    localisationPrefix: EGOV_HRMS_EMPLOYEESTATUS_
   searchParams:
   - name: ulb
     label: ULB
     type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.code
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
     source: pt
     wrapper: true
     isMandatory: true
-    isLocalisationRequired: true
     searchClause: AND emp_data.tenantid = $ulb
   - name: status
     label: reports.hrms.status
     type: multivaluelist
-    pattern: 'list://RETIRED:Retired,EMPLOYED:Employed,TERMINATED:Terminated,TRANSFERRED:Transferred,DECEASED:Deceased,SUSPENDED:Suspended,RESIGNED:Resigned'
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pb&moduleName=egov-hrms&masterName=EmployeeStatus|$.MdmsRes.egov-hrms.EmployeeStatus[?(@.active)].code|$.MdmsRes.egov-hrms.EmployeeStatus[?(@.active)].code
     source: seva
     isMandatory: false
     isLocalisationRequired: true
+    localisationPrefix: EGOV_HRMS_EMPLOYEESTATUS_
     searchClause: AND emp_data.employeestatus IN ( $status )
   - name: role
     label: reports.hrms.role
@@ -66,6 +74,7 @@ ReportDefinitions:
     pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pb&moduleName=ACCESSCONTROL-ROLES&masterName=roles|$.MdmsRes.ACCESSCONTROL-ROLES.roles[?(@.code nin ['CITIZEN'])].code|$.MdmsRes.ACCESSCONTROL-ROLES.roles[?(@.code nin ['Citizen'])].code
     isMandatory: false
     isLocalisationRequired: true
+    localisationPrefix: ACCESSCONTROL_ROLES_ROLES_
     searchClause: AND ARRAY[ $role ]::varchar[] && emp_data.rolecodes::varchar[]
   - name: deptname
     label: reports.pgr.dept.name
@@ -74,6 +83,7 @@ ReportDefinitions:
     pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=common-masters&masterName=Department|$.MdmsRes.common-masters.Department[*].code|$.MdmsRes.common-masters.Department[*].code
     isMandatory: false
     isLocalisationRequired: true
+    localisationPrefix: COMMON_MASTERS_DEPARTMENT_
     searchClause: AND deptmap_def.code IN ($deptname)
   query: |
     WITH emp_data AS (SELECT DISTINCT
@@ -93,6 +103,7 @@ ReportDefinitions:
     SELECT emp_data.id as id,
       emp_data.name as name,
       ARRAY_TO_STRING(emp_data.role, ',') as role,
+      ARRAY_TO_STRING(emp_data.rolecodes, ',') as rolecodes,
       desigmap_def.code as designation,
       deptmap_def.code as department,
       emp_data.employeestatus as status
