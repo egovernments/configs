@@ -1,4 +1,44 @@
 ReportDefinitions:
+- reportName: SourceWiseReport
+  summary: Fetches reports based on the source of reception of the complaint
+  version: 1.0.0
+  moduleName: pgr
+  sourceColumns:
+  - name: citizen_mobile_app
+    label: Mobile
+    type: number
+    source: eg_pgr_service
+  - name: citizen_web_app
+    label: Web
+    type: number
+    source: eg_pgr_service
+  - name: counter_desktop
+    label: IVR
+    type: number
+    source: eg_pgr_service
+  searchParams: 
+  - name: ulb
+    label: ULB
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+    source: pt
+    wrapper: true
+    isMandatory: false
+    searchClause: AND eg_pgr_service.tenantid = $ulb
+  - name: fromDate
+    label: reports.pgr.datefrom
+    type: epoch
+    source: eg_pgr_service
+    isMandatory: false
+    searchClause: AND eg_pgr_service.createdtime >= $fromDate
+  - name: toDate
+    label: reports.pgr.dateto
+    type: epoch
+    source: eg_pgr_service
+    isMandatory: false
+    searchClause: AND eg_pgr_service.createdtime <= $toDate
+  query: SELECT sum(case when source = 'mobileapp' then 1 else 0 end) as citizen_mobile_app, sum(case when source = 'web' then 1 else 0 end) as citizen_web_app, sum(case when source = 'ivr' then 1 else 0 end) as counter_desktop FROM eg_pgr_service WHERE 1=1
+
 - reportName: GrievanceByType
   summary: Report grouped by Grievance Type and status - based on a date period
   version: 1.0.0
@@ -2482,6 +2522,11 @@ ReportDefinitions:
     type: string
     source: eg_pgr_service
     total: false
+  - name: locality
+    label: reports.rainmaker-pgr.locality
+    type: string
+    source: eg_pgr_service
+    total: false    
   searchParams:
   - name: ulb
     label: ULB
@@ -2519,7 +2564,7 @@ ReportDefinitions:
     to_char(to_timestamp(TRUNC(CAST(eg_pgr_service.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofcomplaint, 
     to_char(to_timestamp(TRUNC(CAST(epa.when AS bigint) / 1000)), 'DD/MM/YY') AS dateofassignment,
     Initcap(eg_pgr_service.status) as status,
-    (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) where code=eg_pgr_address.mohalla) as ward, 
+    (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) where code=eg_pgr_address.mohalla) as locality, 
     eg_user.name, 
     phone, 
     eg_pgr_address.landmark, 
