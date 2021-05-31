@@ -140,3 +140,79 @@ ReportDefinitions:
         transactionnumber,totalamountpaid AS amountCollected,paymentmode AS paymentinstrument FROM egcl_payment AS ep
         JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentmode in ('DD','CHEQUE','ONLINE','CASH','CARD')
   orderby: order by ed.receiptdate desc
+  orderby: order by ed.receiptdate desc;
+
+- reportName: ChallanRegister
+  summary: Report is used to track and understand the challans generated, outstanding amount, & different status of the challans. 
+  version: 1.0.0
+  moduleName: challan-register-reports
+  sourceColumns:
+  - name: service
+    label: reports.mcollect.service
+    type: string
+    source: challan-register-reports
+    total: false
+  - name: locality
+    label: eports.mcollect.locality
+    type: string
+    source: challan-register-reports
+    total: false
+  - name: totalchallans
+    label: reports.mcollect.totalchallans
+    type: string
+    source: challan-register-reports
+    total: false
+  - name: status
+    label: reports.mcollect.status
+    type: string
+    source: challan-register-reports
+    total: false
+  - name: totalamount
+    label: reports.mcollect.totalamount
+    type: string
+    source: challan-register-reports
+    total: false
+  searchParams:
+  - name: service
+    label: reports.mcollect.service
+    type: multivaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pb&moduleName=BillingService&masterName=BusinessService&filter=[?(@.type=='Adhoc')]|$.MdmsRes.BillingService.BusinessService.*.code|$.MdmsRes.BillingService.BusinessService.*.businessService
+    source: common
+    wrapper: true
+    state: true
+    isMandatory: false
+    isLocalisationRequired: true
+    localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
+    searchClause: AND REGEXP_REPLACE(service,'\..*','') IN ($service)
+  - name: fromDate
+    label: reports.mcollect.fromDate
+    type: epoch
+    source: challan-register-reports
+    isMandatory: true
+    searchClause: AND ec.taxPeriodFrom >= $fromDate
+  - name: toDate
+    label: reports.mcollect.toDate
+    type: epoch
+    source: challan-register-reports
+    isMandatory: true
+    searchClause: AND ec.taxPeriodTo <= $toDate
+  - name: status
+    label: reports.mcollect.status
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pb&moduleName=mCollect&masterName=applicationStatus&filter=[?(@.active)]|$.MdmsRes.mCollect.applicationStatus.*.code|$.MdmsRes.mCollect.applicationStatus.*.code
+    source: challan-register-reports
+    isMandatory: false
+    searchClause: AND status = $status
+  - name: locality
+    label: reports.mcollect.locality
+    type: singlevaluelist
+    pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=pb|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.name
+    source: challan-register-reports
+    wrapper: true
+    isMandatory: false
+    searchClause: AND locality = $locality
+  query: |
+        select ec.businessService as service , eca.locality as locality, ec.applicationStatus as status, count(*)as totalchallans, sum(bd.totalamount) as totalamount from eg_echallan as ec 
+        join eg_challan_address as eca on ec.id = eca.echallanId
+        join egbs_billdetail_v1 as bd on ec.challanNo = bd.consumercode where 1=1
+  groupby: group by ec.businessService, eca.locality, ec.applicationStatus
