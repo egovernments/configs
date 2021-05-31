@@ -73,4 +73,70 @@ ReportDefinitions:
         SELECT receiptnumber,payerName,transactionnumber,totaldue,ed.businessservice,paymentmode,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
         totalamountpaid AS amountCollected,ep.paymentstatus AS receiptstatus FROM egcl_payment AS ep
         JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentmode in ('DD','CHEQUE','ONLINE','CASH','CARD')
-  orderby: order by ed.receiptdate desc;
+  orderby: order by ed.receiptdate desc
+  
+- reportName: MCOllectCollectionReport
+  summary: It helps administrators track the collection in the ULB and the employee collection performance. 
+  version: 1.0.0
+  moduleName: mcollect-reports
+  sourceColumns:
+  - name: receiptnumber
+    label: reports.pt.receiptnumber
+    type: string
+    source: pt
+    total: false
+  - name: locality
+    label: reports.pt.locality
+    type: string
+    source: pt
+    total: false
+  - name: collectorname
+    label: reports.pt.collectorname
+    type: string
+    source: pt
+    total: false
+  - name: paymentinstrument
+    label: reports.pt.paymentinstrument
+    type: string
+    source: pt
+    total: false
+  - name: transactionnumber
+    label: reports.pt.transactionnumber
+    type: string
+    source: pt
+    total: false
+  - name: amountCollected
+    label: reports.pt.amountCollected
+    type: string
+    source: pt
+    total: false
+  - name: paymentdate
+    label: reports.pt.paymentdate
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: fromDate
+    label: reports.pt.fromDate
+    type: epoch
+    source: pt
+    isMandatory: true
+    searchClause: AND ed.receiptdate >= $fromDate
+  - name: toDate
+    label: reports.pt.toDate
+    type: epoch
+    source: pt
+    isMandatory: true
+    searchClause: AND ed.receiptdate <= $toDate
+  - name: paymentinstrument
+    label: paymentinstrument
+    type: singlevaluelist
+    pattern: 'list://Cash:Cash,Online:Online,Card:Card,DD:DD,Cheque:Cheque'
+    source: pt
+    isMandatory: false
+    searchClause: AND paymentmode = $paymentinstrument  
+  query: |
+        SELECT receiptnumber,payeraddress AS locality,payerName AS collectorname,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
+        transactionnumber,totalamountpaid AS amountCollected,paymentmode AS paymentinstrument FROM egcl_payment AS ep
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentmode in ('DD','CHEQUE','ONLINE','CASH','CARD')
+  orderby: order by ed.receiptdate desc
