@@ -174,7 +174,7 @@ ReportDefinitions:
     searchParams:
       - name: service
         label: reports.mcollect.service
-        type: multivaluelist
+        type: singlevaluelist
         pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pb&moduleName=BillingService&masterName=BusinessService&filter=%5B?(@.type=='Adhoc')%5D|$.MdmsRes.BillingService.BusinessService.*.code|$.MdmsRes.BillingService.BusinessService.*.businessService
         source: mcollect
         wrapper: true
@@ -192,6 +192,22 @@ ReportDefinitions:
         source: mcollect
         isMandatory: true
         searchClause: AND ec.taxPeriodTo <= $toDate
+      - name: status
+        label: reports.mcollect.status
+        type: singlevaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pb&moduleName=mCollect&masterName=applicationStatus&filter=%5B?(@.active)%5D|$.MdmsRes.mCollect.applicationStatus.*.code|$.MdmsRes.mCollect.applicationStatus.*.code
+        source: mcollect
+        wrapper: true
+        isMandatory: false
+        searchClause: AND ec.applicationStatus = $status
+      - name: locality
+        label: reports.mcollect.locality
+        type: singlevaluelist
+        pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.name
+        source: mcollect
+        wrapper: true
+        isMandatory: false
+        searchClause: AND eca.locality = $locality  
     query: |
           select ec.businessService as service , eca.locality as locality, ec.applicationStatus as status, count(*)as totalchallans, sum(bd.totalamount) as totalamount from eg_echallan as ec 
           join eg_challan_address as eca on ec.id = eca.echallanId 
