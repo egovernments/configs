@@ -2178,10 +2178,10 @@ ReportDefinitions:
       SUM (CASE WHEN status in ('assigned', 'reassignrequested') THEN 1 ELSE 0 END) as assigned,SUM (CASE WHEN status in ('escalatedlevel1pending', 'escalatedlevel2pending','escalatedlevel3pending','escalatedlevel4pending') THEN 1 ELSE 0 END) as escalated,
       count(status) as received,
       rating,
-      SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedwithinsla,
-      SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
-      SUM (CASE WHEN status in ('open') and (extract(epoch from now()) * 1000 - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END)  as opencomplaintswithinsla,
-      SUM (CASE WHEN status in ('open') and (extract(epoch from now()) * 1000 - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as opencomplaintsoutsidesla
+      SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) < 2 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedwithinsla,
+      SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) >= 2 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
+      SUM (CASE WHEN status in ('open') and (extract(epoch from now()) * 1000 - opentime) < 2 * 86400 * 1000 THEN 1 ELSE 0 END)  as opencomplaintswithinsla,
+      SUM (CASE WHEN status in ('open') and (extract(epoch from now()) * 1000 - opentime) >= 2 * 86400 * 1000 THEN 1 ELSE 0 END) as opencomplaintsoutsidesla
       from pgr_data
       INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
       INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
@@ -2311,8 +2311,8 @@ ReportDefinitions:
       deptmap_def.name as department,    
       (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in 
       (select designation from eg_hrms_assignment where iscurrentassignment=true and employeeid::varchar=(select uuid from eg_user where id::varchar = assignee))) as designation,   
-      SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedwithinsla,
-      SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
+      SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) < 2 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedwithinsla,
+      SUM (CASE WHEN status in ('closed', 'resolved') and (resolvedtime - opentime) >= 2 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
       SUM (CASE WHEN status in ('assigned', 'reassignrequested') THEN 1 ELSE 0 END) as assigned,
       SUM (CASE WHEN status in ('open') THEN 1 ELSE 0 END) as open,
       SUM (CASE WHEN status in ('reopen') THEN 1 ELSE 0 END) as reopen,SUM (CASE WHEN status in ('escalatedlevel1pending','escalatedlevel2pending','escalatedlevel3pending','escalatedlevel4pending') THEN 1 ELSE 0 END) as escalated,
