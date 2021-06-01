@@ -804,3 +804,60 @@ ReportDefinitions:
     searchClause: AND tl.tenantId = $ulb
   query: SELECT tl.tenantId as tenantId,licensenumber,to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as formattedIssuedDate,tl.tradeName,tradeTypeName,acc, name,mobilenumber,totalamount,To_char(To_timestamp(receipt.manualreceiptdate / 1000), 'DD/MM/YYYY') AS g8issuedate,receipt.manualreceiptnumber as g8receiptno FROM eg_tl_tradelicense tl INNER JOIN eg_tl_tradelicensedetail tld ON tld.tradelicenseid = tl.id INNER JOIN eg_tl_owner tlowner ON tlowner.tradelicensedetailid = tld.id INNER JOIN (SELECT tradelicensedetailid,message.message as tradeTypeName FROM eg_tl_tradeunit INNER JOIN message ON split_part(message.code,'_',2) = tradeType) tlunit ON tlunit.tradelicensedetailid = tld.id INNER JOIN eg_user tluser ON tluser.uuid = tlowner.id LEFT OUTER JOIN egcl_receiptheader receipt ON receipt.consumercode = tl.applicationnumber LEFT OUTER JOIN (SELECT tradelicensedetailid,array_to_string(array_agg(message.message),',') AS acc FROM eg_tl_accessory LEFT OUTER JOIN message ON split_part(message.code,'_',2) = accessorycategory AND message.locale = 'en_IN' GROUP BY 1 ) tlacc ON tlacc.tradelicensedetailid = tld.id WHERE tl.Status = 'APPROVED'
   orderby: ORDER BY tl.tenantId asc
+
+- reportName: ULBLevelBillingSlabsReport
+  summary: TL Billing Slabs ULB wise report
+  version: 1.0.0
+  moduleName: rainmaker-tl
+  sourceColumns:
+  - name: tenantId
+    label: report.tl.tenantid
+    type: string
+    source: tl
+    total: false
+  - name: licensetype
+    label: report.tl.licensetype
+    type: string
+    source: tl
+    total: false
+  - name: tradeTypeName
+    label: report.tl.tradetype
+    type: string
+    source: tl
+    total: false
+  - name: uom
+    label: report.tl.uom
+    type: string
+    source: tl
+    total: false
+  - name: fromuom
+    label: report.tl.fromuom
+    type: string
+    source: tl
+    total: false
+  - name: touom
+    label: report.tl.touom
+    type: string
+    source: tl
+    total: false
+  - name: rate
+    label: report.tl.rate
+    type: string
+    source: tl
+    total: false
+  - name: applicationtype
+    label: report.tl.applicationtype
+    type: string
+    source: tl
+    total: false
+  searchParams:
+  - name: ulb
+    label: ULB
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8094/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+    source: tl
+    wrapper: true
+    isMandatory: false
+    searchClause: AND tl.tenantId = $ulb
+  query: SELECT initcap(split_part(tl.tenantId, '.', 2)) 	as tenantId,licensetype,message.message as tradeTypeName,uom,fromuom,touom,rate,applicationtype FROM eg_tl_billingslab tl  LEFT OUTER JOIN message ON replace(substring(message.code, '_[A-Z]*_(.*)'),'_','.') = tl.tradeType WHERE  1=1
+  orderby: ORDER BY tl.tenantId asc
