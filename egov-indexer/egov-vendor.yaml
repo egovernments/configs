@@ -12,23 +12,46 @@ ServiceMaps:
       timeStampField: $.auditDetails.createdTime
       jsonPath: $.vendor
       customJsonMapping:
-        indexMapping: {"Data":{"vendor":{}}}
+        indexMapping: {"Data":{"vendor":{},"tenantData":{}}}
         fieldMapping:
         - inJsonPath: $
           outJsonPath: $.Data.vendor
+        mdmsMapping:
+        - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+          moduleName: tenant
+          masterName: tenants
+          tenantId: pb
+          filter: "[?(@.code == $tenant)]"
+          filterMapping:
+          - variable: $tenant
+            valueJsonpath: $.tenantId
+          uriResponseMapping:
+          - inJsonPath: $.MdmsRes.tenant.tenants
+            outJsonPath: $.Data.tenantData
 
-
-  - topic: update-vendor-application
-    configKey: INDEX
+  - topic: vendor-application-legacy-index
+    configKey: LEGACYINDEX
     indexes:
     - name: vendor
       type: vendorapplication
       id: $.id, $.tenantId
-      isBulk: false
+      isBulk: true
       timeStampField: $.auditDetails.createdTime
-      jsonPath: $.vendor
+      jsonPath: $.vendor.*
       customJsonMapping:
-        indexMapping: {"Data":{"vendor":{}}}
+        indexMapping: {"Data":{"vendor":{},"tenantData":{}}}
         fieldMapping:
         - inJsonPath: $
           outJsonPath: $.Data.vendor
+        mdmsMapping:
+        - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+          moduleName: tenant
+          masterName: tenants
+          tenantId: pb
+          filter: "[?(@.code == $tenant)]"
+          filterMapping:
+          - variable: $tenant
+            valueJsonpath: $.tenantId
+          uriResponseMapping:
+          - inJsonPath: $.MdmsRes.tenant.tenants
+            outJsonPath: $.Data.tenantData
