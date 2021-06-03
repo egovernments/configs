@@ -76,12 +76,13 @@ ReportDefinitions:
     orderby: order by ed.receiptdate desc
   
   - reportName: MCollectCollectionReport
+    decryptionPathId: MCollectCollectionReport
     summary: It helps administrators track the collection in the ULB and the employee collection performance. 
     version: 1.0.0
     moduleName: mcollect
     sourceColumns:
-      - name: receiptnumber
-        label: reports.mcollect.receiptnumber
+      - name: service
+        label: reports.mcollect.service
         type: string
         source: mcollect
         total: false
@@ -90,56 +91,87 @@ ReportDefinitions:
         type: string
         source: mcollect
         total: false
-      - name: collectorname
+        localisationPrefix: TENANTS_MOHALLA_
+        isLocalisationRequired: true
+      - name: name
         label: reports.mcollect.collectorname
         type: string
         source: mcollect
         total: false
-      - name: paymentinstrument
+      - name: paymentmode
         label: reports.mcollect.paymentinstrument
         type: string
         source: mcollect
         total: false
-      - name: transactionnumber
-        label: reports.mcollect.transactionnumber
+      - name: totaltransaction
+        label: reports.mcollect.totaltransaction
         type: string
         source: mcollect
         total: false
-      - name: amountCollected
-        label: reports.mcollect.amountCollected
-        type: string
-        source: mcollect
-        total: false
-      - name: paymentdate
-        label: reports.mcollect.paymentdate
+      - name: amountcollected
+        label: reports.mcollect.amountcollected
         type: string
         source: mcollect
         total: false
     searchParams:
+      - name: service
+        label: reports.mcollect.service
+        type: multivaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pb&moduleName=BillingService&masterName=BusinessService&filter=%5B?(@.type=='Adhoc')%5D|$.MdmsRes.BillingService.BusinessService.*.code|$.MdmsRes.BillingService.BusinessService.*.code
+        source: mcollect
+        wrapper: true
+        isMandatory: true
+        searchClause: AND ec.businessService = $service
       - name: fromDate
         label: reports.mcollect.fromDate
         type: epoch
         source: mcollect
         isMandatory: true
-        searchClause: AND ed.receiptdate >= $fromDate
+        searchClause: AND paydl.receiptdate >= $fromDate
       - name: toDate
         label: reports.mcollect.toDate
         type: epoch
         source: mcollect
         isMandatory: true
-        searchClause: AND ed.receiptdate <= $toDate
-      - name: paymentinstrument
-        label: paymentinstrument
+        searchClause: AND paydl.receiptdate <= $toDate
+      - name: name
+        label: reports.mcollect.collectorname
         type: singlevaluelist
-        pattern: 'list://Cash:Cash,Online:Online,Card:Card,DD:DD,Cheque:Cheque'
+        pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=UC_EMP|$.Employees[*].user.id|$.Employees[*].user.name
         source: mcollect
+        wrapper: true
         isMandatory: false
-        searchClause: AND paymentmode = $paymentinstrument  
+        searchClause: AND eu.id = $name::INTEGER
+      - name: locality
+        label: reports.mcollect.locality
+        type: singlevaluelist
+        pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.code
+        source: mcollect
+        wrapper: true
+        isMandatory: false
+        localisationPrefix: TENANTS_MOHALLA_
+        isLocalisationRequired: true
+        searchClause: AND eca.locality = $locality
+      - name: paymentType
+        label: reports.mcollect.paymentType
+        type: singlevaluelist
+        pattern: 'list://CASH:CASH,ONLINE:ONLINE,CARD:CARD,DD:DD,CHEQUE:CHEQUE'
+        source: mcollect
+        wrapper: true
+        isMandatory: false
+        localisationPrefix: COMMON_MASTERS_PAYMENTMODE_
+        isLocalisationRequired: true
+        searchClause: AND pay.paymentmode = $paymentType
     query: |
-      SELECT receiptnumber,payeraddress AS locality,payerName AS collectorname,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
-      transactionnumber,totalamountpaid AS amountCollected,paymentmode AS paymentinstrument FROM egcl_payment AS ep
-      JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentmode in ('DD','CHEQUE','ONLINE','CASH','CARD')
-    orderby: order by ed.receiptdate desc
+          Select ec.businessService as service, eca.locality as locality, eu.name as name, 
+          pay.paymentmode as paymentmode, count(*) as totaltransaction, sum(totalamountpaid) as amountcollected from egcl_bill as b 
+          inner join egcl_billdetial as bd on b.id = bd.billid AND b.tenantid = bd.tenantid 
+          inner join eg_echallan as ec on b.consumercode = ec.challanNo and b.tenantid =ec.tenantid 
+          inner join eg_challan_address as eca on ec.id = eca.echallanId 
+          inner join egcl_paymentdetail paydl on b.id = paydl.billid and b.tenantid = paydl.tenantid 
+          inner join egcl_payment pay on paydl.paymentid = pay.id and paydl.tenantid =pay.tenantid
+          inner join  eg_user as eu on eu.uuid = ec.accountid where 1=1
+    groupby: service,locality, name, paymentmode
 
   - reportName: MCollectChallanRegister
     summary: Report is used to track and understand the challans generated, outstanding amount, & different status of the challans. 
