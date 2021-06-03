@@ -12,71 +12,46 @@ ServiceMaps:
       timeStampField: $.auditDetails.createdTime
       jsonPath: $.vendor
       customJsonMapping:
-        indexMapping: {"Data":{"name":"name","address":{},"owner":{},"vehicles":[],"drivers":[],"additionalDetails":"additionalDetails","source":"source","description":"description","ownerId":"ownerId","status":"status","tenantId":"tenantId","auditDetails":{},"@timestamp":"timestamp"}}
+        indexMapping: {"Data":{"vendor":{},"tenantData":{}}}
         fieldMapping:
-        - inJsonPath: $.name
-          outJsonPath: $.Data.name
-        - inJsonPath: $.address
-          outJsonPath: $.Data.address
-        - inJsonPath: $.owner
-          outJsonPath: $.Data.owner
-        - inJsonPath: $.vehicles
-          outJsonPath: $.Data.vehicles
-        - inJsonPath: $.drivers
-          outJsonPath: $.Data.drivers
-        - inJsonPath: $.additionalDetails
-          outJsonPath: $.Data.additionalDetails
-        - inJsonPath: $.source
-          outJsonPath: $.Data.source
-        - inJsonPath: $.description
-          outJsonPath: $.Data.description                    
-        - inJsonPath: $.ownerId
-          outJsonPath: $.Data.ownerId          
-        - inJsonPath: $.status
-          outJsonPath: $.Data.status          
-        - inJsonPath: $.tenantId
-          outJsonPath: $.Data.tenantId          
-        - inJsonPath: $.auditDetails
-          outJsonPath: $.Data.auditDetails
-        - inJsonPath: $.@timestamp
-          outJsonPath: $.Data.@timestamp
+        - inJsonPath: $
+          outJsonPath: $.Data.vendor
+        mdmsMapping:
+        - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+          moduleName: tenant
+          masterName: tenants
+          tenantId: pb
+          filter: "[?(@.code == $tenant)]"
+          filterMapping:
+          - variable: $tenant
+            valueJsonpath: $.tenantId
+          uriResponseMapping:
+          - inJsonPath: $.MdmsRes.tenant.tenants
+            outJsonPath: $.Data.tenantData
 
-
-  - topic: update-vendor-application
-    configKey: INDEX
+  - topic: vendor-application-legacy-index
+    configKey: LEGACYINDEX
     indexes:
     - name: vendor
       type: vendorapplication
       id: $.id, $.tenantId
-      isBulk: false
+      isBulk: true
       timeStampField: $.auditDetails.createdTime
-      jsonPath: $.vendor
+      jsonPath: $.vendor.*
       customJsonMapping:
-        indexMapping: {"Data":{"name":"name","address":{},"owner":{},"vehicles":[],"drivers":[],"additionalDetails":"additionalDetails","source":"source","description":"description","ownerId":"ownerId","status":"status","tenantId":"tenantId","auditDetails":{},"@timestamp":"timestamp"}}
+        indexMapping: {"Data":{"vendor":{},"tenantData":{}}}
         fieldMapping:
-        - inJsonPath: $.name
-          outJsonPath: $.Data.name
-        - inJsonPath: $.address
-          outJsonPath: $.Data.address
-        - inJsonPath: $.owner
-          outJsonPath: $.Data.owner
-        - inJsonPath: $.vehicles
-          outJsonPath: $.Data.vehicles
-        - inJsonPath: $.drivers
-          outJsonPath: $.Data.drivers
-        - inJsonPath: $.additionalDetails
-          outJsonPath: $.Data.additionalDetails
-        - inJsonPath: $.source
-          outJsonPath: $.Data.source
-        - inJsonPath: $.description
-          outJsonPath: $.Data.description                    
-        - inJsonPath: $.ownerId
-          outJsonPath: $.Data.ownerId          
-        - inJsonPath: $.status
-          outJsonPath: $.Data.status          
-        - inJsonPath: $.tenantId
-          outJsonPath: $.Data.tenantId          
-        - inJsonPath: $.auditDetails
-          outJsonPath: $.Data.auditDetails
-        - inJsonPath: $.@timestamp
-          outJsonPath: $.Data.@timestamp
+        - inJsonPath: $
+          outJsonPath: $.Data.vendor
+        mdmsMapping:
+        - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+          moduleName: tenant
+          masterName: tenants
+          tenantId: pb
+          filter: "[?(@.code == $tenant)]"
+          filterMapping:
+          - variable: $tenant
+            valueJsonpath: $.tenantId
+          uriResponseMapping:
+          - inJsonPath: $.MdmsRes.tenant.tenants
+            outJsonPath: $.Data.tenantData
