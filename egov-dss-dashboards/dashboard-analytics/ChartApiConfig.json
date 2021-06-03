@@ -4552,8 +4552,8 @@
         "module": "FSM",
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
-        "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Capacity Utilization\":{\"date_histogram\":{\"field\":\"Data.fsm.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}}}"
+        "indexName": "vehicletripv1",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.vehicleTrip.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Capacity Utilization\":{\"date_histogram\":{\"field\":\"Data.vehicleTrip.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000\"}}}}}}}}}"
       }
     ],
     "translateTenantCode": true,
@@ -4876,8 +4876,8 @@
         "module": "FSM",
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.fsm.tenantId.keyword\" ,  \"district\" : \"Data.tenantData.city.districtName\"}",
-        "indexName": "vehicletrip-enriched",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"data.vehicleTrip.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"No Of Trips\":{\"value_count\":{\"field\":\"Data.vehicleTrip.@timestamp\"}},\"Total Septage Collected\":{\"sum\":{\"field\":\"Data.vehicleTrip.tripDetails.volume\"}},\"Total Septage Dumped At Plant\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}"
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"No Of Trips\":{\"sum\":{\"field\":\"Data.fsm.noOfTrips\"}},\"Total Waste Collected\":{\"sum\":{\"field\":\"Data.vehicleTrip.tripDetails.volume\"}},\"Total Waste Dumped\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}"
       }
     ],
     "isMdmsEnabled": true,
@@ -4893,18 +4893,18 @@
     "plotLabel":"District",
     "aggregationPaths": [
       "No Of Trips",
-      "Total Septage Collected",
-      "Total Septage Dumped At Plant"
+      "Total Waste Dumped",
+      "Total Waste Collected"
     ],
     "pathDataTypeMapping": [
       {
         "No Of Trips" : "number"
       },
       {
-        "Total Septage Collected" : "number"
+        "Total Waste Dumped" : "number"
       },
       {
-        "Total Septage Dumped At Plant" : "number"
+        "Total Waste Collected" : "number"
       }
     ],
     "isCumulative": true,
@@ -4920,8 +4920,8 @@
         "module": "FSM",
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.fsm.tenantId.keyword\" ,  \"district\" : \"Data.tenantData.city.districtName\"}",
-        "indexName": "vehicletrip-enriched",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"data.vehicleTrip.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"Data.vehicleTrip.tenantId.keyword\",\"size\":1000},\"aggs\":{\"No Of Trips\":{\"value_count\":{\"field\":\"Data.vehicleTrip.@timestamp\"}},\"Total Septage Collected\":{\"sum\":{\"field\":\"Data.vehicleTrip.tripDetails.volume\"}},\"Total Septage Dumped At Plant\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}}}"
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"Data.fsm.tenantId.keyword\",\"size\":1000},\"aggs\":{\"No Of Trips\":{\"sum\":{\"field\":\"Data.fsm.noOfTrips\"}},\"Total Waste Collected\":{\"sum\":{\"field\":\"Data.vehicleTrip.tripDetails.volume\"}},\"Total Waste Dumped\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -4936,18 +4936,18 @@
     "plotLabel":"Boundary",
     "aggregationPaths": [
       "No Of Trips",
-      "Total Septage Collected",
-      "Total Septage Dumped At Plant"
+      "Total Waste Dumped",
+      "Total Waste Collected"
     ],
     "pathDataTypeMapping": [
       {
         "No Of Trips" : "number"
       },
       {
-        "Total Septage Collected" : "number"
+        "Total Waste Dumped" : "number"
       },
       {
-        "Total Septage Dumped At Plant" : "number"
+        "Total Waste Collected" : "number"
       }
     ],
     "isCumulative": true,
@@ -4963,8 +4963,8 @@
         "module": "FSM",
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
-        "indexName": "vehicletrip-enriched",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"data.vehicleTrip.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Vehicle Reg No\":{\"terms\":{\"field\":\"Data.vehicleTrip.vehicle.registrationNumber.keyword\",\"size\":1000},\"aggs\":{\"No Of Trips\":{\"value_count\":{\"field\":\"Data.vehicleTrip.@timestamp\"}},\"Total Septage Collected\":{\"sum\":{\"field\":\"Data.vehicleTrip.tripDetails.volume\"}},\"Total Septage Dumped At Plant\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}}}"
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Vehicle Reg No\":{\"terms\":{\"field\":\"Data.vehicleTrip.vehicle.registrationNumber.keyword\",\"size\":1000},\"aggs\":{\"No Of Trips\":{\"sum\":{\"field\":\"Data.fsm.noOfTrips\"}},\"Total Waste Collected\":{\"sum\":{\"field\":\"Data.vehicleTrip.tripDetails.volume\"}},\"Total Waste Dumped\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -4980,18 +4980,18 @@
     "plotLabel":"Ward",
     "aggregationPaths": [
       "No Of Trips",
-      "Total Septage Collected",
-      "Total Septage Dumped At Plant"
+      "Total Waste Dumped",
+      "Total Waste Collected"
     ],
     "pathDataTypeMapping": [
       {
         "No Of Trips" : "number"
       },
       {
-        "Total Septage Collected" : "number"
+        "Total Waste Dumped" : "number"
       },
       {
-        "Total Septage Dumped At Plant" : "number"
+        "Total Waste Collected" : "number"
       }
     ],
     "isCumulative": true,
