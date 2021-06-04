@@ -247,37 +247,37 @@ ReportDefinitions:
     moduleName: fsm
     sourceColumns:
       - name: applicationno
-        label: reports.fsm.applicationno
+        label: REPORT_FSM_RESULT_APPLICATIONNO
         type: string
         source: fsm
         total: false
       - name: vehiclelogno
-        label: reports.fsm.vehiclelogno
+        label: REPORT_FSM_RESULT_VEHICLELOGNO
         type: string
         source: fsm
         total: false
       - name: dsoname
-        label: reports.fsm.dsoname
+        label: REPORT_FSM_RESULT_DSONAME
         type: string
         source: fsm
         total: false
       - name: vehicleno
-        label: reports.fsm.vehicleno
+        label: REPORT_FSM_RESULT_VEHICLENO
         type: string
         source: fsm
         total: false
       - name: vehicleentrytime
-        label: reports.fsm.vehicleentrytime
+        label: REPORT_FSM_RESULT_VEHICLEENTRYTIME
         type: string
         source: fsm
         total: false
       - name: vehicleexittime
-        label: reports.fsm.vehicleexittime
+        label: REPORT_FSM_RESULT_VEHICLEEXITTIME
         type: string
         source: fsm
         total: false
       - name: septagedumped
-        label: reports.fsm.septagedumped
+        label: REPORT_FSM_RESULT_SEPTAGEDUMPED
         type: string
         source: fsm
         total: false
@@ -325,5 +325,5 @@ ReportDefinitions:
         isMandatory: false
         searchClause: AND vehicle.registrationnumber ilike '%'||$vehicleNo||'%'
     query: |
-          select  app.applicationno as applicationno, vhtrip.applicationno as vehiclelogno, vendor.name as dsoname, vehicle.registrationnumber as vehicleno, vhtrip.tripstarttime as vehicleentrytime, vhtrip.tripendtime as vehicleexittime, vhtrip.volumecarried as septagedumped from eg_fsm_application app join eg_vehicle_trip_detail vhtripdtl  on  app.tenantid  =vhtripdtl.tenantid and app.applicationno=vhtripdtl.referenceno join eg_vehicle_trip vhtrip on vhtrip.tenantid=vhtripdtl.tenantid and vhtripdtl.trip_id=vhtrip.id join eg_vehicle vehicle on vhtrip.tenantid=vehicle.tenantid and  vhtrip.vehicle_id=vehicle.id join eg_vendor vendor ON  app.dso_id =vendor.id where 1=1 
+          select  app.applicationno as applicationno, vhtrip.applicationno as vehiclelogno, vendor.name as dsoname, vehicle.registrationnumber as vehicleno, to_char(to_timestamp( vhtrip.tripstarttime / 1000), 'dd/mm/yyyy HH24:MI:SS') as vehicleentrytime, to_char(to_timestamp(vhtrip.tripendtime / 1000), 'dd/mm/yyyy HH24:MI:SS') as vehicleexittime, vhtrip.volumecarried as septagedumped from eg_fsm_application app join eg_vehicle_trip_detail vhtripdtl  on  app.tenantid  =vhtripdtl.tenantid and app.applicationno=vhtripdtl.referenceno join eg_vehicle_trip vhtrip on vhtrip.tenantid=vhtripdtl.tenantid and vhtripdtl.trip_id=vhtrip.id join eg_vehicle vehicle on vhtrip.tenantid=vehicle.tenantid and  vhtrip.vehicle_id=vehicle.id join eg_vendor vendor ON  app.dso_id =vendor.id where 1=1 
     orderby: order by app.applicationno  desc
