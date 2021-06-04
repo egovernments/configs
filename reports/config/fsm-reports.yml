@@ -145,7 +145,7 @@ ReportDefinitions:
         source: fsm
       - name: applicationDate
         label: REPORT_FSM_RESULT_APPLICATIONDATE
-        type: datetime
+        type: string
         source: fsm
       - name: locality
         label: REPORT_FSM_RESULT_LOCALITY
@@ -165,11 +165,11 @@ ReportDefinitions:
         source: fsm
       - name: assignedToDSoOn
         label: REPORT_FSM_RESULT_ASSIGNED_TO_DSO_ON
-        type: datetime
+        type: string
         source: fsm
       - name: dateOfCompletion
         label: REPORT_FSM_RESULT_DATE_OF_COMPLETION
-        type: datetime
+        type: string
         source: fsm
       - name: amountpaid
         label: REPORT_FSM_RESULT_AMOUNT_PAID
@@ -223,9 +223,9 @@ ReportDefinitions:
         isMandatory: false
         searchClause: AND address.locality = $locality
     query: |
-      SELECT fsm.applicationno as applicationNo ,fsm.createdtime as applicationDate,boundary.name as locality, 
+      SELECT fsm.applicationno as applicationNo , to_char(to_timestamp(fsm.createdtime/1000),'DD/MM/YYYY') as applicationDate,boundary.name as locality, 
       statuskeys.message as currentStatus,propertytype.name as proprtyTypeSubType,vendor.name dsoName, 
-      pidso.lastmodifiedtime as assignedToDSoOn,picomplete.lastmodifiedtime as dateOfCompletion,payment.amountpaid 
+      to_char(to_timestamp(pidso.lastmodifiedtime/1000),'DD/MM/YYYY')  as assignedToDSoOn, to_char(to_timestamp(picomplete.lastmodifiedtime/1000),'DD/MM/YYYY') as dateOfCompletion,payment.amountpaid 
       FROM eg_fsm_application fsm 
       JOIN eg_fsm_address address ON ( address.fsm_id = fsm.id) 
       JOIN eg_vendor vendor ON ( vendor.id = fsm.dso_id) 
