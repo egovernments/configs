@@ -66,14 +66,6 @@ ReportDefinitions:
         source: fsm
         total: false
     searchParams:
-      - name: ulb
-        label: REPORTS_FSM_PARAM_ULB
-        type: singlevaluelist
-        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
-        source: fsm
-        wrapper: true
-        isMandatory: true
-        searchClause: AND app.tenantid = $ulb
       - name: fromDate
         label: REPORTS_FSM_PARAM_FROMDATE
         type: epoch
@@ -119,7 +111,7 @@ ReportDefinitions:
         isMandatory: false
         searchClause: AND app.dso_id = $dsoId
     query: |
-          select To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY')  as receiptdate, paydl.receiptnumber as receiptnumber,b.consumercode AS applicationno,(select name from eg_user where uuid=app.accountid ) as name,  pay.paymentmode as instrumenttype, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then To_char(To_timestamp(pay.instrumentdate / 1000), 'DD/MM/YYYY')  else  'NA' end)  as chequedate, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.instrumentnumber else  'NA' end) as chequeno, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.additionaldetails::json#>>'{bankDetails,BANK}'  else  'NA' end) as bankname, (case when pay.paymentmode='ONLINE' then pay.transactionnumber else  'NA' end) as transactionid, (case when pay.paymentmode='CARD' then pay.instrumentnumber else  '' end) as carddigit, bd.amount as amount,pay.paymentstatus as status from egcl_bill b inner join egcl_billdetial bd ON b.id = bd.billid AND b.tenantid = bd.tenantid INNER JOIN eg_fsm_application app on b.consumercode =app.applicationno and b.tenantid =app.tenantid inner join egcl_paymentdetail paydl   ON b.id = paydl.billid    AND b.tenantid = paydl.tenantid inner join egcl_payment pay  ON paydl.paymentid = pay.id and   paydl.tenantid =pay.tenantid where b.businessservice ='FSM.TRIP_CHARGES' 
+          select To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY')  as receiptdate, paydl.receiptnumber as receiptnumber,b.consumercode AS applicationno,(select name from eg_user where uuid=app.accountid ) as name,  pay.paymentmode as instrumenttype, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then To_char(To_timestamp(pay.instrumentdate / 1000), 'DD/MM/YYYY')  else  'NA' end)  as chequedate, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.instrumentnumber else  'NA' end) as chequeno, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.additionaldetails::json#>>'{bankDetails,BANK}'  else  'NA' end) as bankname, (case when pay.paymentmode='ONLINE' then pay.transactionnumber else  'NA' end) as transactionid, (case when pay.paymentmode='CARD' then pay.instrumentnumber else  '' end) as carddigit, bd.amount as amount,pay.paymentstatus as status from egcl_bill b inner join egcl_billdetial bd ON b.id = bd.billid AND b.tenantid = bd.tenantid INNER JOIN eg_fsm_application app on b.consumercode =app.applicationno and b.tenantid =app.tenantid inner join egcl_paymentdetail paydl   ON b.id = paydl.billid    AND b.tenantid = paydl.tenantid inner join egcl_payment pay  ON paydl.paymentid = pay.id and   paydl.tenantid =pay.tenantid where pay.tenantid=$tenantid and b.businessservice ='FSM.TRIP_CHARGES' 
     orderby: order by paydl.receiptdate  desc
   - reportName: FSMRequestReport
     summary: Report gives the highlevel information of FSM Requests
@@ -176,14 +168,6 @@ ReportDefinitions:
         type: currency
         source: fsm
     searchParams:
-      - name: ulb
-        label: REPORTS_FSM_PARAM_ULB
-        type: singlevaluelist
-        pattern: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
-        source: fsm
-        wrapper: true
-        isMandatory: true
-        searchClause: AND fsm.tenantid = $ulb
       - name: fromDate
         label: REPORTS_FSM_PARAM_FROMDATE
         type: epoch
@@ -239,7 +223,7 @@ ReportDefinitions:
       JOIN egcl_paymentdetail payment ON ( payment.billid = bill.id ) 
       JOIN (VALUES fsm_boundary) AS boundary(name,code) ON (boundary.code = address.locality) 
       JOIN (VALUES fsm_property_type) propertytype(name,code) ON ( propertytype.code = fsm.propertyusage) 
-      JOIN (VALUES fsm_status_keys) statuskeys(message,code) ON ( statuskeys.code = CONCAT('CS_COMMON_FSM_',fsm.applicationstatus))  WHERE 1=1 
+      JOIN (VALUES fsm_status_keys) statuskeys(message,code) ON ( statuskeys.code = CONCAT('CS_COMMON_FSM_',fsm.applicationstatus))  WHERE fsm.tenantid=$tenantid 
     orderby: ORDER BY applicationNo
   - reportName: FSMVehicleLogReport
     summary: Report is used for check FSM Vehicle log report.
@@ -290,14 +274,6 @@ ReportDefinitions:
         wrapper: true
         isMandatory: true
         searchClause: AND vhtrip.additionaldetails ::json ->>'plantCode' = $fstpcode
-      - name: ulb
-        label: REPORTS_FSM_PARAM_ULB
-        type: singlevaluelist
-        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
-        source: fsm
-        wrapper: true
-        isMandatory: true
-        searchClause: AND app.tenantid = $ulb
       - name: fromDate
         label: REPORTS_FSM_PARAM_FROMDATE
         type: epoch
@@ -325,5 +301,5 @@ ReportDefinitions:
         isMandatory: false
         searchClause: AND vehicle.registrationnumber ilike '%'||$vehicleNo||'%'
     query: |
-          select  app.applicationno as applicationno, vhtrip.applicationno as vehiclelogno, vendor.name as dsoname, vehicle.registrationnumber as vehicleno, to_char((to_timestamp(vhtrip.tripstarttime)::timestamp  at time zone 'utc' at time Zone 'Asia/Kolkata'), 'dd/mm/yyyy HH24:MI:SS') as vehicleentrytime, to_char((to_timestamp(vhtrip.tripendtime)::timestamp at time zone 'utc' at time Zone 'Asia/Kolkata'), 'dd/mm/yyyy HH24:MI:SS') as vehicleexittime, vhtrip.volumecarried as septagedumped from eg_fsm_application app join eg_vehicle_trip_detail vhtripdtl  on  app.tenantid  =vhtripdtl.tenantid and app.applicationno=vhtripdtl.referenceno join eg_vehicle_trip vhtrip on vhtrip.tenantid=vhtripdtl.tenantid and vhtripdtl.trip_id=vhtrip.id join eg_vehicle vehicle on vhtrip.tenantid=vehicle.tenantid and  vhtrip.vehicle_id=vehicle.id join eg_vendor vendor ON  app.dso_id =vendor.id where 1=1 
+          select  app.applicationno as applicationno, vhtrip.applicationno as vehiclelogno, vendor.name as dsoname, vehicle.registrationnumber as vehicleno, to_char((to_timestamp(vhtrip.tripstarttime)::timestamp  at time zone 'utc' at time Zone 'Asia/Kolkata'), 'dd/mm/yyyy HH24:MI:SS') as vehicleentrytime, to_char((to_timestamp(vhtrip.tripendtime)::timestamp at time zone 'utc' at time Zone 'Asia/Kolkata'), 'dd/mm/yyyy HH24:MI:SS') as vehicleexittime, vhtrip.volumecarried as septagedumped from eg_fsm_application app join eg_vehicle_trip_detail vhtripdtl  on  app.tenantid  =vhtripdtl.tenantid and app.applicationno=vhtripdtl.referenceno join eg_vehicle_trip vhtrip on vhtrip.tenantid=vhtripdtl.tenantid and vhtripdtl.trip_id=vhtrip.id join eg_vehicle vehicle on vhtrip.tenantid=vehicle.tenantid and  vhtrip.vehicle_id=vehicle.id join eg_vendor vendor ON  app.dso_id =vendor.id where app.tenantid=$tenantid
     orderby: order by app.applicationno  desc
