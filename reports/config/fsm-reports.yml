@@ -225,21 +225,23 @@ ReportDefinitions:
     query: |
       SELECT fsm.applicationno as applicationNo , to_char(to_timestamp(fsm.createdtime/1000),'DD/MM/YYYY') as applicationDate,boundary.name as locality, 
       statuskeys.message as currentStatus,propertytype.name as proprtyTypeSubType,vendor.name dsoName, 
-      to_char(to_timestamp(pidso.lastmodifiedtime/1000),'DD/MM/YYYY')  as assignedToDSoOn, to_char(to_timestamp(picomplete.lastmodifiedtime/1000),'DD/MM/YYYY') as dateOfCompletion,payment.amountpaid 
+      CASE WHEN pidso.lastmodifiedtime <= 0  THEN 'NA' ELSE to_char(to_timestamp(pidso.lastmodifiedtime/1000),'DD/MM/YYYY') END  as assignedToDSoOn, 
+      CASE WHEN picomplete.lastmodifiedtime <= 0  THEN 'NA' ELSE to_char(to_timestamp(picomplete.lastmodifiedtime/1000),'DD/MM/YYYY')  END as dateOfCompletion,
+      CASE WHEN payment.amountpaid >0 THEN payment.amountpaid ELSE  '0'  END 
       FROM eg_fsm_application fsm 
       JOIN eg_fsm_address address ON ( address.fsm_id = fsm.id) 
-      JOIN eg_vendor vendor ON ( vendor.id = fsm.dso_id) 
-      JOIN (select pi.businessId,MAX(pi.lastmodifiedtime) as lastmodifiedtime from eg_wf_processinstance_v2 pi 
-      JOIN eg_wf_state_v2 status ON ( status.uuid =pi.status) 
+      LEFT  JOIN eg_vendor vendor ON ( vendor.id = fsm.dso_id) 
+      LEFT   JOIN (select pi.businessId,MAX(pi.lastmodifiedtime) as lastmodifiedtime from eg_wf_processinstance_v2 pi 
+      LEFT  JOIN eg_wf_state_v2 status ON ( status.uuid =pi.status) 
       where pi.businessService='FSM' AND status.applicationstatus='PENDING_DSO_APPROVAL'  GROUP BY pi.businessId) pidso ON ( pidso.businessId = fsm.applicationno) 
-      JOIN (select pi.businessId,pi.lastmodifiedtime from eg_wf_processinstance_v2 pi 
+      LEFT  JOIN (select pi.businessId,pi.lastmodifiedtime from eg_wf_processinstance_v2 pi 
       JOIN eg_wf_state_v2 status ON ( status.uuid =pi.status) 
       where pi.businessService='FSM' AND status.applicationstatus='CITIZEN_FEEDBACK_PENDING') picomplete ON ( picomplete.businessId = fsm.applicationno) 
-      JOIN egcl_bill bill ON ( bill.consumercode = fsm.applicationno) 
-      JOIN egcl_paymentdetail payment ON ( payment.billid = bill.id ) 
-      JOIN (VALUES fsm_boundary) AS boundary(name,code) ON (boundary.code = address.locality) 
-      JOIN (VALUES fsm_property_type) propertytype(name,code) ON ( propertytype.code = fsm.propertyusage) 
-      JOIN (VALUES fsm_status_keys) statuskeys(message,code) ON ( statuskeys.code = CONCAT('CS_COMMON_FSM_',fsm.applicationstatus))  WHERE 1=1 
+      LEFT  JOIN egcl_bill bill ON ( bill.consumercode = fsm.applicationno) 
+      LEFT  JOIN egcl_paymentdetail payment ON ( payment.billid = bill.id )
+      LEFT  JOIN (VALUES fsm_boundary) AS boundary(name,code) ON (boundary.code = address.locality) 
+      LEFT  JOIN (VALUES fsm_property_type) propertytype(name,code) ON ( propertytype.code = fsm.propertyusage) 
+      LEFT  JOIN (VALUES fsm_status_keys) statuskeys(message,code) ON ( statuskeys.code = CONCAT('CS_COMMON_FSM_',fsm.applicationstatus))  WHERE fsm.tenantid=$tenantid 
     orderby: ORDER BY applicationNo
   - reportName: FSMVehicleLogReport
     summary: Report is used for check FSM Vehicle log report.
