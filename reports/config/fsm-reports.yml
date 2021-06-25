@@ -211,7 +211,7 @@ ReportDefinitions:
       statuskeys.message as currentStatus,propertytype.name as proprtyTypeSubType,vendor.name dsoName, 
       CASE WHEN pidso.lastmodifiedtime <= 0  THEN 'NA' ELSE to_char(to_timestamp(pidso.lastmodifiedtime/1000),'DD/MM/YYYY') END  as assignedToDSoOn, 
       CASE WHEN picomplete.lastmodifiedtime <= 0  THEN 'NA' ELSE to_char(to_timestamp(picomplete.lastmodifiedtime/1000),'DD/MM/YYYY')  END as dateOfCompletion,
-      CASE WHEN payment.amountpaid >0 THEN payment.amountpaid ELSE  '0'  END 
+      coalesce(payment.amountpaid) as amountpaid 
       FROM eg_fsm_application fsm 
       JOIN eg_fsm_address address ON ( address.fsm_id = fsm.id) 
       LEFT  JOIN eg_vendor vendor ON ( vendor.id = fsm.dso_id) 
