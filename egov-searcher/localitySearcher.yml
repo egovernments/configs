@@ -214,3 +214,48 @@ SearchDefinitions:
       jsonFormat: {"ResponseInfo": {}}
       outJsonPath: $.Localities
       responseInfoPath: $.ResponseInfo
+  - name: fsm
+    query:
+      baseQuery: |
+        Select row_to_json(result) from
+        (
+         select fsm.applicationno as referenceNumber,ad.locality from eg_fsm_application fsm
+          INNER JOIN eg_fsm_address ad ON ad.fsm_id = fsm.id 
+        ) result  $where
+      groupBy:
+      orderBy:
+    searchParams:
+      condition: AND
+      params:
+      - name: result.referenceNumber
+        isMandatory: true
+        jsonPath: $.searchCriteria.referenceNumber
+        operator: 
+
+    output:
+      jsonFormat: {"ResponseInfo": {}}
+      outJsonPath: $.Localities
+      responseInfoPath: $.ResponseInfo
+
+  - name: property-services
+    query:
+      baseQuery: |
+        Select row_to_json(result) from
+        (
+          select property.acknowldgementnumber as referenceNumber,locality from eg_pt_property property
+          INNER JOIN eg_pt_address ptadd ON ptadd.propertyid = property.id
+        ) result  $where
+      groupBy:
+      orderBy:
+    searchParams:
+      condition: AND
+      params:
+      - name: result.referenceNumber
+        isMandatory: true
+        jsonPath: $.searchCriteria.referenceNumber
+        operator: 
+
+    output:
+      jsonFormat: {"ResponseInfo": {}}
+      outJsonPath: $.Localities
+      responseInfoPath: $.ResponseInfo

@@ -562,7 +562,7 @@
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"module\" : \"businessService.keyword\",\"tenantId\" : \"Data.service.tenantId\" , \"district\" : \"Data.tenantData.city.districtCode\"}",
         "dateRefField": "Data.@timestamp",
         "indexName": "pgr-services",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"Closed Application\":{\"filter\":{\"term\":{\"Data.service.applicationStatus.keyword\":\"RESOLVED\",\"CLOSEDAFTERRESOLUTION\",\"REJECTED\"}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\",\"order\":{\"_key\":\"asc\"},\"size\":100},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}},\"Total Application\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\",\"order\":{\"_key\":\"asc\"},\"size\":100},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"Closed Application\":{\"filter\":{\"terms\":{\"Data.service.applicationStatus.keyword\":[\"RESOLVED\",\"CLOSEDAFTERRESOLUTION\",\"REJECTED\"]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\",\"order\":{\"_key\":\"asc\"},\"size\":100},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}},\"Total Application\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\",\"order\":{\"_key\":\"asc\"},\"size\":100},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}}}}"
       },
       {
         "module": "PT",
@@ -603,7 +603,7 @@
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"module\" : \"businessService.keyword\",\"tenantId\" : \"Data.service.tenantId\" , \"district\" : \"Data.tenantData.city.districtCode\"}",
         "dateRefField": "Data.@timestamp",
         "indexName": "pgr-services",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"Closed Application\":{\"filter\":{\"term\":{\"Data.service.applicationStatus.keyword\":\"CLOSEDAFTERRESOLUTION\",\"RESOLVED\",\"REJECTED\"}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}},\"Total Application\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"Closed Application\":{\"filter\":{\"terms\":{\"Data.service.applicationStatus.keyword\":[\"CLOSEDAFTERRESOLUTION\",\"RESOLVED\",\"REJECTED\"]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}},\"Total Application\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}}}}"
       },
       {
         "module": "PT",
@@ -3125,10 +3125,10 @@
     "queries": [
       {
         "module": "W&S",
-        "indexName": "receipts-consumers",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"status\":\"Cancelled\"}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"totalamount\"}}}}}}",
-        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
-        "dateRefField": "receiptdate"
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pg.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"WS\", \"WS.ONE_TIME_FEE\"]}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}",
+        "requestQueryMap": "{\"tenantId\" : \"dataObject.tenantId\", \"wardId\" : \"domainObject.ward.name.keyword\"}",
+        "dateRefField": "dataObject.paymentDetails.receiptDate"
       }
     ],
     "translateTenantCode": true,
@@ -3180,10 +3180,10 @@
       },
       {
         "module": "W&S",
-        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
-        "dateRefField": "receiptdate",
-        "indexName": "receipts-consumers",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"status\":\"Cancelled\"}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"totalamount\"}}}}}}"
+        "requestQueryMap": "{\"tenantId\" : \"dataObject.tenantId\", \"wardId\" : \"domainObject.ward.name.keyword\"}",
+        "dateRefField": "dataObject.paymentDetails.receiptDate",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pg.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"WS\", \"WS.ONE_TIME_FEE\"]}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}"
       }
 
     ],
@@ -3756,10 +3756,10 @@
     "queries": [
       {
         "module": "W&S",
-        "indexName": "wsapplications",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"applicationstatus.keyword\":\"Cancelled\"}}],\"must\":[{\"terms\":{\"servicetype.keyword\":[\"Water Charges\",\"Sewerage Charges\"]}},{\"terms\":{\"connectionstatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"Total Connection\":{\"value_count\":{\"field\":\"id.keyword\"}}}}}}",
-        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
-        "dateRefField": "createddate"
+        "indexName": "water-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.status.keyword\":[\"Active\"]}}]}},\"aggs\":{\"Total Connection\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
+        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\"}",
+        "dateRefField": "Data.additionalDetails.appCreatedDate"
       }
     ],
     "translateTenantCode": true,

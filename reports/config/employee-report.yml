@@ -1,0 +1,115 @@
+ReportDefinitions:
+- reportName: EmployeeReport
+  decryptionPathId: EmployeeReport
+  summary: Fetches employee data based on provided search parameters
+  version: 1.0.0
+  moduleName: hrms
+  externalService:
+  - entity: $.MdmsRes.common-masters.Department
+    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=common-masters&masterName=Department&tenantId=$tenantId
+    keyOrder: name,code
+    tableName: tbl_def_dept
+  - entity: $.MdmsRes.common-masters.Designation
+    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=common-masters&masterName=Designation&tenantId=$tenantId
+    keyOrder: name,code
+    tableName: tbl_def_desig
+  - entity: $.MdmsRes.ACCESSCONTROL-ROLES.roles
+    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=ACCESSCONTROL-ROLES&masterName=roles&tenantId=$tenantId
+    keyOrder: name,code
+    tableName: tbl_def_roles
+  sourceColumns:
+  - name: id
+    label: reports.hrms.id
+    type: string
+    source: eg_hrms_employee
+  - name: name
+    label: reports.hrms.name
+    type: string
+    source: eg_hrms_employee
+  - name: rolecodes
+    label: reports.hrms.role
+    type: stringarray
+    source: eg_hrms_employee
+    isLocalisationRequired: true
+    localisationPrefix: ACCESSCONTROL_ROLES_ROLES_
+  - name: designation
+    label: reports.hrms.designation
+    type: string
+    source: eg_hrms_employee
+    isLocalisationRequired: true
+    localisationPrefix: COMMON_MASTERS_DESIGNATION_
+  - name: department
+    label: reports.hrms.department
+    type: string
+    source: eg_hrms_employee
+    isLocalisationRequired: true
+    localisationPrefix: COMMON_MASTERS_DEPARTMENT_
+  - name: status
+    label: reports.hrms.status
+    type: string
+    source: eg_hrms_employee
+    isLocalisationRequired: true
+    localisationPrefix: EGOV_HRMS_EMPLOYEESTATUS_
+  searchParams:
+  - name: ulb
+    label: ULB
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+    source: pt
+    wrapper: true
+    isMandatory: true
+    searchClause: AND emp_data.tenantid = $ulb
+  - name: status
+    label: reports.hrms.status
+    type: multivaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pg&moduleName=egov-hrms&masterName=EmployeeStatus|$.MdmsRes.egov-hrms.EmployeeStatus[?(@.active)].code|$.MdmsRes.egov-hrms.EmployeeStatus[?(@.active)].code
+    source: seva
+    isMandatory: false
+    isLocalisationRequired: true
+    localisationPrefix: EGOV_HRMS_EMPLOYEESTATUS_
+    searchClause: AND emp_data.employeestatus IN ( $status )
+  - name: role
+    label: reports.hrms.role
+    type: multivaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pg&moduleName=ACCESSCONTROL-ROLES&masterName=roles|$.MdmsRes.ACCESSCONTROL-ROLES.roles[?(@.code nin ['CITIZEN'])].code|$.MdmsRes.ACCESSCONTROL-ROLES.roles[?(@.code nin ['Citizen'])].code
+    isMandatory: false
+    isLocalisationRequired: true
+    localisationPrefix: ACCESSCONTROL_ROLES_ROLES_
+    searchClause: AND ARRAY[ $role ]::varchar[] && emp_data.rolecodes::varchar[]
+  - name: deptname
+    label: reports.pgr.dept.name
+    type: multivaluelist
+    source: eg_pgr_service
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=common-masters&masterName=Department|$.MdmsRes.common-masters.Department[*].code|$.MdmsRes.common-masters.Department[*].code
+    isMandatory: false
+    isLocalisationRequired: true
+    localisationPrefix: COMMON_MASTERS_DEPARTMENT_
+    searchClause: AND deptmap_def.code IN ($deptname)
+  query: |
+    WITH emp_data AS (SELECT DISTINCT
+      ehe.id,
+      ehe.uuid,
+      ehe.tenantid,
+      eu.name,
+      (SELECT ARRAY(SELECT DISTINCT er.name from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE eu.uuid=ehe.uuid AND er.name IS NOT NULL)) as role,
+      (SELECT ARRAY(SELECT DISTINCT er.code from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE eu.uuid=ehe.uuid AND er.code IS NOT NULL)) as rolecodes,
+      eha.designation,
+      eha.department,
+      ehe.employeestatus
+      FROM eg_hrms_employee ehe
+      LEFT OUTER JOIN eg_user eu ON ehe.uuid = eu.uuid
+      LEFT OUTER JOIN eg_hrms_assignment eha ON eu.uuid = eha.employeeid
+      WHERE eu.active = true)
+    SELECT emp_data.id as id,
+      emp_data.name as name,
+      ARRAY_TO_STRING(emp_data.role, ',') as role,
+      ARRAY_TO_STRING(emp_data.rolecodes, ',') as rolecodes,
+      desigmap_def.code as designation,
+      deptmap_def.code as department,
+      emp_data.employeestatus as status
+    FROM emp_data
+    INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap_def.code=emp_data.department
+    INNER JOIN (VALUES tbl_def_desig) AS desigmap_def(name,code) ON desigmap_def.code=emp_data.designation
+    WHERE 1=1
+  order by: ehe.id ASC
+
