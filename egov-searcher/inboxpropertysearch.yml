@@ -12,7 +12,7 @@ SearchDefinitions:
           LEFT OUTER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = property.acknowldgementnumber
           $where
           AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = property.acknowldgementnumber GROUP BY wf.businessid)
-          order by pi.createdtime desc
+          order by pi.createdtime desc $pagination
           ) result
     groupBy:
     orderBy:
@@ -37,6 +37,12 @@ SearchDefinitions:
     - name: pi.status
       isMandatory: false
       jsonPath: $.searchCriteria.status
+    - name: property.acknowldgementnumber
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationNumber
+    pagination:
+      noOfRecords: $.searchCriteria.noOfRecords
+      offset: $.searchCriteria.offset
 
    output:
     jsonFormat: {"ResponseInfo": {},"Properties": []}
