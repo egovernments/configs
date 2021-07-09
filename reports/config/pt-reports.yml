@@ -55,7 +55,7 @@ ReportDefinitions:
   - name: receiptstatus
     label: receiptstatus
     type: singlevaluelist
-    pattern: 'list://New:New,Deposited:Deposited,Dishonoured:Dishonoured'
+    pattern: 'list://NEW:New,DEPOSITED:Deposited,DISHONOURED:Dishonoured'
     source: pt
     isMandatory: false
     searchClause: AND ep.paymentstatus <= $receiptstatus
@@ -70,10 +70,11 @@ ReportDefinitions:
   query: |
         SELECT receiptnumber,payerName,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
         transactionnumber,totalamountpaid AS amountCollected,paymentmode,ep.paymentstatus AS receiptstatus FROM egcl_payment AS ep
-        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentstatus in ('NEW','DEPOSITED','DISHONOURED') and ed.businessservice='PT'
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1  and ed.businessservice='PT' and ep.paymentstatus !='CANCELLED'
   orderby: order by ed.receiptdate desc
 
 - reportName: PTCollectionReport
+  decryptionPathId: PTCollectionReport
   summary: It helps administrators track the collection in the ULB and the employee collection performance. 
   version: 1.0.0
   moduleName: pt-reports
@@ -90,7 +91,7 @@ ReportDefinitions:
     total: false
     localisationPrefix: TENANTS_MOHALLA_
     isLocalisationRequired: true
-  - name: collectorname
+  - name: name
     label: reports.pt.collectorname
     type: string
     source: pt
@@ -141,14 +142,14 @@ ReportDefinitions:
   - name: paymentinstrument
     label: paymentinstrument
     type: singlevaluelist
-    pattern: 'list://Cash:Cash,Online:Online,Card:Card,DD:DD,Cheque:Cheque'
+    pattern: 'list://CASH:CASH,ONLINE:ONLINE,CARD:CARD,DD:DD,CHEQUE:CHEQUE'
     source: pt
     isMandatory: false
     searchClause: AND paymentmode = $paymentinstrument  
   query: |
         SELECT receiptnumber,ptd.locality AS locality, users.name as collectorname,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
         transactionnumber,totalamountpaid AS amountCollected,paymentmode AS paymentinstrument FROM egcl_payment AS ep
-        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid JOIN egcl_bill  as bill on ed.billid=bill.id JOIN eg_pt_property as property on bill.consumercode=property.propertyid JOIN eg_pt_address as ptd on property.id=ptd.propertyid JOIN eg_user as users on ep.createdby::int=users.id  where 1=1 AND ep.paymentmode in ('DD','CHEQUE','ONLINE','CASH','CARD') and ed.businessservice='PT'
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid JOIN egcl_bill  as bill on ed.billid=bill.id JOIN eg_pt_property as property on bill.consumercode=property.propertyid JOIN eg_pt_address as ptd on property.id=ptd.propertyid JOIN eg_user as users on ep.createdby::int=users.id  where 1=1  and ed.businessservice='PT' and ep.paymentstatus !='CANCELLED'
   orderby: order by ed.receiptdate desc
   
 - reportName: DefaulterReport
