@@ -59,10 +59,18 @@ ReportDefinitions:
     source: pt
     isMandatory: false
     searchClause: AND ep.paymentstatus <= $receiptstatus
+  - name: collectorname
+        label: reports.pt.collectorname
+        type: singlevaluelist
+        pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=PTCMP|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.username
+        source: pt
+        wrapper: true
+        isMandatory: false
+        searchClause: AND ep.createdby= $collectorname   
   query: |
         SELECT receiptnumber,payerName,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
         transactionnumber,totalamountpaid AS amountCollected,paymentmode,ep.paymentstatus AS receiptstatus FROM egcl_payment AS ep
-        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentstatus in ('NEW','DEPOSITED','DISHONOURED')
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentstatus in ('NEW','DEPOSITED','DISHONOURED') and ed.businessservice='PT'
   orderby: order by ed.receiptdate desc
 
 - reportName: PTCollectionReport
@@ -128,7 +136,7 @@ ReportDefinitions:
   query: |
         SELECT receiptnumber,payeraddress AS locality,payerName AS collectorname,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
         transactionnumber,totalamountpaid AS amountCollected,paymentmode AS paymentinstrument FROM egcl_payment AS ep
-        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentmode in ('DD','CHEQUE','ONLINE','CASH','CARD')
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentmode in ('DD','CHEQUE','ONLINE','CASH','CARD') and ed.businessservice='PT'
   orderby: order by ed.receiptdate desc
   
 - reportName: DefaulterReport
