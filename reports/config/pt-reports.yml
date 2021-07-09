@@ -88,6 +88,8 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
   - name: collectorname
     label: reports.pt.collectorname
     type: string
@@ -126,6 +128,16 @@ ReportDefinitions:
     source: pt
     isMandatory: true
     searchClause: AND ed.receiptdate <= $toDate
+  - name: locality
+    label: reports.mcollect.locality
+    type: singlevaluelist
+    pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.code
+    source: pt
+    wrapper: true
+    isMandatory: false
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
+    searchClause: AND ptd.locality = $locality  
   - name: paymentinstrument
     label: paymentinstrument
     type: singlevaluelist
@@ -134,9 +146,9 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND paymentmode = $paymentinstrument  
   query: |
-        SELECT receiptnumber,payeraddress AS locality,payerName AS collectorname,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
+        SELECT receiptnumber,ptd.locality AS locality, user.name as collectorname,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
         transactionnumber,totalamountpaid AS amountCollected,paymentmode AS paymentinstrument FROM egcl_payment AS ep
-        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentmode in ('DD','CHEQUE','ONLINE','CASH','CARD') and ed.businessservice='PT'
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid JOIN egcl_bill  as bill on ed.billid=bill.id JOIN eg_pt_property as property on bill.consumercode=property.propertyid JOIN eg_pt_address as ptd on property.id=ptd.propertyid JOIN eg_user as user on ep.createdby=user.id  where 1=1 AND ep.paymentmode in ('DD','CHEQUE','ONLINE','CASH','CARD') and ed.businessservice='PT'
   orderby: order by ed.receiptdate desc
   
 - reportName: DefaulterReport
