@@ -1,5 +1,6 @@
 ReportDefinitions:
 - reportName: PTReceiptRegister
+  decryptionPathId: PTReceiptRegister
   summary: Report is used for audit, day-end, and year-end finance reconciliation activities 
   version: 1.0.0
   moduleName: pt-reports
@@ -14,6 +15,11 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
+  - name: name
+    label: reports.pt.consumername
+    type: string
+    source: pt
+    total: false 
   - name: amountCollected
     label: reports.pt.amountCollected
     type: string
@@ -29,17 +35,13 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
-  - name: paymentmode
-    label: reports.pt.paymentmode
+  - name: chequeNo
+    label: reports.pt.chequeNo
     type: string
     source: pt
     total: false
-  - name: receiptstatus
-    label: reports.pt.receiptstatus
-    type: string
-    source: pt
-    total: false
-  searchParams:
+
+searchParams:
   - name: fromDate
     label: reports.pt.fromDate
     type: epoch
@@ -68,9 +70,9 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND ep.createdby= $collectorname   
   query: |
-        SELECT receiptnumber,payerName,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
-        transactionnumber,totalamountpaid AS amountCollected,paymentmode,ep.paymentstatus AS receiptstatus FROM egcl_payment AS ep
-        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1  and ed.businessservice='PT' and ep.paymentstatus !='CANCELLED'
+        SELECT receiptnumber,payerName,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,user.name as name
+        transactionnumber,totalamountpaid AS amountCollected,payment.instrumentnumber as chequeNo FROM egcl_payment AS ep
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid JOIN egcl_bill as bill on ed.billid=bill.id JOIN eg_pt_property as property bill.consumercode=property.propertyid JOIN eg_pt_owner as owner on property.id=owner.propertyid  JOIN eg_user as user on owner.ownerinfouuid=user.uuid where 1=1  and ed.businessservice='PT' and ep.paymentstatus !='CANCELLED'
   orderby: order by ed.receiptdate desc
 
 - reportName: PTCollectionReport
