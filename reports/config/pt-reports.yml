@@ -198,14 +198,14 @@ ReportDefinitions:
   - name: billamount
     label: reports.pt.billamount
     type: singlevaluelist
-    pattern: 'list://dueamount<500:<500,dueamount>500 and dueamount<2000:500-2000'
+    pattern: 'list://<500:<500,500-2000:500-2000,2000-5000:2000-5000,5000-10000:5000-10000,>10000:>10000'
     source: pt
     isMandatory: false
-    searchClause: AND  $billamount  
+    searchClause: AND CASE WHEN $billamount='<500' THEN 'dueamount<500' WHEN  $billamount='500-2000' THEN 'dueamount BETWEEN 500 AND 2000' WHEN  $billamount='2000-5000' THEN 'dueamount BETWEEN 2000 AND 5000' WHEN $billamount='5000-10000' THEN 'dueamount BETWEEN 5000 AND 10000' WHEN $billamount='>10000' THEN 'dueamount > 10000' END
   - name: usagetype
     label: reports.pt.usagetype
     type: singlevaluelist
-    pattern: 'list://Residential:Residential,Non-Residential:Non-Residential,Mixed:Mixed'
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=PropertyTax&masterName=UsageCategoryMajor|$..code|$..name
     source: pt
     isMandatory: false
     searchClause: AND usagecategory = $usagetype 
