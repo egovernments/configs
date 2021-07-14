@@ -168,7 +168,7 @@ ReportDefinitions:
         searchClause: AND pay.paymentmode = $paymentType
     query: |
           Select ec.businessService as service, eca.locality as locality, (select name from eg_user where id = pay.createdby::Integer ) as name, 
-          pay.paymentmode as paymentmode, count(*) as totaltransaction, sum(totalamountpaid) as amountcollected from egcl_bill as b 
+          pay.paymentmode as paymentmode, count(DISTINCT ec.challanNo) as totaltransaction, sum(totalamountpaid) as amountcollected from egcl_bill as b 
           inner join egcl_billdetial as bd on b.id = bd.billid AND b.tenantid = bd.tenantid 
           inner join eg_echallan as ec on b.consumercode = ec.challanNo and b.tenantid =ec.tenantid 
           inner join eg_challan_address as eca on ec.id = eca.echallanId 
@@ -256,7 +256,7 @@ ReportDefinitions:
         isLocalisationRequired: true
         searchClause: AND eca.locality = $locality  
     query: |
-          select ec.businessService as service , eca.locality as locality, ec.applicationStatus as status, count(*)as totalchallans, sum(bd.totalamount) as totalamount from eg_echallan as ec 
+          select ec.businessService as service , eca.locality as locality, ec.applicationStatus as status, count(DISTINCT ec.challanNo) as totalchallans, sum(bd.totalamount) as totalamount from eg_echallan as ec 
           join eg_challan_address as eca on ec.id = eca.echallanId 
           join egbs_billdetail_v1 as bd on ec.challanNo = bd.consumercode where 1=1
     groupby: group by ec.businessService, eca.locality, ec.applicationStatus
