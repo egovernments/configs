@@ -11,6 +11,7 @@ SearchDefinitions:
           INNER JOIN eg_pt_owner owner ON property.id = owner.propertyid
           INNER JOIN eg_pt_address ptadd ON ptadd.propertyid = property.id
           INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = property.acknowldgementnumber
+          INNER JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
           $where
           AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = property.acknowldgementnumber GROUP BY wf.businessid)
           order by pi.createdtime desc $pagination
@@ -32,7 +33,7 @@ SearchDefinitions:
     - name: ptadd.locality
       isMandatory: false
       jsonPath: $.searchCriteria.locality
-    - name: pi.assignee
+    - name: assg.assignee
       isMandatory: false
       jsonPath: $.searchCriteria.assignee
     - name: pi.status
