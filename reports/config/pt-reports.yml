@@ -1,5 +1,6 @@
 ReportDefinitions:
 - reportName: PTReceiptRegister
+  decryptionPathId: PTReceiptRegister
   summary: Report is used for audit, day-end, and year-end finance reconciliation activities 
   version: 1.0.0
   moduleName: pt-reports
@@ -14,6 +15,11 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
+  - name: name
+    label: reports.pt.consumername
+    type: string
+    source: pt
+    total: false 
   - name: amountCollected
     label: reports.pt.amountCollected
     type: string
@@ -29,16 +35,12 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
-  - name: paymentmode
-    label: reports.pt.paymentmode
+  - name: chequeNo
+    label: reports.pt.chequeNo
     type: string
     source: pt
     total: false
-  - name: receiptstatus
-    label: reports.pt.receiptstatus
-    type: string
-    source: pt
-    total: false
+
   searchParams:
   - name: fromDate
     label: reports.pt.fromDate
@@ -55,32 +57,38 @@ ReportDefinitions:
   - name: receiptstatus
     label: receiptstatus
     type: singlevaluelist
-    pattern: 'list://New:New,Deposited:Deposited,Dishonoured:Dishonoured'
+    pattern: 'list://NEW:New,DEPOSITED:Deposited,DISHONOURED:Dishonoured'
     source: pt
     isMandatory: false
-    searchClause: AND ep.paymentstatus <= $receiptstatus
+    searchClause: AND ep.paymentstatus = $receiptstatus
+  - name: collectorname
+    label: reports.pt.collectorname
+    type: singlevaluelist
+    pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=PT_CEMP|$.Employees[*].user.id|$.Employees[*].user.name
+    source: pt
+    wrapper: true
+    isMandatory: false
+    searchClause: AND ep.createdby= $collectorname   
   query: |
-        SELECT receiptnumber,payerName,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
-        transactionnumber,totalamountpaid AS amountCollected,paymentmode,ep.paymentstatus AS receiptstatus FROM egcl_payment AS ep
-        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentstatus in ('NEW','DEPOSITED','DISHONOURED')
+        SELECT receiptnumber,payerName,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,users.name as name,
+        transactionnumber,totalamountpaid AS amountCollected,ep.instrumentnumber as chequeNo FROM egcl_payment AS ep
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid JOIN egcl_bill as bill on ed.billid=bill.id JOIN eg_pt_property as property on bill.consumercode=property.propertyid JOIN eg_pt_owner as owner on property.id=owner.propertyid  JOIN eg_user as users on owner.userid=users.uuid where 1=1  and ed.businessservice='PT' and ep.paymentstatus !='CANCELLED'
   orderby: order by ed.receiptdate desc
 
 - reportName: PTCollectionReport
+  decryptionPathId: PTCollectionReport
   summary: It helps administrators track the collection in the ULB and the employee collection performance. 
   version: 1.0.0
   moduleName: pt-reports
   sourceColumns:
-  - name: receiptnumber
-    label: reports.pt.receiptnumber
-    type: string
-    source: pt
-    total: false
   - name: locality
     label: reports.pt.locality
     type: string
     source: pt
     total: false
-  - name: collectorname
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
+  - name: name
     label: reports.pt.collectorname
     type: string
     source: pt
@@ -90,21 +98,16 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
-  - name: transactionnumber
-    label: reports.pt.transactionnumber
+  - name: totaltransactions
+    label: reports.pt.totaltransactions
     type: string
     source: pt
-    total: false
+    total: false  
   - name: amountCollected
     label: reports.pt.amountCollected
     type: string
     source: pt
-    total: false
-  - name: paymentdate
-    label: reports.pt.paymentdate
-    type: string
-    source: pt
-    total: false
+    total: true
   searchParams:
   - name: fromDate
     label: reports.pt.fromDate
@@ -118,20 +121,31 @@ ReportDefinitions:
     source: pt
     isMandatory: true
     searchClause: AND ed.receiptdate <= $toDate
+  - name: locality
+    label: reports.pt.locality
+    type: singlevaluelist
+    pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.code
+    source: pt
+    wrapper: true
+    isMandatory: false
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
+    searchClause: AND ptd.locality = $locality  
   - name: paymentinstrument
     label: paymentinstrument
     type: singlevaluelist
-    pattern: 'list://Cash:Cash,Online:Online,Card:Card,DD:DD,Cheque:Cheque'
+    pattern: 'list://CASH:CASH,CARD:CARD,DD:DD,CHEQUE:CHEQUE'
     source: pt
     isMandatory: false
     searchClause: AND paymentmode = $paymentinstrument  
   query: |
-        SELECT receiptnumber,payeraddress AS locality,payerName AS collectorname,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
-        transactionnumber,totalamountpaid AS amountCollected,paymentmode AS paymentinstrument FROM egcl_payment AS ep
-        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentmode in ('DD','CHEQUE','ONLINE','CASH','CARD')
-  orderby: order by ed.receiptdate desc
+        SELECT ptd.locality AS locality, users.name as name,count(*) as totaltransactions,sum(totalamountpaid) AS amountCollected,paymentmode AS paymentinstrument FROM egcl_payment AS ep
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid JOIN egcl_bill  as bill on ed.billid=bill.id JOIN eg_pt_property as property on bill.consumercode=property.propertyid JOIN eg_pt_address as ptd on property.id=ptd.propertyid JOIN eg_user as users on ep.createdby::int=users.id JOIN eg_userrole_v1 as userrole on users.id=userrole.user_id  where 1=1  and ed.businessservice='PT' and ep.paymentstatus !='CANCELLED' and ep.paymentmode!='ONLINE' and userrole.role_code='PT_CEMP'
+  groupby: group by locality,name,paymentinstrument
+
   
 - reportName: DefaulterReport
+  decryptionPathId: DefaulterReport
   summary: Report is usually generated weekly/monthly to send notice to the defaulters and used only in the demand-based systems.
   version: 1.0.0
   moduleName: pt-reports
@@ -141,8 +155,8 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
-  - name: collectorname
-    label: reports.pt.collectorname
+  - name: name
+    label: reports.pt.consumername
     type: string
     source: pt
     total: false
@@ -151,23 +165,15 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
   - name: propertystatus
     label: reports.pt.propertystatus
     type: string
     source: pt
     total: false
-  - name: amountCollected
-    label: reports.pt.amountCollected
-    type: string
-    source: pt
-    total: false
-  - name: usagetype
-    label: reports.pt.usagetype
-    type: string
-    source: pt
-    total: false
-  - name: collectorname
-    label: reports.pt.collectorname
+  - name: dueamount
+    label: reports.pt.dueamount
     type: string
     source: pt
     total: false
@@ -175,17 +181,21 @@ ReportDefinitions:
   - name: locality
     label: reports.pt.locality
     type: singlevaluelist
-    pattern: 'list://Amritsar:Amritsar,Punjab:Punjab,Maharastra:Maharastra'
+    pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.code
     source: pt
+    wrapper: true
     isMandatory: false
-    searchClause: AND ea.locality >= $locality
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
+    searchClause: AND locality = $locality
   - name: usagetype
     label: reports.pt.usagetype
     type: singlevaluelist
-    pattern: 'list://Residential:Residential,Non-Residential:Non-Residential,Mixed:Mixed'
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=PropertyTax&masterName=UsageCategory|$..code|$..name
     source: pt
     isMandatory: false
-    searchClause: AND ep.usagecategory <= $usagetype 
+    localisationPrefix: PROPERTYTAX_BILLING_SLAB_
+    isLocalisationRequired: true
+    searchClause: AND usagecategory = $usagetype 
   query: |
-        SELECT ea.propertyid,ep.usagecategory AS usagetype,ep.status AS propertystatus,ea.locality,epp.payername AS collectorname,epp.totalamountpaid AS amountcollected 
-        FROM eg_pt_property ep join eg_pt_address ea ON ea.propertyid = ep.propertyid JOIN egcl_payment epp on ep.tenantid=epp.tenantid where 1=1
+        select distinct(propertyid),name,(select status  from eg_pt_property where propertyid=propertyid order by createdtime asc limit 1)as propertystatus,locality,dueamount from (SELECT ep.propertyid,ep.usagecategory,(select name from eg_user where uuid=(select userid from eg_pt_owner where propertyid=propertyid order by createdtime limit 1)) as name, ep.status  AS propertystatus,ea.locality   FROM eg_pt_property ep join eg_pt_address as ea on ep.id=ea.propertyid) property join (select consumercode, (sum(taxamount)-sum(collectionamount)) as dueamount from egbs_demand_v1 as demand join egbs_demanddetail_v1 as demanddetail on demand.id=demanddetail.demandid where (demanddetail.taxamount - demanddetail.collectionamount)>0 and demand.ispaymentcompleted is not true group by consumercode) demand on property.propertyid=demand.consumercode where 1=1
