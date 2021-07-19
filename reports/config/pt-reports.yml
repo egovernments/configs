@@ -72,7 +72,7 @@ ReportDefinitions:
   query: |
         SELECT receiptnumber,payerName,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,users.name as name,
         transactionnumber,totalamountpaid AS amountCollected,ep.instrumentnumber as chequeNo FROM egcl_payment AS ep
-        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid JOIN egcl_bill as bill on ed.billid=bill.id JOIN eg_pt_property as property on bill.consumercode=property.propertyid JOIN eg_pt_owner as owner on property.id=owner.propertyid  JOIN eg_user as users on owner.userid=users.uuid where 1=1  and ed.businessservice='PT' and ep.paymentstatus !='CANCELLED' and ep.tenantId=$tenantId
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid JOIN egcl_bill as bill on ed.billid=bill.id JOIN eg_pt_property as property on bill.consumercode=property.propertyid JOIN eg_pt_owner as owner on property.id=owner.propertyid  JOIN eg_user as users on owner.userid=users.uuid where 1=1  and ed.businessservice='PT' and ep.paymentstatus !='CANCELLED'
   orderby: order by ed.receiptdate desc
 
 - reportName: PTCollectionReport
@@ -140,7 +140,7 @@ ReportDefinitions:
     searchClause: AND paymentmode = $paymentinstrument  
   query: |
         SELECT ptd.locality AS locality, users.name as name,count(*) as totaltransactions,sum(totalamountpaid) AS amountCollected,paymentmode AS paymentinstrument FROM egcl_payment AS ep
-        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid JOIN egcl_bill  as bill on ed.billid=bill.id JOIN eg_pt_property as property on bill.consumercode=property.propertyid JOIN eg_pt_address as ptd on property.id=ptd.propertyid JOIN eg_user as users on ep.createdby::int=users.id JOIN eg_userrole_v1 as userrole on users.id=userrole.user_id  where 1=1  and ed.businessservice='PT' and ep.paymentstatus !='CANCELLED' and ep.paymentmode!='ONLINE' and userrole.role_code='PT_CEMP' and ep.tenantid=$tenantId
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid JOIN egcl_bill  as bill on ed.billid=bill.id JOIN eg_pt_property as property on bill.consumercode=property.propertyid JOIN eg_pt_address as ptd on property.id=ptd.propertyid JOIN eg_user as users on ep.createdby::int=users.id JOIN eg_userrole_v1 as userrole on users.id=userrole.user_id  where 1=1  and ed.businessservice='PT' and ep.paymentstatus !='CANCELLED' and ep.paymentmode!='ONLINE' and userrole.role_code='PT_CEMP'
   groupby: group by locality,name,paymentinstrument
 
   
@@ -194,8 +194,8 @@ ReportDefinitions:
     pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=PropertyTax&masterName=UsageCategory|$..code|$..name
     source: pt
     isMandatory: false
-    
-    
+    localisationPrefix: PROPERTYTAX_BILLING_SLAB_
+    isLocalisationRequired: true
     searchClause: AND usagecategory = $usagetype 
   query: |
-        select distinct(propertyid),name,(select status  from eg_pt_property where propertyid=propertyid order by createdtime asc limit 1)as propertystatus,locality,dueamount from (SELECT ep.propertyid,ep.usagecategory,(select name from eg_user where uuid=(select userid from eg_pt_owner where propertyid=propertyid order by createdtime limit 1)) as name, ep.status  AS propertystatus,ea.locality   FROM eg_pt_property ep join eg_pt_address as ea on ep.id=ea.propertyid ) property join (select consumercode, (sum(taxamount)-sum(collectionamount)) as dueamount from egbs_demand_v1 as demand join egbs_demanddetail_v1 as demanddetail on demand.id=demanddetail.demandid where (demanddetail.taxamount - demanddetail.collectionamount)>0 and demand.tenantid=$tenantId and demand.ispaymentcompleted is not true group by consumercode) demand on property.propertyid=demand.consumercode where 1=1
+        select distinct(propertyid),name,(select status  from eg_pt_property where propertyid=propertyid order by createdtime asc limit 1)as propertystatus,locality,dueamount from (SELECT ep.propertyid,ep.usagecategory,(select name from eg_user where uuid=(select userid from eg_pt_owner where propertyid=propertyid order by createdtime limit 1)) as name, ep.status  AS propertystatus,ea.locality   FROM eg_pt_property ep join eg_pt_address as ea on ep.id=ea.propertyid) property join (select consumercode, (sum(taxamount)-sum(collectionamount)) as dueamount from egbs_demand_v1 as demand join egbs_demanddetail_v1 as demanddetail on demand.id=demanddetail.demandid where (demanddetail.taxamount - demanddetail.collectionamount)>0 and demand.ispaymentcompleted is not true group by consumercode) demand on property.propertyid=demand.consumercode where 1=1
