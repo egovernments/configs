@@ -1,36 +1,44 @@
 ReportDefinitions:
   - reportName: MCollectReceiptRegister
+    decryptionPathId: MCollectReceiptRegister
     summary: Report is used for audit and year-end finance reconciliation activities by the ULBs. It also serves as the data dump needed by the ULBs. 
     version: 1.0.0
     moduleName: mcollect
     sourceColumns:
+      - name: challannumber
+        label: reports.mcollect.challannumber
+        type: string
+        source: mcollect
+        total: false
       - name: receiptnumber
         label: reports.mcollect.receiptnumber
         type: string
         source: mcollect
         total: false
-      - name: paymentdate
-        label: reports.mcollect.paymentdate
+      - name: receiptdate
+        label: reports.mcollect.receiptdate
         type: string
         source: mcollect
         total: false
-      - name: businessservice
-        label: reports.mcollect.businessservice
+      - name: name
+        label: reports.mcollect.consumername
+        type: string
+        source: mcollect
+        total: false 
+      - name: service
+        label: reports.mcollect.servicedetails
         type: string
         source: mcollect
         total: false
-      - name: totaldue
-        label: reports.mcollect.totaldue
+        localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
+        isLocalisationRequired: true
+      - name: amountcollected
+        label: reports.mcollect.amountcollected
         type: string
         source: mcollect
-        total: false
-      - name: amountCollected
-        label: reports.mcollect.amountCollected
-        type: string
-        source: mcollect
-        total: false
-      - name: payerName
-        label: reports.mcollect.payerName
+        total: true
+      - name: payername
+        label: reports.mcollect.payername
         type: string
         source: mcollect
         total: false
@@ -39,41 +47,58 @@ ReportDefinitions:
         type: string
         source: mcollect
         total: false
-      - name: paymentmode
-        label: reports.mcollect.paymentmode
-        type: string
-        source: mcollect
-        total: false
-      - name: receiptstatus
-        label: reports.mcollect.receiptstatus
+      - name: chequeNo
+        label: reports.mcollect.chequeNo
         type: string
         source: mcollect
         total: false
     searchParams:
+      - name: service
+        label: reports.mcollect.service
+        type: multivaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pb&moduleName=BillingService&masterName=BusinessService&filter=%5B?(@.type=='Adhoc')%5D|$.MdmsRes.BillingService.BusinessService.*.code|$.MdmsRes.BillingService.BusinessService.*.code
+        source: mcollect
+        wrapper: true
+        isMandatory: true
+        searchClause: AND ec.businessService IN ( $service )
+        isLocalisationRequired: true
+        localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
       - name: fromDate
         label: reports.mcollect.fromDate
         type: epoch
         source: mcollect
         isMandatory: true
-        searchClause: AND ed.receiptdate >= $fromDate
+        searchClause: AND paydl.receiptdate >= $fromDate
       - name: toDate
         label: reports.mcollect.toDate
         type: epoch
         source: mcollect
         isMandatory: true
-        searchClause: AND ed.receiptdate <= $toDate
+        searchClause: AND paydl.receiptdate <= $toDate
       - name: receiptstatus
         label: reports.mcollect.receiptstatus
         type: singlevaluelist
         pattern: 'list://New:New,Deposited:Deposited,Dishonoured:Dishonoured'
         source: mcollect
         isMandatory: false
-        searchClause: AND ep.paymentstatus <= $receiptstatus
+        searchClause: AND pay.paymentstatus <= $receiptstatus
+      - name: collectorname
+        label: reports.mcollect.collectorname
+        type: singlevaluelist
+        pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=UC_EMP|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.username
+        source: mcollect
+        wrapper: true
+        isMandatory: false
+        searchClause: AND pay.createdby= $collectorname      
+
     query: |
-          SELECT receiptnumber,payerName,transactionnumber,totaldue,ed.businessservice,paymentmode,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,
-          totalamountpaid AS amountCollected,ep.paymentstatus AS receiptstatus FROM egcl_payment AS ep
-          JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid where 1=1 AND ep.paymentmode in ('DD','CHEQUE','ONLINE','CASH','CARD')
-    orderby: order by ed.receiptdate desc
+          SELECT ec.challanNo as challannumber, paydl.receiptnumber as receiptnumber, To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY') AS receiptdate, users.name as name,
+          ec.businessService as service, pay.totalamountpaid AS amountcollected, pay.payername, pay.transactionnumber as transactionnumber, pay.instrumentnumber as chequeNo FROM egcl_payment AS pay
+          inner join egcl_paymentdetail AS paydl ON pay.id = paydl.paymentid
+          inner join egcl_bill as bill on paydl.billid = bill.id
+          inner join eg_echallan as ec on bill.consumercode = ec.challanNo and bill.tenantid = ec.tenantid
+          inner join eg_user as users on users.uuid = ec.accountid where pay.paymentstatus !='CANCELLED'
+    orderby: order by paydl.receiptdate desc
   
   - reportName: MCollectCollectionReport
     decryptionPathId: MCollectCollectionReport
@@ -86,6 +111,8 @@ ReportDefinitions:
         type: string
         source: mcollect
         total: false
+        localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
+        isLocalisationRequired: true
       - name: locality
         label: reports.mcollect.locality
         type: string
@@ -107,12 +134,12 @@ ReportDefinitions:
         label: reports.mcollect.totaltransaction
         type: string
         source: mcollect
-        total: false
+        total: true
       - name: amountcollected
         label: reports.mcollect.amountcollected
         type: string
         source: mcollect
-        total: false
+        total: true
     searchParams:
       - name: service
         label: reports.mcollect.service
@@ -121,7 +148,9 @@ ReportDefinitions:
         source: mcollect
         wrapper: true
         isMandatory: true
-        searchClause: AND ec.businessService = $service
+        searchClause: AND ec.businessService IN ( $service )
+        isLocalisationRequired: true
+        localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
       - name: fromDate
         label: reports.mcollect.fromDate
         type: epoch
@@ -164,7 +193,7 @@ ReportDefinitions:
         searchClause: AND pay.paymentmode = $paymentType
     query: |
           Select ec.businessService as service, eca.locality as locality, (select name from eg_user where id = pay.createdby::Integer ) as name, 
-          pay.paymentmode as paymentmode, count(*) as totaltransaction, sum(totalamountpaid) as amountcollected from egcl_bill as b 
+          pay.paymentmode as paymentmode, count(DISTINCT ec.challanNo) as totaltransaction, sum(totalamountpaid) as amountcollected from egcl_bill as b 
           inner join egcl_billdetial as bd on b.id = bd.billid AND b.tenantid = bd.tenantid 
           inner join eg_echallan as ec on b.consumercode = ec.challanNo and b.tenantid =ec.tenantid 
           inner join eg_challan_address as eca on ec.id = eca.echallanId 
@@ -182,6 +211,8 @@ ReportDefinitions:
         type: string
         source: mcollect
         total: false
+        localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
+        isLocalisationRequired: true
       - name: locality
         label: reports.mcollect.locality
         type: string
@@ -193,7 +224,7 @@ ReportDefinitions:
         label: reports.mcollect.totalchallans
         type: string
         source: mcollect
-        total: false
+        total: true
       - name: status
         label: reports.mcollect.status
         type: string
@@ -205,7 +236,7 @@ ReportDefinitions:
         label: reports.mcollect.totalamount
         type: string
         source: mcollect
-        total: false
+        total: true
     searchParams:
       - name: service
         label: reports.mcollect.service
@@ -215,6 +246,8 @@ ReportDefinitions:
         wrapper: true
         isMandatory: false
         searchClause: AND ec.businessService = $service
+        localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
+        isLocalisationRequired: true
       - name: fromDate
         label: reports.mcollect.fromDate
         type: epoch
@@ -248,7 +281,7 @@ ReportDefinitions:
         isLocalisationRequired: true
         searchClause: AND eca.locality = $locality  
     query: |
-          select ec.businessService as service , eca.locality as locality, ec.applicationStatus as status, count(*)as totalchallans, sum(bd.totalamount) as totalamount from eg_echallan as ec 
+          select ec.businessService as service , eca.locality as locality, ec.applicationStatus as status, count(DISTINCT ec.challanNo) as totalchallans, sum(bd.totalamount) as totalamount from eg_echallan as ec 
           join eg_challan_address as eca on ec.id = eca.echallanId 
           join egbs_billdetail_v1 as bd on ec.challanNo = bd.consumercode where 1=1
     groupby: group by ec.businessService, eca.locality, ec.applicationStatus
