@@ -7,15 +7,14 @@ SearchDefinitions:
    query:
     baseQuery: Select row_to_json(result) from
           (
-          select DISTINCT(tl.applicationNumber),pi.createdtime from eg_tl_tradelicense as tl
+          select DISTINCT(tl.applicationNumber) as applicationnumber,tl.applicationdate as createdtime from eg_tl_tradelicense as tl
           INNER JOIN eg_tl_tradelicensedetail tld ON tl.id = tld.tradelicenseid
           INNER JOIN eg_tl_owner owner ON tld.id = owner.tradelicensedetailid
           INNER JOIN eg_tl_address tladd ON tladd.tradelicensedetailid = tld.id
           INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = tl.applicationNumber
           LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
           $where
-          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = tl.applicationNumber GROUP BY wf.businessid)
-          order by pi.createdtime asc $pagination
+          order by tl.applicationdate asc $pagination
           ) result
     groupBy:
     orderBy:
