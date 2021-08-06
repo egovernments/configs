@@ -861,3 +861,126 @@ ReportDefinitions:
     searchClause: AND tl.tenantId = $ulb
   query: SELECT initcap(split_part(tl.tenantId, '.', 2)) as tenantId,licensetype,message.message as tradeTypeName,COALESCE(uom,'NA') AS uom,COALESCE(CAST(fromuom AS VARCHAR(8)),'NA') AS fromuom, COALESCE(CAST(touom AS VARCHAR(8)),'NA') AS touom,rate,applicationtype FROM eg_tl_billingslab tl  LEFT OUTER JOIN message ON replace(substring(message.code, '_[A-Z]*_(.*)'),'_','.') = tl.tradeType WHERE  1=1
   orderby: ORDER BY tl.tenantId asc
+ 
+- reportName: LegacyTLDataReport 
+  summary: Trade License Legacy Migrated Data report
+  version: 1.0.0
+  moduleName: rainmaker-tl
+  sourceColumns:
+  - name: applicationdate
+    label: Application Date
+    type: string
+    source: tlmigration
+    total: false
+  - name: applicationstatus
+    label: Application Status
+    type: string
+    source: tlmigration
+    total: false
+  - name: applicationno
+    label: Application No
+    type: string
+    source: tlmigration
+    total: false
+  - name: tenantid
+    label: Tenant Id
+    type: string
+    source: tlmigration
+    total: false
+  - name: tradetype
+    label: Trade Type
+    type: string
+    source: tlmigration
+    total: false
+  - name: tradename
+    label: Trade Name
+    type: string
+    source: tlmigration
+    total: false
+  - name: licensetype
+    label: License Type
+    type: string
+    source: tlmigration
+    total: false
+  - name: licensenumber
+    label: License Number
+    type: string
+    source: tlmigration
+    total: false
+  - name: commencementdate
+    label: Commencement Date
+    type: string
+    source: tlmigration
+    total: false
+  - name: issueddate
+    label: Issued Date
+    type: string
+    source: tlmigration
+    total: false    
+  - name: finacialyear
+    label: Finacial Year
+    type: string
+    source: tlmigration
+    total: false
+  - name: validfromdate
+    label: Valid From Date
+    type: string
+    source: tlmigration
+    total: false
+  - name: validtodate
+    label: Valid To Date
+    type: string
+    source: tlmigration
+    total: false
+  - name: traderaddress
+    label: Trader Address
+    type: string
+    source: tlmigration
+    total: false
+  - name: ward
+    label: Ward
+    type: string
+    source: tlmigration
+    total: false
+  - name: tradecity
+    label: Trade City
+    type: string
+    source: tlmigration
+    total: false
+  - name: pincode
+    label: Pincode
+    type: string
+    source: tlmigration
+    total: false
+  - name: tradeprimaryownername
+    label: Trade Primary Owner Name
+    type: string
+    source: tlmigration
+    total: false
+  - name: ownermobilenumber
+    label: Owner Mobile Number
+    type: string
+    source: tlmigration
+    total: false   
+  - name: tradeinstitutionphonenumber
+    label: Trade Institution Phone Number
+    type: string
+    source: tlmigration
+    total: false    
+  searchParams:
+  - name: ulb
+    label: ULB
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+    source: tlmigration
+    wrapper: true
+    isMandatory: false
+    searchClause: AND tlmigration.tenantid = $ulb
+  - name: LicenseNumber
+    label: License Number
+    type: string
+    source: tlmigration
+    isMandatory: false
+    searchClause: AND tlmigration.licensenumber = $LicenseNumber
+  query: SELECT to_char(To_timestamp(tlmigration.applicationdate / 1000), 'DD-MM-YY') as applicationdate , applicationstatus,applicationno,tenantid,tradetype,tradename,licensetype,licensenumber,to_char(To_timestamp(tlmigration.commencementdate / 1000), 'DD-MM-YY') as commencementdate,to_char(To_timestamp(tlmigration.issueddate / 1000), 'DD-MM-YY') as issueddate,finacialyear,to_char(To_timestamp(tlmigration.validfromdate / 1000), 'DD-MM-YY') as validfromdate,to_char(To_timestamp(tlmigration.validtodate / 1000), 'DD-MM-YY') as validtodate,traderaddress,ward,tradecity,pincode,tradeprimaryownername,ownermobilenumber,tradeinstitutionphonenumber FROM  eg_tl_tradelicense_migration tlmigration WHERE  1=1
+  orderby: ORDER BY tlmigration.createdtime ASC 
