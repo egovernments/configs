@@ -826,3 +826,55 @@ ReportDefinitions:
       WHERE tenantid LIKE CONCAT(SPLIT_PART($tenantid, '.', 1), '%') and tenantid = $tenantid
   groupby: GROUP BY tenantid
   orderby: ORDER BY tenantid, totalamountpaid DESC NULLS LAST
+- reportName: UlbWisePropertyReport
+  summary: State Wide PT Collection
+  version: 1.0.0
+  moduleName: rainmaker-pt
+  sourceColumns:
+  - name: ulb
+    label: reports.pt.ulb
+    type: string
+    source: pt
+    total: false
+  - name: propertyid
+    label: Property Id
+    type: string
+    source: pt
+    total: false
+  - name: oldpropertyid
+    label: Old Property Id
+    type: string
+    source: pt
+    total: false
+  - name: assessmentnumber
+    label: Assessment Number
+    type: string
+    source: pt
+    total: false
+  - name: totaltaxamt
+    label: Total Demand Amount
+    type: string
+    source: pt
+    total: true
+  - name: totalcollectedamt
+    label: Collected Amount
+    type: string
+    source: pt
+    total: true
+  - name: dueamt
+    label: Due Amount
+    type: string
+    source: pt
+    total: true
+  searchParams:
+  - name: tenant
+    label: Tenant
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants|$..code|$..name
+    source: pt
+    wrapper: true
+    isMandatory: false
+    searchClause: AND epp.tenantid = $tenant
+  query: |
+      select initcap(split_part(epp.tenantid, '.', 2)) as ulb,epp.propertyid,epp.oldpropertyid,epaa.assessmentnumber,dm.totalTaxAmt,dm.totalCollectedAmt,dm.totalTaxAmt-dm.totalCollectedAmt as dueAmount from eg_pt_property epp inner join eg_pt_asmt_assessment epaa on epp.propertyid = epaa.propertyid inner join (select edv.consumercode,sum(edv2.taxamount) as totalTaxAmt,sum(edv2.collectionamount) as totalCollectedAmt from egbs_demand_v1 edv  inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid group by edv.consumercode) dm on epp.propertyid = dm.consumercode where epp.status='ACTIVE'
+  orderby: ORDER BY epp.tenantid DESC NULLS LAST
