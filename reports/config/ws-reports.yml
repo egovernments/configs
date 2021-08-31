@@ -1,0 +1,54 @@
+---
+ReportDefinitions:
+- reportName: UlbWiseWaterChargeCollection
+  summary: State Wide Water Charge Collection
+  version: 1.0.0
+  moduleName: rainmaker-ws
+  sourceColumns:
+  - name: connectionno
+    label: Connection No
+    type: string
+    source: pt
+    total: false
+  - name: oldconnectionno
+    label: Old Connection No
+    type: string
+    source: pt
+    total: false
+  - name: connectiontype
+    label: Connection Type
+    type: string
+    source: pt
+    total: false
+  - name: meterid
+    label: Meter Id
+    type: string
+    source: pt
+    total: false
+  - name: totaltaxamt
+    label: Total Demand Amount
+    type: string
+    source: pt
+    total: true
+  - name: totalcollectedamt
+    label: Collected Amount
+    type: string
+    source: pt
+    total: true
+  - name: dueAmount
+    label: Due Amount
+    type: string
+    source: pt
+    total: true
+  searchParams:
+  - name: tenant
+    label: Tenant
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8094/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|$..code|$..name
+    source: pt
+    wrapper: true
+    isMandatory: false
+    searchClause: AND ewc.tenantid = $tenant
+  query: |
+      select ewc.tenantid as ulb,ewc.connectionno,ewc.oldconnectionno,ews.connectiontype,ews.meterid,dm.totalTaxAmt,dm.totalCollectedAmt,dm.totalTaxAmt-dm.totalCollectedAmt as dueAmount from eg_ws_connection ewc inner join eg_ws_service ews on ewc.id=ews.connection_id inner join (select edv.consumercode,sum(edv2.taxamount) as totalTaxAmt,sum(edv2.collectionamount) as totalCollectedAmt from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid group by edv.consumercode) dm on ewc.applicationno = dm.consumercode where ewc.applicationstatus='CONNECTION_ACTIVATED' AND EWC.ISOLDAPPLICATION=false
+  orderby: ORDER BY ewc.tenantid DESC NULLS LAST
