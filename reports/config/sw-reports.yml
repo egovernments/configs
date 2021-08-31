@@ -1,0 +1,49 @@
+---
+ReportDefinitions:
+- reportName: UlbWiseSewerageChargeCollection
+  summary: State Wide Sewerage Charge Collection
+  version: 1.0.0
+  moduleName: rainmaker-sw
+  sourceColumns:
+  - name: connectionno
+    label: Connection No
+    type: string
+    source: pt
+    total: false
+  - name: oldconnectionno
+    label: Old Connection No
+    type: string
+    source: pt
+    total: false
+  - name: connectiontype
+    label: Connection Type
+    type: string
+    source: pt
+    total: false
+  - name: totaltaxamt
+    label: Total Demand Amount
+    type: string
+    source: pt
+    total: true
+  - name: totalcollectedamt
+    label: Collected Amount
+    type: string
+    source: pt
+    total: true
+  - name: dueAmount
+    label: Due Amount
+    type: string
+    source: pt
+    total: true
+  searchParams:
+  - name: tenant
+    label: Tenant
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8094/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|$..code|$..name
+    source: pt
+    wrapper: true
+    isMandatory: false
+    searchClause: AND ewc.tenantid = $tenant
+  query: |
+      SELECT EWC.TENANTID AS ULB,EWC.CONNECTIONNO,EWC.OLDCONNECTIONNO,EWS.CONNECTIONTYPE,DM.TOTALTAXAMT,DM.TOTALCOLLECTEDAMT,DM.TOTALTAXAMT - DM.TOTALCOLLECTEDAMT AS DUEAMOUNT FROM EG_SW_CONNECTION EWC INNER JOIN EG_SW_SERVICE EWS ON EWC.ID = EWS.CONNECTION_ID INNER JOIN (SELECT EDV.CONSUMERCODE,SUM(EDV2.TAXAMOUNT) AS TOTALTAXAMT,SUM(EDV2.COLLECTIONAMOUNT) AS TOTALCOLLECTEDAMT FROM EGBS_DEMAND_V1 EDV INNER JOIN EGBS_DEMANDDETAIL_V1 EDV2 ON EDV.ID = EDV2.DEMANDID GROUP BY EDV.CONSUMERCODE) DM ON EWC.APPLICATIONNO = DM.CONSUMERCODE WHERE EWC.APPLICATIONSTATUS = 'CONNECTION_ACTIVATED' AND EWC.ISOLDAPPLICATION=false
+  orderby: ORDER BY ewc.tenantid DESC NULLS LAST
