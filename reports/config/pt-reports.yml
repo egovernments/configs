@@ -879,3 +879,73 @@ ReportDefinitions:
   query: |
       select initcap(split_part(epp.tenantid, '.', 2)) as ulb,epp.propertyid,epp.oldpropertyid,epaa.assessmentnumber,dm.totalTaxAmt,dm.totalCollectedAmt,dm.totalTaxAmt-dm.totalCollectedAmt as dueAmount from eg_pt_property epp inner join eg_pt_asmt_assessment epaa on epp.propertyid = epaa.propertyid inner join (select edv.consumercode,sum(edv2.taxamount) as totalTaxAmt,sum(edv2.collectionamount) as totalCollectedAmt from egbs_demand_v1 edv  inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid group by edv.consumercode) dm on epp.propertyid = dm.consumercode where epp.status='ACTIVE'
   orderby: ORDER BY epp.tenantid DESC NULLS LAST
+
+- reportName: propertyWiseDemandDetails
+  summary: Property Wise Demand Details
+  version: 1.0.0
+  moduleName: rainmaker-pt
+  sourceColumns:
+  - name: ulb
+    label: reports.pt.ulb
+    type: string
+    source: pt
+    total: false
+  - name: propertyid
+    label: Property Id
+    type: string
+    source: pt
+    total: false
+  - name: oldpropertyid
+    label: Old Property Id
+    type: string
+    source: pt
+    total: false
+  - name: taxperiodfrom
+    label: Financial Year From
+    type: string
+    source: pt
+    total: false
+  - name: taxperiodto
+    label: Financial Year To
+    type: string
+    source: pt
+    total: false
+  - name: taxamount
+    label: Total Demand Amount
+    type: string
+    source: pt
+    total: true
+  - name: collectionamount
+    label: Paid Amount
+    type: string
+    source: pt
+    total: true
+  - name: dueamount
+    label: Due Amount
+    type: string
+    source: pt
+    total: true
+  searchParams:
+  - name: tenant
+    label: Tenant
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|$..code|$..name
+    source: pt
+    wrapper: true
+    isMandatory: true
+    searchClause: WHERE epp.tenantid = $tenant
+  - name: propertyid
+    label: Property Id
+    type: string
+    source: pt
+    isMandatory: false
+    searchClause: AND epp.propertyid = $propertyid
+  - name: oldpropertyid
+    label: Old Property Id
+    type: string
+    source: pt
+    isMandatory: false
+    searchClause: AND epp.oldpropertyid = $oldpropertyid
+  query: |
+      select INITCAP(SPLIT_PART(EPP.TENANTID,'.',2)) AS ULB,epp.propertyid,epp.oldpropertyid, to_char(to_timestamp(edv.taxperiodfrom / 1000), 'Mon-YYYY') as taxperiodfrom , to_char(to_timestamp(edv.taxperiodto / 1000), 'Mon-YYYY') as taxperiodto ,coalesce(edv2.taxamount, 0) taxamount,coalesce(edv2.collectionamount, 0) collectionamount,edv2.taxamount - edv2.collectionamount as dueAmount from eg_pt_property epp inner join egbs_demand_v1 edv on edv.consumercode = epp.propertyid left outer join (select demandid, sum(taxamount) as taxamount, sum(collectionamount) as collectionamount from egbs_demanddetail_v1 edv3 group by demandid) edv2 on edv2.demandid = edv.id
+  orderby: order by edv.taxperiodfrom
