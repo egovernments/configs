@@ -1,0 +1,524 @@
+serviceMaps:
+ serviceName: mr-services
+ mappings:
+ - version: 1.0
+   description: Persists marriageRegistartion details in eg_mr_application  table
+   fromTopic: save-mr-marriageregistration
+   isTransaction: true
+   queryMaps:
+
+       - query: INSERT INTO eg_mr_application(id, accountid, tenantid, mrnumber, applicationnumber, applicationdate, marriagedate, issueddate, action, status, createdby, lastmodifiedby, createdtime, lastmodifiedtime, businessservice, workflowcode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+         basePath: MarriageRegistrations.*
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.id
+
+          - jsonPath: $.MarriageRegistrations.*.accountId
+
+          - jsonPath: $.MarriageRegistrations.*.tenantId
+
+          - jsonPath: $.MarriageRegistrations.*.mrNumber
+
+          - jsonPath: $.MarriageRegistrations.*.applicationNumber
+
+          - jsonPath: $.MarriageRegistrations.*.applicationDate
+
+          - jsonPath: $.MarriageRegistrations.*.marriageDate
+
+          - jsonPath: $.MarriageRegistrations.*.issuedDate
+
+          - jsonPath: $.MarriageRegistrations.*.action
+
+          - jsonPath: $.MarriageRegistrations.*.status
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.createdBy
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.createdTime
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.lastModifiedTime
+          
+          - jsonPath: $.MarriageRegistrations.*.businessService
+
+          - jsonPath: $.MarriageRegistrations.*.workflowCode
+
+
+
+       - query: INSERT INTO eg_mr_marriageplace(id, ward, placeofmarriage, locality, additionaldetail, mr_id, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+         basePath: MarriageRegistrations.*.marriagePlace
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.marriagePlace.id
+
+          - jsonPath: $.MarriageRegistrations.*.marriagePlace.ward
+
+          - jsonPath: $.MarriageRegistrations.*.marriagePlace.placeOfMarriage
+
+          - jsonPath: $.MarriageRegistrations.*.marriagePlace.locality.code
+
+          - jsonPath: $.MarriageRegistrations.*.marriagePlace.additionalDetail
+            type: JSON
+            dbType: JSONB
+
+          - jsonPath: $.MarriageRegistrations.*.id
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.createdBy
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.createdTime
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.lastModifiedTime
+
+
+
+       - query: INSERT INTO public.eg_mr_couple(id, tenantid, mr_id, isdivyang, isgroom, title, firstname, middlename, lastname, dateofbirth, fathername, mothername, createdby, lastmodifiedby, createdtime , lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+         basePath: MarriageRegistrations.*.coupleDetails.*
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.id
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.tenantId
+
+          - jsonPath: $.MarriageRegistrations.[*][?({id} in @.coupleDetails[*].id)].id
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.isDivyang
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.isGroom
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.title
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.firstName
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.middleName
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.lastName
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.dateOfBirth
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.fatherName
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.motherName
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.createdBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.createdTime
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.lastModifiedTime
+
+
+
+
+
+
+ - version: 1.0
+   description: Update marriageRegistration details in eg_mr_application  table
+   fromTopic: update-mr-marriageregistration
+   isTransaction: true
+   queryMaps:
+
+
+
+       - query: UPDATE public.eg_mr_application SET accountid=?,  mrnumber=? , marriagedate=?, issueddate=?, action=?, status=?, lastmodifiedby=?,  lastmodifiedtime=? ,businessservice = ?, workflowcode = ? WHERE id = ?;
+         basePath: MarriageRegistrations.*
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.accountId
+
+          - jsonPath: $.MarriageRegistrations.*.mrNumber
+
+          - jsonPath: $.MarriageRegistrations.*.marriageDate
+
+          - jsonPath: $.MarriageRegistrations.*.issuedDate
+
+          - jsonPath: $.MarriageRegistrations.*.action
+
+          - jsonPath: $.MarriageRegistrations.*.status
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.lastModifiedTime
+          
+          - jsonPath: $.MarriageRegistrations.*.businessService
+      
+          - jsonPath: $.MarriageRegistrations.*.workflowCode
+
+          - jsonPath: $.MarriageRegistrations.*.id
+
+
+       - query: UPDATE public.eg_mr_marriageplace SET  ward=?, placeofmarriage=?, locality=?, additionaldetail=?,  lastmodifiedby=?,  lastmodifiedtime=? WHERE  id = ?;
+         basePath: MarriageRegistrations.*.marriagePlace
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.marriagePlace.ward
+
+          - jsonPath: $.MarriageRegistrations.*.marriagePlace.placeOfMarriage
+
+          - jsonPath: $.MarriageRegistrations.*.marriagePlace.locality.code
+
+
+          - jsonPath: $.MarriageRegistrations.*.marriagePlace.additionalDetail
+            type: JSON
+            dbType: JSONB
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.lastModifiedTime
+
+          - jsonPath: $.MarriageRegistrations.*.marriagePlace.id
+
+       - query: INSERT INTO public.eg_mr_couple(id, tenantid, mr_id, isdivyang, isgroom, title, firstname, middlename, lastname, dateofbirth, fathername, mothername, createdby, lastmodifiedby, createdtime , lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)  ON CONFLICT (id) DO UPDATE SET isdivyang = ?, isgroom = ?, title = ?, firstname = ?, middlename= ?, lastname = ? , dateofbirth = ? , fathername = ?, mothername= ? , lastmodifiedby =? , lastmodifiedtime = ?;
+         basePath: MarriageRegistrations.*.coupleDetails.*
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.id
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.tenantId
+
+          - jsonPath: $.MarriageRegistrations.[*][?({id} in @.coupleDetails[*].id)].id
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.isDivyang
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.isGroom
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.title
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.firstName
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.middleName
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.lastName
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.dateOfBirth
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.fatherName
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.motherName
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.createdBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.createdTime
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.lastModifiedTime
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.isDivyang
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.isGroom
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.title
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.firstName
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.middleName
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.lastName
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.dateOfBirth
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.fatherName
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.motherName
+          
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.lastModifiedTime
+
+       - query: INSERT INTO eg_mr_coupleaddress(id, tenantid, mr_couple_id, addressline1, addressline2, addressline3, country, state, district, pincode, locality, createdby,  lastmodifiedby ,createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET addressline1 = ?, addressline2 = ?, addressline3 = ?, country = ?, state= ?, district = ? , pincode = ? , locality = ?,  lastmodifiedby =? , lastmodifiedtime = ?;
+         basePath: MarriageRegistrations.*.coupleDetails.*
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.id
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.tenantId
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.id
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.addressLine1
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.addressLine2
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.addressLine3
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.country
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.state
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.district
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.pinCode
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.locality 
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.createdBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.createdTime
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.lastModifiedTime
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.addressLine1
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.addressLine2
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.addressLine3
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.country
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.state
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.district
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.pinCode
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.locality 
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.lastModifiedTime
+
+
+       - query: INSERT INTO eg_mr_gaurdiandetails(id, tenantid, mr_couple_id, addressid, isgroomsideguardian, relationship, name, addressline1, addressline2, addressline3, country, state, district, pincode, locality, contact, emailaddress, createdby ,lastmodifiedby , createdtime,  lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)  ON CONFLICT (id) DO UPDATE SET isgroomsideguardian= ? , relationship= ? , name =? , addressline1 = ?, addressline2 = ?, addressline3 = ?, country = ?, state= ?, district = ? , pincode = ? , locality = ?, contact =? , emailaddress = ? ,lastmodifiedby =? , lastmodifiedtime = ?;
+         basePath: MarriageRegistrations.*.coupleDetails.*
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.id
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.tenantId
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.id
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.coupleAddress.id
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.groomSideGuardian
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.relationship
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.name
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.addressLine1
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.addressLine2
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.addressLine3
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.country
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.state
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.district
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.pinCode
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.locality 
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.contact 
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.emailAddress 
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.createdBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.createdTime
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.lastModifiedTime
+
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.groomSideGuardian
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.relationship
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.name
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.addressLine1
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.addressLine2
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.addressLine3
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.country
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.state
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.district
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.pinCode
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.locality 
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.contact 
+          
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.guardianDetails.emailAddress
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.coupleDetails[*].id)].auditDetails.lastModifiedTime
+
+
+
+       - query: INSERT INTO public.eg_mr_witness( id, tenantid, mr_id, title, address, firstname, middlename, lastname, country, state, district, pincode, contact, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET title = ?, address = ?, firstname = ?, middlename = ?, lastname = ?, country = ?, state = ?, district = ?, pincode = ? , contact = ? , lastmodifiedby =?, lastmodifiedtime =?;
+         basePath: MarriageRegistrations.*.witness.*
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.witness*.id
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.tenantId
+
+          - jsonPath: $.MarriageRegistrations.[*][?({id} in @.witness[*].id)].id
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.title
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.address
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.firstName
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.middleName
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.lastName
+          
+          - jsonPath: $.MarriageRegistrations.*.witness*.country
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.state
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.district
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.pinCode
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.contact
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.witness[*].id)].auditDetails.createdBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.witness[*].id)].auditDetails.createdTime
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.witness[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.witness[*].id)].auditDetails.lastModifiedTime
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.title
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.address
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.firstName
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.middleName
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.lastName
+          
+          - jsonPath: $.MarriageRegistrations.*.witness*.country
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.state
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.district
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.pinCode
+
+          - jsonPath: $.MarriageRegistrations.*.witness*.contact
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.witness[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.witness[*].id)].auditDetails.lastModifiedTime
+
+
+
+       - query: INSERT INTO eg_mr_applicationdocument( id, tenantid, active, documenttype, filestoreid, mr_id , createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET active = ?, documenttype =?, filestoreid =?,lastmodifiedby =?, lastmodifiedtime =?;
+         basePath: MarriageRegistrations.*.applicationDocuments.*
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.applicationDocuments.*.id
+
+          - jsonPath: $.MarriageRegistrations.*.applicationDocuments.*.tenantId
+
+          - jsonPath: $.MarriageRegistrations.*.applicationDocuments.*.active
+
+          - jsonPath: $.MarriageRegistrations.*.applicationDocuments.*.documentType
+
+          - jsonPath: $.MarriageRegistrations.*.applicationDocuments.*.fileStoreId
+
+          - jsonPath: $.MarriageRegistrations.[*][?({id} in @.applicationDocuments[*].id)].id
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.applicationDocuments[*].id)].auditDetails.createdBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.applicationDocuments[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.applicationDocuments[*].id)].auditDetails.createdTime
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.applicationDocuments[*].id)].auditDetails.lastModifiedTime
+
+          - jsonPath: $.MarriageRegistrations.*.applicationDocuments.*.active
+
+          - jsonPath: $.MarriageRegistrations.*.applicationDocuments.*.documentType
+
+          - jsonPath: $.MarriageRegistrations.*.applicationDocuments.*.fileStoreId
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.applicationDocuments[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.applicationDocuments[*].id)].auditDetails.lastModifiedTime
+
+
+
+ - version: 1.0
+   description: Persists marraige registration details in eg_mr_application  table
+   fromTopic: update-mr-workflow
+   isTransaction: true
+   queryMaps:
+
+
+       - query: INSERT INTO eg_mr_verificationDocument( id, tenantid, active, documenttype, filestoreid, mr_id, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET active = ?, documenttype =?, filestoreid =?,lastmodifiedby =?, lastmodifiedtime =?;
+         basePath: MarriageRegistrations.*.verificationDocuments.*
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.verificationDocuments.*.id
+
+          - jsonPath: $.MarriageRegistrations.*.verificationDocuments.*.tenantId
+
+          - jsonPath: $.MarriageRegistrations.*.verificationDocuments.*.active
+
+          - jsonPath: $.MarriageRegistrations.*.verificationDocuments.*.documentType
+
+          - jsonPath: $.MarriageRegistrations.*.verificationDocuments.*.fileStoreId
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.verificationDocuments[*].id)].id
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.verificationDocuments[*].id)].auditDetails.createdBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.verificationDocuments[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.verificationDocuments[*].id)].auditDetails.createdTime
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.verificationDocuments[*].id)].auditDetails.lastModifiedTime
+
+          - jsonPath: $.MarriageRegistrations.*.verificationDocuments.*.active
+
+          - jsonPath: $.MarriageRegistrations.*.verificationDocuments.*.documentType
+
+          - jsonPath: $.MarriageRegistrations.*.verificationDocuments.*.fileStoreId
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.verificationDocuments[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.verificationDocuments[*].id)].auditDetails.lastModifiedTime
+
+
+       - query: UPDATE eg_mr_application SET mrnumber = ?,issueddate =?, action = ?, status = ?,  lastmodifiedby = ?,  lastmodifiedtime = ? WHERE id=?;
+         basePath: MarriageRegistrations.*
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.mrNumber
+
+          - jsonPath: $.MarriageRegistrations.*.issuedDate
+
+          - jsonPath: $.MarriageRegistrations.*.action
+
+          - jsonPath: $.MarriageRegistrations.*.status
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.lastModifiedTime
+
+          - jsonPath: $.MarriageRegistrations.*.id
+
+
+       - query: UPDATE eg_mr_marriagePlace SET additionaldetail = ?,lastmodifiedby = ?,  lastmodifiedtime = ? WHERE id = ?;
+         basePath: MarriageRegistrations.*.marriagePlace
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.marriagePlace.additionalDetail
+            type: JSON
+            dbType: JSONB
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations.*.auditDetails.lastModifiedTime
+
+          - jsonPath: $.MarriageRegistrations.*.marriagePlace.id
