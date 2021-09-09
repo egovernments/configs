@@ -949,3 +949,63 @@ ReportDefinitions:
   query: |
       select INITCAP(SPLIT_PART(EPP.TENANTID,'.',2)) AS ULB,epp.propertyid,epp.oldpropertyid, to_char(to_timestamp(edv.taxperiodfrom / 1000), 'Mon-YYYY') as taxperiodfrom , to_char(to_timestamp(edv.taxperiodto / 1000), 'Mon-YYYY') as taxperiodto ,coalesce(edv2.taxamount, 0) taxamount,coalesce(edv2.collectionamount, 0) collectionamount,edv2.taxamount - edv2.collectionamount as dueAmount from eg_pt_property epp inner join egbs_demand_v1 edv on edv.consumercode = epp.propertyid left outer join (select demandid, sum(taxamount) as taxamount, sum(collectionamount) as collectionamount from egbs_demanddetail_v1 edv3 group by demandid) edv2 on edv2.demandid = edv.id
   orderby: order by edv.taxperiodfrom
+
+- reportName: propertyWiseCollectionReport
+  summary: Property Wise Collection Report
+  version: 1.0.0
+  moduleName: rainmaker-pt
+  sourceColumns:
+  - name: Consumer Id
+    label: Consumer Id
+    type: string
+    source: pt
+    total: false
+  - name: Receipt Number
+    label: Receipt Number
+    type: string
+    source: pt
+    total: false
+  - name: Receipt Date
+    label: Receipt Date
+    type: string
+    source: pt
+    total: false
+  - name: Due before payment
+    label: Due Before Payment
+    type: string
+    source: pt
+    total: true
+  - name: Amount paid
+    label: Amount Paid
+    type: string
+    source: pt
+    total: true
+  - name: Payment Date
+    label: Payment Date
+    type: string
+    source: pt
+    total: false
+  - name: Payment Mode
+    label: Payment Mode
+    type: string
+    source: pt
+    total: false
+  - name: Payment Status
+    label: Payment Status
+    type: string
+    source: pt
+    total: false
+  - name: Paid by
+    label: Paid By
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: propertyid
+    label: Property Id
+    type: string
+    source: pt
+    isMandatory: true
+    searchClause: WHERE edv.consumercode = $propertyid
+  query: |
+      select distinct edv.consumercode as "Consumer Id", ep2.receiptnumber as "Receipt Number" , to_char(to_timestamp(ep2.receiptdate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Receipt Date" , ep2.due as "Due before payment" , ep2.amountpaid "Amount paid" , to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date" , ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status" , ep.paidby as "Paid by" from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid left outer join egcl_billdetial eb2 on eb2.demandid = edv.id left outer join egcl_bill eb on eb.id = eb2.billid left outer join egcl_paymentdetail ep2 on ep2.billid = eb.id left outer join egcl_payment ep on ep.id = ep2.paymentid
