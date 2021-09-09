@@ -121,3 +121,63 @@ ReportDefinitions:
     searchClause: AND ewc.oldconnectionno = $oldconnectionno
   query: |
       select INITCAP(SPLIT_PART(EWC.TENANTID, '.', 2)) as ULB, EWC.CONNECTIONNO, EWC.OLDCONNECTIONNO, coalesce(DM.TOTALTAXAMT, 0) as TOTALTAXAMT, coalesce(DM.TOTALCOLLECTEDAMT, 0) as TOTALCOLLECTEDAMT, case when coalesce(DM.TOTALTAXAMT, 0) > coalesce(DM.TOTALCOLLECTEDAMT, 0) then coalesce(DM.TOTALTAXAMT, 0) - coalesce(DM.TOTALCOLLECTEDAMT, 0) else 0 end as DUEAMOUNT, case when coalesce(DM.TOTALCOLLECTEDAMT, 0) > coalesce(DM.TOTALTAXAMT, 0) then coalesce(DM.TOTALCOLLECTEDAMT, 0) - coalesce(DM.TOTALTAXAMT, 0) else 0 end as REMAININGBAL from EG_WS_CONNECTION EWC inner join EG_WS_SERVICE EWS on EWC.ID = EWS.CONNECTION_ID left outer join (select EDV.CONSUMERCODE, SUM(EDV2.TAXAMOUNT) as TOTALTAXAMT, SUM(EDV2.COLLECTIONAMOUNT) as TOTALCOLLECTEDAMT from EGBS_DEMAND_V1 EDV inner join EGBS_DEMANDDETAIL_V1 EDV2 on EDV.ID = EDV2.DEMANDID group by EDV.CONSUMERCODE) DM on EWC.connectionno = DM.CONSUMERCODE where EWC.APPLICATIONSTATUS = 'CONNECTION_ACTIVATED'
+
+- reportName: connectionWiseCollectionReport
+  summary: Connection Wise Collection Report
+  version: 1.0.0
+  moduleName: rainmaker-ws
+  sourceColumns:
+  - name: Consumer Id
+    label: Consumer Id
+    type: string
+    source: pt
+    total: false
+  - name: Receipt Number
+    label: Receipt Number
+    type: string
+    source: pt
+    total: false
+  - name: Receipt Date
+    label: Receipt Date
+    type: string
+    source: pt
+    total: false
+  - name: Due before payment
+    label: Due Before Payment
+    type: string
+    source: pt
+    total: true
+  - name: Amount paid
+    label: Amount Paid
+    type: string
+    source: pt
+    total: true
+  - name: Payment Date
+    label: Payment Date
+    type: string
+    source: pt
+    total: false
+  - name: Payment Mode
+    label: Payment Mode
+    type: string
+    source: pt
+    total: false
+  - name: Payment Status
+    label: Payment Status
+    type: string
+    source: pt
+    total: false
+  - name: Paid by
+    label: Paid By
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: connectionNo
+    label: Connection No
+    type: string
+    source: pt
+    isMandatory: true
+    searchClause: WHERE edv.consumercode = $connectionNo
+  query: |
+      select distinct edv.consumercode as "Consumer Id", ep2.receiptnumber as "Receipt Number" , to_char(to_timestamp(ep2.receiptdate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Receipt Date" , ep2.due as "Due before payment" , ep2.amountpaid "Amount paid" , to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date" , ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status" , ep.paidby as "Paid by" from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid left outer join egcl_billdetial eb2 on eb2.demandid = edv.id left outer join egcl_bill eb on eb.id = eb2.billid left outer join egcl_paymentdetail ep2 on ep2.billid = eb.id left outer join egcl_payment ep on ep.id = ep2.paymentid
