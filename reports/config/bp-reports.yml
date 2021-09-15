@@ -1,0 +1,59 @@
+---
+ReportDefinitions:
+- reportName: BpaStatusReport
+  summary: BPA Status Report
+  version: 1.0.0
+  moduleName: rainmaker-bp
+  sourceColumns:
+  - name: ulb
+    label: ULB/DA Name
+    type: string
+    source: pt
+    total: false
+  - name: applicationno
+    label: Application No
+    type: string
+    source: pt
+    total: false
+  - name: businessservice
+    label: Type of Application
+    type: string
+    source: pt
+    total: false
+  - name: applicationDate
+    label: Application Date
+    type: string
+    source: pt
+    total: false
+  - name: status
+    label: Status
+    type: string
+    source: pt
+    total: false
+  - name: approvaldate
+    label: Approval Date
+    type: string
+    source: pt
+    total: false
+  - name: approvalno
+    label: Approval No
+    type: string
+    source: pt
+    total: false
+  - name: createdtime
+    label: Created On
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: tenant
+    label: Tenant
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8094/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
+    source: pt
+    wrapper: true
+    isMandatory: false
+    searchClause: WHERE tenantid = $tenant
+  query: |
+      SELECT INITCAP(SPLIT_PART(TENANTID,'.',2)) AS ULB , applicationno,businessservice  ,to_char(to_timestamp( CREATEDTIME/ 1000), 'DD-MM-YYYY') AS CREATEDTIME,to_char(to_timestamp( APPLICATIONDATE/ 1000), 'DD-MM-YYYY') AS APPLICATIONDATE,status,approvalno,case when approvaldate >0 then to_char(to_timestamp( APPROVALDATE/ 1000), 'DD-MM-YYYY') end as approvaldate from eg_bpa_buildingplan
+  orderby: ORDER BY tenantid DESC NULLS LAST
