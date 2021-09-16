@@ -1,0 +1,59 @@
+---
+ReportDefinitions:
+- reportName: BpaStatusReport
+  summary: BPA Status Report
+  version: 1.0.0
+  moduleName: rainmaker-bpa
+  sourceColumns:
+  - name: ulb
+    label: ULB/DA Name
+    type: string
+    source: pt
+    total: false
+  - name: applicationno
+    label: Application No
+    type: string
+    source: pt
+    total: false
+  - name: businessservice
+    label: Type of Application
+    type: string
+    source: pt
+    total: false
+  - name: applicationDate
+    label: Application Date
+    type: string
+    source: pt
+    total: false
+  - name: status
+    label: Status
+    type: string
+    source: pt
+    total: false
+  - name: approvaldate
+    label: Approval Date
+    type: string
+    source: pt
+    total: false
+  - name: approvalno
+    label: Approval No
+    type: string
+    source: pt
+    total: false
+  - name: createdtime
+    label: Created On
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: tenant
+    label: Tenant
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
+    source: pt
+    wrapper: true
+    isMandatory: false
+    searchClause: AND tenantid = $tenant
+  query: |
+      SELECT INITCAP(SPLIT_PART(TENANTID,'.',2)) AS ULB,APPLICATIONNO, case when BUSINESSSERVICE like '%BPA_OC%' then 'Permit Order'  else 'Occupancy Certificate' end as BUSINESSSERVICE , TO_CHAR(TO_TIMESTAMP(CREATEDTIME / 1000),'DD-MM-YYYY') AS CREATEDTIME, TO_CHAR(TO_TIMESTAMP(APPLICATIONDATE / 1000),'DD-MM-YYYY') AS APPLICATIONDATE, case when status ='INPROGRESS' then 'In-Progress' when status ='PENDING_APPL_FEE_PAYMENT' then 'Pending Application Fee' when status='DOC_VERIFICATION_INPROGRESS' then 'Dcoument Verification Pending' when status='FIELDINSPECTION_INPROGRESS' then 'Field Inspection In Progress' when status='APPROVAL_INPROGRESS' then 'Approval In Progress' when status='PENDING_SANC_FEE_PAYMENT' then 'Pending Sanction Fee Payment' when status='CONSTRUCT_START_INTIMATED' then 'Construction Start Intimated' when status='PLINTH_VERIFICATION_INPROGRESS' then 'Plinth Verification In Progress' when status='GROUNDFLR_VERIFICATION_INPROGRESS' then 'Ground Floor Verification In Progress' when status='TOPFLR_VERIFICATION_INPROGRESS' then 'Top Floor Verification In Progress' when status='TOPFLR_VERIFICATION_COMPLETED' then 'Top Floor Verification Completed' when status='CITIZEN_ACTION_PENDING_AT_DOC_VERIF' then 'Citizen Action Pending at Document Verification' when status='CITIZEN_ACTION_PENDING_AT_APPROVAL' then 'Citizen Action Pending At Approval' when status='APPROVED' then 'Approved' when status='PENDING_APPL_FEE' then 'Pending Application Fee Payment' when status='APP_L1_VERIFICATION_PENDING' then 'Application Level 1 Verification Pending' end as status ,APPROVALNO, CASE WHEN APPROVALDATE > 0 THEN TO_CHAR(TO_TIMESTAMP(APPROVALDATE / 1000),'DD-MM-YYYY') END AS APPROVALDATE FROM EG_BPA_BUILDINGPLAN where status not in ('INITIATED','CITIZEN_APPROVAL_INPROCESS')
+  orderby: ORDER BY tenantid DESC NULLS LAST
