@@ -6,7 +6,7 @@ ReportDefinitions:
   moduleName: rainmaker-ws
   sourceColumns:
   - name: ulb
-    label: reports.pt.ulb
+    label: ULB
     type: string
     source: pt
     total: false
@@ -64,7 +64,7 @@ ReportDefinitions:
   moduleName: rainmaker-ws
   sourceColumns:
   - name: ulb
-    label: reports.pt.ulb
+    label: ULB
     type: string
     source: pt
     total: false
@@ -146,12 +146,17 @@ ReportDefinitions:
     label: Due Before Payment
     type: string
     source: pt
-    total: true
+    total: false
   - name: Amount paid
     label: Amount Paid
     type: string
     source: pt
     total: true
+  - name: Current Due
+    label: Current Due
+    type: string
+    source: pt
+    total: false
   - name: Payment Date
     label: Payment Date
     type: string
@@ -180,4 +185,4 @@ ReportDefinitions:
     isMandatory: true
     searchClause: WHERE edv.consumercode = $connectionNo
   query: |
-      select distinct edv.consumercode as "Consumer Id", ep2.receiptnumber as "Receipt Number" , to_char(to_timestamp(ep2.receiptdate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Receipt Date" , ep2.due as "Due before payment" , ep2.amountpaid "Amount paid" , to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date" , ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status" , ep.paidby as "Paid by" from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid left outer join egcl_billdetial eb2 on eb2.demandid = edv.id left outer join egcl_bill eb on eb.id = eb2.billid left outer join egcl_paymentdetail ep2 on ep2.billid = eb.id left outer join egcl_payment ep on ep.id = ep2.paymentid
+      select distinct edv.consumercode as "Consumer Id", ep2.receiptnumber as "Receipt Number" , to_char(to_timestamp(ep2.receiptdate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Receipt Date" , ep2.due as "Due before payment" , ep2.amountpaid "Amount paid" ,ep2.due - ep2.amountpaid "Current Due", to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date" , ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status" , ep.payername as "Paid by" from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid right outer join egcl_billdetial eb2 on eb2.demandid = edv.id left outer join egcl_bill eb on eb.id = eb2.billid left outer join egcl_paymentdetail ep2 on ep2.billid = eb.id left outer join egcl_payment ep on ep.id = ep2.paymentid
