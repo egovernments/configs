@@ -10,6 +10,11 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
+  - name: ward
+    label: Ward
+    type: string
+    source: pt
+    total: false
   - name: connectionno
     label: Connection No
     type: string
@@ -54,8 +59,14 @@ ReportDefinitions:
     wrapper: true
     isMandatory: false
     searchClause: AND ewc.tenantid = $ulb
+  - name: ward
+    label: Ward
+    type: string
+    source: pt
+    isMandatory: false
+    searchClause: AND EWC.additionaldetails->>'ward'=$ward
   query: |
-      SELECT INITCAP(SPLIT_PART(EWC.TENANTID,'.',2)) AS ULB,EWC.CONNECTIONNO,EWC.OLDCONNECTIONNO,EWS.CONNECTIONTYPE,EWS.METERID,COALESCE(DM.TOTALTAXAMT,0) AS TOTALTAXAMT,COALESCE(DM.TOTALCOLLECTEDAMT,0) AS TOTALCOLLECTEDAMT,COALESCE(DM.TOTALTAXAMT,0) - COALESCE(DM.TOTALCOLLECTEDAMT,0) AS DUEAMOUNT FROM EG_WS_CONNECTION EWC INNER JOIN EG_WS_SERVICE EWS ON EWC.ID = EWS.CONNECTION_ID LEFT OUTER JOIN (SELECT EDV.CONSUMERCODE,SUM(EDV2.TAXAMOUNT) AS TOTALTAXAMT,SUM(EDV2.COLLECTIONAMOUNT) AS TOTALCOLLECTEDAMT FROM EGBS_DEMAND_V1 EDV INNER JOIN EGBS_DEMANDDETAIL_V1 EDV2 ON EDV.ID = EDV2.DEMANDID GROUP BY EDV.CONSUMERCODE) DM ON EWC.CONNECTIONNO = DM.CONSUMERCODE WHERE EWC.APPLICATIONSTATUS = 'CONNECTION_ACTIVATED' AND EWC.ISOLDAPPLICATION = FALSE
+      SELECT INITCAP(SPLIT_PART(EWC.TENANTID,'.',2)) AS ULB,EWC.ADDITIONALDETAILS->>'ward' AS WARD,EWC.CONNECTIONNO,EWC.OLDCONNECTIONNO,EWS.CONNECTIONTYPE,EWS.METERID,COALESCE(DM.TOTALTAXAMT,0) AS TOTALTAXAMT,COALESCE(DM.TOTALCOLLECTEDAMT,0) AS TOTALCOLLECTEDAMT,COALESCE(DM.TOTALTAXAMT,0) - COALESCE(DM.TOTALCOLLECTEDAMT,0) AS DUEAMOUNT FROM EG_WS_CONNECTION EWC INNER JOIN EG_WS_SERVICE EWS ON EWC.ID = EWS.CONNECTION_ID LEFT OUTER JOIN (SELECT EDV.CONSUMERCODE,SUM(EDV2.TAXAMOUNT) AS TOTALTAXAMT,SUM(EDV2.COLLECTIONAMOUNT) AS TOTALCOLLECTEDAMT FROM EGBS_DEMAND_V1 EDV INNER JOIN EGBS_DEMANDDETAIL_V1 EDV2 ON EDV.ID = EDV2.DEMANDID GROUP BY EDV.CONSUMERCODE) DM ON EWC.CONNECTIONNO = DM.CONSUMERCODE WHERE EWC.APPLICATIONSTATUS = 'CONNECTION_ACTIVATED' AND EWC.ISOLDAPPLICATION = FALSE
   orderby: ORDER BY ewc.tenantid DESC NULLS LAST
 
 - reportName: WaterConnectionWiseDemandDetailsReport
@@ -65,6 +76,11 @@ ReportDefinitions:
   sourceColumns:
   - name: ulb
     label: ULB
+    type: string
+    source: pt
+    total: false
+  - name: ward
+    label: Ward
     type: string
     source: pt
     total: false
@@ -107,6 +123,12 @@ ReportDefinitions:
     wrapper: true
     isMandatory: true
     searchClause: AND ewc.tenantid = $ulb
+  - name: ward
+    label: Ward
+    type: string
+    source: pt
+    isMandatory: false
+    searchClause: AND EWC.additionaldetails->>'ward'=$ward
   - name: connectionno
     label: Connection No
     type: string
@@ -120,7 +142,7 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND ewc.oldconnectionno = $oldconnectionno
   query: |
-      select INITCAP(SPLIT_PART(EWC.TENANTID, '.', 2)) as ULB, EWC.CONNECTIONNO, EWC.OLDCONNECTIONNO, coalesce(DM.TOTALTAXAMT, 0) as TOTALTAXAMT, coalesce(DM.TOTALCOLLECTEDAMT, 0) as TOTALCOLLECTEDAMT, case when coalesce(DM.TOTALTAXAMT, 0) > coalesce(DM.TOTALCOLLECTEDAMT, 0) then coalesce(DM.TOTALTAXAMT, 0) - coalesce(DM.TOTALCOLLECTEDAMT, 0) else 0 end as DUEAMOUNT, case when coalesce(DM.TOTALCOLLECTEDAMT, 0) > coalesce(DM.TOTALTAXAMT, 0) then coalesce(DM.TOTALCOLLECTEDAMT, 0) - coalesce(DM.TOTALTAXAMT, 0) else 0 end as REMAININGBAL from EG_WS_CONNECTION EWC inner join EG_WS_SERVICE EWS on EWC.ID = EWS.CONNECTION_ID left outer join (select EDV.CONSUMERCODE, SUM(EDV2.TAXAMOUNT) as TOTALTAXAMT, SUM(EDV2.COLLECTIONAMOUNT) as TOTALCOLLECTEDAMT from EGBS_DEMAND_V1 EDV inner join EGBS_DEMANDDETAIL_V1 EDV2 on EDV.ID = EDV2.DEMANDID group by EDV.CONSUMERCODE) DM on EWC.connectionno = DM.CONSUMERCODE where EWC.APPLICATIONSTATUS = 'CONNECTION_ACTIVATED'
+      select INITCAP(SPLIT_PART(EWC.TENANTID, '.', 2)) as ULB,EWC.ADDITIONALDETAILS->>'ward' AS WARD, EWC.CONNECTIONNO, EWC.OLDCONNECTIONNO, coalesce(DM.TOTALTAXAMT, 0) as TOTALTAXAMT, coalesce(DM.TOTALCOLLECTEDAMT, 0) as TOTALCOLLECTEDAMT, case when coalesce(DM.TOTALTAXAMT, 0) > coalesce(DM.TOTALCOLLECTEDAMT, 0) then coalesce(DM.TOTALTAXAMT, 0) - coalesce(DM.TOTALCOLLECTEDAMT, 0) else 0 end as DUEAMOUNT, case when coalesce(DM.TOTALCOLLECTEDAMT, 0) > coalesce(DM.TOTALTAXAMT, 0) then coalesce(DM.TOTALCOLLECTEDAMT, 0) - coalesce(DM.TOTALTAXAMT, 0) else 0 end as REMAININGBAL from EG_WS_CONNECTION EWC inner join EG_WS_SERVICE EWS on EWC.ID = EWS.CONNECTION_ID left outer join (select EDV.CONSUMERCODE, SUM(EDV2.TAXAMOUNT) as TOTALTAXAMT, SUM(EDV2.COLLECTIONAMOUNT) as TOTALCOLLECTEDAMT from EGBS_DEMAND_V1 EDV inner join EGBS_DEMANDDETAIL_V1 EDV2 on EDV.ID = EDV2.DEMANDID group by EDV.CONSUMERCODE) DM on EWC.connectionno = DM.CONSUMERCODE where EWC.APPLICATIONSTATUS = 'CONNECTION_ACTIVATED'
 
 - reportName: connectionWiseCollectionReport
   summary: Connection Wise Collection Report
@@ -186,3 +208,87 @@ ReportDefinitions:
     searchClause: WHERE edv.consumercode = $connectionNo
   query: |
       select distinct edv.consumercode as "Consumer Id", ep2.receiptnumber as "Receipt Number" , to_char(to_timestamp(ep2.receiptdate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Receipt Date" , ep2.due as "Due before payment" , ep2.amountpaid "Amount paid" ,ep2.due - ep2.amountpaid "Current Due", to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date" , ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status" , ep.payername as "Paid by" from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid right outer join egcl_billdetial eb2 on eb2.demandid = edv.id left outer join egcl_bill eb on eb.id = eb2.billid left outer join egcl_paymentdetail ep2 on ep2.billid = eb.id left outer join egcl_payment ep on ep.id = ep2.paymentid
+
+- reportName: ConnectionWiseDemandsReport
+  summary: Connection wise Demands Report
+  version: 1.0.0
+  moduleName: rainmaker-ws
+  sourceColumns:
+  - name: ulb
+    label: ULB
+    type: string
+    source: pt
+    total: false
+  - name: ward
+    label: Ward
+    type: string
+    source: pt
+    total: false
+  - name: connectionno
+    label: Connection No
+    type: string
+    source: pt
+    total: false
+  - name: oldconnectionno
+    label: Old Connection No
+    type: string
+    source: pt
+    total: false
+  - name: demandcreationdate
+    label: Demand Generation Date
+    type: string
+    source: pt
+    total: false
+  - name: taxperiodfrom
+    label: Tax Period From
+    type: string
+    source: pt
+    total: false
+  - name: taxperiodto
+    label: Tax Period To
+    type: string
+    source: pt
+    total: false
+  - name: totaltaxamt
+    label: Total Demand Amount
+    type: string
+    source: pt
+    total: true
+  - name: totalcollectedamt
+    label: Paid Amount
+    type: string
+    source: pt
+    total: true
+  - name: dueAmount
+    label: Due Amount
+    type: string
+    source: pt
+    total: true
+  - name: REMAININGBAL
+    label: Remaining Balance
+    type: string
+    source: pt
+    total: true
+  searchParams:
+  - name: ulb
+    label: ULB Name
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
+    source: pt
+    wrapper: true
+    isMandatory: true
+    searchClause: AND ewc.tenantid = $ulb
+  - name: connectionno
+    label: Connection No
+    type: string
+    source: pt
+    isMandatory: true
+    searchClause: AND ewc.connectionno = $connectionno
+  - name: oldconnectionno
+    label: Old Connection No
+    type: string
+    source: pt
+    isMandatory: false
+    searchClause: AND ewc.oldconnectionno = $oldconnectionno
+  query: |
+      select INITCAP(SPLIT_PART(EWC.TENANTID, '.', 2))as ULB, EWC.ADDITIONALDETAILS ->> 'ward' AS WARD, EWC.CONNECTIONNO, EWC.OLDCONNECTIONNO, DM.DEMANDCREATIONDATE, DM.TAXPERIODFROM, DM.TAXPERIODTO, DM.TOTALTAXAMT, DM.TOTALCOLLECTEDAMT,case when coalesce(DM.TOTALTAXAMT, 0) > coalesce(DM.TOTALCOLLECTEDAMT, 0) then coalesce(DM.TOTALTAXAMT, 0) - coalesce(DM.TOTALCOLLECTEDAMT, 0) else 0 end as DUEAMOUNT,case when coalesce(DM.TOTALCOLLECTEDAMT, 0) > coalesce(DM.TOTALTAXAMT, 0) then coalesce(DM.TOTALCOLLECTEDAMT, 0) - coalesce(DM.TOTALTAXAMT, 0) else 0 end as REMAININGBAL from EG_WS_CONNECTION EWC inner join EG_WS_SERVICE EWS on EWC.ID = EWS.CONNECTION_ID left outer join(select edv.consumercode, to_char(to_timestamp(edv.createdtime / 1000), 'DD-MM-YYYY')as DemandCreationDate, to_char(to_timestamp(edv.taxperiodfrom / 1000), 'DD-MM-YYYY')as TaxPeriodFrom, to_char(to_timestamp(edv.taxperiodto / 1000), 'DD-MM-YYYY')as TaxPeriodTo, edv2.demandid, edv2.TOTALTAXAMT, edv2.TOTALCOLLECTEDAMT, edv.status, edv.businessservice from EGBS_DEMAND_V1 EDV inner join(select demandid, SUM(TAXAMOUNT)as TOTALTAXAMT, SUM(COLLECTIONAMOUNT)as TOTALCOLLECTEDAMT from EGBS_DEMANDDETAIL_V1 group by demandid)edv2 on EDV.ID = EDV2.DEMANDID)DM on EWC.connectionno = DM.CONSUMERCODE where EWC.APPLICATIONSTATUS = 'CONNECTION_ACTIVATED' AND DM.STATUS = 'ACTIVE' AND DM.BUSINESSSERVICE = 'WS'
