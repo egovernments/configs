@@ -335,3 +335,67 @@ SearchDefinitions:
     jsonFormat: {"ResponseInfo": {},"BPAs": []}
     outJsonPath: $.BPAs
     responseInfoPath: $.ResponseInfo
+    
+- name: inboxbpastakeholderstatuswisecount
+   query:
+    baseQuery: Select row_to_json(result) from
+          (
+          select count(bpa.id), bpa.status from eg_bpa_buildingplan as bpa
+          INNER JOIN eg_land_landInfo landinfo ON bpa.landId = landinfo.id
+          INNER JOIN eg_land_Address landaddress ON landinfo.id = landaddress.landInfoId
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bpa.applicationno
+          $where
+	  GROUP BY bpa.status
+          ) result
+    groupBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: bpa.tenantId
+      isMandatory: true
+      operator: ILIKE
+      jsonPath: $.searchCriteria.tenantId
+    - name: bpa.accountId
+      isMandatory: false
+      jsonPath: $.searchCriteria.userid
+    - name: pi.businessservice
+      isMandatory: false
+      jsonPath: $.searchCriteria.businessservice
+
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"BPA": []}
+    outJsonPath: $.BPA
+    responseInfoPath: $.ResponseInfo
+    
+ - name: inboxbpacitizenstatuswisecount
+   query:
+    baseQuery: Select row_to_json(result) from
+          (
+          select count(bpa.id), bpa.status from eg_bpa_buildingplan as bpa
+          INNER JOIN eg_land_landInfo landinfo ON bpa.landId = landinfo.id
+          INNER JOIN eg_land_ownerInfo ownerinfo ON landinfo.id = ownerinfo.landInfoId
+          INNER JOIN eg_land_Address landaddress ON landinfo.id = landaddress.landInfoId
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bpa.applicationno
+          $where
+	  GROUP BY bpa.status
+          ) result
+    groupBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: bpa.tenantId
+      isMandatory: true
+      operator: ILIKE
+      jsonPath: $.searchCriteria.tenantId
+    - name: ownerinfo.uuid
+      isMandatory: false
+      jsonPath: $.searchCriteria.userid
+    - name: pi.businessservice
+      isMandatory: false
+      jsonPath: $.searchCriteria.businessservice
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"BPA": {}}
+    outJsonPath: $.BPA
+    responseInfoPath: $.ResponseInfo
