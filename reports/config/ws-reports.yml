@@ -6,7 +6,7 @@ ReportDefinitions:
   moduleName: rainmaker-ws
   sourceColumns:
   - name: ulb
-    label: reports.pt.ulb
+    label: ULB
     type: string
     source: pt
     total: false
@@ -46,16 +46,16 @@ ReportDefinitions:
     source: pt
     total: true
   searchParams:
-  - name: tenant
-    label: Tenant
+  - name: ulb
+    label: ULB Name
     type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|$..code|$..name
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
     source: pt
     wrapper: true
     isMandatory: false
-    searchClause: AND ewc.tenantid = $tenant
+    searchClause: AND ewc.tenantid = $ulb
   query: |
-      SELECT INITCAP(SPLIT_PART(EWC.TENANTID,'.',2)) AS ULB,EWC.CONNECTIONNO,EWC.OLDCONNECTIONNO,EWS.CONNECTIONTYPE,EWS.METERID,COALESCE(DM.TOTALTAXAMT,0) AS TOTALTAXAMT,COALESCE(DM.TOTALCOLLECTEDAMT,0) AS TOTALCOLLECTEDAMT,COALESCE(DM.TOTALTAXAMT,0) - COALESCE(DM.TOTALCOLLECTEDAMT,0) AS DUEAMOUNT FROM EG_WS_CONNECTION EWC INNER JOIN EG_WS_SERVICE EWS ON EWC.ID = EWS.CONNECTION_ID LEFT OUTER JOIN (SELECT EDV.CONSUMERCODE,SUM(EDV2.TAXAMOUNT) AS TOTALTAXAMT,SUM(EDV2.COLLECTIONAMOUNT) AS TOTALCOLLECTEDAMT FROM EGBS_DEMAND_V1 EDV INNER JOIN EGBS_DEMANDDETAIL_V1 EDV2 ON EDV.ID = EDV2.DEMANDID GROUP BY EDV.CONSUMERCODE) DM ON EWC.APPLICATIONNO = DM.CONSUMERCODE WHERE EWC.APPLICATIONSTATUS = 'CONNECTION_ACTIVATED' AND EWC.ISOLDAPPLICATION = FALSE
+      SELECT INITCAP(SPLIT_PART(EWC.TENANTID,'.',2)) AS ULB,EWC.CONNECTIONNO,EWC.OLDCONNECTIONNO,EWS.CONNECTIONTYPE,EWS.METERID,COALESCE(DM.TOTALTAXAMT,0) AS TOTALTAXAMT,COALESCE(DM.TOTALCOLLECTEDAMT,0) AS TOTALCOLLECTEDAMT,COALESCE(DM.TOTALTAXAMT,0) - COALESCE(DM.TOTALCOLLECTEDAMT,0) AS DUEAMOUNT FROM EG_WS_CONNECTION EWC INNER JOIN EG_WS_SERVICE EWS ON EWC.ID = EWS.CONNECTION_ID LEFT OUTER JOIN (SELECT EDV.CONSUMERCODE,SUM(EDV2.TAXAMOUNT) AS TOTALTAXAMT,SUM(EDV2.COLLECTIONAMOUNT) AS TOTALCOLLECTEDAMT FROM EGBS_DEMAND_V1 EDV INNER JOIN EGBS_DEMANDDETAIL_V1 EDV2 ON EDV.ID = EDV2.DEMANDID GROUP BY EDV.CONSUMERCODE) DM ON EWC.CONNECTIONNO = DM.CONSUMERCODE WHERE EWC.APPLICATIONSTATUS = 'CONNECTION_ACTIVATED' AND EWC.ISOLDAPPLICATION = FALSE
   orderby: ORDER BY ewc.tenantid DESC NULLS LAST
 
 - reportName: WaterConnectionWiseDemandDetailsReport
@@ -64,7 +64,7 @@ ReportDefinitions:
   moduleName: rainmaker-ws
   sourceColumns:
   - name: ulb
-    label: reports.pt.ulb
+    label: ULB
     type: string
     source: pt
     total: false
@@ -99,14 +99,14 @@ ReportDefinitions:
     source: pt
     total: true
   searchParams:
-  - name: tenant
-    label: Tenant
+  - name: ulb
+    label: ULB Name
     type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|$..code|$..name
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
     source: pt
     wrapper: true
     isMandatory: true
-    searchClause: AND ewc.tenantid = $tenant
+    searchClause: AND ewc.tenantid = $ulb
   - name: connectionno
     label: Connection No
     type: string
@@ -146,12 +146,17 @@ ReportDefinitions:
     label: Due Before Payment
     type: string
     source: pt
-    total: true
+    total: false
   - name: Amount paid
     label: Amount Paid
     type: string
     source: pt
     total: true
+  - name: Current Due
+    label: Current Due
+    type: string
+    source: pt
+    total: false
   - name: Payment Date
     label: Payment Date
     type: string
@@ -180,4 +185,4 @@ ReportDefinitions:
     isMandatory: true
     searchClause: WHERE edv.consumercode = $connectionNo
   query: |
-      select distinct edv.consumercode as "Consumer Id", ep2.receiptnumber as "Receipt Number" , to_char(to_timestamp(ep2.receiptdate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Receipt Date" , ep2.due as "Due before payment" , ep2.amountpaid "Amount paid" , to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date" , ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status" , ep.paidby as "Paid by" from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid left outer join egcl_billdetial eb2 on eb2.demandid = edv.id left outer join egcl_bill eb on eb.id = eb2.billid left outer join egcl_paymentdetail ep2 on ep2.billid = eb.id left outer join egcl_payment ep on ep.id = ep2.paymentid
+      select distinct edv.consumercode as "Consumer Id", ep2.receiptnumber as "Receipt Number" , to_char(to_timestamp(ep2.receiptdate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Receipt Date" , ep2.due as "Due before payment" , ep2.amountpaid "Amount paid" ,ep2.due - ep2.amountpaid "Current Due", to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date" , ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status" , ep.payername as "Paid by" from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid right outer join egcl_billdetial eb2 on eb2.demandid = edv.id left outer join egcl_bill eb on eb.id = eb2.billid left outer join egcl_paymentdetail ep2 on ep2.billid = eb.id left outer join egcl_payment ep on ep.id = ep2.paymentid

@@ -6,7 +6,7 @@ ReportDefinitions:
   moduleName: rainmaker-sw
   sourceColumns:
   - name: ulb
-    label: reports.pt.ulb
+    label: ULB
     type: string
     source: pt
     total: false
@@ -41,16 +41,16 @@ ReportDefinitions:
     source: pt
     total: true
   searchParams:
-  - name: tenant
-    label: Tenant
+  - name: ulb
+    label: ULB Name
     type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|$..code|$..name
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
     source: pt
     wrapper: true
     isMandatory: false
-    searchClause: AND ewc.tenantid = $tenant
+    searchClause: AND ewc.tenantid = $ulb
   query: |
-      SELECT Initcap(Split_part(ewc.tenantid, '.', 2)) AS ulb,EWC.connectionno,EWC.oldconnectionno,EWS.connectiontype,COALESCE(DM.totaltaxamt, 0) AS TOTALTAXAMT,COALESCE(DM.totalcollectedamt, 0) AS TOTALCOLLECTEDAMT,COALESCE(DM.totaltaxamt, 0) - COALESCE(DM.totalcollectedamt, 0) AS DUEAMOUNT FROM   eg_sw_connection EWC INNER JOIN eg_sw_service EWS ON EWC.id = EWS.connection_id LEFT OUTER JOIN (SELECT EDV.consumercode,Sum(EDV2.taxamount) AS TOTALTAXAMT,Sum(EDV2.collectionamount) AS TOTALCOLLECTEDAMT FROM egbs_demand_v1 EDV INNER JOIN egbs_demanddetail_v1 EDV2 ON EDV.id = EDV2.demandid GROUP  BY EDV.consumercode) DM ON EWC.applicationno = DM.consumercode WHERE  EWC.applicationstatus = 'CONNECTION_ACTIVATED' AND EWC.isoldapplication = false
+      SELECT Initcap(Split_part(ewc.tenantid, '.', 2)) AS ulb,EWC.connectionno,EWC.oldconnectionno,EWS.connectiontype,COALESCE(DM.totaltaxamt, 0) AS TOTALTAXAMT,COALESCE(DM.totalcollectedamt, 0) AS TOTALCOLLECTEDAMT,COALESCE(DM.totaltaxamt, 0) - COALESCE(DM.totalcollectedamt, 0) AS DUEAMOUNT FROM   eg_sw_connection EWC INNER JOIN eg_sw_service EWS ON EWC.id = EWS.connection_id LEFT OUTER JOIN (SELECT EDV.consumercode,Sum(EDV2.taxamount) AS TOTALTAXAMT,Sum(EDV2.collectionamount) AS TOTALCOLLECTEDAMT FROM egbs_demand_v1 EDV INNER JOIN egbs_demanddetail_v1 EDV2 ON EDV.id = EDV2.demandid GROUP  BY EDV.consumercode) DM ON EWC.connectionno = DM.consumercode WHERE  EWC.applicationstatus = 'CONNECTION_ACTIVATED' AND EWC.isoldapplication = false
   orderby: ORDER BY ewc.tenantid DESC NULLS LAST
 
 - reportName: SewerageConnectionWiseDemandDetailsReport
@@ -59,7 +59,7 @@ ReportDefinitions:
   moduleName: rainmaker-sw
   sourceColumns:
   - name: ulb
-    label: reports.pt.ulb
+    label: ULB
     type: string
     source: pt
     total: false
@@ -94,14 +94,14 @@ ReportDefinitions:
     source: pt
     total: true
   searchParams:
-  - name: tenant
-    label: Tenant
+  - name: ulb
+    label: ULB Name
     type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|$..code|$..name
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
     source: pt
     wrapper: true
     isMandatory: true
-    searchClause: AND ewc.tenantid = $tenant
+    searchClause: AND ewc.tenantid = $ulb
   - name: connectionno
     label: Connection No
     type: string
