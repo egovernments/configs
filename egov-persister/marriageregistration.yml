@@ -376,8 +376,56 @@ serviceMaps:
    fromTopic: update-mr-marriageregistration
    isTransaction: true
    queryMaps:
-
-
+   
+       - query: INSERT INTO eg_mr_application_audit SELECT * FROM eg_mr_application WHERE id = ?;
+         basePath: MarriageRegistrations.*
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.id
+          
+       - query: INSERT INTO eg_mr_marriageplace_audit SELECT * FROM eg_mr_marriageplace WHERE id = ?;
+         basePath: MarriageRegistrations.*.marriagePlace
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.marriagePlace.id
+          
+       - query: INSERT INTO eg_mr_couple_audit SELECT * FROM eg_mr_couple WHERE id = ?;
+         basePath: MarriageRegistrations.*.coupleDetails.*.bride
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.bride.id
+          
+       - query: INSERT INTO eg_mr_couple_audit SELECT * FROM eg_mr_couple WHERE id = ?;
+         basePath: MarriageRegistrations.*.coupleDetails.*.groom
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.groom.id
+          
+       - query: INSERT INTO eg_mr_address_audit SELECT * FROM eg_mr_address WHERE id = ?;
+         basePath: MarriageRegistrations.*.coupleDetails.*.bride.address
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.bride.address.id
+          
+       - query: INSERT INTO eg_mr_address_audit SELECT * FROM eg_mr_address WHERE id = ?;
+         basePath: MarriageRegistrations.*.coupleDetails.*.groom.address
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.groom.address.id                                                  
+   
+       - query: INSERT INTO eg_mr_gaurdiandetails_audit SELECT * FROM eg_mr_gaurdiandetails WHERE id = ?;
+         basePath: MarriageRegistrations.*.coupleDetails.*.bride.guardianDetails
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.bride.guardianDetails.id
+          
+       - query: INSERT INTO eg_mr_gaurdiandetails_audit SELECT * FROM eg_mr_gaurdiandetails WHERE id = ?;
+         basePath: MarriageRegistrations.*.coupleDetails.*.groom.guardianDetails
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.groom.guardianDetails.id
+          
+       - query: INSERT INTO eg_mr_witness_audit SELECT * FROM eg_mr_witness WHERE id = ?;
+         basePath: MarriageRegistrations.*.coupleDetails.*.bride.witness
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.bride.witness.id
+          
+       - query: INSERT INTO eg_mr_witness_audit SELECT * FROM eg_mr_witness WHERE id = ?;
+         basePath: MarriageRegistrations.*.coupleDetails.*.groom.witness
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.coupleDetails.*.groom.witness.id   
 
        - query: UPDATE public.eg_mr_application SET accountid=?,  mrnumber=? , marriagedate=? , issueddate=?, action=?, status=?, lastmodifiedby=?,  lastmodifiedtime=? ,businessservice = ?, applicationtype = ?, workflowcode = ? WHERE id = ?;
          basePath: MarriageRegistrations.*
@@ -895,6 +943,15 @@ serviceMaps:
    isTransaction: true
    queryMaps:
 
+       - query: INSERT INTO eg_mr_application_audit SELECT * FROM eg_mr_application WHERE id = ?;
+         basePath: MarriageRegistrations.*
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.id
+          
+       - query: INSERT INTO eg_mr_marriageplace_audit SELECT * FROM eg_mr_marriageplace WHERE id = ?;
+         basePath: MarriageRegistrations.*.marriagePlace
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.marriagePlace.id
 
        - query: INSERT INTO eg_mr_verificationDocument( id, tenantid, active, documenttype, filestoreid, mr_id, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET active = ?, documenttype =?, filestoreid =?,lastmodifiedby =?, lastmodifiedtime =?;
          basePath: MarriageRegistrations.*.verificationDocuments.*
