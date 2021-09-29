@@ -86,9 +86,11 @@ serviceMaps:
 
             - jsonPath: $.WaterConnection.auditDetails.lastModifiedTime
 
-        - query: INSERT INTO eg_ws_connectionholder(tenantid, connectionid, userid, status, isprimaryholder, connectionholdertype, holdershippercentage, relationship, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-          basePath: $.WaterConnection.connectionHolders.*
-          jsonMaps:
+   
+    - query: INSERT INTO eg_ws_connectionholder(tenantid, connectionid, userid, status, isprimaryholder, connectionholdertype, holdershippercentage, relationship, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+      basePath: $.WaterConnection.connectionHolders.*
+      jsonMaps:      
+
             - jsonPath: $.WaterConnection.tenantId
 
             - jsonPath: $.WaterConnection.id
@@ -111,6 +113,8 @@ serviceMaps:
 
             - jsonPath: $.WaterConnection.auditDetails.lastModifiedBy
 
+       - jsonPath: $.WaterConnection.auditDetails.lastModifiedTime   
+
             - jsonPath: $.WaterConnection.auditDetails.lastModifiedTime
 
     - version: 1.0
@@ -119,7 +123,13 @@ serviceMaps:
       fromTopic: update-ws-connection
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO eg_ws_connection_audit SELECT * FROM eg_ws_connection WHERE id = ?;
+   
+    - query: INSERT INTO eg_ws_connection_audit SELECT * FROM eg_ws_connection WHERE id = ?;
+      basePath: $.WaterConnection
+      jsonMaps:
+      - jsonPath: $.WaterConnection.id
+      
+    - query: UPDATE eg_ws_connection SET applicationstatus=?, status=?, connectionno=?, oldconnectionno=?, action=?, roadCuttingArea=?, roadType=?, adhocpenalty=?, adhocrebate=?, adhocpenaltyreason=?, adhocpenaltycomment=?, adhocrebatereason=?, adhocrebatecomment=?, lastModifiedBy=?, lastModifiedTime=?, dateEffectiveFrom=?, locality=?, isoldapplication=?, property_id=?, additionaldetails=? WHERE id=?;
           basePath: $.WaterConnection
           jsonMaps:
             - jsonPath: $.WaterConnection.id
@@ -179,8 +189,9 @@ serviceMaps:
         - query: UPDATE eg_ws_service SET connectionCategory=?,connectionType=?,waterSource=?,meterId=?,meterInstallationDate=?,pipeSize=?,noOfTaps=?,proposedPipeSize=?,proposedTaps=?, initialmeterreading = ?, connectionexecutiondate = ?, detailsprovidedby = ?, estimationfileStoreId = ?, sanctionfileStoreId = ?, estimationLetterDate = ?, lastModifiedBy=?, lastModifiedTime=? WHERE connection_id=?;
           basePath: $.WaterConnection
           jsonMaps:
-            - jsonPath: $.WaterConnection.connectionCategory
-
+       
+       - jsonPath: $.WaterConnection.connectionCategory
+         
             - jsonPath: $.WaterConnection.connectionType
 
             - jsonPath: $.WaterConnection.waterSource
@@ -297,9 +308,10 @@ serviceMaps:
 
             - jsonPath: $.WaterConnection.plumberInfo.*.auditDetails.lastModifiedTime
 
-        - query: INSERT INTO eg_ws_connectionholder(tenantid, connectionid, userid, status, isprimaryholder, connectionholdertype, holdershippercentage, relationship, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (connectionid) DO UPDATE SET tenantid =?, userid =?,status =?, isprimaryholder =?, connectionholdertype =?, holdershippercentage =?, relationship=?, lastmodifiedby =?, lastmodifiedtime =?;
-          basePath: $.WaterConnection.connectionHolders.*
-          jsonMaps:
+    - query: INSERT INTO eg_ws_connectionholder(tenantid, connectionid, userid, status, isprimaryholder, connectionholdertype, holdershippercentage, relationship, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (connectionid) DO UPDATE SET tenantid =?, userid =?,status =?, isprimaryholder =?, connectionholdertype =?, holdershippercentage =?, relationship=?, lastmodifiedby =?, lastmodifiedtime =?;
+      basePath: $.WaterConnection.connectionHolders.*
+      jsonMaps:      
+
             - jsonPath: $.WaterConnection.tenantId
 
             - jsonPath: $.WaterConnection.id
@@ -381,7 +393,13 @@ serviceMaps:
       fromTopic: update-ws-workflow
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO eg_ws_connection_audit SELECT * FROM eg_ws_connection WHERE id = ?;
+   
+    - query: INSERT INTO eg_ws_connection_audit SELECT * FROM eg_ws_connection WHERE id = ?;
+      basePath: $.WaterConnection
+      jsonMaps:
+      - jsonPath: $.WaterConnection.id
+      
+    - query: UPDATE eg_ws_connection SET applicationstatus=?, status=?, connectionno=?, action=?, lastModifiedBy=?, lastModifiedTime=?  WHERE id=?;
           basePath: $.WaterConnection
           jsonMaps:
             - jsonPath: $.WaterConnection.id
@@ -401,24 +419,28 @@ serviceMaps:
 
             - jsonPath: $.WaterConnection.auditDetails.lastModifiedTime
 
-            - jsonPath: $.WaterConnection.id
+       - jsonPath: $.WaterConnection.id   
+       
+ - version: 1.0
+   name: WaterConnection
+   description: save filestore ids
+   fromTopic: save-ws-filestoreids
+   isTransaction: true
+   queryMaps:
+   
+    - query: INSERT INTO eg_ws_service_audit SELECT * FROM eg_ws_service WHERE connection_id = ?;
+      basePath: $.WaterConnection
+      jsonMaps:
+      - jsonPath: $.WaterConnection.id
+      
+    - query: UPDATE eg_ws_service SET estimationfileStoreId = ?, sanctionfileStoreId = ? WHERE connection_id=?;
+      basePath: $.WaterConnection
+      jsonMaps:
 
-    - version: 1.0
-      name: WaterConnection
-      description: save filestore ids
-      fromTopic: save-ws-filestoreids
-      isTransaction: true
-      queryMaps:
-        - query: INSERT INTO eg_ws_service_audit SELECT * FROM eg_ws_service WHERE connection_id = ?;
-          basePath: $.WaterConnection
-          jsonMaps:
-            - jsonPath: $.WaterConnection.id
+      - jsonPath: $.WaterConnection.additionalDetails.estimationFileStoreId
 
-        - query: UPDATE eg_ws_service SET estimationfileStoreId = ?, sanctionfileStoreId = ? WHERE connection_id=?;
-          basePath: $.WaterConnection
-          jsonMaps:
-            - jsonPath: $.WaterConnection.additionalDetails.estimationFileStoreId
+      - jsonPath: $.WaterConnection.additionalDetails.sanctionFileStoreId
 
-            - jsonPath: $.WaterConnection.additionalDetails.sanctionFileStoreId
+      - jsonPath: $.WaterConnection.id   
 
             - jsonPath: $.WaterConnection.id
