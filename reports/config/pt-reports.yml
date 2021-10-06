@@ -1,828 +1,202 @@
----
 ReportDefinitions:
-- reportName: ReceiptRegister
-  summary: Receipt Register
+- reportName: PTReceiptRegister
+  decryptionPathId: PTReceiptRegister
+  summary: Report is used for audit, day-end, and year-end finance reconciliation activities 
   version: 1.0.0
-  moduleName: rainmaker-pt
+  moduleName: pt-reports
   sourceColumns:
   - name: receiptnumber
-    label: reports.pt.receiptNo
+    label: reports.pt.receiptnumber
     type: string
     source: pt
     total: false
-  - name: transactiondate
-    label: reports.pt.receiptDate
+  - name: paymentdate
+    label: reports.pt.paymentdate
     type: string
     source: pt
     total: false
-  - name: g8issuedate
-    label: reports.pt.g8issuedate
+  - name: name
+    label: reports.pt.consumername
     type: string
     source: pt
-    total: false
-  - name: g8receiptno
-    label: reports.pt.g8receiptno
-    type: string
-    source: pt
-    total: false
-  - name: amount
-    label: reports.pt.amount
+    total: false 
+  - name: amountCollected
+    label: reports.pt.amountCollected
     type: string
     source: pt
     total: true
-  - name: propertytax
-    label: reports.pt.propertyTax
-    type: string
-    source: pt
-    total: true
-  - name: firecess
-    label: reports.pt.fireCess
-    type: string
-    source: pt
-    total: true
-  - name: cancercess
-    label: reports.pt.cancerCess
-    type: string
-    source: pt
-    total: true
-  - name: rebate
-    label: reports.pt.rebate
-    type: string
-    source: pt
-    total: true
-  - name: adhocrebate
-    label: reports.pt.adhocrebate
-    type: string
-    source: pt
-    total: true
-  - name: penalty
-    label: reports.pt.penalty
-    type: string
-    source: pt
-    total: true
-  - name: adhocpenalty
-    label: reports.pt.adhocpenalty
-    type: string
-    source: pt
-    total: true
-  - name: interest
-    label: reports.pt.interest
-    type: string
-    source: pt
-    total: true
-  - name: exemption
-    label: reports.pt.exemption
-    type: string
-    source: pt
-    total: true
-  - name: adjusment
-    label: reports.pt.roundoff
-    type: string
-    source: pt
-    total: true
-  - name: propertyid
-    label: reports.pt.propertyId
-    type: string
-    source: pt
-    total: false
-  - name: usagetype
-    label: reports.pt.usagetype
-    type: string
-    source: pt
-    total: false
-  - name: assessmentnumber
-    label: reports.pt.assessmentNo
-    type: string
-    source: pt
-    total: false
-  - name: financialyear
-    label: reports.pt.financialYear
-    type: string
-    source: pt
-    total: false
-  - name: instrumenttype
-    label: reports.pt.paymentMode
+  - name: payerName
+    label: reports.pt.payerName
     type: string
     source: pt
     total: false
   - name: transactionnumber
-    label: reports.pt.ddChequeTransactionNo
+    label: reports.pt.transactionnumber
     type: string
     source: pt
     total: false
-  - name: bankname
-    label: reports.pt.bankName
+  - name: chequeNo
+    label: reports.pt.chequeNo
     type: string
     source: pt
     total: false
+
   searchParams:
   - name: fromDate
     label: reports.pt.fromDate
     type: epoch
     source: pt
-    isMandatory: false
-    searchClause: AND rh.receiptdate >= $fromDate
+    isMandatory: true
+    searchClause: AND ed.receiptdate >= $fromDate
   - name: toDate
     label: reports.pt.toDate
     type: epoch
     source: pt
-    isMandatory: false
-    searchClause: AND rh.receiptdate <= $toDate
-  - name: paymentMode
-    label: Payment Mode
+    isMandatory: true
+    searchClause: AND ed.receiptdate <= $toDate
+  - name: receiptstatus
+    label: receiptstatus
     type: singlevaluelist
-    pattern: 'list://Cash:Cash,Online:Online,Card:Card,DD:DD,Cheque:Cheque'
+    pattern: 'list://NEW:New,DEPOSITED:Deposited,DISHONOURED:Dishonoured'
     source: pt
     isMandatory: false
-    searchClause: AND instrumenttype = $paymentMode
-  - name: financialyear
-    label: Financial Year
+    searchClause: AND ep.paymentstatus = $receiptstatus
+  - name: collectorname
+    label: reports.pt.collectorname
     type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=egf-master&masterName=FinancialYear|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].code|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].name
+    pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=PT_CEMP|$.Employees[*].user.id|$.Employees[*].user.name
     source: pt
     wrapper: true
     isMandatory: false
-    searchClause: AND financialyear = $financialyear
-  - name: localityArray
-    label: reports.pt.zoneList
-    type: boundarylist
+    searchClause: AND ep.createdby= $collectorname   
+  query: |
+        SELECT receiptnumber,payerName,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,users.name as name,
+        transactionnumber,totalamountpaid AS amountCollected,ep.instrumentnumber as chequeNo,ROW_NUMBER() OVER(PARTITION BY receiptnumber) AS RowNum FROM egcl_payment AS ep
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid JOIN egcl_bill as bill on ed.billid=bill.id JOIN eg_pt_property as property on bill.consumercode=property.propertyid JOIN eg_pt_owner as owner on property.id=owner.propertyid  JOIN eg_user as users on owner.userid=users.uuid where 1=1  and ed.businessservice='PT' and ep.paymentstatus !='CANCELLED' and ep.tenantid=$tenantid and owner.status='ACTIVE' and property.status='ACTIVE'
+  orderby: order by ed.receiptdate desc
+
+- reportName: PTCollectionReport
+  decryptionPathId: PTCollectionReport
+  summary: It helps administrators track the collection in the ULB and the employee collection performance. 
+  version: 1.0.0
+  moduleName: pt-reports
+  sourceColumns:
+  - name: locality
+    label: reports.pt.locality
+    type: string
+    source: pt
+    total: false
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
+  - name: name
+    label: reports.pt.collectorname
+    type: string
+    source: pt
+    total: false
+  - name: paymentinstrument
+    label: reports.pt.paymentinstrument
+    type: string
+    source: pt
+    total: false
+  - name: totaltransactions
+    label: reports.pt.totaltransactions
+    type: string
+    source: pt
+    total: false  
+  - name: amountCollected
+    label: reports.pt.amountCollected
+    type: string
+    source: pt
+    total: true
+  searchParams:
+  - name: fromDate
+    label: reports.pt.fromDate
+    type: epoch
+    source: pt
+    isMandatory: true
+    searchClause: AND ed.receiptdate >= $fromDate
+  - name: toDate
+    label: reports.pt.toDate
+    type: epoch
+    source: pt
+    isMandatory: true
+    searchClause: AND ed.receiptdate <= $toDate
+  - name: locality
+    label: reports.pt.locality
+    type: singlevaluelist
+    pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.code
+    source: pt
+    wrapper: true
+    isMandatory: false
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
+    searchClause: AND ptd.locality = $locality  
+  - name: paymentinstrument
+    label: paymentinstrument
+    type: singlevaluelist
+    pattern: 'list://CASH:CASH,CARD:CARD,DD:DD,CHEQUE:CHEQUE'
     source: pt
     isMandatory: false
-    searchClause: AND pt_addr.locality IN ($localityArray)
+    searchClause: AND paymentmode = $paymentinstrument  
   query: |
-      -- Use CTE to force query plan, compute & use CTE later
-      WITH receipt_breakup AS (
-                  SELECT 
-                    receiptheader, 
-                    SUM(CASE WHEN description LIKE 'PT_ADHOC_PENALTY%' THEN cramount ELSE 0 END) as adhocpenalty, 
-                    SUM(CASE WHEN description LIKE 'PT_ADHOC_PENALTY%' THEN -dramount ELSE 0 END) as adhocrebate, 
-                    SUM(CASE WHEN description LIKE 'PT_FIRE_CESS%' THEN cramount ELSE 0 END) as firecess, 
-                    SUM(CASE WHEN description LIKE 'PT_FIRE_CESS%' THEN cramount ELSE 0 END) as firecess, 
-                    SUM(CASE WHEN description LIKE 'PT_CANCER_CESS%' THEN cramount ELSE 0 END) as cancercess, SUM(CASE WHEN description LIKE 'PT_TIME_INTEREST%' THEN cramount ELSE 0 END) as interest, SUM(CASE WHEN description LIKE 'PT_TIME_PENALTY%' THEN cramount ELSE 0 END) as penalty, 
-                    SUM(CASE WHEN description LIKE 'PT_TIME_REBATE%' THEN -dramount ELSE 0 END) as rebate, 
-                    (SUM(CASE WHEN description LIKE 'PT_TAX%' THEN cramount ELSE 0 END) 
-                    + SUM(CASE WHEN description LIKE 'PT_DECIMAL_CEILING_DEBIT%' THEN dramount ELSE 0 END)) 
-                    as propertytax, 
-                    SUM(CASE WHEN description LIKE 'PT_UNIT_USAGE_EXEMPTION%' THEN -dramount ELSE 0 END) as exemption, 
-                    (SUM(CASE WHEN description LIKE 'PT_DECIMAL_CEILING_CREDIT%' THEN cramount ELSE 0 END)
-                    - SUM(CASE WHEN description LIKE 'PT_DECIMAL_CEILING_DEBIT%' THEN dramount ELSE 0 END))  as adjusment
-                  FROM egcl_receiptdetails
-                  WHERE tenantid LIKE $tenantid
-                  GROUP BY receiptheader
-      )
-      SELECT 
-        rh.tenantid AS tenantid, 
-        rh.id, 
-        Substring(rh.consumercode, '(.*):') AS propertyid, 
-        Substring(rh.consumercode, ':(.*)') AS assessmentnumber, 
-        rh.consumercode, 
-        rh.receiptdate, 
-        To_char(To_timestamp(rh.receiptdate / 1000), 'DD/MM/YYYY') AS transactiondate, 
-        bankid AS bankname, 
-        receiptnumber, 
-        amount, 
-        instrumenttype, 
-        transactionnumber, 
-        receipt_breakup.*, 
-        pt_detail.financialyear,
-        To_char(To_timestamp(rh.manualreceiptdate / 1000), 'DD/MM/YYYY') AS g8issuedate,
-        Initcap(COALESCE(pt_detail.usagecategoryminor, pt_detail.usagecategorymajor)) as usagetype,
-        manualreceiptnumber as g8receiptno
-      FROM egcl_receiptheader AS rh
-      JOIN egcl_receiptinstrument AS ri ON rh.id = ri.receiptheader
-      JOIN egcl_instrumentheader AS ih ON ih.id = ri.instrumentheader
-      JOIN receipt_breakup ON rh.id = receipt_breakup.receiptheader
-      JOIN eg_pt_propertydetail_v2 pt_detail ON CONCAT(pt_detail.property, ':', pt_detail.assessmentnumber) = rh.consumercode
-      JOIN eg_pt_address_v2 pt_addr ON pt_detail.property = pt_addr.property
-      WHERE rh.tenantid LIKE $tenantid and rh.status != 'Cancelled'
-  orderby: ORDER BY rh.receiptdate DESC
+        SELECT ptd.locality AS locality, users.name as name,count(*) as totaltransactions,sum(totalamountpaid) AS amountCollected,paymentmode AS paymentinstrument FROM egcl_payment AS ep
+        JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid JOIN egcl_bill  as bill on ed.billid=bill.id JOIN eg_pt_property as property on bill.consumercode=property.propertyid JOIN eg_pt_address as ptd on property.id=ptd.propertyid JOIN eg_user as users on ep.createdby::int=users.id JOIN eg_userrole_v1 as userrole on users.id=userrole.user_id  where 1=1  and ed.businessservice='PT' and ep.paymentstatus !='CANCELLED' and ep.tenantid=$tenantid and userrole.role_tenantid=$tenantid and ep.paymentmode!='ONLINE' and userrole.role_code='PT_CEMP' and property.status='ACTIVE'
+  groupby: group by locality,name,paymentinstrument
 
-- reportName: CancelledReceiptRegister
-  summary: Receipt Register for cancelled Receipts
+  
+- reportName: DefaulterReport
+  decryptionPathId: DefaulterReport
+  summary: Report is usually generated weekly/monthly to send notice to the defaulters and used only in the demand-based systems.
   version: 1.0.0
-  moduleName: rainmaker-pt
+  moduleName: pt-reports
   sourceColumns:
-  - name: receiptnumber
-    label: reports.pt.receiptNo
-    type: string
-    source: pt
-    total: false
-  - name: status
-    label: reports.pt.status
-    type: string
-    source: pt
-    total: false
-  - name: transactiondate
-    label: reports.pt.receiptDate
-    type: string
-    source: pt
-    total: false
-  - name: g8issuedate
-    label: reports.pt.g8issuedate
-    type: string
-    source: pt
-    total: false
-  - name: g8receiptno
-    label: reports.pt.g8receiptno
-    type: string
-    source: pt
-    total: false
-  - name: amount
-    label: reports.pt.amount
-    type: string
-    source: pt
-    total: true
-  - name: propertytax
-    label: reports.pt.propertyTax
-    type: string
-    source: pt
-    total: true
-  - name: firecess
-    label: reports.pt.fireCess
-    type: string
-    source: pt
-    total: true
-  - name: cancercess
-    label: reports.pt.cancerCess
-    type: string
-    source: pt
-    total: true
-  - name: rebate
-    label: reports.pt.rebate
-    type: string
-    source: pt
-    total: true
-  - name: adhocrebate
-    label: reports.pt.adhocrebate
-    type: string
-    source: pt
-    total: true
-  - name: penalty
-    label: reports.pt.penalty
-    type: string
-    source: pt
-    total: true
-  - name: adhocpenalty
-    label: reports.pt.adhocpenalty
-    type: string
-    source: pt
-    total: true
-  - name: interest
-    label: reports.pt.interest
-    type: string
-    source: pt
-    total: true
-  - name: exemption
-    label: reports.pt.exemption
-    type: string
-    source: pt
-    total: true
-  - name: adjusment
-    label: reports.pt.roundoff
-    type: string
-    source: pt
-    total: true
   - name: propertyid
-    label: reports.pt.propertyId
+    label: reports.pt.propertyid
     type: string
     source: pt
     total: false
+  - name: name
+    label: reports.pt.consumername
+    type: string
+    source: pt
+    total: false
+  - name: locality
+    label: reports.pt.locality
+    type: string
+    source: pt
+    total: false
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
+  - name: propertystatus
+    label: reports.pt.propertystatus
+    type: string
+    source: pt
+    total: false
+  - name: dueamount
+    label: reports.pt.dueamount
+    type: string
+    source: pt
+    total: true
+  searchParams:
+  - name: locality
+    label: reports.pt.locality
+    type: singlevaluelist
+    pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.code
+    source: pt
+    wrapper: true
+    isMandatory: false
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
+    searchClause: AND locality = $locality
   - name: usagetype
     label: reports.pt.usagetype
-    type: string
-    source: pt
-    total: false
-  - name: assessmentnumber
-    label: reports.pt.assessmentNo
-    type: string
-    source: pt
-    total: false
-  - name: financialyear
-    label: reports.pt.financialYear
-    type: string
-    source: pt
-    total: false
-  - name: instrumenttype
-    label: reports.pt.paymentMode
-    type: string
-    source: pt
-    total: false
-  - name: transactionnumber
-    label: reports.pt.ddChequeTransactionNo
-    type: string
-    source: pt
-    total: false
-  - name: bankname
-    label: reports.pt.bankName
-    type: string
-    source: pt
-    total: false
-  searchParams:
-  - name: fromDate
-    label: reports.pt.fromDate
-    type: epoch
-    source: pt
-    isMandatory: false
-    searchClause: AND rh.receiptdate >= $fromDate
-  - name: toDate
-    label: reports.pt.toDate
-    type: epoch
-    source: pt
-    isMandatory: false
-    searchClause: AND rh.receiptdate <= $toDate
-  - name: paymentMode
-    label: Payment Mode
     type: singlevaluelist
-    pattern: 'list://Cash:Cash,Online:Online,Card:Card,DD:DD,Cheque:Cheque'
-    source: pt
-    isMandatory: false
-    searchClause: AND instrumenttype = $paymentMode
-  - name: financialyear
-    label: Financial Year
-    type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=egf-master&masterName=FinancialYear|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].code|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].name
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=PropertyTax&masterName=UsageCategory&filter=%24.%2A%5B%3F%28%40.code%20%3D~%20%2F%5BA-Z%5D%2A%5C.%5BA-Z%5D%2A%5C.%5BA-Z%5D%2A%5C.%5BA-z%5D%2A%2F%29%5D|$.MdmsRes.PropertyTax.UsageCategory.*.code|$.MdmsRes.PropertyTax.UsageCategory.*.name
     source: pt
     wrapper: true
     isMandatory: false
-    searchClause: AND financialyear = $financialyear
-  - name: localityArray
-    label: reports.pt.zoneList
-    type: boundarylist
-    source: pt
-    isMandatory: false
-    searchClause: AND pt_addr.locality IN ($localityArray)
+    localisationPrefix: PROPERTYTAX_BILLING_SLAB_
+    isLocalisationRequired: false
+    searchClause: AND usagecategory = $usagetype 
   query: |
-      -- Use CTE to force query plan, compute & use CTE later
-      WITH receipt_breakup AS (
-                  SELECT 
-                    receiptheader, 
-                    SUM(CASE WHEN description LIKE 'PT_ADHOC_PENALTY%' THEN cramount ELSE 0 END) as adhocpenalty, 
-                    SUM(CASE WHEN description LIKE 'PT_ADHOC_PENALTY%' THEN -dramount ELSE 0 END) as adhocrebate, 
-                    SUM(CASE WHEN description LIKE 'PT_FIRE_CESS%' THEN cramount ELSE 0 END) as firecess, 
-                    SUM(CASE WHEN description LIKE 'PT_FIRE_CESS%' THEN cramount ELSE 0 END) as firecess, 
-                    SUM(CASE WHEN description LIKE 'PT_CANCER_CESS%' THEN cramount ELSE 0 END) as cancercess, SUM(CASE WHEN description LIKE 'PT_TIME_INTEREST%' THEN cramount ELSE 0 END) as interest, SUM(CASE WHEN description LIKE 'PT_TIME_PENALTY%' THEN cramount ELSE 0 END) as penalty, 
-                    SUM(CASE WHEN description LIKE 'PT_TIME_REBATE%' THEN -dramount ELSE 0 END) as rebate, 
-                    (SUM(CASE WHEN description LIKE 'PT_TAX%' THEN cramount ELSE 0 END) 
-                    + SUM(CASE WHEN description LIKE 'PT_DECIMAL_CEILING_DEBIT%' THEN dramount ELSE 0 END)) 
-                    as propertytax, 
-                    SUM(CASE WHEN description LIKE 'PT_UNIT_USAGE_EXEMPTION%' THEN -dramount ELSE 0 END) as exemption, 
-                    (SUM(CASE WHEN description LIKE 'PT_DECIMAL_CEILING_CREDIT%' THEN cramount ELSE 0 END)
-                    - SUM(CASE WHEN description LIKE 'PT_DECIMAL_CEILING_DEBIT%' THEN dramount ELSE 0 END))  as adjusment
-                  FROM egcl_receiptdetails
-                  WHERE tenantid LIKE $tenantid
-                  GROUP BY receiptheader
-      )
-      SELECT 
-        rh.tenantid AS tenantid, 
-        rh.id, 
-        Substring(rh.consumercode, '(.*):') AS propertyid, 
-        Substring(rh.consumercode, ':(.*)') AS assessmentnumber, 
-        rh.status,
-        rh.consumercode, 
-        rh.receiptdate, 
-        To_char(To_timestamp(rh.receiptdate / 1000), 'DD/MM/YYYY') AS transactiondate, 
-        bankid AS bankname, 
-        receiptnumber, 
-        amount, 
-        instrumenttype, 
-        transactionnumber, 
-        receipt_breakup.*, 
-        pt_detail.financialyear,
-        To_char(To_timestamp(rh.manualreceiptdate / 1000), 'DD/MM/YYYY') AS g8issuedate,
-        Initcap(COALESCE(pt_detail.usagecategoryminor, pt_detail.usagecategorymajor)) as usagetype,
-        manualreceiptnumber as g8receiptno
-      FROM egcl_receiptheader AS rh
-      JOIN egcl_receiptinstrument AS ri ON rh.id = ri.receiptheader
-      JOIN egcl_instrumentheader AS ih ON ih.id = ri.instrumentheader
-      JOIN receipt_breakup ON rh.id = receipt_breakup.receiptheader
-      JOIN eg_pt_propertydetail_v2 pt_detail ON CONCAT(pt_detail.property, ':', pt_detail.assessmentnumber) = rh.consumercode
-      JOIN eg_pt_address_v2 pt_addr ON pt_detail.property = pt_addr.property
-      WHERE rh.tenantid LIKE $tenantid and rh.status = 'Cancelled'
-  orderby: ORDER BY rh.receiptdate DESC
-
-- reportName: OldUlbWisePtCollection
-  summary: ULB-wise PT Collection
-  version: 1.0.0
-  moduleName: rainmaker-pt
-  sourceColumns:
-  - name: totalassessments
-    label: reports.pt.totalassessments
-    type: string
-    source: pt
-    total: true
-  - name: totalamountpaid
-    label: reports.pt.totalamountpaid
-    type: string
-    source: pt
-    total: true
-  - name: totalamountdue
-    label: reports.pt.totalamountdue
-    type: string
-    source: pt
-    total: true
-  searchParams:
-  - name: financialyear
-    label: Financial Year
-    type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=egf-master&masterName=FinancialYear|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].code|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].name
-    source: pt
-    wrapper: true
-    isMandatory: false
-    searchClause: AND financialyear = $financialyear
-  - name: usage
-    label: Usage
-    type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=PropertyTax&masterName=UsageCategoryMajor|$..code|$..name
-    source: pt
-    wrapper: true
-    isMandatory: false
-    searchClause: AND usagecategorymajor = $usage
-  query: |
-    SELECT 
-      tenantid, 
-      COUNT(*) AS totalassessments, 
-      SUM(totalamount) AS totalamount, 
-      SUM(amount) AS totalamountpaid, 
-      (SUM(totalamount) - SUM(amount)) AS totalamountdue 
-    FROM eg_pt_propertydetail_v2 AS pd 
-    LEFT OUTER JOIN 
-      (SELECT consumercode, totalamount, amount FROM egcl_receiptheader AS rh 
-      LEFT OUTER JOIN egcl_receiptinstrument AS ri ON rh.id = ri.receiptheader 
-      LEFT OUTER JOIN egcl_instrumentheader AS ih ON ri.instrumentheader = ih.id 
-      and ih.instrumentstatus	 != 'CANCELLED' 
-      where rh.status != 'Cancelled'
-      ) AS instrument_data ON CONCAT(pd.property, ':', pd.assessmentnumber) = instrument_data.consumercode 
-    WHERE tenantid = $tenantid
-  groupby: GROUP BY tenantid
-  orderby: ORDER BY tenantid, totalamountpaid DESC NULLS LAST
-
-- reportName: StateCancelledReceiptRegister
-  summary: Receipt Register for cancelled Receipts State
-  version: 1.0.0
-  moduleName: rainmaker-pt
-  sourceColumns:
-  - name: tenantid
-    label: reports.pt.ulbName
-    type: string
-    source: pt
-    total: false
-  - name: receiptnumber
-    label: reports.pt.receiptNo
-    type: string
-    source: pt
-    total: false
-  - name: status
-    label: reports.pt.status
-    type: string
-    source: pt
-    total: false
-  - name: transactiondate
-    label: reports.pt.receiptDate
-    type: string
-    source: pt
-    total: false
-  - name: g8issuedate
-    label: reports.pt.g8issuedate
-    type: string
-    source: pt
-    total: false
-  - name: g8receiptno
-    label: reports.pt.g8receiptno
-    type: string
-    source: pt
-    total: false
-  - name: amount
-    label: reports.pt.amount
-    type: string
-    source: pt
-    total: true
-  - name: propertytax
-    label: reports.pt.propertyTax
-    type: string
-    source: pt
-    total: true
-  - name: firecess
-    label: reports.pt.fireCess
-    type: string
-    source: pt
-    total: true
-  - name: cancercess
-    label: reports.pt.cancerCess
-    type: string
-    source: pt
-    total: true
-  - name: rebate
-    label: reports.pt.rebate
-    type: string
-    source: pt
-    total: true
-  - name: adhocrebate
-    label: reports.pt.adhocrebate
-    type: string
-    source: pt
-    total: true
-  - name: penalty
-    label: reports.pt.penalty
-    type: string
-    source: pt
-    total: true
-  - name: adhocpenalty
-    label: reports.pt.adhocpenalty
-    type: string
-    source: pt
-    total: true
-  - name: interest
-    label: reports.pt.interest
-    type: string
-    source: pt
-    total: true
-  - name: exemption
-    label: reports.pt.exemption
-    type: string
-    source: pt
-    total: true
-  - name: adjusment
-    label: reports.pt.roundoff
-    type: string
-    source: pt
-    total: true
-  - name: propertyid
-    label: reports.pt.propertyId
-    type: string
-    source: pt
-    total: false
-  - name: usagetype
-    label: reports.pt.usagetype
-    type: string
-    source: pt
-    total: false
-  - name: assessmentnumber
-    label: reports.pt.assessmentNo
-    type: string
-    source: pt
-    total: false
-  - name: financialyear
-    label: reports.pt.financialYear
-    type: string
-    source: pt
-    total: false
-  - name: instrumenttype
-    label: reports.pt.paymentMode
-    type: string
-    source: pt
-    total: false
-  - name: transactionnumber
-    label: reports.pt.ddChequeTransactionNo
-    type: string
-    source: pt
-    total: false
-  - name: bankname
-    label: reports.pt.bankName
-    type: string
-    source: pt
-    total: false
-  searchParams:
-  - name: fromDate
-    label: reports.pt.fromDate
-    type: epoch
-    source: pt
-    isMandatory: false
-    searchClause: AND rh.receiptdate >= $fromDate
-  - name: toDate
-    label: reports.pt.toDate
-    type: epoch
-    source: pt
-    isMandatory: false
-    searchClause: AND rh.receiptdate <= $toDate
-  - name: paymentMode
-    label: Payment Mode
-    type: singlevaluelist
-    pattern: 'list://Cash:Cash,Online:Online,Card:Card,DD:DD,Cheque:Cheque'
-    source: pt
-    isMandatory: false
-    searchClause: AND instrumenttype = $paymentMode
-  - name: financialyear
-    label: Financial Year
-    type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=egf-master&masterName=FinancialYear|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].code|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].name
-    source: pt
-    wrapper: true
-    isMandatory: false
-    searchClause: AND financialyear = $financialyear
-  query: |
-      -- Use CTE to force query plan, compute & use CTE later
-      WITH receipt_breakup AS (
-                  SELECT 
-                    receiptheader, 
-                    SUM(CASE WHEN description LIKE 'PT_ADHOC_PENALTY%' THEN cramount ELSE 0 END) as adhocpenalty, 
-                    SUM(CASE WHEN description LIKE 'PT_ADHOC_PENALTY%' THEN -dramount ELSE 0 END) as adhocrebate, 
-                    SUM(CASE WHEN description LIKE 'PT_FIRE_CESS%' THEN cramount ELSE 0 END) as firecess, 
-                    SUM(CASE WHEN description LIKE 'PT_FIRE_CESS%' THEN cramount ELSE 0 END) as firecess, 
-                    SUM(CASE WHEN description LIKE 'PT_CANCER_CESS%' THEN cramount ELSE 0 END) as cancercess, SUM(CASE WHEN description LIKE 'PT_TIME_INTEREST%' THEN cramount ELSE 0 END) as interest, SUM(CASE WHEN description LIKE 'PT_TIME_PENALTY%' THEN cramount ELSE 0 END) as penalty, 
-                    SUM(CASE WHEN description LIKE 'PT_TIME_REBATE%' THEN -dramount ELSE 0 END) as rebate, 
-                    (SUM(CASE WHEN description LIKE 'PT_TAX%' THEN cramount ELSE 0 END) 
-                    + SUM(CASE WHEN description LIKE 'PT_DECIMAL_CEILING_DEBIT%' THEN dramount ELSE 0 END)) 
-                    as propertytax, 
-                    SUM(CASE WHEN description LIKE 'PT_UNIT_USAGE_EXEMPTION%' THEN -dramount ELSE 0 END) as exemption, 
-                    (SUM(CASE WHEN description LIKE 'PT_DECIMAL_CEILING_CREDIT%' THEN cramount ELSE 0 END)
-                    - SUM(CASE WHEN description LIKE 'PT_DECIMAL_CEILING_DEBIT%' THEN dramount ELSE 0 END))  as adjusment
-                  FROM egcl_receiptdetails
-                  WHERE tenantid != 'pb.testing'
-                  GROUP BY receiptheader
-      )
-      SELECT 
-        initcap(split_part(rh.tenantid, '.', 2)) as tenantid,
-        rh.id, 
-        Substring(rh.consumercode, '(.*):') AS propertyid, 
-        Substring(rh.consumercode, ':(.*)') AS assessmentnumber, 
-        rh.status,
-        rh.consumercode, 
-        rh.receiptdate, 
-        To_char(To_timestamp(rh.receiptdate / 1000), 'DD/MM/YYYY') AS transactiondate, 
-        bankid AS bankname, 
-        receiptnumber, 
-        amount, 
-        instrumenttype, 
-        transactionnumber, 
-        receipt_breakup.*, 
-        pt_detail.financialyear,
-        To_char(To_timestamp(rh.manualreceiptdate / 1000), 'DD/MM/YYYY') AS g8issuedate,
-        Initcap(COALESCE(pt_detail.usagecategoryminor, pt_detail.usagecategorymajor)) as usagetype,
-        manualreceiptnumber as g8receiptno
-      FROM egcl_receiptheader AS rh
-      JOIN egcl_receiptinstrument AS ri ON rh.id = ri.receiptheader
-      JOIN egcl_instrumentheader AS ih ON ih.id = ri.instrumentheader
-      JOIN receipt_breakup ON rh.id = receipt_breakup.receiptheader
-      JOIN eg_pt_propertydetail_v2 pt_detail ON CONCAT(pt_detail.property, ':', pt_detail.assessmentnumber) = rh.consumercode
-      JOIN eg_pt_address_v2 pt_addr ON pt_detail.property = pt_addr.property
-      WHERE rh.tenantid != 'pb.testing' and rh.status = 'Cancelled'
-  orderby: ORDER BY rh.receiptdate DESC
-
-- reportName: StateWidePtCollection
-  summary: State Wide PT Collection
-  version: 1.0.0
-  moduleName: rainmaker-pt
-  sourceColumns:
-  - name: tenantid
-    label: reports.pt.ulbName
-    type: string
-    source: pt
-    total: false
-  - name: totalassessments
-    label: reports.pt.totalassessments
-    type: string
-    source: pt
-    total: true
-  - name: totalamountpaid
-    label: reports.pt.totalamountpaid
-    type: string
-    source: pt
-    total: true
-  - name: totaloffline
-    label: reports.pt.totaloffline
-    type: string
-    source: pt
-    total: true
-  - name: totalonline
-    label: reports.pt.totalonline
-    type: string
-    source: pt
-    total: true
-  - name: totalamountdue
-    label: reports.pt.totalamountdue
-    type: string
-    source: pt
-    total: true
-  searchParams:
-  - name: fromDate
-    label: reports.pt.fromDate
-    type: epoch
-    source: pt
-    isMandatory: false
-    searchClause: AND receiptdate >= $fromDate
-  - name: toDate
-    label: reports.pt.toDate
-    type: epoch
-    source: pt
-    isMandatory: false
-    searchClause: AND receiptdate <= $toDate
-  - name: ulb
-    label: ULB
-    type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
-    source: pt
-    wrapper: true
-    isMandatory: false
-    searchClause: AND tenantid = $ulb
-  - name: financialyear
-    label: Financial Year
-    type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=egf-master&masterName=FinancialYear|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].code|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].name
-    source: pt
-    wrapper: true
-    isMandatory: false
-    searchClause: AND financialyear = $financialyear
-  - name: usage
-    label: Usage
-    type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=PropertyTax&masterName=UsageCategoryMajor|$..code|$..name
-    source: pt
-    wrapper: true
-    isMandatory: false
-    searchClause: AND usagecategorymajor = $usage
-  query: |
-      SELECT 
-      initcap(split_part(tenantid, '.', 2)) as tenantid, 
-      COUNT(*) AS totalassessments, 
-      SUM(totalamount) AS totalamount, 
-      SUM(amount) AS totalamountpaid, 
-      SUM(CASE WHEN collectiontype LIKE 'ONLINE' THEN amount ELSE 0 END) AS totalonline, 
-      SUM(CASE WHEN collectiontype LIKE 'COUNTER' THEN amount ELSE 0 END) AS totaloffline, 
-      (SUM(totalamount) - SUM(amount)) AS totalamountdue 
-      FROM eg_pt_propertydetail_v2 AS pd 
-      LEFT OUTER JOIN (SELECT consumercode, totalamount, amount, collectiontype, receiptdate FROM egcl_receiptheader AS rh 
-      LEFT OUTER JOIN egcl_receiptinstrument AS ri ON rh.id = ri.receiptheader 
-      LEFT OUTER JOIN egcl_instrumentheader AS ih ON ri.instrumentheader = ih.id and ih.instrumentstatus	 != 'CANCELLED' 
-      where rh.status != 'Cancelled'
-      ) AS tbl_amounts ON CONCAT(pd.property, ':', pd.assessmentnumber) = tbl_amounts.consumercode 
-      WHERE tenantid LIKE CONCAT(SPLIT_PART($tenantid, '.', 1), '%') and tenantid != 'pb.testing'
-  groupby: GROUP BY tenantid
-  orderby: ORDER BY tenantid, totalamountpaid DESC NULLS LAST
-
-- reportName: UlbWisePtCollection
-  summary: State Wide PT Collection
-  version: 1.0.0
-  moduleName: rainmaker-pt
-  sourceColumns:
-  - name: totalassessments
-    label: reports.pt.totalassessments
-    type: string
-    source: pt
-    total: true
-  - name: totalamountpaid
-    label: reports.pt.totalamountpaid
-    type: string
-    source: pt
-    total: true
-  - name: totaloffline
-    label: reports.pt.totaloffline
-    type: string
-    source: pt
-    total: true
-  - name: totalonline
-    label: reports.pt.totalonline
-    type: string
-    source: pt
-    total: true
-  - name: totalamountdue
-    label: reports.pt.totalamountdue
-    type: string
-    source: pt
-    total: true
-  searchParams:
-  - name: fromDate
-    label: reports.pt.fromDate
-    type: epoch
-    source: pt
-    isMandatory: false
-    searchClause: AND receiptdate >= $fromDate
-  - name: toDate
-    label: reports.pt.toDate
-    type: epoch
-    source: pt
-    isMandatory: false
-    searchClause: AND receiptdate <= $toDate
-  - name: financialyear
-    label: Financial Year
-    type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=egf-master&masterName=FinancialYear|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].code|$.MdmsRes.egf-master.FinancialYear.[?(@.module=='PT')].name
-    source: pt
-    wrapper: true
-    isMandatory: false
-    searchClause: AND financialyear = $financialyear
-  - name: usage
-    label: Usage
-    type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=PropertyTax&masterName=UsageCategoryMajor|$..code|$..name
-    source: pt
-    wrapper: true
-    isMandatory: false
-    searchClause: AND usagecategorymajor = $usage
-  query: |
-      SELECT 
-      initcap(split_part(tenantid, '.', 2)) as tenantid, 
-      COUNT(*) AS totalassessments, 
-      SUM(totalamount) AS totalamount, 
-      SUM(amount) AS totalamountpaid, 
-      SUM(CASE WHEN collectiontype LIKE 'ONLINE' THEN amount ELSE 0 END) AS totalonline, 
-      SUM(CASE WHEN collectiontype LIKE 'COUNTER' THEN amount ELSE 0 END) AS totaloffline, 
-      (SUM(totalamount) - SUM(amount)) AS totalamountdue 
-      FROM eg_pt_propertydetail_v2 AS pd 
-      LEFT OUTER JOIN (SELECT consumercode, totalamount, amount, collectiontype, receiptdate FROM egcl_receiptheader AS rh 
-      LEFT OUTER JOIN egcl_receiptinstrument AS ri ON rh.id = ri.receiptheader 
-      LEFT OUTER JOIN egcl_instrumentheader AS ih ON ri.instrumentheader = ih.id and ih.instrumentstatus	 != 'CANCELLED' 
-      where rh.status != 'Cancelled'
-      ) AS tbl_amounts ON CONCAT(pd.property, ':', pd.assessmentnumber) = tbl_amounts.consumercode 
-      WHERE tenantid LIKE CONCAT(SPLIT_PART($tenantid, '.', 1), '%') and tenantid = $tenantid
-  groupby: GROUP BY tenantid
-  orderby: ORDER BY tenantid, totalamountpaid DESC NULLS LAST
+        select distinct(propertyid),name,(select status  from eg_pt_property where propertyid=propertyid order by createdtime asc limit 1)as propertystatus,locality,dueamount from (SELECT ep.propertyid,ep.usagecategory,(select name from eg_user where uuid=(select userid from eg_pt_owner where propertyid=propertyid order by createdtime limit 1)) as name, ep.status  AS propertystatus,ea.locality   FROM eg_pt_property ep join eg_pt_address as ea on ep.id=ea.propertyid where ep.tenantid=$tenantid) property join (select consumercode, (sum(taxamount)-sum(collectionamount)) as dueamount from egbs_demand_v1 as demand join egbs_demanddetail_v1 as demanddetail on demand.id=demanddetail.demandid where (demanddetail.taxamount - demanddetail.collectionamount)>0 and demand.ispaymentcompleted is not true and demand.tenantid=$tenantid group by consumercode) demand on property.propertyid=demand.consumercode where 1=1
