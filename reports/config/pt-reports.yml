@@ -837,6 +837,11 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
+  - name: ward
+    label: Ward
+    type: string
+    source: pt
+    total: false
   - name: propertyid
     label: Property Id
     type: string
@@ -869,15 +874,21 @@ ReportDefinitions:
     total: true
   searchParams:
   - name: tenant
-    label: Tenant
+    label: ULB Name
     type: singlevaluelist
     pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
     source: pt
     wrapper: true
     isMandatory: false
     searchClause: AND epp.tenantid = $tenant
+  - name: ward
+    label: Ward (Eg 01,02,..)
+    type: string
+    source: pt
+    isMandatory: false
+    searchClause: AND epa.ward=$ward
   query: |
-      select initcap(split_part(epp.tenantid, '.', 2)) as ulb,epp.propertyid,epp.oldpropertyid,epaa.assessmentnumber,dm.totalTaxAmt,dm.totalCollectedAmt,dm.totalTaxAmt-dm.totalCollectedAmt as dueAmount from eg_pt_property epp inner join eg_pt_asmt_assessment epaa on epp.propertyid = epaa.propertyid inner join (select edv.consumercode,sum(edv2.taxamount) as totalTaxAmt,sum(edv2.collectionamount) as totalCollectedAmt from egbs_demand_v1 edv  inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid group by edv.consumercode) dm on epp.propertyid = dm.consumercode where epp.status='ACTIVE'
+      select initcap(split_part(epp.tenantid, '.', 2)) as ulb,epa.ward as ward,epp.propertyid,epp.oldpropertyid,epaa.assessmentnumber,dm.totalTaxAmt,dm.totalCollectedAmt,dm.totalTaxAmt-dm.totalCollectedAmt as dueAmount from eg_pt_property epp inner join eg_pt_asmt_assessment epaa on epp.propertyid = epaa.propertyid inner join (select edv.consumercode,sum(edv2.taxamount) as totalTaxAmt,sum(edv2.collectionamount) as totalCollectedAmt from egbs_demand_v1 edv  inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid group by edv.consumercode) dm on epp.propertyid = dm.consumercode inner join eg_pt_address epa on epp.id=epa.propertyid where epp.status='ACTIVE'
   orderby: ORDER BY epp.tenantid DESC NULLS LAST
 
 - reportName: propertyWiseDemandDetails
@@ -887,6 +898,11 @@ ReportDefinitions:
   sourceColumns:
   - name: ulb
     label: reports.pt.ulb
+    type: string
+    source: pt
+    total: false
+  - name: ward
+    label: Ward
     type: string
     source: pt
     total: false
@@ -927,7 +943,7 @@ ReportDefinitions:
     total: true
   searchParams:
   - name: tenant
-    label: Tenant
+    label: ULB Name
     type: singlevaluelist
     pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
     source: pt
@@ -946,8 +962,14 @@ ReportDefinitions:
     source: pt
     isMandatory: false
     searchClause: AND epp.oldpropertyid = $oldpropertyid
+  - name: ward
+    label: Ward (Eg 01,02,..)
+    type: string
+    source: pt
+    isMandatory: false
+    searchClause: AND epa.ward=$ward
   query: |
-      select INITCAP(SPLIT_PART(EPP.TENANTID,'.',2)) AS ULB,epp.propertyid,epp.oldpropertyid, to_char(to_timestamp(edv.taxperiodfrom / 1000), 'Mon-YYYY') as taxperiodfrom , to_char(to_timestamp(edv.taxperiodto / 1000), 'Mon-YYYY') as taxperiodto ,coalesce(edv2.taxamount, 0) taxamount,coalesce(edv2.collectionamount, 0) collectionamount,edv2.taxamount - edv2.collectionamount as dueAmount from eg_pt_property epp inner join egbs_demand_v1 edv on edv.consumercode = epp.propertyid left outer join (select demandid, sum(taxamount) as taxamount, sum(collectionamount) as collectionamount from egbs_demanddetail_v1 edv3 group by demandid) edv2 on edv2.demandid = edv.id
+      select INITCAP(SPLIT_PART(EPP.TENANTID,'.',2)) AS ULB,epa.ward as ward,epp.propertyid,epp.oldpropertyid, to_char(to_timestamp(edv.taxperiodfrom / 1000), 'Mon-YYYY') as taxperiodfrom , to_char(to_timestamp(edv.taxperiodto / 1000), 'Mon-YYYY') as taxperiodto ,coalesce(edv2.taxamount, 0) taxamount,coalesce(edv2.collectionamount, 0) collectionamount,edv2.taxamount - edv2.collectionamount as dueAmount from eg_pt_property epp inner join egbs_demand_v1 edv on edv.consumercode = epp.propertyid left outer join (select demandid, sum(taxamount) as taxamount, sum(collectionamount) as collectionamount from egbs_demanddetail_v1 edv3 group by demandid) edv2 on edv2.demandid = edv.id inner join eg_pt_address epa on epp.id=epa.propertyid
   orderby: order by edv.taxperiodfrom
 
 - reportName: propertyWiseCollectionReport
@@ -974,12 +996,17 @@ ReportDefinitions:
     label: Due Before Payment
     type: string
     source: pt
-    total: true
+    total: false
   - name: Amount paid
     label: Amount Paid
     type: string
     source: pt
     total: true
+  - name: Current Due
+    label: Current Due
+    type: string
+    source: pt
+    total: false
   - name: Payment Date
     label: Payment Date
     type: string
@@ -1008,4 +1035,4 @@ ReportDefinitions:
     isMandatory: true
     searchClause: WHERE edv.consumercode = $propertyid
   query: |
-      select distinct edv.consumercode as "Consumer Id", ep2.receiptnumber as "Receipt Number" , to_char(to_timestamp(ep2.receiptdate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Receipt Date" , ep2.due as "Due before payment" , ep2.amountpaid "Amount paid" , to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date" , ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status" , ep.paidby as "Paid by" from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid left outer join egcl_billdetial eb2 on eb2.demandid = edv.id left outer join egcl_bill eb on eb.id = eb2.billid left outer join egcl_paymentdetail ep2 on ep2.billid = eb.id left outer join egcl_payment ep on ep.id = ep2.paymentid
+      select distinct edv.consumercode as "Consumer Id", ep2.receiptnumber as "Receipt Number" , to_char(to_timestamp(ep2.receiptdate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Receipt Date" , ep2.due as "Due before payment" , ep2.amountpaid "Amount paid" ,ep2.due - ep2.amountpaid "Current Due",  to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date" , ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status" , ep.paidby as "Paid by" from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid right outer join egcl_billdetial eb2 on eb2.demandid = edv.id left outer join egcl_bill eb on eb.id = eb2.billid left outer join egcl_paymentdetail ep2 on ep2.billid = eb.id left outer join egcl_payment ep on ep.id = ep2.paymentid
