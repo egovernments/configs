@@ -1036,3 +1036,142 @@ ReportDefinitions:
     searchClause: WHERE edv.consumercode = $propertyid
   query: |
       select distinct edv.consumercode as "Consumer Id", ep2.receiptnumber as "Receipt Number" , to_char(to_timestamp(ep2.receiptdate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Receipt Date" , ep2.due as "Due before payment" , ep2.amountpaid "Amount paid" ,ep2.due - ep2.amountpaid "Current Due",  to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date" , ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status" , ep.paidby as "Paid by" from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid right outer join egcl_billdetial eb2 on eb2.demandid = edv.id left outer join egcl_bill eb on eb.id = eb2.billid left outer join egcl_paymentdetail ep2 on ep2.billid = eb.id left outer join egcl_payment ep on ep.id = ep2.paymentid
+
+- reportName: propertyWiseCollectionReport
+  summary: Property Wise Collection Report
+  version: 1.0.0
+  moduleName: rainmaker-pt
+  sourceColumns:
+  - name: Consumer Id
+    label: Consumer Id
+    type: string
+    source: pt
+    total: false
+  - name: Receipt Number
+    label: Receipt Number
+    type: string
+    source: pt
+    total: false
+  - name: Receipt Date
+    label: Receipt Date
+    type: string
+    source: pt
+    total: false
+  - name: Due before payment
+    label: Due Before Payment
+    type: string
+    source: pt
+    total: false
+  - name: Amount paid
+    label: Amount Paid
+    type: string
+    source: pt
+    total: true
+  - name: Current Due
+    label: Current Due
+    type: string
+    source: pt
+    total: false
+  - name: Payment Date
+    label: Payment Date
+    type: string
+    source: pt
+    total: false
+  - name: Payment Mode
+    label: Payment Mode
+    type: string
+    source: pt
+    total: false
+  - name: Payment Status
+    label: Payment Status
+    type: string
+    source: pt
+    total: false
+  - name: Paid by
+    label: Paid By
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: propertyid
+    label: Property Id
+    type: string
+    source: pt
+    isMandatory: true
+    searchClause: WHERE edv.consumercode = $propertyid
+  query: |
+      select distinct edv.consumercode as "Consumer Id", ep2.receiptnumber as "Receipt Number" , to_char(to_timestamp(ep2.receiptdate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Receipt Date" , ep2.due as "Due before payment" , ep2.amountpaid "Amount paid" ,ep2.due - ep2.amountpaid "Current Due",  to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date" , ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status" , ep.paidby as "Paid by" from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid right outer join egcl_billdetial eb2 on eb2.demandid = edv.id left outer join egcl_bill eb on eb.id = eb2.billid left outer join egcl_paymentdetail ep2 on ep2.billid = eb.id left outer join egcl_payment ep on ep.id = ep2.paymentid
+      
+- reportName: collectorWiseCollectionReport
+  summary: Collector Wise Collection Report
+  version: 1.0.0
+  moduleName: rainmaker-pt
+  sourceColumns:
+  - name: Receipt Number
+    label: Receipt Number
+    type: string
+    source: pt
+    total: false
+  - name: Amount paid
+    label: Amount Paid
+    type: string
+    source: pt
+    total: true
+  - name: name
+    label: Collector Name
+    type: string
+    source: pt
+    total: false
+  - name: employeeid
+    label: Collector Employee Id
+    type: string
+    source: pt
+    total: false
+  - name: mobilenumber
+    label: Collector Mobile No
+    type: string
+    source: pt
+    total: false
+  - name: Payment Date
+    label: Payment Date
+    type: string
+    source: pt
+    total: false
+  - name: Payment Mode
+    label: Payment Mode
+    type: string
+    source: pt
+    total: false
+  - name: Payment Status
+    label: Payment Status
+    type: string
+    source: pt
+    total: false
+  - name: Paid by
+    label: Paid By
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: tenant
+    label: ULB Name
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
+    source: pt
+    wrapper: true
+    isMandatory: true
+    searchClause: AND ep.tenantid = $tenant
+  - name: startdate
+    label: Start Date
+    type: epoch
+    source: pt
+    isMandatory: true
+    searchClause: AND (date(to_timestamp(ep.createdtime / 1000)) >= date($startdate)
+  - name: enddate
+    label: End Date
+    type: epoch
+    source: pt
+    isMandatory: true
+    searchClause: AND date(to_timestamp(ep.createdtime / 1000)) <= date($enddate))
+  query: |
+      select distinct ep.tenantid, eu.type, eu.username as employeeid, eu.name, eu.mobilenumber, to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date", ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status", ep.paidby as "Paid by" , date(to_timestamp(ep.createdtime / 1000)) as createdtime, epd.receiptnumber as "Receipt Number", epd.amountpaid "Amount paid" from egcl_payment ep inner join egcl_paymentdetail epd on ep.id=epd.paymentid left outer join eg_user eu on cast(ep.createdby as INTEGER)=eu.id where eu.type='EMPLOYEE'
