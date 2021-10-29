@@ -546,3 +546,79 @@ ReportDefinitions:
          FROM public.eg_mr_marriageregistration_migration mrmigration WHERE  1=1
   orderby: ORDER BY mrmigration.createdtime ASC
 
+- reportName: StatusWiseReport
+  summary: Marriage Registration Status Wise report
+  version: 1.0.0
+  moduleName: rainmaker-mr
+  sourceColumns:
+  - name: tenantid
+    label: Tenant Id
+    type: string
+    source: mr
+    total: false
+  - name: mrnumber
+    label: MR Number
+    type: string
+    source: mr
+    total: false
+  - name: applicationnumber
+    label: Application Number
+    type: string
+    source: mr
+    total: false
+  - name: applicationtype
+    label: Application Type
+    type: string
+    source: mr
+    total: false
+  - name: applicationdate
+    label: Application Date
+    type: string
+    source: mr
+    total: false
+  - name: marriagedate
+    label: Marriage Date
+    type: string
+    source: mr
+    total: false
+  - name: issueddate
+    label: Issued Date
+    type: string
+    source: mr
+    total: false
+  - name: status
+    label: Status
+    type: string
+    source: mr
+    total: false
+  searchParams:
+  - name: ulb
+    label: ULB
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8094/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+    source: mr
+    wrapper: true
+    isMandatory: true
+    searchClause: AND mr.tenantid = $ulb
+  - name: fromDate
+    label: Application From Date
+    type: epoch
+    source: mr
+    isMandatory: false
+    searchClause: AND mr.applicationdate >= $fromDate
+  - name: toDate
+    label: Application To Date
+    type: epoch
+    source: mr
+    isMandatory: false
+    searchClause: AND mr.applicationdate <= $toDate
+  - name: status
+    label: Status
+    type: singlevaluelist
+    pattern: 'list://INITIATED:Initiated,DOCVERIFICATION:Pending for Document Verification,PENDINGPAYMENT:Pending payment,CITIZENACTIONPENDINGATDOCVERIFICATION:Citizen action Pending at Docverification,PENDINGSCHEDULE:Pending Schedule,BACKFROMSHEDULETODOCVERIFIER:Back from schedule to Docverifier,PENDINGAPPROVAL:Pending Approval,BACKFROMAPPROVALTODOCVERIFIER:Back from Approval to Docverifier,CITIZENACTIONPENDINGATSCHEDULE:Citizen Action pending at schedule,CITIZENACTIONPENDINGATAPPROVER:Citizen action pending at approver,APPROVED:Approved,CANCELLED:Cancelled,REJECTED:Rejected'
+    source: mr
+    isMandatory: false
+    searchClause: AND status = $status      
+  query: SELECT  mr.tenantid,mrnumber,applicationnumber,applicationtype,to_char(To_timestamp(applicationdate / 1000), 'DD-MM-YY') as applicationdate,to_char(To_timestamp(marriagedate / 1000), 'DD-MM-YY') as marriagedate,to_char(To_timestamp(issueddate / 1000), 'DD-MM-YY') as issueddate,message.message as status
+         FROM public.eg_mr_application mr LEFT OUTER JOIN message ON message.code = CONCAT('WF_MR_',status) AND message.locale = 'en_IN' WHERE  1=1
+  orderby: ORDER BY mr.createdtime ASC
