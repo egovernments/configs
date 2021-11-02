@@ -1,6 +1,6 @@
 ---
 ReportDefinitions:
-- reportName: UlbWiseWaterChargeCollection
+- reportName: ULBWiseWaterChargeCollection
   summary: State Wide Water Charge Collection
   version: 1.0.0
   moduleName: rainmaker-ws
@@ -149,7 +149,7 @@ ReportDefinitions:
   query: |
       select INITCAP(SPLIT_PART(EWC.TENANTID, '.', 2)) as ULB,EWC.ADDITIONALDETAILS->>'ward' AS WARD, EWC.CONNECTIONNO, EWC.OLDCONNECTIONNO, coalesce(DM.TOTALTAXAMT, 0) as TOTALTAXAMT, coalesce(DM.TOTALCOLLECTEDAMT, 0) as TOTALCOLLECTEDAMT, case when coalesce(DM.TOTALTAXAMT, 0) > coalesce(DM.TOTALCOLLECTEDAMT, 0) then coalesce(DM.TOTALTAXAMT, 0) - coalesce(DM.TOTALCOLLECTEDAMT, 0) else 0 end as DUEAMOUNT, case when coalesce(DM.TOTALCOLLECTEDAMT, 0) > coalesce(DM.TOTALTAXAMT, 0) then coalesce(DM.TOTALCOLLECTEDAMT, 0) - coalesce(DM.TOTALTAXAMT, 0) else 0 end as REMAININGBAL from EG_WS_CONNECTION EWC inner join EG_WS_SERVICE EWS on EWC.ID = EWS.CONNECTION_ID left outer join (select EDV.CONSUMERCODE, SUM(CASE WHEN taxheadcode!='WS_ADVANCE_CARRYFORWARD' THEN TAXAMOUNT ELSE 0 END) as TOTALTAXAMT, SUM(CASE WHEN taxheadcode!='WS_ADVANCE_CARRYFORWARD' THEN COLLECTIONAMOUNT ELSE -TAXAMOUNT END) as TOTALCOLLECTEDAMT from EGBS_DEMAND_V1 EDV inner join EGBS_DEMANDDETAIL_V1 EDV2 on EDV.ID = EDV2.DEMANDID group by EDV.CONSUMERCODE) DM on EWC.connectionno = DM.CONSUMERCODE where EWC.APPLICATIONSTATUS = 'CONNECTION_ACTIVATED'
 
-- reportName: connectionWiseCollectionReport
+- reportName: ConnectionWiseCollectionReport
   summary: Connection Wise Collection Report
   version: 1.0.0
   moduleName: rainmaker-ws
@@ -411,8 +411,10 @@ ReportDefinitions:
     searchClause: AND date(formattedtaxperiodto) <= date($enddate))
   - name: connectiontype
     label: Connection Type
-    type: string
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=ws-services-masters&masterName=connectionType&tenantId=od|MdmsRes.ws-services-masters.connectionType[*].code|MdmsRes.ws-services-masters.connectionType[*].name
     source: pt
+    wrapper: true
     isMandatory: true
     searchClause: AND ews.connectiontype = $connectiontype
   - name: ward
