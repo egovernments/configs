@@ -782,8 +782,37 @@ serviceMaps:
       - jsonPath: $.Licenses[*][?({id} in @.tradeLicenseDetail.verificationDocuments[*].id)].auditDetails.lastModifiedBy
 
       - jsonPath: $.Licenses[*][?({id} in @.tradeLicenseDetail.verificationDocuments[*].id)].auditDetails.lastModifiedTime
+      
+    - query: INSERT INTO eg_tl_dscdetails( id, tenantid, documenttype,  documentid  , additionaldetail , tradelicensedetailid, approvedby ,applicationnumber , createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ;
+      basePath: Licenses.*.tradeLicenseDetail.dscDetails.*
+      jsonMaps:
+      - jsonPath: $.Licenses.*.tradeLicenseDetail.dscDetails.*.id
 
+      - jsonPath: $.Licenses.*.tradeLicenseDetail.dscDetails.*.tenantId
 
+      - jsonPath: $.Licenses.*.tradeLicenseDetail.dscDetails.*.documentType
+
+      - jsonPath: $.Licenses.*.tradeLicenseDetail.dscDetails.*.documentId
+      
+      - jsonPath: $.Licenses.*.tradeLicenseDetail.dscDetails.*.additionalDetail
+        type: JSON
+        dbType: JSONB
+
+      - jsonPath: $.Licenses[*][?({id} in @.tradeLicenseDetail.dscDetails[*].id)].tradeLicenseDetail.id
+      
+      - jsonPath: $.Licenses.*.tradeLicenseDetail.dscDetails.*.approvedBy
+      
+      - jsonPath: $.Licenses[*][?({id} in @.tradeLicenseDetail.dscDetails[*].id)].applicationNumber
+
+      - jsonPath: $.Licenses[*][?({id} in @.tradeLicenseDetail.dscDetails[*].id)].auditDetails.createdBy
+
+      - jsonPath: $.Licenses[*][?({id} in @.tradeLicenseDetail.dscDetails[*].id)].auditDetails.lastModifiedBy
+
+      - jsonPath: $.Licenses[*][?({id} in @.tradeLicenseDetail.dscDetails[*].id)].auditDetails.createdTime
+
+      - jsonPath: $.Licenses[*][?({id} in @.tradeLicenseDetail.dscDetails[*].id)].auditDetails.lastModifiedTime
+      
+      
     - query: UPDATE eg_tl_tradelicense SET validfrom = ?,validto = ?,licenseNumber =?, issueddate = ?, action = ?, status = ?,  lastmodifiedby = ?,  lastmodifiedtime = ? WHERE id=?;
       basePath: Licenses.*
       jsonMaps:
@@ -845,3 +874,28 @@ serviceMaps:
       - jsonPath: $.Licenses.*.auditDetails.lastModifiedTime
 
       - jsonPath: $.Licenses.*.tradeLicenseDetail.id
+
+  - version: 1.0
+    description: Persists tradeLicense Digitally signed Certificate filestoreid in  eg_tl_dscdetails table
+    fromTopic: update-tl-dscdetails
+    isTransaction: true
+    queryMaps:
+
+
+    - query: UPDATE eg_tl_dscdetails SET  documenttype =?, documentid =?, additionaldetail = ? , lastmodifiedby =?, lastmodifiedtime =? where id = ? ;
+      basePath: Licenses.*.tradeLicenseDetail.dscDetails.*
+      jsonMaps:
+
+      - jsonPath: $.Licenses.*.tradeLicenseDetail.dscDetails.*.documentType
+
+      - jsonPath: $.Licenses.*.tradeLicenseDetail.dscDetails.*.documentId
+      
+      - jsonPath: $.Licenses.*.tradeLicenseDetail.dscDetails.*.additionalDetail
+        type: JSON
+        dbType: JSONB
+
+      - jsonPath: $.Licenses[*][?({id} in @.tradeLicenseDetail.dscDetails[*].id)].auditDetails.lastModifiedBy
+
+      - jsonPath: $.Licenses[*][?({id} in @.tradeLicenseDetail.dscDetails[*].id)].auditDetails.lastModifiedTime
+      
+      - jsonPath: $.Licenses.*.tradeLicenseDetail.dscDetails.*.id
