@@ -888,7 +888,7 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND epa.ward=$ward
   query: |
-      select initcap(split_part(epp.tenantid, '.', 2)) as ulb,epa.ward as ward,epp.propertyid,epp.oldpropertyid,epaa.assessmentnumber,dm.totalTaxAmt,dm.totalCollectedAmt,dm.totalTaxAmt-dm.totalCollectedAmt as dueAmount from eg_pt_property epp inner join eg_pt_asmt_assessment epaa on epp.propertyid = epaa.propertyid inner join (select edv.consumercode,sum(edv2.taxamount) as totalTaxAmt,sum(edv2.collectionamount) as totalCollectedAmt from egbs_demand_v1 edv  inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid group by edv.consumercode) dm on epp.propertyid = dm.consumercode inner join eg_pt_address epa on epp.id=epa.propertyid where epp.status='ACTIVE'
+      select initcap(split_part(epp.tenantid, '.', 2)) as ulb,epa.ward as ward,epp.propertyid, epp.oldpropertyid,epaa.assessmentnumber,dm.totalTaxAmt,	dm.totalCollectedAmt,dm.totalTaxAmt-dm.totalCollectedAmt as dueAmount from eg_pt_property epp inner join eg_pt_asmt_assessment epaa on epp.tenantid=$tenant and epp.propertyid= epaa.propertyid inner join (select edv.consumercode,sum(edv2.taxamount) as totalTaxAmt,sum(edv2.collectionamount) as totalCollectedAmt from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.tenantid=$tenant and edv2.tenantid=$tenant and edv.id=edv2.demandid group by edv.consumercode) dm on epp.propertyid=dm.consumercode inner join eg_pt_address epa on epa.tenantid =$tenant and epp.id=epa.propertyid where epp.status='ACTIVE'
   orderby: ORDER BY epp.tenantid DESC NULLS LAST
 
 - reportName: PropertyWiseDemandDetails
@@ -949,7 +949,7 @@ ReportDefinitions:
     source: pt
     wrapper: true
     isMandatory: true
-    searchClause: WHERE epp.tenantid = $tenant
+    searchClause: AND epp.tenantid = $tenant
   - name: propertyid
     label: Property Id
     type: string
@@ -969,7 +969,7 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND epa.ward=$ward
   query: |
-      select INITCAP(SPLIT_PART(EPP.TENANTID,'.',2)) AS ULB,epa.ward as ward,epp.propertyid,epp.oldpropertyid, to_char(to_timestamp(edv.taxperiodfrom / 1000), 'Mon-YYYY') as taxperiodfrom , to_char(to_timestamp(edv.taxperiodto / 1000), 'Mon-YYYY') as taxperiodto ,coalesce(edv2.taxamount, 0) taxamount,coalesce(edv2.collectionamount, 0) collectionamount,edv2.taxamount - edv2.collectionamount as dueAmount from eg_pt_property epp inner join egbs_demand_v1 edv on edv.consumercode = epp.propertyid left outer join (select demandid, sum(taxamount) as taxamount, sum(collectionamount) as collectionamount from egbs_demanddetail_v1 edv3 group by demandid) edv2 on edv2.demandid = edv.id inner join eg_pt_address epa on epp.id=epa.propertyid
+      select INITCAP(SPLIT_PART(EPP.TENANTID,'.',2)) as ULB,epa.ward as ward,epp.propertyid, epp.oldpropertyid,to_char(to_timestamp(edv.taxperiodfrom/1000),'Mon-YYYY') as taxperiodfrom,to_char(to_timestamp(edv.taxperiodto / 1000),'Mon-YYYY') as taxperiodto,coalesce(edv2.taxamount, 0) taxamount,coalesce(edv2.collectionamount,0) collectionamount,edv2.taxamount-edv2.collectionamount as dueAmount from eg_pt_property epp inner join egbs_demand_v1 edv on epp.tenantid=$tenant and edv.tenantid=$tenant and edv.consumercode=epp.propertyid left outer join (select demandid,sum(taxamount) as taxamount,sum(collectionamount) as collectionamount from egbs_demanddetail_v1 edv3 where edv3.tenantid=$tenant group by demandid) edv2 on edv.tenantid=$tenant and edv2.demandid=edv.id inner join eg_pt_address epa on epa.tenantid=$tenant and epp.id=epa.propertyid WHERE epp.status != 'INACTIVE'
   orderby: order by edv.taxperiodfrom
 
 - reportName: PropertyWiseCollectionReport
