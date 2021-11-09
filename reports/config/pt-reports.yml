@@ -1110,3 +1110,62 @@ ReportDefinitions:
     searchClause: AND date(to_timestamp(ep.createdtime / 1000)) <= date($enddate))
   query: |
       select distinct ep.tenantid, eu.type, eu.username as employeeid, eu.name, eu.mobilenumber, to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date", ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status", ep.paidby as "Paid by" , date(to_timestamp(ep.createdtime / 1000)) as createdtime, epd.receiptnumber as "Receipt Number", epd.amountpaid "Amount paid" from egcl_payment ep inner join egcl_paymentdetail epd on ep.id=epd.paymentid left outer join eg_user eu on cast(ep.createdby as INTEGER)=eu.id where eu.type='EMPLOYEE'
+
+- reportName: ULBWisePropertyDetailsReport
+  decryptionPathId: propertyDetailReport
+  summary: ULB Wise Property Details Report
+  version: 1.0.0
+  moduleName: rainmaker-pt
+  sourceColumns:
+  - name: ulb
+    label: ULB Name
+    type: string
+    source: pt
+    total: false
+  - name: ward
+    label: Ward Number
+    type: string
+    source: pt
+    total: false
+  - name: oldpropertyid
+    label: Existing Consumer No.
+    type: string
+    source: pt
+    total: false
+  - name: propertyid
+    label: New Consumer No.
+    type: string
+    source: pt
+    total: false
+  - name: name
+    label: Consumer Name
+    type: string
+    source: pt
+    total: false
+  - name: mobilenumber
+    label: Mobile Number
+    type: string
+    source: pt
+    total: false
+  - name: address
+    label: Address
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: tenant
+    label: ULB Name
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
+    source: pt
+    wrapper: true
+    isMandatory: true
+    searchClause: AND epp.tenantid = $tenant
+  - name: ward
+    label: Ward (Eg 01,02,..)
+    type: string
+    source: pt
+    isMandatory: false
+    searchClause: AND epa.ward=$ward
+  query: |
+      select initcap(split_part(epp.tenantid, '.', 2)) as ulb,epa.ward,epp.oldpropertyid,epp.propertyid,eu."name",eu.mobilenumber,concat(COALESCE(epa.doorno,''),COALESCE(', '||epa.buildingname,''),COALESCE(', '||epa.street,''),COALESCE(', '||epa.city,''),COALESCE(', PIN-'||epa.pincode,'')) as address from eg_pt_property epp inner join eg_pt_owner epo on epo.propertyid = epp.id inner join eg_user eu on eu.uuid = epo.userid inner join eg_pt_address epa on epa.propertyid = epp.id WHERE epp.status <> 'INACTIVE'
