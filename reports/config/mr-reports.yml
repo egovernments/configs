@@ -619,6 +619,11 @@ ReportDefinitions:
     source: mr
     isMandatory: false
     searchClause: AND status = $status      
-  query: SELECT  mr.tenantid,mrnumber,applicationnumber,applicationtype,to_char(To_timestamp(applicationdate / 1000), 'DD-MM-YY') as applicationdate,to_char(To_timestamp(marriagedate / 1000), 'DD-MM-YY') as marriagedate,to_char(To_timestamp(issueddate / 1000), 'DD-MM-YY') as issueddate,message.message as status
-         FROM public.eg_mr_application mr LEFT OUTER JOIN message ON message.code = CONCAT('WF_MR_',status) AND message.locale = 'en_IN' WHERE  1=1
+  query: SELECT  mr.tenantid,mrnumber,applicationnumber,applicationtype,to_char(To_timestamp(applicationdate / 1000), 'DD-MM-YY') as applicationdate,to_char(To_timestamp(marriagedate / 1000), 'DD-MM-YY') as marriagedate,to_char(To_timestamp(issueddate / 1000), 'DD-MM-YY') as issueddate,COALESCE(message.message,status) as status
+         FROM public.eg_mr_application mr LEFT OUTER JOIN message 
+         ON CASE
+         WHEN mr.workflowcode = 'MR' then message.code = CONCAT('WF_MR_', status) 
+         WHEN mr.workflowcode = 'MRCORRECTION' then message.code = CONCAT('WF_MRCORRECTION_', status) 
+         END
+         AND message.locale = 'en_IN' WHERE  1=1
   orderby: ORDER BY mr.createdtime ASC
