@@ -1037,17 +1037,17 @@ ReportDefinitions:
     source: tl
     total: false
   - name: licensetype
-    label: report.tl.licensetype
+    label: LicenseType
     type: string
     source: tl
     total: false
   - name: applicationtype
-    label: report.tl.applicationtype
+    label: ApplicationType
     type: string
     source: tl
     total: false  
   - name: licenseFee
-    label: report.tl.licenseFee
+    label: LicenseFee
     type: string
     source: tl
     total: false      
@@ -1072,5 +1072,5 @@ ReportDefinitions:
     wrapper: true
     isMandatory: true
     searchClause: AND tl.tenantid = $ulb
-  query: SELECT tl.tenantid, applicationnumber, to_char(To_timestamp(applicationdate / 1000), 'DD/MM/YYYY') as Applicationdate, licensenumber, to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as IssuedDate, tl.tradeName, name, tradeTypeName, COALESCE(message.message,status) as status, licensetype, applicationtype, licenseFee FROM eg_tl_tradelicense tl INNER JOIN eg_tl_tradelicensedetail tld ON tld.tradelicenseid = tl.id INNER JOIN ( SELECT tradelicensedetailid, array_to_string(array_agg(message.message), ', ') as tradeTypeName FROM eg_tl_tradeunit INNER JOIN message ON replace(substring(message.code, '_[A-Z]*_(.*)'), '_', '.') = tradeType AND message.locale = 'en_IN' where active is true GROUP BY 1 ) tlunit ON tlunit.tradelicensedetailid = tld.id INNER JOIN ( SELECT tradelicensedetailid, (array_agg(name))[1] as name FROM eg_tl_owner tlowner INNER JOIN eg_user tluser ON tluser.uuid = tlowner.id where tlowner.active is true group by tradelicensedetailid ) tlown ON tlown.tradelicensedetailid = tld.id INNER JOIN ( select edv.consumercode, sum(edv2.taxamount) as licenseFee, sum(edv2.collectionamount) as totalCollectedAmt from egbs_demand_v1 edv INNER JOIN egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid group by edv.consumercode ) dm on applicationnumber = dm.consumercode LEFT OUTER JOIN message ON CASE WHEN tl.workflowcode = 'NewTL' then message.code = CONCAT('WF_NEWTL_', status) WHEN tl.workflowcode = 'EDITRENEWAL' then message.code = CONCAT('WF_EDITRENEWAL_', status) END AND message.locale = 'en_IN'  WHERE  1=1
+  query: SELECT initcap(split_part(tl.tenantId, '.', 2)) as tenantId, applicationnumber, to_char(To_timestamp(applicationdate / 1000), 'DD/MM/YYYY') as Applicationdate, licensenumber, to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as IssuedDate, tl.tradeName, name, tradeTypeName, COALESCE(message.message,status) as status, licensetype, applicationtype, licenseFee FROM eg_tl_tradelicense tl INNER JOIN eg_tl_tradelicensedetail tld ON tld.tradelicenseid = tl.id INNER JOIN ( SELECT tradelicensedetailid, array_to_string(array_agg(message.message), ', ') as tradeTypeName FROM eg_tl_tradeunit INNER JOIN message ON replace(substring(message.code, '_[A-Z]*_(.*)'), '_', '.') = tradeType AND message.locale = 'en_IN' where active is true GROUP BY 1 ) tlunit ON tlunit.tradelicensedetailid = tld.id INNER JOIN ( SELECT tradelicensedetailid, (array_agg(name))[1] as name FROM eg_tl_owner tlowner INNER JOIN eg_user tluser ON tluser.uuid = tlowner.id where tlowner.active is true group by tradelicensedetailid ) tlown ON tlown.tradelicensedetailid = tld.id INNER JOIN ( select edv.consumercode, sum(edv2.taxamount) as licenseFee, sum(edv2.collectionamount) as totalCollectedAmt from egbs_demand_v1 edv INNER JOIN egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid group by edv.consumercode ) dm on applicationnumber = dm.consumercode LEFT OUTER JOIN message ON CASE WHEN tl.workflowcode = 'NewTL' then message.code = CONCAT('WF_NEWTL_', status) WHEN tl.workflowcode = 'EDITRENEWAL' then message.code = CONCAT('WF_EDITRENEWAL_', status) END AND message.locale = 'en_IN'  WHERE  1=1
   orderby: ORDER BY tl.createdtime desc
