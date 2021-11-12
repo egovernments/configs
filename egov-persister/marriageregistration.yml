@@ -998,6 +998,35 @@ serviceMaps:
 
           - jsonPath: $.MarriageRegistrations[*][?({id} in @.verificationDocuments[*].id)].auditDetails.lastModifiedTime
 
+       - query: INSERT INTO eg_mr_dscdetails( id, tenantid, documenttype,  documentid  , additionaldetail , mr_id, approvedby ,applicationnumber , createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ;
+         basePath: MarriageRegistrations.*.dscDetails.*
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.dscDetails.*.id
+
+          - jsonPath: $.MarriageRegistrations.*.dscDetails.*.tenantId
+
+          - jsonPath: $.MarriageRegistrations.*.dscDetails.*.documentType
+
+          - jsonPath: $.MarriageRegistrations.*.dscDetails.*.documentId
+
+          - jsonPath: $.MarriageRegistrations.*.dscDetails.*.additionalDetail
+            type: JSON
+            dbType: JSONB
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.dscDetails[*].id)].id
+
+          - jsonPath: $.MarriageRegistrations.*.dscDetails.*.approvedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.dscDetails[*].id)].applicationNumber
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.dscDetails[*].id)].auditDetails.createdBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.dscDetails[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.dscDetails[*].id)].auditDetails.createdTime
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.dscDetails[*].id)].auditDetails.lastModifiedTime 
+
        - query: INSERT INTO eg_mr_appointmentdetails( id, tenantid, active, startTime, endTime,description , additionalDetail , mr_id, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? , ?) ON CONFLICT (id) DO UPDATE SET active = ?, startTime =?, endTime =?, description =? , additionalDetail = ? ,lastmodifiedby =?, lastmodifiedtime =?;
          basePath: MarriageRegistrations.*.appointmentDetails.*
          jsonMaps:
@@ -1073,3 +1102,26 @@ serviceMaps:
           - jsonPath: $.MarriageRegistrations.*.auditDetails.lastModifiedTime
 
           - jsonPath: $.MarriageRegistrations.*.marriagePlace.id
+
+ - version: 1.0
+   description: Persists marriageRegistartion Digitally signed Certificate documentId in  eg_mr_dscdetails table
+   fromTopic: update-mr-dscdetails
+   isTransaction: true
+   queryMaps:
+
+       - query: UPDATE eg_mr_dscdetails SET  documenttype =?, documentid =?, additionaldetail = ? , lastmodifiedby =?, lastmodifiedtime =? where id = ? 
+         basePath: MarriageRegistrations.*.dscDetails.*
+         jsonMaps:
+          - jsonPath: $.MarriageRegistrations.*.dscDetails.*.documentType
+         
+          - jsonPath: $.MarriageRegistrations.*.dscDetails.*.documentId
+         
+          - jsonPath: $.MarriageRegistrations.*.dscDetails.*.additionalDetail
+            type: JSON
+            dbType: JSONB
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.dscDetails[*].id)].auditDetails.lastModifiedBy
+
+          - jsonPath: $.MarriageRegistrations[*][?({id} in @.dscDetails[*].id)].auditDetails.lastModifiedTime
+
+          - jsonPath: $.MarriageRegistrations.*.dscDetails.*.id
