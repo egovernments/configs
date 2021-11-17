@@ -1,103 +1,248 @@
 serviceMaps:
- serviceName: vendor-registory
- mappings:
- - version: 1.0
-   description: Vendor Registion Application details in eg_vendor  table
-   fromTopic: save-vendor-application
-   isTransaction: true
-   queryMaps:
+  serviceName: vehicle
+  mappings:
+    - version: 1.0
+      description: Persists Vehicle Application details in eg_vehicle table
+      fromTopic: save-vehicle-application
+      isTransaction: true
+      queryMaps:
+        - query : INSERT INTO eg_vehicle( id, tenantId, registrationNumber, model, type, tankCapicity, suctionType, pollutionCertiValidTill, InsuranceCertValidTill, fitnessValidTill, roadTaxPaidTill, gpsEnabled, source, status, additionalDetails, owner_id , createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: vehicle
+          jsonMaps:
+            - jsonPath: $.vehicle.id
+            - jsonPath: $.vehicle.tenantId
+            - jsonPath: $.vehicle.registrationNumber
+            - jsonPath: $.vehicle.model
+            - jsonPath: $.vehicle.type
+            - jsonPath: $.vehicle.tankCapacity
+            - jsonPath: $.vehicle.suctionType
+            - jsonPath: $.vehicle.pollutionCertiValidTill
+            - jsonPath: $.vehicle.InsuranceCertValidTill
+            - jsonPath: $.vehicle.fitnessValidTill
+            - jsonPath: $.vehicle.roadTaxPaidTill
+            - jsonPath: $.vehicle.gpsEnabled
+            - jsonPath: $.vehicle.source
+            - jsonPath: $.vehicle.status
+            - jsonPath: $.vehicle.additionalDetails
+            - jsonPath: $.vehicle.owner.uuid
+            - jsonPath: $.vehicle.auditDetails.createdBy
+            - jsonPath: $.vehicle.auditDetails.lastModifiedBy
+            - jsonPath: $.vehicle.auditDetails.createdTime
+            - jsonPath: $.vehicle.auditDetails.lastModifiedTime
+            
 
-       - query: INSERT INTO eg_vendor( id, name, tenantid, additionaldetails, owner_id, description, source, status,createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );
-         basePath: vendor
-         jsonMaps:
-          - jsonPath: $.vendor.id
+    - version: 1.0
+      description: Vehicle Trip details in eg_vehicle_log  table
+      fromTopic: save-vehicle-trip
+      isTransaction: true
+      queryMaps:
 
-          - jsonPath: $.vendor.name
-          
-          - jsonPath: $.vendor.tenantId
+        - query: INSERT INTO eg_vehicle_trip(id, tenantid, owner_id, driver_id, vehicle_id, applicationno, additionaldetails, status, businessservice, applicationstatus, tripstarttime, tripendtime, volumecarried, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: vehicleTrip
+          jsonMaps:
+            - jsonPath: $.vehicleTrip.id
 
-          - jsonPath: $.vendor.additionalDetails
-            type: JSON
-            dbType: JSONB
-          
-          - jsonPath: $.vendor.owner.uuid
+            - jsonPath: $.vehicleTrip.tenantId
 
-          - jsonPath: $.vendor.description
-          
-          - jsonPath: $.vendor.source
-          
-          - jsonPath: $.vendor.status
+            - jsonPath: $.vehicleTrip.tripOwnerId
 
-          - jsonPath: $.vendor.auditDetails.createdBy
+            - jsonPath: $.vehicleTrip.driverId
 
-          - jsonPath: $.vendor.auditDetails.lastModifiedBy
+            - jsonPath: $.vehicleTrip.vehicleId
 
-          - jsonPath: $.vendor.auditDetails.createdTime
+            - jsonPath: $.vehicleTrip.applicationNo
 
-          - jsonPath: $.vendor.auditDetails.lastModifiedTime
-          
-          
-       - query: INSERT INTO eg_vendor_address(id, tenantid, doorno, plotno, landmark, city, district, region, state, country, locality, pincode, additionalDetails, buildingname, street, vendor_id, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-         basePath: vendor.address
-         jsonMaps:
-          - jsonPath: $.vendor.address.id
+            - jsonPath: $.vehicleTrip.additionalDetails
+              type: JSON
+              dbType: JSONB
 
-          - jsonPath: $.vendor.address.tenantId
+            - jsonPath: $.vehicleTrip.status
 
-          - jsonPath: $.vendor.address.doorNo
+            - jsonPath: $.vehicleTrip.businessService
 
-          - jsonPath: $.vendor.address.plotNo
+            - jsonPath: $.vehicleTrip.applicationStatus
 
-          - jsonPath: $.vendor.address.landmark
+            - jsonPath: $.vehicleTrip.tripStartTime
 
-          - jsonPath: $.vendor.address.city
+            - jsonPath: $.vehicleTrip.tripEndTime
 
-          - jsonPath: $.vendor.address.district
+            - jsonPath: $.vehicleTrip.volumeCarried
 
-          - jsonPath: $.vendor.address.region
+            - jsonPath: $.vehicleTrip.auditDetails.createdBy
 
-          - jsonPath: $.vendor.address.state
+            - jsonPath: $.vehicleTrip.auditDetails.lastModifiedBy
 
-          - jsonPath: $.vendor.address.country
+            - jsonPath: $.vehicleTrip.auditDetails.createdTime
 
-          - jsonPath: $.vendor.address.locality.code
-
-          - jsonPath: $.vendor.address.pincode
-
-          - jsonPath: $.vendor.address.additionalDetails
-            type: JSON
-            dbType: JSONB
-
-          - jsonPath: $.vendor.address.buildingName
-
-          - jsonPath: $.vendor.address.street
-
-          - jsonPath: $.vendor.id
-
-          - jsonPath: $.vendor.address.auditDetails.createdBy
-
-          - jsonPath: $.vendor.address.auditDetails.lastModifiedBy
-
-          - jsonPath: $.vendor.address.auditDetails.createdTime
-
-          - jsonPath: $.vendor.address.auditDetails.lastModifiedTime
-          
-          
-          
-       - query: INSERT INTO eg_vendor_driver(  vendor_id, driver_id) VALUES ( ?, ?);
-         basePath: vendor.drivers.*
-         jsonMaps:
+            - jsonPath: $.vehicleTrip.auditDetails.lastModifiedTime
 
 
-          - jsonPath: $.vendor.id
 
-          - jsonPath: $.vendor.drivers.*.uuid
-          
-       - query: INSERT INTO eg_vendor_vehicle(  vendor_id,vechile_id) VALUES ( ?, ?); 
-         basePath: vendor.vehicles.*
-         jsonMaps:
-          
-          - jsonPath: $.vendor.id
+        - query: INSERT INTO eg_vehicle_trip_detail( id, tenantid, trip_id, referenceno, referencestatus, additionaldetails, status, itemstarttime, itemendtime, volume, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); 
+          basePath: vehicleTrip.tripDetails.*
+          jsonMaps:
 
-          - jsonPath: $.vendor.vehicles.*.id
-          
+            - jsonPath: $.vehicleTrip.tripDetails.*.id
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.tenantId
+
+            - jsonPath: $.vehicleTrip.id 
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.referenceNo
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.referenceStatus    
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.additionalDetails  
+              type: JSON
+              dbType: JSONB 
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.status
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.itemStartTime 
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.itemEndTime 
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.volume 
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.auditDetails.createdBy
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.auditDetails.createdTime
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.auditDetails.lastModifiedTime
+            
+            
+    - version: 1.0
+      description: Vehicle Trip details in eg_vehicle_trip  table
+      fromTopic: update-vehicle-trip
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE eg_vehicle_trip SET  driver_id=?,  applicationno=?, additionaldetails=?, status=?, applicationstatus=?, tripstarttime=?, tripendtime=?, volumecarried=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
+          basePath: vehicleTrip
+          jsonMaps:
+
+
+            - jsonPath: $.vehicleTrip.driverId
+
+            - jsonPath: $.vehicleTrip.applicationNo
+
+            - jsonPath: $.vehicleTrip.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.vehicleTrip.status
+
+            - jsonPath: $.vehicleTrip.applicationStatus
+
+            - jsonPath: $.vehicleTrip.tripStartTime
+
+            - jsonPath: $.vehicleTrip.tripEndTime
+
+            - jsonPath: $.vehicleTrip.volumeCarried
+
+            - jsonPath: $.vehicleTrip.auditDetails.createdBy
+
+            - jsonPath: $.vehicleTrip.auditDetails.lastModifiedBy
+
+            - jsonPath: $.vehicleTrip.auditDetails.createdTime
+
+            - jsonPath: $.vehicleTrip.auditDetails.lastModifiedTime
+
+            - jsonPath: $.vehicleTrip.id
+
+        - query: UPDATE eg_vehicle_trip_detail SET  referencestatus=?, additionaldetails=?, status=?, itemstarttime=?, itemendtime=?, volume=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
+          basePath: vehicleTrip.tripDetails.*
+          jsonMaps:
+
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.referenceStatus    
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.additionalDetails  
+              type: JSON
+              dbType: JSONB 
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.status
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.itemStartTime 
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.itemEndTime 
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.volume 
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.auditDetails.createdBy
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.auditDetails.createdTime
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.id
+
+    - version: 1.0
+      description: Vehicle Trip details in eg_vehicle_trip  table
+      fromTopic: update-workflow-vehicle-trip
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE eg_vehicle_trip SET  driver_id=?,  applicationno=?, additionaldetails=?, status=?, applicationstatus=?, tripstarttime=?, tripendtime=?, volumecarried=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
+          basePath: vehicleTrip
+          jsonMaps:
+
+
+            - jsonPath: $.vehicleTrip.driverId
+
+            - jsonPath: $.vehicleTrip.applicationNo
+
+            - jsonPath: $.vehicleTrip.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.vehicleTrip.status
+
+            - jsonPath: $.vehicleTrip.applicationStatus
+
+            - jsonPath: $.vehicleTrip.tripStartTime
+
+            - jsonPath: $.vehicleTrip.tripEndTime
+
+            - jsonPath: $.vehicleTrip.volumeCarried
+
+            - jsonPath: $.vehicleTrip.auditDetails.createdBy
+
+            - jsonPath: $.vehicleTrip.auditDetails.lastModifiedBy
+
+            - jsonPath: $.vehicleTrip.auditDetails.createdTime
+
+            - jsonPath: $.vehicleTrip.auditDetails.lastModifiedTime
+
+            - jsonPath: $.vehicleTrip.id
+
+        - query: UPDATE eg_vehicle_trip_detail SET  referencestatus=?, additionaldetails=?, status=?, itemstarttime=?, itemendtime=?, volume=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
+          basePath: vehicleTrip.tripDetails.*
+          jsonMaps:
+
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.referenceStatus    
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.additionalDetails  
+              type: JSON
+              dbType: JSONB 
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.status
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.itemStartTime 
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.itemEndTime 
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.volume 
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.auditDetails.createdBy
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.auditDetails.createdTime
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.vehicleTrip.tripDetails.*.id
