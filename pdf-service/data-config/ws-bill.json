@@ -37,6 +37,42 @@
                   "module": "rainmaker-common"
                 }
               },
+			  {
+                "variable": "consumer_name",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_CONSUMER_NAME"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
+                }
+              },
+			  {
+                "variable": "existing_connection_no",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_EXISTING_CONNECTION_NO"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
+                }
+              },
+			  {
+                "variable": "connection_type",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_CONNECTION_TYPE"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
+                }
+              },
               {
                 "variable": "Municipal_Corporation",
                 "value": {
@@ -101,6 +137,18 @@
                 "variable": "payer_address",
                 "value": {
                   "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_PAYER_ADDRESS"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
+                }
+              },
+			  {
+                "variable": "consumer_address",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_CONSUMER_ADDRESS"
                 },
                 "type": "label",
                 "localisation": {
@@ -240,10 +288,70 @@
                   "module": "rainmaker-common"
                 }
               },
+			  {
+                "variable": "special_rebate_label",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_SPECIAL_REBATE"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
+                }
+              },
               {
                 "variable": "others_label",
                 "value": {
                   "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_OTHERS"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
+                }
+              },
+			  {
+                "variable": "roundoff_label",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_ROUNDOFF"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
+                }
+              },
+			  {
+                "variable": "previous_dues_label",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_PREVIOUS_DUES"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
+                }
+              },
+			  {
+                "variable": "water_charge_label",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_WATER_CHARGE"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
+                }
+              },
+			  {
+                "variable": "other_charges_label",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_BILL_OTHER_CHARGES"
                 },
                 "type": "label",
                 "localisation": {
@@ -522,6 +630,12 @@
                 }
               },
               {
+                "variable": "waterTaxCharge",
+                "value": {
+                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'WS_CHARGE' )].amount"
+                }
+              },
+              {
                 "variable": "timeRebate",
                 "value": {
                   "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'PT_TIME_REBATE' || @.taxHeadCode == 'WS_TIME_REBATE' || @.taxHeadCode == 'SW_TIME_REBATE')].amount"
@@ -530,7 +644,7 @@
 			  {
                 "variable": "specialRebate",
                 "value": {
-                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'WS_SPECIAL_REBATE' || @.taxHeadCode == 'SW_SPECIAL_REBATE')].amount"
+                  "path": "$.billDetails[0].billAccountDetails[?(@.taxHeadCode == 'WS_SPECIAL_REBATE'|| @.taxHeadCode == 'SW_SPECIAL_REBATE')].amount"
                 }
               },
               {
@@ -667,7 +781,7 @@
               },
               {
                 "variable": "rebate",
-                "formula": "{{timeRebate}}+{{adhocRebate}}+{{specialRebate}}"
+                "formula": "{{timeRebate}}+{{adhocRebate}}"
               },
               {
                 "variable": "billOthers",
@@ -700,6 +814,10 @@
               {
                 "variable": "calculatedTotal",
                 "formula": "{{billTotalAmount}}>0?{{billTotalAmount}}:0"
+              },
+			  {
+                "variable": "specialRebateApplicable",
+                "formula": "{{specialRebate}}>0?{{specialRebate}}:0"
               }
             ]
           },
@@ -751,6 +869,29 @@
                       "prefix": "TENANT_TENANTS",
                       "module": "rainmaker-common"
                     }
+                  }
+                ]
+              },
+			  {
+                "path": "http://ws-services:8080/ws-services/wc/_search",
+                "queryParam":  "tenantId=$.tenantId,connectionNumber=$.consumerCode",
+                "apiRequest": null,
+                "responseMapping": [
+                  {             
+                    "variable":"connectionHolderName",
+                    "value":"$.WaterConnection[0].connectionHolders[0].name"
+                  },
+				  {             
+                    "variable":"connectionHolderAddress",
+                    "value":"$.WaterConnection[0].connectionHolders[0].correspondenceAddress"
+                  },
+				  {             
+                    "variable":"existingConnectionNo",
+                    "value":"$.WaterConnection[0].oldConnectionNo"
+                  },
+				  {             
+                    "variable":"connectionType",
+                    "value":"$.WaterConnection[0].connectionType"
                   }
                 ]
               },
