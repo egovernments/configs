@@ -852,6 +852,21 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
+  - name: name
+    label: Consumer Name
+    type: string
+    source: pt
+    total: false
+  - name: mobilenumber
+    label: Mobile Number
+    type: string
+    source: pt
+    total: false
+  - name: address
+    label: Address
+    type: string
+    source: pt
+    total: false
   - name: assessmentnumber
     label: Assessment Number
     type: string
@@ -888,7 +903,7 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND epa.ward=$ward
   query: |
-      select initcap(split_part(epp.tenantid, '.', 2)) as ulb,epa.ward as ward,epp.propertyid, epp.oldpropertyid,epaa.assessmentnumber,dm.totalTaxAmt,	dm.totalCollectedAmt,dm.totalTaxAmt-dm.totalCollectedAmt as dueAmount from eg_pt_property epp inner join eg_pt_asmt_assessment epaa on epp.tenantid=$tenant and epp.propertyid= epaa.propertyid inner join (select edv.consumercode,sum(edv2.taxamount) as totalTaxAmt,sum(edv2.collectionamount) as totalCollectedAmt from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.tenantid=$tenant and edv2.tenantid=$tenant and edv.id=edv2.demandid group by edv.consumercode) dm on epp.propertyid=dm.consumercode inner join eg_pt_address epa on epa.tenantid =$tenant and epp.id=epa.propertyid where epp.status='ACTIVE'
+      select initcap(split_part(epp.tenantid, '.', 2)) as ulb,epa.ward as ward,epp.propertyid, epp.oldpropertyid,EU.NAME AS NAME,EU.MOBILENUMBER MOBILENUMBER,concat(COALESCE(epa.doorno,''),COALESCE(', '||epa.buildingname,''),COALESCE(', '||epa.street,''),COALESCE(', '||epa.city,''),COALESCE(', PIN-'||epa.pincode,'')) as address,epaa.assessmentnumber,dm.totalTaxAmt,	dm.totalCollectedAmt,dm.totalTaxAmt-dm.totalCollectedAmt as dueAmount from eg_pt_property epp inner join eg_pt_asmt_assessment epaa on epp.tenantid=$tenant and epp.propertyid= epaa.propertyid inner join (select edv.consumercode,sum(edv2.taxamount) as totalTaxAmt,sum(edv2.collectionamount) as totalCollectedAmt from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.tenantid=$tenant and edv2.tenantid=$tenant and edv.id=edv2.demandid group by edv.consumercode) dm on epp.propertyid=dm.consumercode inner join eg_pt_address epa on epa.tenantid =$tenant and epp.id=epa.propertyid LEFT OUTER JOIN eg_pt_owner epo on EPO.TENANTID = 'od.cuttack' AND EPO.STATUS='ACTIVE' AND EPO.PROPERTYID = EPP.ID LEFT OUTER JOIN eg_user eu on EU.UUID = EPO.USERID where epp.status='ACTIVE'
   orderby: ORDER BY epp.tenantid DESC NULLS LAST
 
 - reportName: PropertyWiseDemandDetails
