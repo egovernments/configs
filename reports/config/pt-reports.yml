@@ -827,9 +827,9 @@ ReportDefinitions:
   groupby: GROUP BY tenantid
   orderby: ORDER BY tenantid, totalamountpaid DESC NULLS LAST
   
-- reportName: ULBWisePropertyReport
+- reportName: ULBWiseTaxCollectionReport
   decryptionPathId: propertyDetailReport
-  summary: State Wide PT Collection
+  summary: ULB Wise Tax Collection Report
   version: 1.0.0
   moduleName: rainmaker-pt
   sourceColumns:
@@ -898,27 +898,23 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND epp.tenantid = $tenant
   - name: ward
-    label: Ward (Eg 01,02,..)
+    label: Ward (Eg NIL,01,02,..)
     type: string
     source: pt
     isMandatory: false
-    searchClause: AND epa.ward=$ward
+    searchClause: and case when LOWER($ward)='nil' then epa.ward is null else epa.ward =$ward end
   query: |
-      select initcap(split_part(epp.tenantid, '.', 2)) as ulb,epa.ward as ward,epp.propertyid, epp.oldpropertyid,EU.NAME AS NAME,EU.MOBILENUMBER MOBILENUMBER,concat(COALESCE(epa.doorno,''),COALESCE(', '||epa.buildingname,''),COALESCE(', '||epa.street,''),COALESCE(', '||epa.city,''),COALESCE(', PIN-'||epa.pincode,'')) as address,epaa.assessmentnumber,dm.totalTaxAmt,	dm.totalCollectedAmt,dm.totalTaxAmt-dm.totalCollectedAmt as dueAmount from eg_pt_property epp inner join eg_pt_asmt_assessment epaa on epp.tenantid=$tenant and epp.propertyid= epaa.propertyid inner join (select edv.consumercode,sum(edv2.taxamount) as totalTaxAmt,sum(edv2.collectionamount) as totalCollectedAmt from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.tenantid=$tenant and edv2.tenantid=$tenant and edv.id=edv2.demandid group by edv.consumercode) dm on epp.propertyid=dm.consumercode inner join eg_pt_address epa on epa.tenantid =$tenant and epp.id=epa.propertyid LEFT OUTER JOIN eg_pt_owner epo on EPO.TENANTID = 'od.cuttack' AND EPO.STATUS='ACTIVE' AND EPO.PROPERTYID = EPP.ID LEFT OUTER JOIN eg_user eu on EU.UUID = EPO.USERID where epp.status='ACTIVE'
+      select initcap(split_part(epp.tenantid, '.', 2)) as ulb,epa.ward as ward,epp.propertyid, epp.oldpropertyid,EU.NAME AS NAME,EU.MOBILENUMBER MOBILENUMBER,concat(COALESCE(epa.doorno,''),COALESCE(', '||epa.buildingname,''),COALESCE(', '||epa.street,''),COALESCE(', '||epa.city,''),COALESCE(', PIN-'||epa.pincode,'')) as address,epaa.assessmentnumber,dm.totalTaxAmt,	dm.totalCollectedAmt,dm.totalTaxAmt-dm.totalCollectedAmt as dueAmount from eg_pt_property epp inner join eg_pt_asmt_assessment epaa on epp.tenantid=$tenant and epp.propertyid= epaa.propertyid inner join (select edv.consumercode,sum(edv2.taxamount) as totalTaxAmt,sum(edv2.collectionamount) as totalCollectedAmt from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.tenantid=$tenant and edv2.tenantid=$tenant and edv.id=edv2.demandid group by edv.consumercode) dm on epp.propertyid=dm.consumercode inner join eg_pt_address epa on epa.tenantid =$tenant and epp.id=epa.propertyid LEFT OUTER JOIN eg_pt_owner epo on EPO.TENANTID = $tenant AND EPO.STATUS='ACTIVE' AND EPO.PROPERTYID = EPP.ID LEFT OUTER JOIN eg_user eu on EU.UUID = EPO.USERID where epp.status='ACTIVE'
   orderby: ORDER BY epp.tenantid DESC NULLS LAST
 
-- reportName: PropertyWiseDemandDetails
-  summary: Property Wise Demand Details
+- reportName: PropertyWiseDemandsReport
+  decryptionPathId: propertyDetailReport
+  summary: Property Wise Demands Report
   version: 1.0.0
   moduleName: rainmaker-pt
   sourceColumns:
   - name: ulb
     label: reports.pt.ulb
-    type: string
-    source: pt
-    total: false
-  - name: ward
-    label: Ward
     type: string
     source: pt
     total: false
@@ -929,6 +925,21 @@ ReportDefinitions:
     total: false
   - name: oldpropertyid
     label: Old Property Id
+    type: string
+    source: pt
+    total: false
+  - name: ward
+    label: Ward
+    type: string
+    source: pt
+    total: false
+  - name: name
+    label: Name
+    type: string
+    source: pt
+    total: false
+  - name: mobilenumber
+    label: Mobile Number
     type: string
     source: pt
     total: false
@@ -979,32 +990,43 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND epp.oldpropertyid = $oldpropertyid
   - name: ward
-    label: Ward (Eg 01,02,..)
+    label: Ward (Eg NIL,01,02,..)
     type: string
     source: pt
-    isMandatory: false
-    searchClause: AND epa.ward=$ward
+    isMandatory: true
+    searchClause: and case when LOWER($ward)='nil' then epa.ward is null else epa.ward =$ward end
   query: |
-      select INITCAP(SPLIT_PART(EPP.TENANTID,'.',2)) as ULB,epa.ward as ward,epp.propertyid, epp.oldpropertyid,to_char(to_timestamp(edv.taxperiodfrom/1000),'Mon-YYYY') as taxperiodfrom,to_char(to_timestamp(edv.taxperiodto / 1000),'Mon-YYYY') as taxperiodto,coalesce(edv2.taxamount, 0) taxamount,coalesce(edv2.collectionamount,0) collectionamount,edv2.taxamount-edv2.collectionamount as dueAmount from eg_pt_property epp inner join egbs_demand_v1 edv on epp.tenantid=$tenant and edv.tenantid=$tenant and edv.consumercode=epp.propertyid left outer join (select demandid,sum(taxamount) as taxamount,sum(collectionamount) as collectionamount from egbs_demanddetail_v1 edv3 where edv3.tenantid=$tenant group by demandid) edv2 on edv.tenantid=$tenant and edv2.demandid=edv.id inner join eg_pt_address epa on epa.tenantid=$tenant and epp.id=epa.propertyid WHERE epp.status != 'INACTIVE'
-  orderby: order by edv.taxperiodfrom
+      select INITCAP(SPLIT_PART(EPP.TENANTID,'.',2)) as ULB,epa.ward as ward,epp.propertyid, epp.oldpropertyid,EU.NAME AS NAME,EU.MOBILENUMBER MOBILENUMBER, concat(COALESCE(epa.doorno,'') ,COALESCE(', '||epa.buildingname,''),COALESCE(', '||epa.street,''),COALESCE(', '||epa.city,''),COALESCE(', PIN-'||epa.pincode,'')) as address, to_char(to_timestamp(edv.taxperiodfrom/1000),'Mon-YYYY') as taxperiodfrom, to_char(to_timestamp(edv.taxperiodto / 1000),'Mon-YYYY') as taxperiodto,coalesce(edv2.taxamount, 0) taxamount,coalesce(edv2.collectionamount,0) collectionamount,edv2.taxamount- edv2.collectionamount as dueAmount from eg_pt_property epp inner join egbs_demand_v1 edv on epp.tenantid=$tenant and edv.tenantid=$tenant and edv.consumercode=epp.propertyid left outer join (select demandid,sum(taxamount) as taxamount,sum(collectionamount) as collectionamount from egbs_demanddetail_v1 edv3 where edv3.tenantid=$tenant group by demandid) edv2 on edv.tenantid=$tenant and edv2.demandid=edv.id inner join eg_pt_address epa on epa.tenantid=$tenant and epp.id=epa.propertyid LEFT OUTER JOIN eg_pt_owner epo on EPO.TENANTID = $tenant AND EPO.STATUS='ACTIVE' AND EPO.PROPERTYID = EPP.ID LEFT OUTER JOIN eg_user eu on EU.UUID = EPO.USERID WHERE epp.status != 'INACTIVE'
+  orderby: order by epp.propertyid
 
 - reportName: PropertyWiseCollectionReport
+  decryptionPathId: propertyDetailReport
   summary: Property Wise Collection Report
   version: 1.0.0
   moduleName: rainmaker-pt
   sourceColumns:
   - name: Consumer Id
-    label: Consumer Id
+    label: Property Id
     type: string
     source: pt
     total: false
-  - name: Receipt Number
-    label: Receipt Number
+  - name: oldpropertyid
+    label: Old Property Id
     type: string
     source: pt
     total: false
-  - name: Receipt Date
-    label: Receipt Date
+  - name: ward
+    label: Ward
+    type: string
+    source: pt
+    total: false
+  - name: name
+    label: Name
+    type: string
+    source: pt
+    total: false
+  - name: mobilenumber
+    label: Mobile Number
     type: string
     source: pt
     total: false
@@ -1023,8 +1045,13 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
-  - name: Payment Date
-    label: Payment Date
+  - name: Receipt Number
+    label: Receipt Number
+    type: string
+    source: pt
+    total: false
+  - name: Receipt Date
+    label: Receipt Date
     type: string
     source: pt
     total: false
@@ -1033,42 +1060,42 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
-  - name: Payment Status
-    label: Payment Status
-    type: string
-    source: pt
-    total: false
-  - name: Paid by
-    label: Paid By
-    type: string
-    source: pt
-    total: false
   searchParams:
+  - name: tenant
+    label: ULB Name
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
+    source: pt
+    wrapper: true
+    isMandatory: true
+    searchClause: WHERE epp.tenantid = $tenant
   - name: propertyid
     label: Property Id
     type: string
     source: pt
+    isMandatory: false
+    searchClause: AND epp.propertyid = $propertyid
+  - name: oldpropertyid
+    label: Old Property Id
+    type: string
+    source: pt
+    isMandatory: false
+    searchClause: AND epp.oldpropertyid = $oldpropertyid
+  - name: ward
+    label: Ward (Eg NIL,01,02,..)
+    type: string
+    source: pt
     isMandatory: true
-    searchClause: WHERE edv.consumercode = $propertyid
+    searchClause: and case when LOWER($ward)='nil' then epa.ward is null else epa.ward =$ward end
   query: |
-      select distinct edv.consumercode as "Consumer Id", ep2.receiptnumber as "Receipt Number" , to_char(to_timestamp(ep2.receiptdate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Receipt Date" , ep2.due as "Due before payment" , ep2.amountpaid "Amount paid" ,ep2.due - ep2.amountpaid "Current Due",  to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date" , ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status" , ep.paidby as "Paid by" from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid right outer join egcl_billdetial eb2 on eb2.demandid = edv.id left outer join egcl_bill eb on eb.id = eb2.billid left outer join egcl_paymentdetail ep2 on ep2.billid = eb.id left outer join egcl_payment ep on ep.id = ep2.paymentid
+      select distinct edv.consumercode as "Consumer Id",EPP.OLDPROPERTYID,EPA.WARD AS WARD, 	EU.NAME AS NAME,EU.MOBILENUMBER MOBILENUMBER,ep2.receiptnumber as "Receipt Number" , to_char(to_timestamp(ep2.receiptdate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Receipt Date" , ep2.due as "Due before payment" , ep2.amountpaid "Amount paid" ,ep2.due - ep2.amountpaid "Current Due",  to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date" , ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status" , ep.paidby as "Paid by" from egbs_demand_v1 edv inner join egbs_demanddetail_v1 edv2 on edv.id = edv2.demandid right outer join egcl_billdetial eb2 on eb2.demandid = edv.id left outer join egcl_bill eb on eb.id = eb2.billid left outer join egcl_paymentdetail ep2 on ep2.billid = eb.id left outer join egcl_payment ep on ep.id=ep2.paymentid LEFT OUTER JOIN EG_PT_PROPERTY EPP ON EPP.STATUS!='INACTIVE' AND EPP.PROPERTYID=EDV.CONSUMERCODE LEFT OUTER JOIN EG_PT_ADDRESS EPA ON EPA.TENANTID = $tenant AND EPP.ID=EPA.PROPERTYID LEFT OUTER JOIN eg_pt_owner epo on EPO.TENANTID = $tenant AND EPO.STATUS='ACTIVE' AND EPO.PROPERTYID = EPP.ID LEFT OUTER JOIN eg_user eu on EU.UUID = EPO.USERID
     
-- reportName: CollectorWiseCollectionReport
+- reportName: TaxCollectorWiseCollectionReport
   decryptionPathId: propertyDetailReport
-  summary: Collector Wise Collection Report
+  summary: Tax Collector Wise Collection Report
   version: 1.0.0
   moduleName: rainmaker-pt
   sourceColumns:
-  - name: Receipt Number
-    label: Receipt Number
-    type: string
-    source: pt
-    total: false
-  - name: Amount paid
-    label: Amount Paid
-    type: string
-    source: pt
-    total: true
   - name: name
     label: Collector Name
     type: string
@@ -1084,23 +1111,33 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
-  - name: Payment Date
-    label: Payment Date
+  - name: Amount paid
+    label: Amount Collected
     type: string
     source: pt
-    total: false
+    total: true
   - name: Payment Mode
     label: Payment Mode
     type: string
     source: pt
     total: false
-  - name: Payment Status
-    label: Payment Status
+  - name: Receipt Number
+    label: Receipt Number
     type: string
     source: pt
     total: false
-  - name: Paid by
-    label: Paid By
+  - name: Payment Date
+    label: Payment Date
+    type: string
+    source: pt
+    total: false
+  - name: consumercode
+    label: Property Id
+    type: string
+    source: pt
+    total: false
+  - name: oldpropertyid
+    label: Old Property Id
     type: string
     source: pt
     total: false
@@ -1126,7 +1163,7 @@ ReportDefinitions:
     isMandatory: true
     searchClause: AND date(to_timestamp(ep.createdtime / 1000)) <= date($enddate))
   query: |
-      select distinct ep.tenantid, eu.type, eu.username as employeeid, eu.name, eu.mobilenumber, to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date", ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status", ep.paidby as "Paid by" , date(to_timestamp(ep.createdtime / 1000)) as createdtime, epd.receiptnumber as "Receipt Number", epd.amountpaid "Amount paid" from egcl_payment ep inner join egcl_paymentdetail epd on ep.id=epd.paymentid left outer join eg_user eu on cast(ep.createdby as INTEGER)=eu.id where eu.type='EMPLOYEE'
+      select distinct ep.tenantid, eu.type,EDV.CONSUMERCODE,EPP.OLDPROPERTYID,eu.username as employeeid, eu.name, eu.mobilenumber, to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date", ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status", ep.paidby as "Paid by" , date(to_timestamp(ep.createdtime / 1000)) as createdtime, epd.receiptnumber as "Receipt Number", epd.amountpaid "Amount paid" from egcl_payment ep inner join egcl_paymentdetail epd on ep.id=epd.paymentid INNER JOIN EGCL_BILL EB ON EPD.BILLID = EB.ID INNER JOIN EGCL_BILLDETIAL EB2 ON EB.ID = EB2.BILLID INNER JOIN EGBS_DEMAND_V1 EDV ON EB2.DEMANDID = EDV.ID INNER JOIN EG_PT_PROPERTY EPP ON EPP.STATUS!='INACTIVE' AND EDV.CONSUMERCODE like 'PT-%' AND EDV.CONSUMERCODE=EPP.PROPERTYID left outer join eg_user eu on cast(ep.createdby as INTEGER)=eu.id where eu.type='EMPLOYEE'
 
 - reportName: ULBWisePropertyDetailsReport
   decryptionPathId: propertyDetailReport
@@ -1145,17 +1182,17 @@ ReportDefinitions:
     source: pt
     total: false
   - name: oldpropertyid
-    label: Existing Consumer No.
+    label: Old Property Id
     type: string
     source: pt
     total: false
   - name: propertyid
-    label: New Consumer No.
+    label: Property Id
     type: string
     source: pt
     total: false
   - name: name
-    label: Consumer Name
+    label: Name
     type: string
     source: pt
     total: false
@@ -1183,6 +1220,6 @@ ReportDefinitions:
     type: string
     source: pt
     isMandatory: true
-    searchClause: and case when LOWER($ward)='nil' then epa.ward is null else epa.ward =$ward end;
+    searchClause: and case when LOWER($ward)='nil' then epa.ward is null else epa.ward =$ward end
   query: |
       select initcap(split_part(epp.tenantid, '.', 2)) as ulb,epa.ward,epp.oldpropertyid,epp.propertyid,eu."name",eu.mobilenumber,concat(COALESCE(epa.doorno,''),COALESCE(', '||epa.buildingname,''),COALESCE(', '||epa.street,''),COALESCE(', '||epa.city,''),COALESCE(', PIN-'||epa.pincode,'')) as address from eg_pt_property epp inner join eg_pt_owner epo on epo.propertyid = epp.id inner join eg_user eu on eu.uuid = epo.userid inner join eg_pt_address epa on epa.propertyid = epp.id WHERE epp.status <> 'INACTIVE'
