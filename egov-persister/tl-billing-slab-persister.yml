@@ -83,3 +83,72 @@ serviceMaps:
        - jsonPath: $.billingSlab.*.id
 
        - jsonPath: $.billingSlab.*.tenantId
+
+ - version: 1.0
+   name: tl-calculator
+   description: Sends the deleted billing slabs to audit table and deletes from the existing eg_tl_billingSlab table  and creates new tradelicense billing slabs
+   fromTopic: modify-tl-billingslab
+   isTransaction: true
+   queryMaps:
+   
+    - query: UPDATE eg_tl_billingSlab SET  lastmodifiedby=?, lastmodifiedtime=? WHERE id=? AND tenantid=?;
+      basePath: deleteBillingSlabs.*
+      jsonMaps:
+      
+       - jsonPath: $.deleteBillingSlabs.*.auditDetails.lastModifiedBy
+
+       - jsonPath: $.deleteBillingSlabs.*.auditDetails.lastModifiedTime
+       
+       - jsonPath: $.deleteBillingSlabs.*.id
+
+       - jsonPath: $.deleteBillingSlabs.*.tenantId
+   
+   
+    - query: INSERT INTO eg_tl_billingSlab_audit  SELECT * FROM  eg_tl_billingSlab  WHERE id = ?; 
+      basePath: deleteBillingSlabs.*
+      jsonMaps:
+
+       - jsonPath: $.deleteBillingSlabs.*.id
+
+    - query: DELETE FROM eg_tl_billingSlab WHERE id=?
+      basePath: deleteBillingSlabs.*
+      jsonMaps:
+      
+       - jsonPath: $.deleteBillingSlabs.*.id
+     
+    - query: INSERT INTO eg_tl_billingSlab(id, tenantid, licensetype, applicationtype, structuretype, tradetype, accessorycategory, type, uom, fromUom, toUom, rate, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, cast(? as double precision), cast(? as double precision), ?, ?, ?, ?, ?);
+
+      basePath: createBillingSlabs.*
+      jsonMaps:
+
+       - jsonPath: $.createBillingSlabs.*.id
+
+       - jsonPath: $.createBillingSlabs.*.tenantId
+
+       - jsonPath: $.createBillingSlabs.*.licenseType
+
+       - jsonPath: $.createBillingSlabs.*.applicationType
+
+       - jsonPath: $.createBillingSlabs.*.structureType
+
+       - jsonPath: $.createBillingSlabs.*.tradeType
+
+       - jsonPath: $.createBillingSlabs.*.accessoryCategory
+
+       - jsonPath: $.createBillingSlabs.*.type
+
+       - jsonPath: $.createBillingSlabs.*.uom
+
+       - jsonPath: $.createBillingSlabs.*.fromUom
+
+       - jsonPath: $.createBillingSlabs.*.toUom
+
+       - jsonPath: $.createBillingSlabs.*.rate
+              
+       - jsonPath: $.createBillingSlabs.*.auditDetails.createdBy
+
+       - jsonPath: $.createBillingSlabs.*.auditDetails.createdTime
+
+       - jsonPath: $.createBillingSlabs.*.auditDetails.lastModifiedBy
+
+       - jsonPath: $.createBillingSlabs.*.auditDetails.lastModifiedTime     
