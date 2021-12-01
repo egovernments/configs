@@ -2262,7 +2262,7 @@ ReportDefinitions:
       (select name from eg_user where uuid = assignee) as employee,
       deptmap_def.name as department,    
       (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in 
-      (select designation from eg_hrms_assignment where employeeid = assignee)) as designation,
+      (select designation from eg_hrms_assignment where employeeid = assignee LIMIT 1)) as designation,
       SUM (CASE WHEN applicationstatus in ('CLOSEDAFTERRESOLUTION', 'RESOLVED') and (resolvedtime - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedwithinsla,
       SUM (CASE WHEN applicationstatus in ('CLOSEDAFTERRESOLUTION', 'RESOLVED') and (resolvedtime - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
       SUM (CASE WHEN applicationstatus in ('PENDINGATLME', 'PENDINGFORREASSIGNMENT') THEN 1 ELSE 0 END) as assigned,
@@ -2375,7 +2375,7 @@ ReportDefinitions:
         (select name from eg_user where uuid = assignee) as employee,
         deptmap_def.name as department,
        (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in
-        (select designation from eg_hrms_assignment where employeeid = assignee)) as designation,
+        (select designation from eg_hrms_assignment where employeeid = assignee LIMIT 1)) as designation,
         SUM (CASE WHEN applicationstatus in ('PENDINGATLME', 'PENDINGFORREASSIGNMENT') THEN 1 ELSE 0 END) as assigned,
         SUM (CASE WHEN action in ('REOPEN') THEN 1 ELSE 0 END) as reopen
         from pgr_data
