@@ -542,3 +542,93 @@ ReportDefinitions:
     searchClause: and (taxperiodfrom >= date_part('epoch',date_trunc('month', date($monthYear)-interval '0 year'))*1000 and taxperiodfrom <= date_part('epoch',date_trunc('month', date($monthYear)-interval '0 year')+'1month'::interval-'1second'::interval)*1000)
   query: |
       select INITCAP(SPLIT_PART(EWC2.TENANTID,'.',2)) as ULB,EWC2.ADDITIONALDETAILS->>'ward' as WARD,edv.consumercode,ewc2.oldconnectionno,to_char(to_timestamp(edv.taxperiodfrom/1000),'DD-MM-YYYY')as TaxPeriodFrom,to_char(to_timestamp(edv.taxperiodto/1000),'DD-MM-YYYY')as TaxPeriodTo,edv.billexpirytime,edv.fixedbillexpirydate,to_char(to_timestamp(edv.createdtime/1000),'DD-MM-YYYY')as DemandCreationDate,ews2.connectiontype from egbs_demand_v1 edv inner join eg_ws_connection ewc2 on ewc2.tenantid=$ulb and EWC2.connectionno=edv.CONSUMERCODE inner join eg_ws_service ews2 on ewc2.id = ews2.connection_id where businessservice = 'WS' and consumercode in (select connectionno from eg_ws_connection ewc inner join eg_ws_service ews on ewc.tenantid=$ulb and ewc.id = ews.connection_id where ews.connectiontype = 'Non Metered' and ewc.applicationstatus = 'CONNECTION_ACTIVATED' and ewc.isoldapplication = false and ewc.tenantid = $ulb)
+  
+- reportName: EmployeeWiseWSCollectionReport
+  decryptionPathId: WaterEmployeeWiseCollection
+  summary: Employee wise WS collection repprt
+  version: 1.0.0
+  moduleName: rainmaker-ws
+  sourceColumns:
+  - name: ulb
+    label: ULB
+    type: string
+    source: pt
+    total: false
+  - name: empuserid
+    label: Employee User ID
+    type: string
+    source: pt
+    total: false
+  - name: empname
+    label: Employee User Name
+    type: string
+    source: pt
+    total: false
+  - name: head
+    label: Head
+    type: string
+    source: pt
+    total: false
+  - name: paymentdate
+    label: Payment Date
+    type: string
+    source: pt
+    total: false
+  - name: paymentmode
+    label: Mode of Payment
+    type: string
+    source: pt
+    total: false
+  - name: receiptnumber
+    label: Recipt No
+    type: string
+    source: pt
+    total: false
+  - name: amountpaid
+    label: Amount
+    type: string
+    source: pt
+    total: true
+  - name: connectionno
+    label: Consumer Number
+    type: string
+    source: pt
+    total: false
+  - name: oldconnectionno
+    label: Old Consumer Number
+    type: string
+    source: pt
+    total: false
+  - name: holdername
+    label: Consumer Name
+    type: string
+    source: pt
+    total: false
+  - name: ward
+    label: Ward No
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: ulb
+    label: ULB Name
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
+    source: pt
+    wrapper: true
+    isMandatory: true
+    searchClause: AND ep2.tenantid = $ulb
+  - name: startdate
+    label: Start Date
+    type: epoch
+    source: pt
+    isMandatory: false
+    searchClause: AND date(to_timestamp(ep.transactiondate/1000)) >= date($startdate)+1
+  - name: enddate
+    label: End Date
+    type: epoch
+    source: pt
+    isMandatory: false
+    searchClause: AND date(to_timestamp(ep.transactiondate/1000)) <= date($enddate)+1
+  query: |
+      select INITCAP(SPLIT_PART(ep.tenantid,'.',2)) as ULB,	ce.username empuserid, ce."name" empname, 'Water' as head, to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as paymentdate, ep.paymentmode,	ep2.receiptnumber, ep2.amountpaid, ewc.connectionno, ewc.oldconnectionno, ch."name" holdername, EWC.ADDITIONALDETAILS->>'ward' as ward from egcl_payment ep inner join egcl_paymentdetail ep2 on ep2.paymentid = ep.id inner join eg_user ce on ce.id = cast(ep.createdby as INTEGER) inner join egcl_bill ebv on ep2.billid = ebv.id inner join eg_ws_connection ewc on ebv.consumercode = ewc.connectionno inner join eg_ws_connectionholder esc on esc.connectionid = ewc.id inner join eg_user ch on ch.uuid = esc.userid where ep2.businessservice like 'WS' and ce."type" ='EMPLOYEE' and ewc.isoldapplication = false
