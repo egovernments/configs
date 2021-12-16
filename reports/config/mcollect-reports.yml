@@ -93,10 +93,10 @@ ReportDefinitions:
 
     query: |
           SELECT ec.challanNo as challannumber, paydl.receiptnumber as receiptnumber, To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY') AS receiptdate, users.name as name,
-          ec.businessService as service, pay.totalamountpaid AS amountcollected, pay.payername, pay.transactionnumber as transactionnumber, pay.instrumentnumber as chequeNo FROM egcl_payment AS pay
-          inner join egcl_paymentdetail AS paydl ON pay.id = paydl.paymentid
-          inner join egcl_bill as bill on paydl.billid = bill.id
-          inner join eg_echallan as ec on bill.consumercode = ec.challanNo and bill.tenantid = ec.tenantid
+          ec.businessService as service, pay.totalamountpaid AS amountcollected, pay.payername, pay.transactionnumber as transactionnumber, pay.instrumentnumber as chequeNo FROM {schema}.egcl_payment AS pay
+          inner join {schema}.egcl_paymentdetail AS paydl ON pay.id = paydl.paymentid
+          inner join {schema}.egcl_bill as bill on paydl.billid = bill.id
+          inner join {schema}.eg_echallan as ec on bill.consumercode = ec.challanNo and bill.tenantid = ec.tenantid
           inner join eg_user as users on users.uuid = ec.accountid where pay.paymentstatus !='CANCELLED'
     orderby: order by paydl.receiptdate desc
   
@@ -193,12 +193,12 @@ ReportDefinitions:
         searchClause: AND pay.paymentmode = $paymentType
     query: |
           Select ec.businessService as service, eca.locality as locality, (select name from eg_user where id = pay.createdby::Integer ) as name, 
-          pay.paymentmode as paymentmode, count(DISTINCT ec.challanNo) as totaltransaction, sum(totalamountpaid) as amountcollected from egcl_bill as b 
-          inner join egcl_billdetial as bd on b.id = bd.billid AND b.tenantid = bd.tenantid 
-          inner join eg_echallan as ec on b.consumercode = ec.challanNo and b.tenantid =ec.tenantid 
-          inner join eg_challan_address as eca on ec.id = eca.echallanId 
-          inner join egcl_paymentdetail paydl on b.id = paydl.billid and b.tenantid = paydl.tenantid 
-          inner join egcl_payment pay on paydl.paymentid = pay.id and paydl.tenantid =pay.tenantid where 1=1
+          pay.paymentmode as paymentmode, count(DISTINCT ec.challanNo) as totaltransaction, sum(totalamountpaid) as amountcollected from {schema}.egcl_bill as b 
+          inner join {schema}.egcl_billdetial as bd on b.id = bd.billid AND b.tenantid = bd.tenantid 
+          inner join {schema}.eg_echallan as ec on b.consumercode = ec.challanNo and b.tenantid =ec.tenantid 
+          inner join {schema}.eg_challan_address as eca on ec.id = eca.echallanId 
+          inner join {schema}.egcl_paymentdetail paydl on b.id = paydl.billid and b.tenantid = paydl.tenantid 
+          inner join {schema}.egcl_payment pay on paydl.paymentid = pay.id and paydl.tenantid =pay.tenantid where 1=1
     groupby: group by service,locality, name, paymentmode
 
   - reportName: MCollectChallanRegister
@@ -281,7 +281,7 @@ ReportDefinitions:
         isLocalisationRequired: true
         searchClause: AND eca.locality = $locality  
     query: |
-          select ec.businessService as service , eca.locality as locality, ec.applicationStatus as status, count(DISTINCT ec.challanNo) as totalchallans, sum(bd.totalamount) as totalamount from eg_echallan as ec 
-          join eg_challan_address as eca on ec.id = eca.echallanId 
-          join egbs_billdetail_v1 as bd on ec.challanNo = bd.consumercode where 1=1
+          select ec.businessService as service , eca.locality as locality, ec.applicationStatus as status, count(DISTINCT ec.challanNo) as totalchallans, sum(bd.totalamount) as totalamount from {schema}.eg_echallan as ec 
+          join {schema}.eg_challan_address as eca on ec.id = eca.echallanId 
+          join {schema}.egbs_billdetail_v1 as bd on ec.challanNo = bd.consumercode where 1=1
     groupby: group by ec.businessService, eca.locality, ec.applicationStatus
