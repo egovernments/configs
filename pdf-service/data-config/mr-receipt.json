@@ -1,6 +1,6 @@
 {
-  "key": "ws-onetime-receipt",
-  "documentType": "CONSOLIDATED_RECEIPT",
+  "key": "mr-receipt",
+  "documentType": "MR_RECEIPT",
   "DataConfigs": {
     "moduleName": "rainmaker-common",
     "version": "1.0.0",
@@ -33,7 +33,7 @@
                 }
               },
               {
-                "variable": "paymentStatus", 
+                "variable": "paymentStatus",
                 "value": {
                   "path": "$.paymentStatus"
                 }
@@ -151,7 +151,7 @@
               {
                 "variable": "consumer_id",
                 "value": {
-                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_CONSUMER_NO"
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_CONSUMER_ID"
                 },
                 "type": "label",
                 "localisation": {
@@ -202,11 +202,11 @@
                   "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_PAYMENT_STATUS"
                 },
                 "type": "label",
-                "localisation":{
-                  "required":true,
+                "localisation": {
+                  "required": true,
                   "prefix": null,
-                  "module":"rainmaker-common"
-               }
+                  "module": "rainmaker-common"
+                }
               },
               {
                 "variable": "service_type",
@@ -245,33 +245,21 @@
                 }
               },
               {
-                "variable": "bill_amount",
-                "value": {
-                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_BILL_AMOUNT"
-                },
-                "type": "label",
-                "localisation": {
-                  "required": true,
-                  "prefix": null,
-                  "module": "rainmaker-common"
-                }
-              },
-              {
-                "variable": "advance_amount",
-                "value": {
-                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_ADVANCE_AMOUNT"
-                },
-                "type": "label",
-                "localisation": {
-                  "required": true,
-                  "prefix": null,
-                  "module": "rainmaker-common"
-                }
-              },
-              {
                 "variable": "pending_amount",
                 "value": {
                   "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_PENDING_AMOUNT"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
+                }
+              },
+              {
+                "variable": "excess_amount_paid",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_EXCESS_AMOUNT_PAID"
                 },
                 "type": "label",
                 "localisation": {
@@ -415,7 +403,7 @@
               {
                 "variable": "disclamer_4",
                 "value": {
-                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_DISCLAIMER_FOURTH_LINE"
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_DISCLAIMER_4"
                 },
                 "type": "label",
                 "localisation": {
@@ -459,6 +447,18 @@
                   "prefix": null,
                   "module": "rainmaker-common"
                 }
+              },
+              {
+                "variable": "total_bill_amount",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_TOTAL_BILL_AMOUNT"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
+                }
               }
             ]
           },
@@ -466,10 +466,10 @@
             "derived": [
               {
                 "variable": "pendingAmount",
-                "formula": "{{paidAmount}}>{{dueAmount}}?0:{{dueAmount}}-{{paidAmount}}"
+                "formula": "{{dueAmount}}>{{paidAmount}}?{{dueAmount}}-{{paidAmount}}:0"
               },
               {
-                "variable": "advanceAmount",
+                "variable": "excessAmountPaid",
                 "formula": "{{paidAmount}}>{{dueAmount}}?{{paidAmount}}-{{dueAmount}}:0"
               }
             ]
@@ -477,32 +477,13 @@
           {
             "externalAPI": [
               {
-                "path": "http://ws-services:8080/ws-services/wc/_search",
-                "queryParam":  "tenantId=$.tenantId,connectionNumber=$.paymentDetails[0].bill.consumerCode",
-                "apiRequest": null,
-                "responseMapping": [
-                  {             
-                    "variable":"connectionHolderName",
-                    "value":"$.WaterConnection[0].connectionHolders[0].name"
-                  },
-				  {             
-                    "variable":"connectionHolderAddress",
-                    "value":"$.WaterConnection[0].connectionHolders[0].correspondenceAddress"
-                  },
-				  {             
-                    "variable":"existingConnectionNo",
-                    "value":"$.WaterConnection[0].oldConnectionNo"
-                  }
-                ]
-              },
-			  {
                 "path": "http://egov-mdms-service:8080/egov-mdms-service/v1/_get",
                 "queryParam": "moduleName=tenant&masterName=tenants&tenantId=od&filter=%5B?(@.code=='{$.tenantId}')%5D",
                 "apiRequest": null,
                 "responseMapping": [
-                  {             
-                    "variable":"ulb_grade",
-                    "value":"$.MdmsRes.tenant.tenants[0].city.ulbGrade"
+                  {
+                    "variable": "ulb_grade",
+                    "value": "$.MdmsRes.tenant.tenants[0].city.ulbGrade"
                   },
                   {
                     "variable": "address",
@@ -521,25 +502,72 @@
                     "value": "$.MdmsRes.tenant.tenants[0].emailId"
                   },
                   {
-                    "variable": "logoImage",
-                    "value": "$.MdmsRes.tenant.tenants[0].logoId",
-                    "type": "image"
-                  },
-                  {
-                    "variable": "wsBillHeaderLine1",
-                    "value": "$.MdmsRes.tenant.tenants[0].city.wsBillHeaderLine1"
-                  },
-                  {
-                    "variable": "wsBillHeaderLine2",
-                    "value": "$.MdmsRes.tenant.tenants[0].city.wsBillHeaderLine2"
-                  },
-                  {
                     "variable": "logo-header",
                     "value": "$.MdmsRes.tenant.tenants[0].code",
                     "localisation": {
                       "required": true,
                       "prefix": "TENANT_TENANTS",
                       "module": "rainmaker-common"
+                    }
+                  }
+                ]
+              },
+              {
+                "variable": "variable12",
+                "value": [
+                  {
+                    "disclaimer": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_DISCLAIMER_1",
+                    "order": "1."
+                  },
+                  {
+                    "disclaimer": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_DISCLAIMER_3",
+                    "order": "2."
+                  },
+                  {
+                    "disclaimer": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_DISCLAIMER_4",
+                    "order": "3."
+                  }
+                ],
+                "type": "array",
+                "format": {
+                  "type": "string",
+                  "scema": [
+                    {
+                      "variable": "disclaimerContent",
+                      "value": "disclaimer",
+                      "type": "string",
+                      "localisation": {
+                        "required": true,
+                        "prefix": null,
+                        "module": "rainmaker-common"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "path": "http://egov-mdms-service:8080/egov-mdms-service/v1/_get",
+                "queryParam": "moduleName=tenant&masterName=footer&tenantId=od&filter=%5B?(@.code=='{$.tenantId}' %26%26 @.service=='{$.paymentDetails[0].businessService}')%5D",
+                "apiRequest": null,
+                "responseMapping": [
+                  {
+                    "variable": "variable11",
+                    "value": "$.MdmsRes.tenant.footer[0].receiptFooterContent.*",
+                    "type": "array",
+                    "format": {
+                      "type": "string",
+                      "scema": [
+                        {
+                          "variable": "disclaimerContent",
+                          "value": "disclaimer",
+                          "type": "string",
+                          "localisation": {
+                            "required": true,
+                            "prefix": null,
+                            "module": "rainmaker-common"
+                          }
+                        }
+                      ]
                     }
                   }
                 ]
