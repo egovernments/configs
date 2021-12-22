@@ -4911,5 +4911,103 @@
     "insight": {
     },
     "_comment": ""
+  },
+
+  "wnsCollection": {
+    "chartName": "DSS_W&S_COLLECTION_BY_CHANNEL",
+    "queries": [
+      {
+        "module": "W&S",
+        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\" }",
+        "dateRefField": "applicationdate",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": {
+          "aggs": {
+            "AGGR": {
+              "filter": {
+                "bool": {
+                  "must_not": [
+                    {
+                      "term": {
+                        "Data.tenantId.keyword": "pb.testing"
+                      }
+                    },
+                    {
+                      "terms": {
+                        "Data.paymentStatus.keyword": [
+                          "Cancelled"
+                        ]
+                      }
+                    }
+                  ],
+                  "must": [
+                    {
+                      "terms": {
+                        "Data.paymentStatus.keyword": [
+                          "DEPOSITED","NEW"
+                        ]
+                      }
+                    },
+                      {
+                      "terms": {
+                        "Data.paymentDetails.businessService.keyword": [
+                          "WS","WS.ONE_TIME_FEE"
+                          
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "aggs": {
+                "collection_channels": {
+                  "terms": {
+                    "field": "Data.paymentMode.keyword"
+                  },
+                  "aggs": {
+                    "totalcollection_from mode": {
+                      "sum": {
+                        "field": "Data.paymentDetails.bill.billDetails.amountPaid"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }}
+    ],
+    "isMdmsEnabled": false,
+    "translateTenantCode": true,
+    "filterKeys": [
+      {"key": "tenantId", "column": "Ward"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "",
+    "action": "",
+    "plotLabel": "Ward",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "",
+    "aggregationPaths": [
+      "Pending lt 3 days",
+      "Pending gt 3 and lt 7 days",
+      "Pending gt 7 and lt 15 days",
+      "Pending gt 15 days"
+
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "AdditiveComputedField",
+        "fields" : [ "Pending lt 3 days", "Pending gt 3 and lt 7 days", "Pending gt 7 and lt 15 days", "Pending gt 15 days"],
+        "newField" : "Total Pending",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+
+    "insight": {
+    },
+    "_comment": ""
   }
 }
