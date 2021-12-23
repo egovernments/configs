@@ -4913,39 +4913,62 @@
     "_comment": ""
   },
 
-  "wnsCollection": {
+  "wnsCollectionBySelectedType": {
     "chartName": "DSS_W&S_COLLECTION_BY_CHANNEL",
     "queries": [
       {
         "module": "W&S",
         "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\" }",
-        "dateRefField": "applicationdate",
+        "dateRefField": "Data.transactionDate",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\": {\"AGGR\": {\"filter\": {\"bool\": {\"must_not\": [{\"term\": {\"Data.tenantId.keyword\": \"pb.testing\"}},{\"terms\": {\"Data.paymentStatus.keyword\": [\"Cancelled\"]}}],\"must\": [{\"terms\": {\"Data.paymentStatus.keyword\": [ \"DEPOSITED\",\"NEW\"]}},{\"terms\": {\"Data.paymentDetails.businessService.keyword\": [\"WS\",\"WS.ONE_TIME_FEE\"]}}]}},\"aggs\": {\"collection_channels\": {\"terms\": {\"field\": \"Data.paymentMode.keyword\"},\"aggs\": {\"totalcollection_from mode\": {\"sum\": {\"field\": \"Data.paymentDetails.bill.billDetails.amountPaid\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\": {\"AGGR\": {\"filter\": {\"bool\": {\"must_not\": [{\"term\": {\"Data.tenantId.keyword\": \"pb.testing\"}},{\"terms\": {\"Data.paymentStatus.keyword\": [\"Cancelled\"]}}],\"must\": [{\"terms\": {\"Data.paymentStatus.keyword\": [ \"DEPOSITED\",\"NEW\"]}},{\"terms\": {\"Data.paymentDetails.businessService.keyword\": [\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\"]}}]}},\"aggs\": {\"collection_channels\": {\"terms\": {\"field\": \"Data.paymentMode.keyword\"},\"aggs\": {\"totalcollection_from mode\": {\"sum\": {\"field\": \"Data.paymentDetails.bill.billDetails.amountPaid\"}}}}}}}}"
       }],
-    "isMdmsEnabled": false,
-    "translateTenantCode": true,
-    
+       
    
     "chartType": "pie",
     "valueType": "amount",
     "action": "",
     "documentType": "_doc",
-    "filterKeys": [
-      {"key": "selectedType", "column": "UsageCategory"}
-    ],
     "drillChart": "none",
     "aggregationPaths": [
       "Payment Mode"
     ],
     "insight": {
     },
-    "_comment": " ",
+    "_comment": " collection/amount per collection channel",
    
     
     "isPostResponseHandler": true,
     "postAggregationTheory" : ""
 
+  },
+
+  "wnsCollectionByUsageType": {
+    "chartName": "DSS_W&S_COLLECTION_BY_USAGE_TYPE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\", \"tenantId\" : \"dataObject.tenantId\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
+        "dateRefField": "Data.transactionDate",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.code.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}]}},\"aggs\":{\"collection_channels\":{\"terms\":{\"field\":\"Data.usageCategory.keyword\"},\"aggs\":{\"totalcollectionfromusagemode\":{\"cardinality\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "amount",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "collectionBySelectedType",
+    "drillFields": [
+      "selectedType",
+      ""
+    ],
+    "aggregationPaths": [
+      "Usage Type"
+    ],
+    "insight": {
+    },
+    "_comment": " collection/amount per usage type"
   }
 
   
