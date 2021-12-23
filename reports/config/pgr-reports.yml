@@ -1192,7 +1192,7 @@ ReportDefinitions:
     'REJECTED'::character varying::text, 'WITHDRAWN'::character varying::text])) AND
     (now() - cs.createddate::timestamp with time zone) < ('01:00:00'::interval * ctype.slahours::double
     precision)) THEN 'Yes'::text ELSE 'No'::text END AS issla FROM {schema}.submission cs,
-    eg_boundary boundary, {schema}.egpgr_complainttype ctype ,{schema}.servicetype_keyword sk WHERE cs.latitude = boundary.latitude AND cs.longitude
+    {schema}.eg_boundary boundary, {schema}.egpgr_complainttype ctype ,{schema}.servicetype_keyword sk WHERE cs.latitude = boundary.latitude AND cs.longitude
     = boundary.longitude and cs.servicecode = ctype.code and cs.createddate >= $fromDate and cs.createddate
     <= $toDate and boundary.parent = (select id from eg_boundary where name = $parentboundary and tenantid=$tenantid) and  ctype.code = sk.servicecode
     and upper(sk.keyword) = upper('complaint')
@@ -1279,7 +1279,7 @@ ReportDefinitions:
     'REJECTED'::character varying::text, 'WITHDRAWN'::character varying::text])) AND
     (now() - cs.createddate::timestamp with time zone) > ('01:00:00'::interval * ctype.slahours::double
     precision) THEN 1 ELSE 0 END) AS beyondsla FROM {schema}.submission cs,{schema}.submission_attribute sa,
-    eg_boundary boundary, {schema}.egpgr_complainttype ctype,{schema}.eg_department dept, {schema}.servicetype_keyword sk WHERE
+    {schema}.eg_boundary boundary, {schema}.egpgr_complainttype ctype,{schema}.eg_department dept, {schema}.servicetype_keyword sk WHERE
     cs.crn = sa.crn and boundary.id = sa.code::integer
      and cs.servicecode = ctype.code and cs.department=dept.id and cs.createddate >= $fromDate and cs.createddate
     <= $toDate and sa.key = 'systemLocationId' and boundary.id = (select id from eg_boundary where name = $parentboundary and boundary.tenantid=$tenantid
@@ -1490,7 +1490,7 @@ ReportDefinitions:
       'REJECTED'::character varying::text, 'WITHDRAWN'::character varying::text])) AND
       (now() - cs.createddate::timestamp with time zone) > ('01:00:00'::interval * ctype.slahours::double
       precision) THEN 1 ELSE 0 END) AS beyondsla FROM {schema}.submission cs,{schema}.submission_attribute sa,
-      eg_boundary boundary, {schema}.egpgr_complainttype ctype,{schema}.eg_department dept,{schema}.egeis_position pos,{schema}.egeis_assignment ass, eg_user us WHERE
+      {schema}.eg_boundary boundary, {schema}.egpgr_complainttype ctype,{schema}.eg_department dept,{schema}.egeis_position pos,{schema}.egeis_assignment ass, eg_user us WHERE
       cs.crn = sa.crn and boundary.id = sa.code::integer and
       cs.servicecode = ctype.code and cs.department=dept.id and cs.positionid = pos.id and cs.createddate >= $fromDate and cs.createddate
       <= $toDate and sa.key = 'systemLocationId' and boundary.id = (select id from eg_boundary where name = $parentboundary and cs.tenantid=$tenantid
@@ -1581,7 +1581,7 @@ ReportDefinitions:
     isMandatory: true    
   query: SELECT cs.crn as crn,cs.createddate,cs.name as complainantname,requesteraddress as address,cs.details,cs.status, (select code from {schema}.submission_attribute sa where sa.key='feedback' and sa.crn=cs.crn) as feedback, CASE WHEN (now() - cs.createddate::timestamp with time zone) < ('01:00:00'::interval * ctype.slahours::double precision) THEN 'Yes'::text ELSE 'No'::text END AS issla
          FROM {schema}.submission cs,{schema}.submission_attribute sa,
-          eg_boundary boundary, {schema}.egpgr_complainttype ctype,{schema}.eg_department dept,{schema}.egeis_position pos,{schema}.egeis_assignment ass, eg_user us WHERE
+          {schema}.eg_boundary boundary, {schema}.egpgr_complainttype ctype,{schema}.eg_department dept,{schema}.egeis_position pos,{schema}.egeis_assignment ass, eg_user us WHERE
           cs.crn = sa.crn and boundary.id = sa.code::integer and cs.positionid = pos.id and
           cs.positionid = ass.positionid and ass.employeeid=us.id and cs.createddate >= ass.fromdate and cs.createddate <= ass.todate and isprimary=true
            and cs.servicecode = ctype.code and cs.department=dept.id and cs.createddate >= $fromDate and cs.createddate
