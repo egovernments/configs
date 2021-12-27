@@ -5063,6 +5063,121 @@
     "insight": {
     },
     "_comment": "active sewerage connections "
+  },
+
+
+
+  "wstodaysCollectionv2": {
+    "chartName": "DSS_W&S_TODAYS_COLLECTION",
+    "queries": [
+      {
+        "module": "W&S",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.paymentDetails.billDate.keyword\":{\"gte\":\"now-24h\",\"lte\":\"now\"}}},{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\"]}}],\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"term\":{\"Data.paymentStatus.keyword\":\"Cancelled\"}}]}},\"aggs\":{\"Today'scollection\":{\"sum\":{\"field\":\"Data.paymentDetails.totalAmountPaid\"}}}}}}",
+        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
+        "dateRefField": "Data.@timestamp"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Collection"
+    ],
+    "insight": {
+    },
+    "_comment": "W&S today's collections"
+  },
+  "wstotalCollectionv2": {
+    "chartName": "DSS_W&S_TOTAL_COLLECTION",
+    "queries": [
+      {
+        "module": "W&S",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.paymentStatus.keyword\":\"Cancelled\"]}}],\"must\":[{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\"]}}]}},\"aggs\":{\"TotalCollection\":{\"sum\":{\"field\":\"Data.paymentDetails.totalAmountPaid\"}}}}}}",
+        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
+        "dateRefField": "Data.@timestamp"
+      }
+    ],
+    "translateTenantCode": true,
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Collection"
+    ],
+    "insight": {
+    },
+    "_comment": "W&S total collections "
+  },
+  "wstargetCollectionv2": {
+    "chartName": "DSS_W&S_TARGET_COLLECTION",
+    "queries": [
+      {
+        "module": "W&S",
+        "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"ulbName.keyword\"}",
+        "dateRefField": "Timestamp",
+        "indexName": "dss-target_v1",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"businessService.keyword\":\"W&S\"}}]}},\"aggs\":{\"TargetCollection\":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "Target Collection"
+    ],
+    "isDayUnit": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "insight": {
+    },
+    "_comment": " "
+  },
+  "wstargetAchievedv2": {
+    "chartName": "DSS_W&S_TARGET_ACHIEVED",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\r\n  \"module\" : \"businessService.keyword\", \n\"tenantId\" : \"ulbName.keyword\"}",
+        "dateRefField": "Timestamp",
+        "indexName": "dss-target_v1",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"businessService.keyword\":\"W&S\"}}]}},\"aggs\":{\"TargetCollection\":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+      },
+      {
+        "module": "W&S",
+        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
+        "dateRefField": "Data.@timestamp",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.paymentStatus.keyword\":[\"Cancelled\"]}}],,\"must\":[{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\"]}}]}},\"aggs\":{\"TotalCollection\":{\"terms\":{\"field\":\"Data.tenantId.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"Data.paymentDetails.totalAmountPaid\"}}}}}}}}"
+      }
+
+    ],
+    "translateTenantCode": true,
+    "chartType": "metric",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "Total Collection",
+      "Actual collection"
+    ],
+    "insight": {
+      "chartResponseMap" : "wstargetAchieved",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " "
   }
+
+
  
 }
