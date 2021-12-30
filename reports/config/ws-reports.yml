@@ -779,4 +779,84 @@ ReportDefinitions:
     isMandatory: true
     searchClause: and case when LOWER($ward) = 'nil'  then EWC.ADDITIONALDETAILS ->> 'ward' is null  else EWC.ADDITIONALDETAILS ->> 'ward' = $ward  end
   query: |
-      select INITCAP(SPLIT_PART(EWC.TENANTID,'.',2)) as ULB,EWC.ADDITIONALDETAILS->>'ward' as WARD,EWC.CONNECTIONNO,EWC.OLDCONNECTIONNO,EWS.CONNECTIONTYPE,EWS.connectioncategory,EWS.usagecategory,ch.name,ch.mobilenumber,eguad.address,'Water' as connectionfacility from EG_WS_CONNECTION EWC inner join EG_WS_SERVICE EWS on EWC.tenantid='od.cuttack' and EWC.ID =EWS.CONNECTION_ID inner join eg_ws_connectionholder esc on esc.connectionid = ewc.id inner join eg_user ch on ch.uuid = esc.userid inner join eg_user_address eguad on eguad.type='CORRESPONDENCE' and eguad.userid=ch.id where EWC.APPLICATIONSTATUS='CONNECTION_ACTIVATED' and ewc.isoldapplication = false
+      select INITCAP(SPLIT_PART(EWC.TENANTID,'.',2)) as ULB,EWC.ADDITIONALDETAILS->>'ward' as WARD,EWC.CONNECTIONNO,EWC.OLDCONNECTIONNO,EWS.CONNECTIONTYPE,EWS.connectioncategory,EWS.usagecategory,ch.name,ch.mobilenumber,eguad.address,'Water' as connectionfacility from EG_WS_CONNECTION EWC inner join EG_WS_SERVICE EWS on EWC.tenantid=$ulb and EWC.ID =EWS.CONNECTION_ID inner join eg_ws_connectionholder esc on esc.connectionid = ewc.id inner join eg_user ch on ch.uuid = esc.userid inner join eg_user_address eguad on eguad.type='CORRESPONDENCE' and eguad.userid=ch.id where EWC.APPLICATIONSTATUS='CONNECTION_ACTIVATED' and ewc.isoldapplication = false
+
+- reportName: W&SConsumerPaymentHistoryReport
+  decryptionPathId: WaterEmployeeWiseCollection
+  summary: W&S Consumer Payment History Report
+  version: 1.0.0
+  moduleName: rainmaker-ws
+  sourceColumns:
+  - name: ulb
+    label: ULB
+    type: string
+    source: pt
+    total: false
+  - name: consumerno
+    label: Consumer Number
+    type: string
+    source: pt
+    total: false
+  - name: name
+    label: Consumer Name
+    type: string
+    source: pt
+    total: false
+  - name: address
+    label: Consumer Address
+    type: string
+    source: pt
+    total: false
+  - name: head
+    label: Head
+    type: string
+    source: pt
+    total: false
+  - name: paymentdate
+    label: Date of Payment
+    type: string
+    source: pt
+    total: false
+  - name: monthYear
+    label: Month and Year
+    type: string
+    source: pt
+    total: false
+  - name: amountpaid
+    label: Paid Amount
+    type: string
+    source: pt
+    total: true
+  - name: paymentmode
+    label: Payment Mode
+    type: string
+    source: pt
+    total: false
+  - name: transactionnumber
+    label: Transaction Id
+    type: string
+    source: pt
+    total: false
+  - name: empuserid
+    label: Employee Id
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: ulb
+    label: ULB Name
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
+    source: pt
+    wrapper: true
+    isMandatory: true
+    searchClause: AND ewc.tenantid = $ulb
+  - name: consumerNo
+    label: Consumer Number
+    type: string
+    source: pt
+    isMandatory: true
+    searchClause: AND ebv.consumercode = $consumerNo
+  query: |
+      select INITCAP(SPLIT_PART(ep.tenantid,'.',2)) as ULB,	ch.name as name,eguad.address as address, 'Water' as head,to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YY') as paymentdate,to_char(to_timestamp(ep.transactiondate / 1000), 'Mon-YY') as monthYear,ep.paymentmode,ep.transactionnumber,ep2.receiptnumber, ep2.amountpaid,ep2.businessservice as businessservice,ebv.consumercode as ConsumerNo,case when ce.type='EMPLOYEE' then ce.username else NULL end as empuserid from egcl_payment ep inner join egcl_paymentdetail ep2 on ep.tenantid=$ulb and ep2.paymentid = ep.id inner join egcl_bill ebv on ep2.billid = ebv.id inner join eg_ws_connection ewc on ebv.consumercode = ewc.connectionno inner join eg_ws_connectionholder esc on esc.connectionid = ewc.id inner join eg_user ch on ch.uuid = esc.userid inner join eg_user_address eguad on eguad.type='CORRESPONDENCE' and eguad.userid=ch.id inner join eg_user ce on ce.id = cast(ep.createdby as INTEGER) where ep2.businessservice='WS'
+  orderby: ORDER BY ep.transactiondate
