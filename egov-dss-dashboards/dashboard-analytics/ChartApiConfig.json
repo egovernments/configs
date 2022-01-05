@@ -5481,6 +5481,133 @@
     "insight": {
     },
     "_comment": " "
+  },
+  
+  "_comment": "NOC charts below-----------------------------------------------------------------------",
+  "totalNocIssuedByType": {
+    "chartName": "DSS_TOTAL_NOC_ISSUED_TYPE",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "indexName": "firenoc-services",
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\": {\"fireNOC Issued\": {\"terms\": {\"field\": \"Data.fireNOCDetails.fireNOCType.keyword\"},\"aggs\": {\"total_nocs_by_type\": {\"cardinality\": {\"field\": \"_id\"}}}}}}}}",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\" \r\n}",
+        "dateRefField": "Data.auditDetails.createdTime"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "fireNOC Issued"
+    ],
+    "insight": {
+    },
+    "_comment": "Total NOCs issued by Type"
+  },
+  "actualNocIssuedByUsageType": {
+    "chartName": "DSS_ACTUAL_NOC_ISSUED_USAGETYPE",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "indexName": "firenoc-services",
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"actualNOC Issued\":{\"terms\":{\"field\":\"Data.channel.keyword\"},\"aggs\":{\"actual_nocs_by_usagetype\":{\"cardinality\":{\"field\":\"_id\"}}}}}}}}",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\" \r\n}",
+        "dateRefField": "Data.auditDetails.createdTime"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "actualNOC Issued"
+    ],
+    "insight": {
+    },
+    "_comment": "Actual NOCs Issued by usageType"
+  },
+  "nocServiceReportByState": {
+    "chartName": "DSS_NOC_SERVICE_REPORT_STATE",
+    "queries": [
+      {
+        "module": "FIRENOC",
+		"requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\"}",        
+		"dateRefField": "Data.Bill.billDetails.receiptDate",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.Bill.billDetails.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"FIRENOC\"]}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"Data.paymentDetails.totalAmountPaid\"}}}}}}"
+      },
+      {
+        "module": "FIRENOC",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\"}",
+        "dateRefField": "Data.auditDetails.createdTime",
+        "indexName": "firenoc-services",
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"States \":{\"terms\":{\"field\":\"Data.tenantId.keyword\",\"size\":1000},\"aggs\":{\"Total Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"ACTUAL\"}}]}}},\"Average days to issue Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average days to issue Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA Compliance (Actual NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"ACTUAL\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA Compliance (Provisional NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "tenantId", "column": "States"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "plotLabel": "States",
+    "aggregationPaths": [
+      "Total Collection",
+      "Total Applications",
+      "Provisional Fire Nocs issued",
+      "Actual Fire Nocs issued",
+      "Average days to issue Provisional NOC",
+      "SLA Compliance (Provisional NOC)",
+      "Average days to issue Actual NOC",
+      "SLA Compliance (Actual NOC)"
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  "nocServiceReportByDepartment": {
+    "chartName": "DSS_NOC_SERVICE_REPORT_DEPARTMENT",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\"}",
+        "dateRefField": "Data.Bill.billDetails.receiptDate",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.Bill.billDetails.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"FIRENOC\"]}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"Data.paymentDetails.totalAmountPaid\"}}}}}}"
+      },
+      {
+        "module": "FIRENOC",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\"}",
+        "dateRefField": "Data.auditDetails.createdTime",
+        "indexName": "firenoc-services",
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Department \":{\"terms\":{\"field\":\"Data.Department.message.keyword\",\"size\":1000},\"aggs\":{\"Total Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"ACTUAL\"}}]}}},\"Average days to issue Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average days to issue Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA Compliance (Actual NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"ACTUAL\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA Compliance (Provisional NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "tenantId", "column": "Department"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "plotLabel": "Department",
+    "aggregationPaths": [
+      "Total Collection",
+      "Total Applications",
+      "Provisional Fire Nocs issued",
+      "Actual Fire Nocs issued",
+      "Average days to issue Provisional NOC",
+      "SLA Compliance (Provisional NOC)",
+      "Average days to issue Actual NOC",
+      "SLA Compliance (Actual NOC)"
+    ],
+    "insight": {
+    },
+    "_comment": ""
   }
-
 }
