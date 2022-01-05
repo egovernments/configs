@@ -5997,30 +5997,28 @@
         "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"tenantIdForMunicipalCorporation.keyword\"}",
         "dateRefField": "",
         "indexName": "dss-target_v1",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"businessService.keyword\":\"W&S\"}}]}},\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"businessService.keyword\":\"W&S\"}}]}},\"aggs\":{\"TargetCollection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"
       }
     ],
     "isMdmsEnabled": true,
     "filterKeys": [
       {
-        "key": "Business Service",
-        "column": "Business Service"
+        "key": "tenantId",
+        "column": "DDRs"
       }
     ],
     "isPostResponseHandler": true,
     "postAggregationTheory": "repsonseToDifferenceOfDates",
     "chartType": "table",
     "valueType": "number",
-    "drillChart": "none",
+    "drillChart": "wsFinancialIndicatorUlbv2",
     "documentType": "_doc",
     "action": "",
-    "plotLabel": "Business Service",
+    "plotLabel": "DDRs",
     "aggregationPaths": [
       "Total Collection",
       "Total Transactions",
-      "Target Collection",
-      "Total Connections",
-      "Target Achieved"
+      "Target Collection"
     ],
     "pathDataTypeMapping": [
       {
@@ -6031,12 +6029,58 @@
       },
       {
         "Total Connections": "number"
+      }
+    ],
+    "insight": {},
+    "_comment": ""
+  },
+
+
+  "wsFinancialIndicatorUlbv2": {
+    "chartName": "DSS_W&S_DEMAND_COLLECTION_BOUNDARY",
+    "queries": [
+      {
+        "module": "W&S",
+        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
+        "dateRefField": "Data.@timestamp",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\"]}}]}},\"aggs\":{\"BusinessService\":{\"terms\":{\"field\":\"Data.paymentDetails.businessService.keyword\",\"size\":2000,\"order\":{\"Total Collection\":\"desc\"}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"Data.paymentDetails.totalAmountPaid\"}},\"Total Transactions\":{\"value_count\":{\"field\":\"Data.transactionNumber.keyword\"}}}}}}}}"
       },
       {
-        "Target Collection": "amount"
+        "module": "W&S",
+        "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"tenantIdForMunicipalCorporation.keyword\"}",
+        "dateRefField": "",
+        "indexName": "dss-target_v1",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"businessService.keyword\":\"W&S\"}}]}},\"aggs\":{\"ULB\":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {
+        "key": "tenantId",
+        "column": "Boundary"
+      }
+    ],
+    "postAggregationTheory": "repsonseToDifferenceOfDates",
+    "chartType": "table",
+    "valueType": "number",
+    "drillChart": "wsFinancialIndicatorUlbv2",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Boundary",
+    "aggregationPaths": [
+      "Total Collection",
+      "Total Transactions",
+      "Target Collection"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Collection": "amount"
       },
       {
-        "Target Achieved": "percentage"
+        "Total Transactions": "number"
+      },
+      {
+        "Total Connections": "number"
       }
     ],
     "insight": {},
