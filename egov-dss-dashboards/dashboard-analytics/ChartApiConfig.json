@@ -4378,9 +4378,9 @@
       {
         "module": "W&S",
         "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\" }",
-        "dateRefField": "receiptdate",
-        "indexName": "receipts-consumers",
-        "aggrQuery": "{\"aggs\":{\"Total Collection\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"status\":\"Cancelled\"}}]}},\"aggs\":{\"collection\":{\"sum\":{\"field\":\"totalamount\"}}}},\"Total Receipt\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"status\":\"Cancelled\"}}]}},\"aggs\":{\"receipt\":{\"value_count\":{\"field\":\"receiptnumber.keyword\"}}}}}}"
+        "dateRefField": "data.paymentDetails.receiptDate",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"Data.paymentDetails.bill.totalAmount\"}},\"Tax\":{\"nested\":{\"path\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.taxHeadCode.keyword\":[\"WS_TAX_AND_CESS\",\"SW_TAX_AND_CESS\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.amount\"}}}}}},\"Late charges\":{\"nested\":{\"path\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.taxHeadCode.keyword\":[\"SW_TIME_PENALTY\",\"WS_TIME_PENALTY\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.amount\"}}}}}},\"Interest\":{\"nested\":{\"path\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.taxHeadCode.keyword\":[\"SW_TIME_INTEREST\",\"WS_TIME_INTEREST\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.amount\"}}}}}},\"Round Off\":{\"nested\":{\"path\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.taxHeadCode.keyword\":[\"SW_Round_Off\",\"WS_Round_Off\",\"WS_ROUNDOFF\",\"WS_FEE_ROUND_OFF\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.amount\"}}}}}},\"Current Charges\":{\"nested\":{\"path\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.taxHeadCode.keyword\":[\"WS_ONE_TIME_FEE\",\"WS_ROAD_CUTTING_CHARGE\",\"WS_FORM_FEE\",\"WS_SCRUTINY_FEE\",\"WS_METER_CHARGE\",\"WS_FEE_ROUND_OFF\",\"WS_OTHER_CHARGE\",\"WS_SECURITY_CHARGE\",\"SW_CHARGE\",\"SW_ONE_TIME_FEE\",\"SW_FORM_FEE\",\"SW_ROAD_CUTTING_CHARGE\",\"SW_SECURITY_CHARGE\",\"SW_OTHER_CHARGE\",\"SW_SCRUTINY_FEE\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.amount\"}}}}}}}}}}"
       },
       {
         "module": "W&S",
@@ -4403,11 +4403,10 @@
     "postAggregationTheory" : "",
     "aggregationPaths": [
       "Total Collection",
-      "Total Receipt",
-      "No of Bill",
       "Late charges",
       "Interest",
       "Advance",
+      "Round Off",
       "Current Charges",
       "Arrear Charges"
 
@@ -5978,7 +5977,7 @@
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"Data.paymentDetails.totalAmountPaid\"}},\"Total Transactions\":{\"value_count\":{\"field\":\"Data.transactionNumber.keyword\"}}}}}}"
       },
       {
-        "module": "W&S",
+        "module": "COMMON",
         "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"tenantIdForMunicipalCorporation.keyword\"}",
         "dateRefField": "",
         "indexName": "dss-target_v1",
