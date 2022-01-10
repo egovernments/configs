@@ -3422,23 +3422,30 @@
       {
         "module": "W&S",
         "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\" }",
-        "dateRefField": "receiptdate",
-        "indexName": "receipts-consumers",
-        "aggrQuery": "{\"aggs\":{\"Total Collection\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"status\":\"Cancelled\"}}]}},\"aggs\":{\"collection\":{\"sum\":{\"field\":\"totalamount\"}}}},\"Total Receipt\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"status\":\"Cancelled\"}}]}},\"aggs\":{\"receipt\":{\"value_count\":{\"field\":\"receiptnumber.keyword\"}}}}}}"
+        "dateRefField": "dataObject.paymentDetails.receiptDate",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}},\"Total Transactions\":{\"value_count\":{\"field\":\"dataObject.transactionNumber.keyword\"}}}}}}"
       },
       {
-        "module": "W&S",
-        "requestQueryMap": "{ \"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
-        "dateRefField": "billdate",
-        "indexName": "demandbillconsumers",
-        "aggrQuery": "{\"aggs\":{\"No of Bill\":{\"filter\":{\"term\":{\"billgenerated\":true}},\"aggs\":{\"approved\":{\"value_count\":{\"field\":\"installmentfrom.keyword\"}}}}}}"
+        "module": "COMMON",
+        "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"tenantIdForMunicipalCorporation.keyword\"}",
+        "dateRefField": "",
+        "indexName": "dss-target_v1",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"businessService.keyword\":\"W&S\"}}]}},\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"
       },
       {
-        "module": "W&S",
-        "requestQueryMap": "{ \"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
-        "dateRefField": "@timestamp",
-        "indexName": "projecteddemand-consumers",
-        "aggrQuery": "{\"aggs\":{\"Project Demand\":{\"sum\":{\"field\":\"projecteddemand\"}}}}"
+      "module": "W&S",
+      "indexName": "water-services",
+      "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.status.keyword\":[\"Active\"]}}]}},\"aggs\":{\"Total Connections\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
+      "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
+      "dateRefField": "Data.connectionExecutionDate"
+      },
+      {
+      "module": "W&S",
+      "indexName": "sewerage-services",
+      "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.status.keyword\":[\"Active\"]}}]}},\"aggs\":{\"Total Connections\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
+      "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
+      "dateRefField": "Data.connectionExecutionDate"
       }
     ],
     "isMdmsEnabled": true,
@@ -3448,16 +3455,17 @@
     ],
     "chartType": "table",
     "valueType": "number",
-    "drillChart": "wsFinancialIndicatorUlb",
+    "drillChart": "none",
     "action": "",
     "plotLabel": "DDRs",
     "isPostResponseHandler": true,
     "postAggregationTheory" : "",
     "aggregationPaths": [
       "Total Collection",
-      "Total Receipt",
-      "No of Bill",
-      "Project Demand"
+      "Total Transactions",
+      "Target Collection",
+      "Total Connections",
+      "Target Achieved"
 
     ],
     "pathDataTypeMapping": [
@@ -3465,13 +3473,16 @@
         "Total Collection": "amount"
       },
       {
-        "Total Receipt": "number"
+        "Total Transactions": "number"
       },
       {
-        "No of Bill": "number"
+        "Total Connections": "number"
       },
       {
-        "Project Demand": "amount"
+      "Target Collection": "amount"
+      },
+      {
+      "Target Achieved": "percentage"
       }
     ],
     "insight": {
