@@ -3463,8 +3463,7 @@
       "Target Collection",
       "Total Collection",
       "Total Transactions",
-      "Total Connections",
-      "Target Achieved"
+      "Total Connections"
 
     ],
     "pathDataTypeMapping": [
@@ -3479,9 +3478,6 @@
       },
       {
       "Target Collection": "amount"
-      },
-      {
-      "Target Achieved": "percentage"
       }
     ],
     "insight": {
@@ -6116,6 +6112,57 @@
     "insight": {
     },
     "_comment": "FIRE NOC SLA Compliance Actual"
+  },
+
+  "wsXBoundaryTargetAchievment": {
+    "chartName": "DSS_W&S_DEMAND_COLLECTION_BOUNDARY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\", \"tenantId\" : \"dataObject.tenantId\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
+        "dateRefField": "dataObject.paymentDetails.receiptDate",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}]}},\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"dataObject.tenantId.keyword\",\"size\":200,\"min_doc_count\":0},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}},\"Total Transactions\":{\"value_count\":{\"field\":\"dataObject.transactionNumber.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"tenantIdForMunicipalCorporation.keyword\"}",
+        "dateRefField": "",
+        "indexName": "dss-target_v1",
+        "aggrQuery": "{\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":1000,\"min_doc_count\":0},\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "tenantId", "column": "Boundary"}
+    ],
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "",
+    "plotLabel": "Boundary",
+    "aggregationPaths": [
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "repsonseToDifferenceOfDates",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Target Collection", "Total Collection"],
+        "newField" : "Target Achieved",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "repsonseToDifferenceOfDates",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Target Collection", "Total Collection"],
+        "newField" : "Target Achieved",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "pathDataTypeMapping": [
+    ],
+    "insight": {
+    },
+    "_comment": ""
   }
 
 
