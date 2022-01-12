@@ -699,6 +699,13 @@ ReportDefinitions:
     source: pt
     isMandatory: true
     searchClause: AND date(to_timestamp(ep.transactiondate/1000)) = date($collectiondate)+1
+  - name: paymentMode
+    label: Payment Mode
+    type: singlevaluelist
+    pattern: 'list://CASH:Cash,OFFLINE_NEFT:NEFT,CHEQUE:CHEQUE,CARD:mPOS/Card,OFFLINE_RTGS:RTGS,POSTAL_ORDER:Postal Order,ONLINE:Online transaction'
+    source: pt
+    isMandatory: false
+    searchClause: AND ep.paymentmode = $paymentMode
   query: |
       select INITCAP(SPLIT_PART(ep.tenantid,'.',2)) as ULB,	ce.username empuserid, ce."name" empname, 'Water' as head,to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as paymentdate, ep.paymentmode,ep2.receiptnumber, ep2.amountpaid,ep2.businessservice as businessservice,ebv.consumercode as ApplicationOrConsumerNo from egcl_payment ep inner join egcl_paymentdetail ep2 on ep2.paymentid = ep.id inner join eg_user ce on ce.id = cast(ep.createdby as INTEGER) inner join egcl_bill ebv on ep2.billid = ebv.id where ep2.businessservice like 'WS%' and ce."type" ='EMPLOYEE'
 
