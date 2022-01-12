@@ -1081,6 +1081,11 @@ ReportDefinitions:
   version: 1.0.0
   moduleName: rainmaker-tl
   sourceColumns:
+    - name: tenantid
+      label: report.tl.tenantid
+      type: string
+      source: tl
+      total: false  
     - name: receiptdate
       label: REPORT_TL_RESULT_RECEIPTDATE
       type: string
@@ -1177,6 +1182,13 @@ ReportDefinitions:
       source: tl
       wrapper: true
       isMandatory: false
+    - name: ulb
+      label: ULB
+      type: singlevaluelist
+      pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+      source: tl
+      wrapper: true
+      isMandatory: true      
       searchClause: AND pay.paymentstatus = $status      
   query: |
         select To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY')  as receiptdate, paydl.receiptnumber as receiptnumber,b.consumercode AS applicationno,(select name from eg_user where uuid=app.accountid ) as name,  pay.paymentmode as instrumenttype, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then To_char(To_timestamp(pay.instrumentdate / 1000), 'DD/MM/YYYY')  else  'NA' end)  as chequedate, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.instrumentnumber else  'NA' end) as chequeno, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.additionaldetails::json#>>'{bankDetails,BANK}'  else  'NA' end) as bankname, (case when pay.paymentmode='ONLINE' then pay.transactionnumber else  'NA' end) as transactionid, (case when pay.paymentmode='CARD' then pay.instrumentnumber else  '' end) as carddigit, bd.amount as amount,pay.paymentstatus as status from egcl_bill b inner join egcl_billdetial bd ON b.id = bd.billid AND b.tenantid = bd.tenantid INNER JOIN eg_tl_tradelicense app on b.consumercode =app.applicationnumber and b.tenantid =app.tenantid inner join egcl_paymentdetail paydl   ON b.id = paydl.billid    AND b.tenantid = paydl.tenantid inner join egcl_payment pay  ON paydl.paymentid = pay.id and   paydl.tenantid =pay.tenantid where pay.tenantid=$tenantid and b.businessservice ='TL' 
