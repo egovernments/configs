@@ -4440,7 +4440,7 @@
     "queries": [
       {
         "module": "W&S",
-        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\" }",
+        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"block.keyword\" }",
         "dateRefField": "Data.@timestamp",
         "indexName": "dss-collection_v2",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"Data.paymentDetails.bill.totalAmount\"}},\"Tax\":{\"nested\":{\"path\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.taxHeadCode.keyword\":[\"WS_TAX_AND_CESS\",\"SW_TAX_AND_CESS\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.amount\"}}}}}},\"Late charges\":{\"nested\":{\"path\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.taxHeadCode.keyword\":[\"SW_TIME_PENALTY\",\"WS_TIME_PENALTY\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.amount\"}}}}}},\"Interest\":{\"nested\":{\"path\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.taxHeadCode.keyword\":[\"SW_TIME_INTEREST\",\"WS_TIME_INTEREST\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.amount\"}}}}}},\"Round Off\":{\"nested\":{\"path\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.taxHeadCode.keyword\":[\"SW_Round_Off\",\"WS_Round_Off\",\"WS_ROUNDOFF\",\"WS_FEE_ROUND_OFF\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.amount\"}}}}}},\"Current Charges\":{\"nested\":{\"path\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.taxHeadCode.keyword\":[\"WS_ONE_TIME_FEE\",\"WS_ROAD_CUTTING_CHARGE\",\"WS_FORM_FEE\",\"WS_SCRUTINY_FEE\",\"WS_METER_CHARGE\",\"WS_FEE_ROUND_OFF\",\"WS_OTHER_CHARGE\",\"WS_SECURITY_CHARGE\",\"SW_CHARGE\",\"SW_ONE_TIME_FEE\",\"SW_FORM_FEE\",\"SW_ROAD_CUTTING_CHARGE\",\"SW_SECURITY_CHARGE\",\"SW_OTHER_CHARGE\",\"SW_SCRUTINY_FEE\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"Data.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.amount\"}}}}}}}}}}"
@@ -6716,6 +6716,7 @@
     "insight": {},
     "_comment": " "
   },
+
   "wsXBoundaryTargetAchievment": {
     "chartName": "DSS_W&S_DEMAND_COLLECTION_BOUNDARY",
     "queries": [
@@ -6787,6 +6788,127 @@
       "NOC Payment Mode"
     ],
     "insight": {},
+    "_comment": ""
+},
+  
+  "nssNOCTodaysCollection": {
+    "chartName": "NSS_NOC_TODAYS_COLLECTION",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"tenantId\" : \"tenantId\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"date\":{\"gt\":\"now-1d\/d\",\"lte\":\"now\"}}}]}},\"aggs\":{\"Todays Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Today's Collection"
+    ],
+    "insight": {
+    },
+    "_comment": "DSS FIRE NOC todays collections "
+  },
+  
+  "nssNOCTotalCollection": {
+    "chartName": "NSS_NOC_TOTAL_COLLECTION",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"tenantId\" : \"tenantId\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Collection"
+    ],
+    "insight": {
+    },
+    "_comment": "DSS FIRE NOC Total collections "
+  },
+  
+  "nssNOCTotalApplications": {
+    "chartName": "NSS_NOC_TOTAL_APPLICATIONS",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"tenantId\" : \"tenantId\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Total applications\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total applications"
+    ],
+    "insight": {
+    },
+    "_comment": "DSS FIRE NOC Total collections "
+  },
+  
+  "nssNOCActualIssued": {
+    "chartName": "NSS_NOC_ACTUAL_ISSUED",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"tenantId\" : \"tenantId\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Actual Noc's Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Actual Noc's Issued"
+    ],
+    "insight": {
+    },
+    "_comment": "DSS FIRE NOC Total collections "
+  },
+
+  "nocApplicationVsProvisionalVsActual": {
+    "chartName": "DSS_APPLICATION_VS_PROVISIONAL_VS_ACTUAL",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "Data.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\"}",
+        "indexName": "firenoc-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Total Applications\":{\"date_histogram\":{\"field\":\"Data.@timestamp\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}},\"Provisional NOCs Issued\":{\"date_histogram\":{\"field\":\"Data.@timestamp\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Provisional\":{\"filter\":{\"terms\":{\"Data.fireNOCDetails.fireNOCType.keyword\":[\"PROVISIONAL\"]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}},\"Actual NOCs Issued\":{\"date_histogram\":{\"field\":\"Data.@timestamp\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Actual\":{\"filter\":{\"terms\":{\"Data.fireNOCDetails.fireNOCType.keyword\":[\"ACTUAL\"]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "Total Applications",
+      "Provisional NOCs Issued",
+      "Actual NOCs Issued"
+
+    ],
+    "isCumulative": true,
+    "interval": "month",
+    "insight": {
+    },
     "_comment": ""
   }
 }
