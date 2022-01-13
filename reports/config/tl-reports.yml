@@ -1142,47 +1142,5 @@ ReportDefinitions:
     source: tl
     total: false
   searchParams:
-  - name: fromDate
-    label: REPORTS_TL_PARAM_FROMDATE
-    type: epoch
-    source: tl
-    isMandatory: true
-    searchClause: AND app.createdtime >= $fromDate
-  - name: toDate
-    label: REPORTS_TL_PARAM_TODATE
-    type: epoch
-    source: tl
-    isMandatory: true
-    searchClause: AND app.createdtime <= $toDate 
-  - name: instrumentType
-    label: REPORTS_TL_PARAM_INSTRUMENTTYPE
-    type: singlevaluelist
-    pattern: 'list://CASH:CASH,ONLINE:ONLINE,CARD:CARD,DD:DD,CHEQUE:CHEQUE'
-    source: tl
-    wrapper: true
-    isMandatory: false
-    searchClause: AND pay.paymentmode = $instrumentType
-  - name: counterEmployee
-    label: REPORTS_TL_PARAM_COUNTEREMP
-    type: singlevaluelist
-    pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=TL_CEMP|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.username
-    source: tl
-    wrapper: true
-    isMandatory: false
-    searchClause: AND pay.createdby= $counterEmployee
-  - name: status
-    label: REPORTS_TL_PARAM_STATUS
-    type: singlevaluelist
-    pattern: 'list://NEW:NEW,DEPOSITED:DEPOSITED,CANCELLED:CANCELLED,DISHONOURED:DISHONOURED'
-    source: tl
-    wrapper: true
-    isMandatory: false
-  - name: ulb
-    label: ULB
-    type: singlevaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
-    source: tl
-    wrapper: true
-    isMandatory: true       
   query: select To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY')  as receiptdate, paydl.receiptnumber as receiptnumber,b.consumercode AS applicationno,(select name from eg_user where uuid=app.accountid ) as name,  pay.paymentmode as instrumenttype, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then To_char(To_timestamp(pay.instrumentdate / 1000), 'DD/MM/YYYY')  else  'NA' end)  as chequedate, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.instrumentnumber else  'NA' end) as chequeno, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.additionaldetails::json#>>'{bankDetails,BANK}'  else  'NA' end) as bankname, (case when pay.paymentmode='ONLINE' then pay.transactionnumber else  'NA' end) as transactionid, (case when pay.paymentmode='CARD' then pay.instrumentnumber else  '' end) as carddigit, bd.amount as amount,pay.paymentstatus as status from egcl_bill b inner join egcl_billdetial bd ON b.id = bd.billid AND b.tenantid = bd.tenantid INNER JOIN eg_tl_tradelicense app on b.consumercode =app.applicationnumber and b.tenantid =app.tenantid inner join egcl_paymentdetail paydl   ON b.id = paydl.billid    AND b.tenantid = paydl.tenantid inner join egcl_payment pay  ON paydl.paymentid = pay.id and   paydl.tenantid =pay.tenantid 
   orderby: order by paydl.receiptdate  desc
