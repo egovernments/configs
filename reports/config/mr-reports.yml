@@ -635,27 +635,27 @@ ReportDefinitions:
   moduleName: rainmaker-mr
   sourceColumns:
   - name: receiptdate
-    label: report.mr.receiptissuedate
+    label: ReceiptDate
     type: string
     source: mr
     total: false
   - name: receiptnumber
-    label: report.mr.receiptnumber
+    label: ReceiptNo
     type: string
     source: mr
     total: false
   - name: applicationno
-    label: report.mr.applicationnumber
+    label: ApplicationNo
     type: string
     source: mr
     total: false
   - name: name
-    label: report.mr.user.name
+    label: Applicant
     type: string
     source: mr
     total: false
   - name: instrumenttype
-    label: report.mr.instrumenttype
+    label: PaymentMode
     type: string
     source: mr
     total: false
@@ -670,7 +670,7 @@ ReportDefinitions:
     source: mr
     total: false 
   - name: bankname
-    label: report.mr.bankid
+    label: BankName
     type: string
     source: mr
     total: false 
@@ -685,7 +685,7 @@ ReportDefinitions:
     source: mr
     total: false
   - name: amount
-    label: report.mr.receipt.totalamount
+    label: Fee
     type: string
     source: mr
     total: true
@@ -704,19 +704,19 @@ ReportDefinitions:
     isMandatory: true
     searchClause: AND pay.tenantid = $ulb  
   - name: fromDate
-    label: reports.mr.fromDate
+    label: FromDate
     type: epoch
     source: mr
     isMandatory: true
     searchClause: AND app.createdtime >= $fromDate
   - name: toDate
-    label: reports.mr.toDate
+    label: ToDate
     type: epoch
     source: mr
     isMandatory: true
     searchClause: AND app.createdtime <= $toDate
   - name: instrumentType
-    label: report.mr.instrumenttype
+    label: PaymentMode
     type: singlevaluelist
     pattern: 'list://CASH:CASH,ONLINE:ONLINE,CARD:CARD,DD:DD,CHEQUE:CHEQUE'
     source: mr
@@ -740,4 +740,4 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND pay.paymentstatus = $status		
   query: select To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY')  as receiptdate, paydl.receiptnumber as receiptnumber,b.consumercode AS applicationno,(select name from eg_user where uuid=app.accountid ) as name,  pay.paymentmode as instrumenttype, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then To_char(To_timestamp(pay.instrumentdate / 1000), 'DD/MM/YYYY')  else  'NA' end)  as chequedate, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.instrumentnumber else  'NA' end) as chequeno, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.additionaldetails::json#>>'{bankDetails,BANK}'  else  'NA' end) as bankname, (case when pay.paymentmode='ONLINE' then pay.transactionnumber else  'NA' end) as transactionid, (case when pay.paymentmode='CARD' then pay.instrumentnumber else  '' end) as carddigit, bd.amount as amount,pay.paymentstatus as status from egcl_bill b inner join egcl_billdetial bd ON b.id = bd.billid AND b.tenantid = bd.tenantid INNER JOIN eg_mr_application app on b.consumercode =app.applicationnumber and b.tenantid =app.tenantid inner join egcl_paymentdetail paydl   ON b.id = paydl.billid    AND b.tenantid = paydl.tenantid inner join egcl_payment pay  ON paydl.paymentid = pay.id and   paydl.tenantid =pay.tenantid where b.businessservice ='MR'
-  orderby: order by paydl.receiptdate  desc  
+  orderby: order by paydl.receiptdate  desc
