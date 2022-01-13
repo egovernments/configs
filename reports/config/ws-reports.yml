@@ -554,6 +554,11 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
+  - name: ward
+    label: Ward Number
+    type: string
+    source: pt
+    total: false
   - name: empuserid
     label: Employee User ID
     type: string
@@ -618,6 +623,12 @@ ReportDefinitions:
     wrapper: true
     isMandatory: true
     searchClause: AND ep2.tenantid = $ulb
+  - name: ward
+    label: Ward (Eg NIL,01,02,..)
+    type: string
+    source: pt
+    isMandatory: true
+    searchClause: and case when LOWER($ward) = 'nil'  then EWC.ADDITIONALDETAILS ->> 'ward' is null  else EWC.ADDITIONALDETAILS ->> 'ward' = $ward  end
   - name: startdate
     label: Start Date
     type: epoch
@@ -785,6 +796,14 @@ ReportDefinitions:
     source: pt
     isMandatory: true
     searchClause: and case when LOWER($ward) = 'nil'  then EWC.ADDITIONALDETAILS ->> 'ward' is null  else EWC.ADDITIONALDETAILS ->> 'ward' = $ward  end
+  - name: connectiontype
+    label: Connection Type
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=ws-services-masters&masterName=connectionType&tenantId=od|MdmsRes.ws-services-masters.connectionType[*].code|MdmsRes.ws-services-masters.connectionType[*].name
+    source: pt
+    wrapper: true
+    isMandatory: false
+    searchClause: AND ews.connectiontype = $connectiontype
   query: |
       select INITCAP(SPLIT_PART(EWC.TENANTID,'.',2)) as ULB,EWC.ADDITIONALDETAILS->>'ward' as WARD,EWC.CONNECTIONNO,EWC.OLDCONNECTIONNO,EWS.CONNECTIONTYPE,EWS.connectioncategory,EWS.usagecategory,ch.name,ch.mobilenumber,eguad.address,'Water' as connectionfacility from EG_WS_CONNECTION EWC inner join EG_WS_SERVICE EWS on EWC.tenantid=$ulb and EWC.ID =EWS.CONNECTION_ID inner join eg_ws_connectionholder esc on esc.connectionid = ewc.id inner join eg_user ch on ch.uuid = esc.userid inner join eg_user_address eguad on eguad.type='CORRESPONDENCE' and eguad.userid=ch.id where EWC.APPLICATIONSTATUS='CONNECTION_ACTIVATED' and ewc.isoldapplication = false
 
@@ -798,6 +817,11 @@ ReportDefinitions:
     label: ULB
     type: string
     source: ws
+    total: false
+  - name: ward
+    label: Ward Number
+    type: string
+    source: pt
     total: false
   - name: consumerno
     label: Consumer Number
@@ -865,5 +889,5 @@ ReportDefinitions:
     isMandatory: true
     searchClause: AND ebv.consumercode = $consumerNo
   query: |
-      select INITCAP(SPLIT_PART(ep.tenantid,'.',2)) as ULB,	ch.name as name,eguad.address as address, 'Water' as head,to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YY') as paymentdate,to_char(to_timestamp(ep.transactiondate / 1000), 'Mon-YY') as monthYear,ep.paymentmode,ep.transactionnumber,ep2.receiptnumber, ep2.amountpaid,ep2.businessservice as businessservice,ebv.consumercode as ConsumerNo,case when ce.type='EMPLOYEE' then ce.username else NULL end as empuserid from egcl_payment ep inner join egcl_paymentdetail ep2 on ep.tenantid=$ulb and ep2.paymentid = ep.id inner join egcl_bill ebv on ep2.billid = ebv.id inner join eg_ws_connection ewc on ebv.consumercode = ewc.connectionno inner join eg_ws_connectionholder esc on esc.connectionid = ewc.id inner join eg_user ch on ch.uuid = esc.userid inner join eg_user_address eguad on eguad.type='CORRESPONDENCE' and eguad.userid=ch.id inner join eg_user ce on ce.id = cast(ep.createdby as INTEGER) where ep2.businessservice='WS'
+      select INITCAP(SPLIT_PART(ep.tenantid,'.',2)) as ULB,	ch.name as name,eguad.address as address,EWC.ADDITIONALDETAILS->>'ward' as WARD, 'Water' as head,to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YY') as paymentdate,to_char(to_timestamp(ep.transactiondate / 1000), 'Mon-YY') as monthYear,ep.paymentmode,ep.transactionnumber,ep2.receiptnumber, ep2.amountpaid,ep2.businessservice as businessservice,ebv.consumercode as ConsumerNo,case when ce.type='EMPLOYEE' then ce.username else NULL end as empuserid from egcl_payment ep inner join egcl_paymentdetail ep2 on ep.tenantid=$ulb and ep2.paymentid = ep.id inner join egcl_bill ebv on ep2.billid = ebv.id inner join eg_ws_connection ewc on ebv.consumercode = ewc.connectionno inner join eg_ws_connectionholder esc on esc.connectionid = ewc.id inner join eg_user ch on ch.uuid = esc.userid inner join eg_user_address eguad on eguad.type='CORRESPONDENCE' and eguad.userid=ch.id inner join eg_user ce on ce.id = cast(ep.createdby as INTEGER) where ep2.businessservice='WS'
   orderby: ORDER BY ep.transactiondate
