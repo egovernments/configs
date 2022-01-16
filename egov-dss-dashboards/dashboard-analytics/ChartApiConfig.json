@@ -6227,26 +6227,14 @@
     "plotLabel": "DDRs",
     "aggregationPaths": [
       "Target Collection",
+      "Total Collection",
       "Total Transactions",
-      "Total Collection"
+      "Total Connections"
     ], 
-    "computedFields": [
-      {
-        "postAggregationTheory" : "",
-        "actionName": "AdditiveComputedField",
-        "fields" : [  "Total Water Connections","Total Sewerage Connections"],
-        "newField" : "Total Connections",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      },
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedField",
-        "fields" : ["Total Collection","Target Collection"],
-        "newField" : "Target Achieved",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
     "pathDataTypeMapping": [
+      { 
+        "Target Collection":"amount"
+      },
       {
         "Total Collection": "amount"
       },
@@ -6255,12 +6243,6 @@
       },
       {
         "Total Connections": "number"
-      },
-      {
-      "Target Collection": "amount"
-      },
-      {
-      "Target Achieved": "percentage"
       }
     ],
     "insight": {
@@ -6289,14 +6271,14 @@
       {
       "module": "COMMON",
       "indexName": "water-services",
-      "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"Business Service\":{\"terms\":{\"field\":\"Data.tenantId.keyword\",\"size\":2000,\"order\":{\"Total Water Connections\":\"desc\"}},\"aggs\":{\"Total Water Connections\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}",
+      "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"ULB\":{\"terms\":{\"field\":\"Data.tenantId.keyword\",\"size\":2000},\"aggs\":{\"Total Connections\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}",
       "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"block.keyword\"}",
       "dateRefField": "Data.connectionExecutionDate"
       },
       {
       "module": "COMMON",
       "indexName": "sewerage-services",
-      "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"Business Service\":{\"terms\":{\"field\":\"Data.tenantId.keyword\",\"size\":2000,\"order\":{\"Total Sewerage Connections\":\"desc\"}},\"aggs\":{\"Total Sewerage Connections\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}",
+      "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"ULB\":{\"terms\":{\"field\":\"Data.tenantId.keyword\",\"size\":2000},\"aggs\":{\"Total Connections\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}",
       "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"block.keyword\"}",
       "dateRefField": "Data.connectionExecutionDate"
       }
@@ -6304,7 +6286,7 @@
     "filterKeys": [
       {
         "key": "tenantId",
-        "column": "Boundary"
+        "column": "ULB"
       }
     ],
     "postAggregationTheory": "repsonseToDifferenceOfDates",
@@ -6313,29 +6295,17 @@
     "drillChart": "",
     "documentType": "_doc",
     "action": "",
-    "plotLabel": "Boundary",
+    "plotLabel": "ULB",
     "aggregationPaths": [
+      "Target Collection",
       "Total Collection",
       "Total Transactions",
-      "Target Collection"      
-    ],
-    "computedFields": [
-      {
-        "postAggregationTheory" : "",
-        "actionName": "AdditiveComputedField",
-        "fields" : [  "Total Water Connections","Total Sewerage Connections"],
-        "newField" : "Total Connections",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      },
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedField",
-        "fields" : ["Total Collection","Target Collection"],
-        "newField" : "Target Achieved",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
+      "Total Connections" 
     ],
     "pathDataTypeMapping": [
+      { 
+        "Target Collection":"amount"
+      },
       {
         "Total Collection": "amount"
       },
@@ -6344,12 +6314,7 @@
       },
       {
         "Total Connections": "number"
-      },
-      {
-      "Target Collection": "amount"
-      },
-      {
-      "Target Achieved": "percentage"
+      }
       }
     ],
     "insight": {},
@@ -6835,34 +6800,27 @@
       },
       {
         "module": "COMMON",
-        "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"ulbName.keyword\"}",
+        "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"tenantIdForMunicipalCorporation.keyword\"}",
         "dateRefField": "",
         "indexName": "dss-target_v1",
         "aggrQuery": "{\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}"
       }
     ],
     "filterKeys": [
-      {"key": "tenantId", "column": "Boundary"}
+      {"key": "tenantId", "column": "ULB"}
     ],
     "postAggregationTheory" : "repsonseToDifferenceOfDates",
     "chartType": "xtable",
     "valueType": "number",
     "drillChart": "",
-    "plotLabel": "Boundary",
+    "plotLabel": "DDRs",
     "aggregationPaths": [
     ],
     "computedFields": [
       {
-        "postAggregationTheory" : "repsonseToDifferenceOfDates",
+        "postAggregationTheory" : "",
         "actionName": "PercentageComputedField",
-        "fields" : ["Target Collection", "Total Collection"],
-        "newField" : "Target Achieved",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      },
-      {
-        "postAggregationTheory" : "repsonseToDifferenceOfDates",
-        "actionName": "PercentageComputedField",
-        "fields" : ["Target Collection", "Total Collection"],
+        "fields" : ["Total Collection","Target Collection"],
         "newField" : "Target Achieved",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
       }
