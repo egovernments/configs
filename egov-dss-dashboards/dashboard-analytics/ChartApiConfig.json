@@ -3417,7 +3417,7 @@
   },
 
   "wsFinancialIndicatorDDR": {
-    "chartName": "DSS_W&S_DEMAND_COLLECTION_BOUNDARY",
+    "chartName": "DSS_WS_KEY_FY_INDICATORS",
     "queries": [
       {
         "module": "COMMON",
@@ -3432,13 +3432,27 @@
         "dateRefField": "",
         "indexName": "dss-target_v1",
         "aggrQuery": "{\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"      
+      },
+      {
+      "module": "COMMON",
+      "indexName": "water-services",
+      "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}},{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"Total Water Connections\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
+      "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"block.keyword\"}",
+      "dateRefField": "Data.connectionExecutionDate"
+      },
+      {
+      "module": "COMMON",
+      "indexName": "sewerage-services",
+      "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}},{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"Total Sewerage Connections\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
+      "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"block.keyword\"}",
+      "dateRefField": "Data.connectionExecutionDate"
       }
     ],
     "isMdmsEnabled": true,
     "filterKeys": [
       {"key": "tenantId", "column": "DDRs"}
     ],
-    "chartType": "table",
+    "chartType": "xtable",
     "valueType": "number",
     "drillChart": "wsFinancialIndicatorUlb",
     "action": "",
@@ -3447,9 +3461,26 @@
     "postAggregationTheory" : "repsonseToDifferenceOfDates",
     "documentType": "_doc",
     "aggregationPaths": [
+      "Total Transactions",
       "Target Collection",
-      "Total Collection",
-      "Total Transactions"
+      "Total Collection"
+     
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Total Water Connections","Total Sewerage Connections"],
+        "newField" : "Target Connections",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Collection","Target Collection"],
+        "newField" : "Target Achieved",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
     ],
     "pathDataTypeMapping": [
       {
@@ -3460,6 +3491,12 @@
       },
       {
       "Target Collection": "amount"
+      },
+      {
+        "Total Connections": "number"
+      },
+      {
+        "Target Achieved": "percentage"
       }
     ],
     "insight": {
@@ -3482,12 +3519,26 @@
         "dateRefField": "",
         "indexName": "dss-target_v1",
         "aggrQuery": "{\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":1000},\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"
+      },
+      {
+      "module": "COMMON",
+      "indexName": "water-services",
+      "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"ULB\":{\"terms\":{\"field\":\"Data.tenantId.keyword\",\"size\":2000},\"aggs\":{\"Total Water Connections\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}",
+      "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"block.keyword\"}",
+      "dateRefField": "Data.connectionExecutionDate"
+      },
+      {
+      "module": "COMMON",
+      "indexName": "sewerage-services",
+      "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"ULB\":{\"terms\":{\"field\":\"Data.tenantId.keyword\",\"size\":2000},\"aggs\":{\"Total Sewerage Connections\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}",
+      "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"block.keyword\"}",
+      "dateRefField": "Data.connectionExecutionDate"
       }
     ],
     "filterKeys": [
       {"key": "tenantId", "column": "Boundary"}
     ],
-    "chartType": "table",
+    "chartType": "xtable",
     "valueType": "number",
     "drillChart": "",
     "documentType": "_doc",
@@ -3495,10 +3546,26 @@
     "plotLabel": "Boundary",
     "postAggregationTheory" : "repsonseToDifferenceOfDates",
     "aggregationPaths": [
+      "Total Transactions",
       "Target Collection",
-      "Total Collection",
-      "Total Transactions"
+      "Total Collection"
 
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "AdditiveComputedField",
+        "fields" : [  "Total Water Connections","Total Sewerage Connections"],
+        "newField" : "Total Connections",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Collection","Target Collection"],
+        "newField" : "Target Achieved",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
     ],
     "pathDataTypeMapping": [
       {
@@ -3509,6 +3576,12 @@
       },
       {
       "Target Collection": "amount"
+      },
+      {
+        "Total Connections": "number"
+      },
+      {
+      "Target Achieved": "percentage"
       }
     ],
     "insight": {
