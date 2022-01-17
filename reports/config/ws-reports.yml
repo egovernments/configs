@@ -913,6 +913,12 @@ ReportDefinitions:
     source: pt
     total: true
   searchParams:
+  - name: monthYear
+    label: Month/Year
+    type: epoch
+    source: pt
+    isMandatory: true
+    searchClause: having demand.tenantid is NOT NULL
   - name: ulb
     label: ULB Name
     type: singlevaluelist
@@ -920,12 +926,6 @@ ReportDefinitions:
     source: pt
     wrapper: true
     isMandatory: false
-    searchClause: and edv.tenantid = $ulb
-  - name: monthYear
-    label: Month/Year
-    type: epoch
-    source: pt
-    isMandatory: false
-    searchClause: and (to_char(to_timestamp(edv.taxperiodfrom/1000),'MM')=SPLIT_PART($monthYear,'-',2) and to_char(to_timestamp(edv.taxperiodfrom/1000),'YYYY')=SPLIT_PART($monthYear,'-',1))
+    searchClause: and demand.tenantid = $ulb
   query: |
-      select INITCAP(SPLIT_PART(EDV.TENANTID,'.',2)) as ulb, count(distinct edv.consumercode) as count,to_char(to_timestamp(edv.taxperiodfrom/1000),'MM-YYYY')as monthYear from egbs_demand_v1 edv where consumercode in (select distinct ewc.connectionno from eg_ws_connection ewc inner join eg_ws_service ews  on ewc.id = ews.connection_id where ews.connectiontype ='Non Metered' and ewc.applicationstatus ='CONNECTION_ACTIVATED' and ewc.isoldapplication =false) group by edv.tenantid,edv.taxperiodfrom having  edv.taxperiodfrom is NOT NULL
+      select INITCAP(SPLIT_PART(demand.TENANTID, '.', 2)) as ulb,count(distinct demand.consumercode) as count,demand.monthYear from (select tenantid,edv.consumercode,to_char(to_timestamp(edv.taxperiodfrom / 1000), 'MM-YYYY') as monthYear from egbs_demand_v1 edv where consumercode in (select distinct ewc.connectionno from eg_ws_connection ewc inner join eg_ws_service ews on ewc.id = ews.connection_id where ews.connectiontype = 'Non Metered' and ewc.applicationstatus = 'CONNECTION_ACTIVATED' and ewc.isoldapplication = false) and (to_char(to_timestamp(edv.taxperiodfrom / 1000), 'MM')= SPLIT_PART($monthYear, '-', 2) and to_char(to_timestamp(edv.taxperiodfrom / 1000), 'YYYY')= SPLIT_PART($monthYear, '-', 1))) as demand group by demand.tenantid,demand.monthYear
