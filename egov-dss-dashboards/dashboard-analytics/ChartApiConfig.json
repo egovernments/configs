@@ -6117,7 +6117,7 @@
     "queries": [
       {
         "module": "COMMON",
-        "requestQueryMap": "{\"wardId\" : \"dataObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\",\"tenantId\" : \"dataObject.tenantId\", \"ulbId\" : \"dataObject.tenantId\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
+        "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\",\"tenantId\" : \"dataObject.tenantId\", \"ulbId\" : \"dataObject.tenantId\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
 		"dateRefField": "dataObject.paymentDetails.receiptDate",
         "indexName": "dss-collection_v2",
         "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"FIRENOC\"]}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"dataObject.tenantId.keyword\",\"size\":1000},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
@@ -6184,7 +6184,7 @@
     "queries": [
       {
         "module": "COMMON",
-        "requestQueryMap": "{\"wardId\" : \"dataObject.ward.name.keyword\", \"tenantId\" : \"dataObject.tenantId\"}",
+        "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\", \"tenantId\" : \"dataObject.tenantId\"}",
         "dateRefField": "dataObject.paymentDetails.receiptDate",
         "indexName": "dss-collection_v2",
         "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"FIRENOC\"]}}]}},\"aggs\":{\"Department\":{\"terms\":{\"field\":\"domainObject.Department.keyword\",\"size\":1000},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
@@ -6202,9 +6202,79 @@
     ],
     "chartType": "table",
     "valueType": "number",
-    "drillChart": "none",
+    "drillChart": "nocServiceReportBoundaryDrillDown",
     "documentType": "_doc",
     "plotLabel": "Department",
+    "aggregationPaths": [
+      "Total Collection",
+      "Total Applications",
+      "Provisional Fire Nocs issued",
+      "Actual Fire Nocs issued",
+      "Average days to issue Provisional NOC",
+      "SLA Compliance (Provisional NOC)",
+      "Average days to issue Actual NOC",
+      "SLA Compliance (Actual NOC)"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Collection": "amount"
+      },
+      {
+        "Total Applications": "amount"
+      },
+      {
+        "Provisional Fire Nocs issued": "amount"
+      },
+      {
+        "Actual Fire Nocs issued": "amount"
+      },
+      {
+        "Average days to issue Provisional NOC": "amount"
+      },
+      {
+        "SLA Compliance (Provisional NOC)": "amount"
+      },
+      {
+        "Average days to issue Actual NOC": "amount"
+      },
+      {
+        "SLA Compliance (Actual NOC)": "amount"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  
+  "nocServiceReportBoundaryDrillDown": {
+    "kind": "drillDown",
+    "chartName": "Boundary",
+    "queries": [
+    {
+        "module": "COMMON",
+        "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\", \"tenantId\" : \"dataObject.tenantId\"}",
+        "dateRefField": "dataObject.paymentDetails.receiptDate",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"FIRENOC\"]}}]}},\"aggs\":{\"Ward \":{\"terms\":{\"field\":\"domainObject.ward.name.keyword\",\"size\":200},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\"}",
+        "dateRefField": "Data.auditDetails.createdTime",
+        "indexName": "firenoc-services",
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward \":{\"terms\":{\"field\":\"Data.ward.name.keyword\",\"size\":200},\"aggs\":{\"Total Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"ACTUAL\"}}]}}},\"Average days to issue Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average days to issue Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA Compliance (Actual NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"ACTUAL\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA Compliance (Provisional NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "wardId", "column": "Ward"},
+      {"key": "ulbId", "column": "ULB"}
+    ],
+    "chartType": "table",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Ward",
     "aggregationPaths": [
       "Total Collection",
       "Total Applications",
