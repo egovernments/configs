@@ -418,13 +418,13 @@ ReportDefinitions:
     type: epoch
     source: pt
     isMandatory: true
-    searchClause: AND (date(formattedtaxperiodto) >= date($startdate)
+    searchClause: AND (date(formattedtaxperiodto) >= date($startdate)+1
   - name: enddate
     label: End Date
     type: epoch
     source: pt
     isMandatory: true
-    searchClause: AND date(formattedtaxperiodto) <= date($enddate))
+    searchClause: AND date(formattedtaxperiodto) <= date($enddate)+1)
   - name: connectiontype
     label: Connection Type
     type: singlevaluelist
@@ -539,7 +539,7 @@ ReportDefinitions:
     type: epoch
     source: pt
     isMandatory: true
-    searchClause: and (taxperiodfrom >= date_part('epoch',date_trunc('month', date($monthYear)-interval '0 year'))*1000 and taxperiodfrom <= date_part('epoch',date_trunc('month', date($monthYear)-interval '0 year')+'1month'::interval-'1second'::interval)*1000)
+    searchClause: and (taxperiodfrom >= date_part('epoch',date_trunc('month', date($monthYear)+1-interval '0 year'))*1000 and taxperiodfrom <= date_part('epoch',date_trunc('month', date($monthYear)+1-interval '0 year')+'1month'::interval-'1second'::interval)*1000)
   query: |
       select INITCAP(SPLIT_PART(EWC2.TENANTID,'.',2)) as ULB,EWC2.ADDITIONALDETAILS->>'ward' as WARD,edv.consumercode,ewc2.oldconnectionno,to_char(to_timestamp(edv.taxperiodfrom/1000),'DD-MM-YYYY')as TaxPeriodFrom,to_char(to_timestamp(edv.taxperiodto/1000),'DD-MM-YYYY')as TaxPeriodTo,edv.billexpirytime,edv.fixedbillexpirydate,to_char(to_timestamp(edv.createdtime/1000),'DD-MM-YYYY')as DemandCreationDate,ews2.connectiontype from egbs_demand_v1 edv inner join eg_ws_connection ewc2 on ewc2.tenantid=$ulb and EWC2.connectionno=edv.CONSUMERCODE inner join eg_ws_service ews2 on ewc2.id = ews2.connection_id where businessservice = 'WS' and consumercode in (select connectionno from eg_ws_connection ewc inner join eg_ws_service ews on ewc.tenantid=$ulb and ewc.id = ews.connection_id where ews.connectiontype = 'Non Metered' and ewc.applicationstatus = 'CONNECTION_ACTIVATED' and ewc.isoldapplication = false and ewc.tenantid = $ulb)
   
@@ -928,4 +928,4 @@ ReportDefinitions:
     isMandatory: false
     searchClause: and demand.tenantid = $ulb
   query: |
-      select INITCAP(SPLIT_PART(demand.TENANTID, '.', 2)) as ulb,count(distinct demand.consumercode) as count,demand.monthYear from (select tenantid,edv.consumercode,to_char(to_timestamp(edv.taxperiodfrom / 1000), 'MM-YYYY') as monthYear from egbs_demand_v1 edv where consumercode in (select distinct ewc.connectionno from eg_ws_connection ewc inner join eg_ws_service ews on ewc.id = ews.connection_id where ews.connectiontype = 'Non Metered' and ewc.applicationstatus = 'CONNECTION_ACTIVATED' and ewc.isoldapplication = false) and (to_char(to_timestamp(edv.taxperiodfrom / 1000), 'MM')= SPLIT_PART($monthYear, '-', 2) and to_char(to_timestamp(edv.taxperiodfrom / 1000), 'YYYY')= SPLIT_PART($monthYear, '-', 1))) as demand group by demand.tenantid,demand.monthYear
+      select INITCAP(SPLIT_PART(demand.TENANTID, '.', 2)) as ulb,count(distinct demand.consumercode) as count,demand.monthYear from (select tenantid,edv.consumercode,to_char(to_timestamp(edv.taxperiodfrom / 1000), 'MM-YYYY') as monthYear from egbs_demand_v1 edv where consumercode in (select distinct ewc.connectionno from eg_ws_connection ewc inner join eg_ws_service ews on ewc.id = ews.connection_id where ews.connectiontype = 'Non Metered' and ewc.applicationstatus = 'CONNECTION_ACTIVATED' and ewc.isoldapplication = false) and (to_char(to_timestamp(edv.taxperiodfrom / 1000), 'MM')= SPLIT_PART(to_char(date($monthYear)+1,'YYYY-MM-DD'), '-', 2) and to_char(to_timestamp(edv.taxperiodfrom / 1000), 'YYYY')= SPLIT_PART(to_char(date($monthYear)+1,'YYYY-MM-DD'), '-', 1))) as demand group by demand.tenantid,demand.monthYear
