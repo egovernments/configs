@@ -4099,7 +4099,7 @@
     ],
     "chartType": "xtable",
     "valueType": "number",
-    "drillChart": "",
+    "drillChart": "wsConnectionAgeingWard",
     "action": "",
     "plotLabel": "ULB",
     "isPostResponseHandler": true,
@@ -4130,14 +4130,20 @@
     "queries": [
       {
         "module": "W&S",
-        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\" }",
-        "dateRefField": "createddate",
-        "indexName": "wsapplications",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"servicetype.keyword\":[\"Water Charges\",\"Sewerage Charges\"]}},{\"terms\":{\"applicationstatus.keyword\":[\"Created\",\"Rejected\",\"Verified\",\"verified\"]}}]}},\"aggs\":{\"2\":{\"terms\":{\"field\":\"block.keyword\",\"size\":170,\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Pending from 0 to 3 days\":{\"date_range\":{\"field\":\"applicationdate\",\"ranges\":[{\"from\":\"now-3d/d\",\"to\":\"now\"}]}},\"Pending from 3 to 7 days\":{\"date_range\":{\"field\":\"applicationdate\",\"ranges\":[{\"from\":\"now-1w\",\"to\":\"now-3d/d\"}]}},\"Pending from 7 to 15 days\":{\"date_range\":{\"field\":\"applicationdate\",\"ranges\":[{\"from\":\"now-15d\",\"to\":\"now-1w\"}]}},\"Pending more than 15 days\":{\"date_range\":{\"field\":\"applicationdate\",\"ranges\":[{\"from\":\"now-2y\",\"to\":\"now-15d\"}]}}}}}}}}"
+        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"Data.ward.name.keyword\" }",
+        "dateRefField": "Data.@timestamp",
+        "indexName": "water-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"term\":{\"Data.applicationStatus.keyword\":\"CONNECTION_ACTIVATED\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"Data.ward.name.keyword\",\"size\":170},\"aggs\":{\"Pending from 0 to 3 days\":{\"date_range\":{\"field\":\"Data.@timestamp\",\"ranges\":[{\"from\":\"now-3d\/d\",\"to\":\"now\"}]}},\"Pending from 3 to 7 days\":{\"date_range\":{\"field\":\"Data.@timestamp\",\"ranges\":[{\"from\":\"now-1w\",\"to\":\"now-3d\/d\"}]}},\"Pending from 7 to 15 days\":{\"date_range\":{\"field\":\"Data.@timestamp\",\"ranges\":[{\"from\":\"now-15d\",\"to\":\"now-1w\"}]}},\"Pending from more than 15 days\":{\"date_range\":{\"field\":\"Data.@timestamp\",\"ranges\":[{\"from\":\"now-2y\",\"to\":\"now-15d\"}]}}}}}}}}"
+      },
+      {
+        "module": "W&S",
+        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"Data.ward.name.keyword\" }",
+        "dateRefField": "Data.@timestamp",
+        "indexName": "sewerage-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"term\":{\"Data.applicationStatus.keyword\":\"CONNECTION_ACTIVATED\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"Data.ward.name.keyword\",\"size\":170},\"aggs\":{\"Pending from 0 to 3 days\":{\"date_range\":{\"field\":\"Data.@timestamp\",\"ranges\":[{\"from\":\"now-3d\/d\",\"to\":\"now\"}]}},\"Pending from 3 to 7 days\":{\"date_range\":{\"field\":\"Data.@timestamp\",\"ranges\":[{\"from\":\"now-1w\",\"to\":\"now-3d\/d\"}]}},\"Pending from 7 to 15 days\":{\"date_range\":{\"field\":\"Data.@timestamp\",\"ranges\":[{\"from\":\"now-15d\",\"to\":\"now-1w\"}]}},\"Pending from more than 15 days\":{\"date_range\":{\"field\":\"Data.@timestamp\",\"ranges\":[{\"from\":\"now-2y\",\"to\":\"now-15d\"}]}}}}}}}}"
       }
     ],
     "isMdmsEnabled": false,
-    "translateTenantCode": true,
     "filterKeys": [
       {"key": "tenantId", "column": "Ward"}
     ],
@@ -4152,15 +4158,15 @@
       "Pending from 0 to 3 days",
       "Pending from 3 to 7 days",
       "Pending from 7 to 15 days",
-      "Pending more than 15 days"
+      "Pending from more than 15 days"
 
     ],
     "computedFields": [
       {
         "postAggregationTheory" : "",
         "actionName": "AdditiveComputedField",
-        "fields" : [ "Pending from 0 to 3 days", "Pending from 3 to 7 days", "Pending from 7 to 15 days", "Pending more than 15 days"],
-        "newField" : "Total Pending",
+        "fields" : [ "Pending from 0 to 3 days", "Pending from 3 to 7 days", "Pending from 7 to 15 days", "Pending from more than 15 days"],
+        "newField" : "Total Pending Applications",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
       }
     ],
