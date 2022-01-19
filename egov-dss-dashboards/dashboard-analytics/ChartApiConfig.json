@@ -5739,7 +5739,7 @@
       {
         "module": "OBPS",
         "indexName": "bpa-index",
-        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ], \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\",\"BPA_HIGH\"] } } ] } }, \"aggs\": { \"Total Applications\": { \"value_count\": { \"field\": \"Data.applicationNo.keyword\" } } } } }} ",        "dateRefField": "",
+        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ], \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\"] } } ] } }, \"aggs\": { \"Total Applications\": { \"value_count\": { \"field\": \"Data.applicationNo.keyword\" } } } } }} ",        "dateRefField": "",
         "dateRefField": "Data.@timestamp"
 
       }
@@ -5769,7 +5769,7 @@
       {
         "module": "OBPS",
         "indexName": "bpa-index",
-        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ], \"must\": [ { \"term\": { \"Data.status.keyword\": \"APPROVED\" } }, { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\",\"BPA_HIGH\"] } } ] } }, \"aggs\": { \"Total Permits Issued\": { \"value_count\": { \"field\": \"Data.applicationNo.keyword\" } } } } } }",
+        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ], \"must\": [ { \"term\": { \"Data.status.keyword\": \"APPROVED\" } }, { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\"] } } ] } }, \"aggs\": { \"Total Permits Issued\": { \"value_count\": { \"field\": \"Data.applicationNo.keyword\" } } } } } }",
         "dateRefField": "Data.@timestamp"
       }
     ],
@@ -5798,7 +5798,7 @@
       {
         "module": "OBPS",
         "indexName": "bpa-index",
-        "aggrQuery":"{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ], \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\",\"BPA_HIGH\",\"BPA_OC\"] } } ] } }, \"aggs\": { \"Total Land Applied\": { \"sum\": { \"field\": \"Data.plotArea\" } } } } } }",
+        "aggrQuery":"{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ], \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\",\"BPA_OC\"] } } ] } }, \"aggs\": { \"Total Land Applied\": { \"sum\": { \"field\": \"Data.plotArea\" } } } } } }",
         "dateRefField": "Data.@timestamp"
       }
     ],
@@ -5828,7 +5828,7 @@
       {
         "module": "OBPS",
         "indexName": "bpa-index",
-        "aggrQuery":"",
+        "aggrQuery":"{ \"aggs\": { \"BPA\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ] } }, \"aggs\": { \"Average days to issue Permit\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\"] } }, { \"term\": { \"Data.status.keyword\": \"APPROVED\" } } ] } }, \"aggs\": { \"average_days\": { \"avg\": { \"script\": { \"source\": \"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)/(86400*1000)\" } } } } } } } } }",
         "dateRefField": "Data.@timestamp"
       }
     ],
@@ -5838,7 +5838,7 @@
     "action": "",
     "drillChart": "none",
     "aggregationPaths": [
-      "Total Land Applied"
+      "Average days to issue Permit"
     ],
     "insight": {
       "chartResponseMap" : "bpaAverageDaysToIssuePermit",
@@ -5849,7 +5849,7 @@
       "colorCode" : "#228B22",
       "insightInterval" : "year"
     },
-    "_comment": "Total Land Applied"
+    "_comment": "Average days to issue Permit"
   },
   "bpaSLACompliance": {
     "chartName": "DSS_BPA_SLA_COMPLIANCE",
@@ -5857,7 +5857,7 @@
       {
         "module": "OBPS",
         "indexName": "bpa-index",
-        "aggrQuery":"",
+        "aggrQuery":"{ \"aggs\": { \"BPA\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ] } }, \"aggs\": { \"SLA Compliance Permit\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\"] } }, { \"term\": { \"Data.status.keyword\": \"APPROVED\" } }, { \"script\": { \"script\": { \"source\": \"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\", \"lang\": \"painless\", \"params\": { \"threshold\": 172800000 } } } } ] } } } } } } }",
         "dateRefField": "Data.@timestamp"
       }
     ],
@@ -5867,7 +5867,7 @@
     "action": "",
     "drillChart": "none",
     "aggregationPaths": [
-      "Total Land Applied"
+      "SLA Compliance Permit"
     ],
     "insight": {
       "chartResponseMap" : "bpaSLACompliance",
@@ -5878,7 +5878,7 @@
       "colorCode" : "#228B22",
       "insightInterval" : "year"
     },
-    "_comment": "Total Land Applied"
+    "_comment": "SLA Compliance (Permit)"
   },
   "bpaAverageDaysToIssueOC": {
     "chartName": "DSS_BPA_AVERAGE_DAYS_ISSUE_OC",
@@ -5886,7 +5886,7 @@
       {
         "module": "OBPS",
         "indexName": "bpa-index",
-        "aggrQuery":"",
+        "aggrQuery":"{ \"aggs\": { \"BPA\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ] } }, \"aggs\": { \"Average days to issue OC\": { \"filter\": { \"bool\": { \"must\": [ { \"term\": { \"Data.businessService.keyword\": \"BPA_OC\" } }, { \"term\": { \"Data.status.keyword\": \"APPROVED\" } } ] } }, \"aggs\": { \"average_days\": { \"avg\": { \"script\": { \"source\": \"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)/(86400*1000)\" } } } } } } } } }",
         "dateRefField": "Data.@timestamp"
       }
     ],
@@ -5896,7 +5896,7 @@
     "action": "",
     "drillChart": "none",
     "aggregationPaths": [
-      "Total Land Applied"
+      "Average days to issue OC"
     ],
     "insight": {
       "chartResponseMap" : "bpaAverageDaysToIssueOC",
@@ -5907,7 +5907,7 @@
       "colorCode" : "#228B22",
       "insightInterval" : "year"
     },
-    "_comment": "Total Land Applied"
+    "_comment": "Average days to issue OC"
   },
   "bpaSLAComplianceOC": {
     "chartName": "DSS_BPA_SLA_COMPLIANCE_OC",
@@ -5915,7 +5915,7 @@
       {
         "module": "OBPS",
         "indexName": "bpa-index",
-        "aggrQuery":"",
+        "aggrQuery":"{ \"aggs\": { \"BPA\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ] } }, \"aggs\": { \"SLA Compliance OC\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA_OC\"] } }, { \"term\": { \"Data.status.keyword\": \"APPROVED\" } }, { \"script\": { \"script\": { \"source\": \"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\", \"lang\": \"painless\", \"params\": { \"threshold\": 172800000 } } } } ] } } } } } } }",
         "dateRefField": "Data.@timestamp"
       }
     ],
@@ -5925,7 +5925,7 @@
     "action": "",
     "drillChart": "none",
     "aggregationPaths": [
-      "Total Land Applied"
+      "SLA Compliance OC"
     ],
     "insight": {
       "chartResponseMap" : "bpaSLAComplianceOC",
@@ -5936,7 +5936,7 @@
       "colorCode" : "#228B22",
       "insightInterval" : "year"
     },
-    "_comment": "Total Land Applied"
+    "_comment": "SLA Compliance OC"
   },
   "bpaCumulativeCollections": {
     "chartName": "DSS_BPA_TOTAL_CUMULATIVE_COLLECTION",
