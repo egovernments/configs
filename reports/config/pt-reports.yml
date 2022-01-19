@@ -1223,3 +1223,71 @@ ReportDefinitions:
     searchClause: and case when LOWER($ward)='nil' then epa.ward is null else epa.ward =$ward end
   query: |
       select initcap(split_part(epp.tenantid, '.', 2)) as ulb,epa.ward,epp.oldpropertyid,epp.propertyid,eu."name",eu.mobilenumber,concat(COALESCE(epa.doorno,''),COALESCE(', '||epa.buildingname,''),COALESCE(', '||epa.street,''),COALESCE(', '||epa.city,''),COALESCE(', PIN-'||epa.pincode,'')) as address from eg_pt_property epp inner join eg_pt_owner epo on epo.propertyid = epp.id left outer join eg_user eu on eu.uuid = epo.userid inner join eg_pt_address epa on epa.propertyid = epp.id WHERE epp.status <> 'INACTIVE'
+      
+- reportName: GetLegacyPropertyDetails
+  summary: Get Legacy Property Details
+  version: 1.0.0
+  moduleName: rainmaker-pt
+  sourceColumns:
+  - name: ulbname
+    label: ULB / City
+    type: string
+    source: pt
+    total: false
+  - name: legacyholdingid
+    label: Legacy Entry
+    type: string
+    source: pt
+    total: false
+  - name: oldpropertyid
+    label: Existing Property Id
+    type: string
+    source: pt
+    total: false
+  - name: sujogpropertyid
+    label: Unique Property Id
+    type: string
+    source: pt
+    total: false
+  - name: taxwardno
+    label: Tax Ward
+    type: string
+    source: pt
+    total: false
+  - name: nameoftheowner
+    label: Legacy Owners
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: tenant
+    label: PT_SEARCH_ULB_CITY
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8094/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
+    source: pt
+    wrapper: true
+    isMandatory: true
+    searchClause: eppld.tenantid = $tenant
+  - name: legacyholdingid
+    label: Legacy Entry
+    type: string
+    source: pt
+    isMandatory: false
+    searchClause: AND eppld.legacyholdingid = $legacyholdingid
+  - name: oldpropertyid
+    label: Existing Property Id
+    type: string
+    source: pt
+    isMandatory: false
+    searchClause: AND eppld.oldpropertyid = $oldpropertyid
+  - name: ward
+    label: Tax Ward
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8094/egov-mdms-service/v1/_get?moduleName=Ward&masterName=Ward&tenantId=od.cuttack|MdmsRes.Ward.Ward[*].code|MdmsRes.Ward.Ward[*].code
+    source: pt
+    wrapper: true
+    isMandatory: false
+    searchClause: AND eppld.taxwardno = $ward
+  query: |
+    select ulbname, legacyholdingid, oldpropertyid, sujogpropertyid, taxwardno, nameoftheowner from eg_pt_property_legacy_details eppld where 
+  orderby: ORDER BY eppld.oldpropertyid DESC
