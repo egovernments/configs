@@ -5643,6 +5643,239 @@
     },
     "_comment": " "
   },
+
+  "_comment": "BPA charts below-----------------------------------------------------------------------",
+  "bpaTodaysCollection": {
+    "chartName": "DSS_BPA_TODAYS_COLLECTION",
+    "queries": [
+      {
+        "module": "BPA",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must\": [ { \"range\": { \"dataObject.paymentDetails.billDate.keyword\": { \"gte\": \"now-24h\", \"lte\": \"now\" } } }, { \"terms\": { \"dataObject.paymentDetails.businessService.keyword\": [ \"BPA.LOW_RISK_PERMIT_FEE\",\"BPA.NC_APP_FEE\",\"BPA.NC_OC_APP_FEE\" ] } } ], \"must_not\": [ { \"term\": { \"dataObject.tenantId.keyword\": \"pb.testing\" } }, { \"term\": { \"dataObject.paymentStatus.keyword\": \"Cancelled\" } } ] } }, \"aggs\": { \"Today's collection\": { \"sum\": { \"field\": \"dataObject.paymentDetails.totalAmountPaid\" } } } } } }",
+        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
+        "dateRefField": "dataObject.paymentDetails.receiptDate"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Today's Collection"
+    ],
+    "insight": {
+    },
+    "_comment": "BPA Today's collections "
+  },
+  "bpaTotalCollection": {
+    "chartName": "DSS_BPA_TOTAL_COLLECTION",
+    "queries": [
+      {
+        "module": "BPA",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": " { \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"dataObject.paymentDetails.businessService.keyword\": [ \"BPA.LOW_RISK_PERMIT_FEE\",\"BPA.NC_APP_FEE\",\"BPA.NC_OC_APP_FEE\" ] } } ], \"must_not\": [ { \"term\": { \"dataObject.tenantId.keyword\": \"pb.testing\" } }, { \"term\": { \"dataObject.paymentStatus.keyword\": \"Cancelled\" } } ] } }, \"aggs\": { \"Total collection\": { \"sum\": { \"field\": \"dataObject.paymentDetails.totalAmountPaid\" } } } } } } ",        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
+        "dateRefField": "dataObject.paymentDetails.receiptDate"
+      }
+    ],
+    "translateTenantCode": true,
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Collection"
+    ],
+    "insight": {
+    },
+    "_comment": "BPA total collections "
+  },
+   "bpaTotalPlansScrutinized": {
+     "chartName": "DSS_BPA_TOTAL_PLANS_SCRUTINIZED",
+     "queries": [
+       {
+         "module": "BPA",
+         "requestQueryMap": "{\"wardId\" : \"Data.complaintWard.name.keyword\", \"tenantId\" : \"Data.tenantId\"}",
+         "dateRefField": "Data.@timestamp",
+         "indexName": "bpa-index",
+         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Total Complaints\":{\"value_count\":{\"field\":\"Data.dateOfComplaint\"}}}}}}"
+       }
+     ],
+     "chartType": "metric",
+     "valueType": "number",
+     "drillChart": "none",
+     "documentType": "_doc",
+     "action": "",
+     "aggregationPaths": [
+       "Total Complaints"
+     ],
+     "insight": {
+       "chartResponseMap" : "totalComplaints",
+       "action" : "differenceOfNumbers",
+       "upwardIndicator" : "positive",
+       "downwardIndicator" : "negative",
+       "textMessage" : "$indicator$value% than last $insightInterval",
+       "colorCode" : "#228B22",
+       "insightInterval" : "month"
+     },
+     "_comment": " Total Number of Complaints "
+   },
+  "bpaTotalApplicationsSubmitted": {
+    "chartName": "DSS_BPA_TOTAL_APPLICATIONS_SUBMITTED",
+    "queries": [
+      {
+        "module": "BPA",
+        "indexName": "bpa-index",
+        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ], \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\",\"BPA_HIGH\"] } } ] } }, \"aggs\": { \"Total Applications\": { \"value_count\": { \"field\": \"Data.applicationNo.keyword\" } } } } }} ",        "dateRefField": "",
+        "dateRefField": "Data.@timestamp"
+
+      }
+    ],
+    "translateTenantCode": true,
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Applications"
+    ],
+    "insight": {
+    },
+    "_comment": "BPA Total Applications"
+  },
+  "bpaTotalPermitsIssued": {
+    "chartName": "DSS_BPA_TOTAL_PERMITS_ISSUED",
+    "queries": [
+      {
+        "module": "BPA",
+        "indexName": "bpa-index",
+        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ], \"must\": [ { \"term\": { \"Data.status.keyword\": \"APPROVED\" } }, { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\",\"BPA_HIGH\"] } } ] } }, \"aggs\": { \"Total Permits Issued\": { \"value_count\": { \"field\": \"Data.applicationNo.keyword\" } } } } } }",
+        "dateRefField": "Data.@timestamp"
+      }
+    ],
+    "translateTenantCode": true,
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Permits Issued"
+    ],
+    "insight": {
+    },
+    "_comment": "Total Permits Issued"
+  },
+  "bpaTotalLandApplied": {
+    "chartName": "DSS_BPA_TOTAL_LAND_APPLIED",
+    "queries": [
+      {
+        "module": "BPA",
+        "indexName": "bpa-index",
+        "aggrQuery":"{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ], \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\",\"BPA_HIGH\",\"BPA_OC\"] } } ] } }, \"aggs\": { \"Total Land Applied\": { \"sum\": { \"field\": \"Data.plotArea\" } } } } } }",
+        "dateRefField": "Data.@timestamp"
+      }
+    ],
+    "translateTenantCode": true,
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Land Applied"
+    ],
+    "insight": {
+    },
+    "_comment": "Total Land Applied"
+  },
+
+  "bpaAverageDaysToIssuePermit": {
+    "chartName": "DSS_BPA_AVERAGE_DAYS_ISSUE_PERMIT",
+    "queries": [
+      {
+        "module": "BPA",
+        "indexName": "bpa-index",
+        "aggrQuery":"",
+        "dateRefField": "Data.@timestamp"
+      }
+    ],
+    "translateTenantCode": true,
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Land Applied"
+    ],
+    "insight": {
+    },
+    "_comment": "Total Land Applied"
+  },
+  "bpaSLACompliance": {
+    "chartName": "DSS_BPA_SLA_COMPLIANCE",
+    "queries": [
+      {
+        "module": "BPA",
+        "indexName": "bpa-index",
+        "aggrQuery":"",
+        "dateRefField": "Data.@timestamp"
+      }
+    ],
+    "translateTenantCode": true,
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Land Applied"
+    ],
+    "insight": {
+    },
+    "_comment": "Total Land Applied"
+  },
+  "bpaAverageDaysToIssueOC": {
+    "chartName": "DSS_BPA_AVERAGE_DAYS_ISSUE_OC",
+    "queries": [
+      {
+        "module": "BPA",
+        "indexName": "bpa-index",
+        "aggrQuery":"",
+        "dateRefField": "Data.@timestamp"
+      }
+    ],
+    "translateTenantCode": true,
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Land Applied"
+    ],
+    "insight": {
+    },
+    "_comment": "Total Land Applied"
+  },
+  "bpaSLAComplianceOC": {
+    "chartName": "DSS_BPA_SLA_COMPLIANCE_OC",
+    "queries": [
+      {
+        "module": "BPA",
+        "indexName": "bpa-index",
+        "aggrQuery":"",
+        "dateRefField": "Data.@timestamp"
+      }
+    ],
+    "translateTenantCode": true,
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Land Applied"
+    ],
+    "insight": {
+    },
+    "_comment": "Total Land Applied"
+  },
+
   "permitIssuedByRiskType": {
     "chartName": "DSS_BPA_PERMIT_ISSUED_BY_RISK_TYPE",
     "queries": [
