@@ -8460,7 +8460,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"tenantId\" : \"tenantId\"}",
         "indexName": "obps-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"Total Applications Submitted\":{\"sum\":{\"field\":\"applicationsSubmitted\"}}}}"      }
+        "aggrQuery": "{ \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\":{ \"applicationsSubmitted\":{ \"avg\":{ \"field\":\"applicationsSubmitted\" } } } }, \"Total Applications Submitted\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.applicationsSubmitted\" } } } }"      }
     ],
     "chartType": "metric",
     "valueType": "number",
@@ -8488,7 +8488,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"tenantId\" : \"tenantId\"}",
         "indexName": "obps-national-dashboard",
-        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"riskType.keyword\": [ \"LOW\", \"MEDIUM\",\"HIGH\" ] } } ] } }, \"aggs\": { \"Total Permits Issued\": { \"sum\": { \"field\": \"permitsIssuedByRiskTypeForRiskType\" } } } } } }"
+        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"riskType.keyword\": [ \"LOW\", \"MEDIUM\",\"HIGH\" ] } } ] } }, \"aggs\": { \"Total Permits Issued\": { \"sum\": { \"field\": \"permitsIssuedForRiskType\" } } } } } }"
       }
     ],
     "chartType": "metric",
@@ -8517,7 +8517,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"tenantId\" : \"tenantId\"}",
         "indexName": "obps-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"Total OC Issued\":{\"sum\":{\"field\":\"ocIssued\"}}}}"      }
+        "aggrQuery": "{ \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\":{ \"ocIssued\":{ \"avg\":{ \"field\":\"ocIssued\" } } } }, \"Total OC Issued\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocIssued\" } } } }"      }
     ],
     "chartType": "metric",
     "valueType": "number",
@@ -9944,7 +9944,7 @@
         "module": "COMMON",
         "requestQueryMap": "{\r\n  \"module\" : \"businessService.keyword\", \n\"tenantId\" : \"tenantIdForMunicipalCorporation\"}",
         "dateRefField": "",
-        "indexName": "dss-target_v1",
+        "indexName": "master-national-dashboard",
         "aggrQuery": "{\"aggs\":{\"Actual collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}"
       },
       {
@@ -9974,6 +9974,32 @@
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
       "insightInterval" : "month"
+    },
+    "_comment": " "
+  },
+
+  "tlTargetCollection": {
+    "chartName": "DSS_TARGET_COLLECTION",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"tenantIdForMunicipalCorporation.keyword\"}",
+        "dateRefField": "",
+        "indexName": "master-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "Target Collection"
+    ],
+    "isDayUnit": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "insight": {
     },
     "_comment": " "
   }
