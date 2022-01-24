@@ -8226,9 +8226,10 @@
   },
   
   "xptFyByStetesv3": {
-    "chartName": "NATIONAL_DSS_PROPERTIES_BY_FY",
+    "chartName": "NATIONAL_DSS_PT_PROPERTIES_BY_FINANCIAL_YEAR",
     "queries": [
       {
+      
         "module": "PT",
 		"requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
         "dateRefField": "date",
@@ -8249,8 +8250,8 @@
     ],
     "chartType": "xtable",
     "valueType": "number",
-    "drillChart": "xptFyByTenant",
-    "plotLabel": "DDRs",
+    "drillChart": "none",
+    "plotLabel": "STATE",
     "insight": {
     },
     "_comment": ""
@@ -8460,7 +8461,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"tenantId\" : \"tenantId\"}",
         "indexName": "obps-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"Total Applications Submitted\":{\"sum\":{\"field\":\"applicationsSubmitted\"}}}}"      }
+        "aggrQuery": "{ \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\":{ \"applicationsSubmitted\":{ \"avg\":{ \"field\":\"applicationsSubmitted\" } } } }, \"Total Applications Submitted\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.applicationsSubmitted\" } } } }"      }
     ],
     "chartType": "metric",
     "valueType": "number",
@@ -8488,7 +8489,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"tenantId\" : \"tenantId\"}",
         "indexName": "obps-national-dashboard",
-        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"riskType.keyword\": [ \"LOW\", \"MEDIUM\",\"HIGH\" ] } } ] } }, \"aggs\": { \"Total Permits Issued\": { \"sum\": { \"field\": \"permitsIssuedByRiskTypeForRiskType\" } } } } } }"
+        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"riskType.keyword\": [ \"LOW\", \"MEDIUM\",\"HIGH\" ] } } ] } }, \"aggs\": { \"Total Permits Issued\": { \"sum\": { \"field\": \"permitsIssuedForRiskType\" } } } } } }"
       }
     ],
     "chartType": "metric",
@@ -8517,7 +8518,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"tenantId\" : \"tenantId\"}",
         "indexName": "obps-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"Total OC Issued\":{\"sum\":{\"field\":\"ocIssued\"}}}}"      }
+        "aggrQuery": "{ \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\":{ \"ocIssued\":{ \"avg\":{ \"field\":\"ocIssued\" } } } }, \"Total OC Issued\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocIssued\" } } } }"      }
     ],
     "chartType": "metric",
     "valueType": "number",
@@ -9779,7 +9780,7 @@
       {
         "module": "WS",
         "dateRefField": "date",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+        "requestQueryMap": "{\"tenantId\" : \"tenantId.keyword\",\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
         "indexName": "ws-national-dashboard",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"State \":{\"terms\":{\"field\":\"state.keyword\",\"size\":200},\"aggs\":{\"Interest\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"INTEREST\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Late Charges\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"LATE.CHARGES\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Arrear Charges\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"ARREAR.CHARGES\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Advance\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"ADVANCE\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Current Charges\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"CURRENT.CHARGES\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}}}}}}"
       }
@@ -9935,6 +9936,204 @@
     "insight": {
     },
     "_comment": ""
+  },
+
+  "tlTargetAchieved": {
+    "chartName": "DSS_TARGET_ACHIEVED",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\r\n  \"module\" : \"module.keyword\", \n\"tenantId\" : \"ulb.keyword\"}",
+        "dateRefField": "",
+        "indexName": "master-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Actual collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"tenantId.keyword\"}",
+        "indexName": "tl-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}}}"
+        
+      }
+
+    ],
+    "chartType": "metric",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "Total Collection",
+      "Actual collection"
+    ],
+    "insight": {
+      "chartResponseMap" : "targetAchieved",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " "
+  },
+
+  "tlTargetCollection": {
+    "chartName": "DSS_TARGET_COLLECTION",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"module\" : \"module.keyword\", \"tenantId\" : \"ulb.keyword\"}",
+        "dateRefField": "",
+        "indexName": "master-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "Target Collection"
+    ],
+    "isDayUnit": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "insight": {
+    },
+    "_comment": " "
+  },
+
+  "tlTopPerformingUlbs": {
+    "chartName": "DSS_PT_TOP_3_PERFORMING_ULBS",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\r\n  \"module\" : \"module.keyword\", \n\"tenantId\" : \"ulb.keyword\"}",
+        "dateRefField": "",
+        "indexName": "master-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"ulb.keyword\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"tenantId.keyword\"}",
+        "indexName": "tl-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Total Collection\":{\"terms\":{\"field\":\"tenantId.keyword\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}}}}}"
+      }
+    ],
+    "chartType": "perform",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "plotLabel": "DSS_TARGET_ACHIEVED",
+    "order": "desc",
+    "limit": 3,
+    "aggregationPaths": [
+      "Total Collection","Target Collection"
+    ],
+    "insight": {
+    },
+    "_comment": " Top Performing Ulbs for target achieved"
+  },
+
+  "tlBottomPerformingUlbs": {
+    "chartName": "DSS_PT_BOTTOM_3_PERFORMING_ULBS",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\r\n  \"module\" : \"module.keyword\", \n\"tenantId\" : \"ulb.keyword\"}",
+        "dateRefField": "",
+        "indexName": "master-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"ulb.keyword\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"tenantId.keyword\"}",
+        "indexName": "tl-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Total Collection\":{\"terms\":{\"field\":\"tenantId.keyword\",\"order\":{\"Sum\":\"asc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}}}}}"
+      }
+    ],
+    "chartType": "perform",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "plotLabel": "DSS_TARGET_ACHIEVED",
+    "order": "asc",
+    "limit": 3,
+    "aggregationPaths": [
+      "Total Collection","Target Collection"
+    ],
+    "insight": {
+    },
+    "_comment": " Bottom Performing Ulbs for target achieved"
+  },
+
+  "tlactiveUlbs": {
+    "chartName": "DSS_TL_TOTAL_ACTIVE_ULBS",
+    "queries": [
+      
+      {
+        "module": "COMMON",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"tenantId.keyword\"}",
+        "indexName": "tl-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Active ULBs\":{\"cardinality\":{\"field\":\"tenantId.keyword\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Active ULBs"
+    ],
+    "insight": {
+      "chartResponseMap" : "activeUlbs",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " total ULBs count"
+  },
+
+  "pgrCompletionRate": {
+    "chartName": "NATIONAL_DSS_PGR_COMPLETION_RATE",
+    "queries": [
+      {
+        "module":"PGR",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "pgr-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Completion Rate\":{\"avg\":{\"field\":\"completionRate\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "Completion Rate"
+    ],
+    "insight": {
+      "chartResponseMap" : "completionRate",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": "Completion rate"
   }
 
 
