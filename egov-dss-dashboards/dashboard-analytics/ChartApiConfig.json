@@ -5598,6 +5598,77 @@
     "_comment": ""
   },
   
+  "nocServiceReportByState": {
+    "chartName": "DSS_NOC_SERVICE_REPORT_STATE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"wardId\" : \"dataObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\",\"tenantId\" : \"dataObject.tenantId\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
+		"dateRefField": "dataObject.paymentDetails.receiptDate",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"FIRENOC\"]}}]}},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\", \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "dateRefField": "Data.auditDetails.createdTime",
+        "indexName": "firenoc-services",
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Total_Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average_days_to_issue_Provisional_NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average_days_to_issue_Actual_NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA_Compliance(Actual_NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA_Compliance(Provisional_NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": true,
+    "filterKeys": [
+      {"key": "tenantId", "column": "DDRs"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "action": "",
+    "plotLabel": "DDRs",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "documentType": "_doc",
+    "drillChart": "nocServiceReportDrillDown",
+    "aggregationPaths": [
+      "Total_Collection",
+      "Total_Applications",
+      "Provisional_Fire_Nocs_issued",
+      "Actual_Fire_Nocs_issued",
+      "Average_days_to_issue_Provisional_NOC",
+      "SLA_Compliance(Provisional_NOC)",
+      "Average_days_to_issue_Actual_NOC",
+      "SLA_Compliance(Actual_NOC)"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total_Collection": "amount"
+      },
+      {
+        "Total_Applications": "number"
+      },
+      {
+        "Provisional_Fire_Nocs_issued": "number"
+      },
+      {
+        "Actual_Fire_Nocs_issued": "number"
+      },
+      {
+        "Average_days_to_issue_Provisional_NOC": "number"
+      },
+      {
+        "SLA_Compliance(Provisional_NOC)": "number"
+      },
+      {
+        "Average_days_to_issue_Actual_NOC": "number"
+      },
+      {
+        "SLA_Compliance(Actual_NOC)": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  
   "nocServiceReportDrillDown": {
     "chartName": "DSS_NOC_SERVICE_REPORT_BOUNDRY",
     "queries": [
@@ -5606,14 +5677,14 @@
         "requestQueryMap": "{\"wardId\" : \"dataObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\",\"tenantId\" : \"dataObject.tenantId\", \"ulbId\" : \"dataObject.tenantId\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
 		"dateRefField": "dataObject.paymentDetails.receiptDate",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"FIRENOC\"]}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"dataObject.tenantId.keyword\",\"size\":1000},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"FIRENOC\"]}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"dataObject.tenantId.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\", \"ulbId\" : \"Data.tenantId\", \"district\" : \"Data.tenantData.city.districtCode\"}",
         "dateRefField": "Data.auditDetails.createdTime",
         "indexName": "firenoc-services",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"Data.tenantId.keyword\",\"size\":1000},\"aggs\":{\"Total Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average days to issue Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average days to issue Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA Compliance (Actual NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA Compliance (Provisional NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"Data.tenantId.keyword\",\"size\":1000},\"aggs\":{\"Total_Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average_days_to_issue_Provisional_NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average_days_to_issue_Actual_NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA_Compliance(Actual_NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA_Compliance(Provisional_NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -5627,39 +5698,39 @@
     "plotLabel": "Boundary",
     "postAggregationTheory" : "repsonseToDifferenceOfDates",
     "aggregationPaths": [
-      "Total Collection",
-      "Total Applications",
-      "Provisional Fire Nocs issued",
-      "Actual Fire Nocs issued",
-      "Average days to issue Provisional NOC",
-      "SLA Compliance (Provisional NOC)",
-      "Average days to issue Actual NOC",
-      "SLA Compliance (Actual NOC)"
+      "Total_Collection",
+      "Total_Applications",
+      "Provisional_Fire_Nocs_issued",
+      "Actual_Fire_Nocs_issued",
+      "Average_days_to_issue_Provisional_NOC",
+      "SLA_Compliance(Provisional_NOC)",
+      "Average_days_to_issue_Actual_NOC",
+      "SLA_Compliance(Actual_NOC)"
     ],
     "pathDataTypeMapping": [
       {
-        "Total Collection": "amount"
+        "Total_Collection": "amount"
       },
       {
-        "Total Applications": "amount"
+        "Total_Applications": "number"
       },
       {
-        "Provisional Fire Nocs issued": "amount"
+        "Provisional_Fire_Nocs_issued": "number"
       },
       {
-        "Actual Fire Nocs issued": "amount"
+        "Actual_Fire_Nocs_issued": "number"
       },
       {
-        "Average days to issue Provisional NOC": "amount"
+        "Average_days_to_issue_Provisional_NOC": "number"
       },
       {
-        "SLA Compliance (Provisional NOC)": "amount"
+        "SLA_Compliance(Provisional_NOC)": "number"
       },
       {
-        "Average days to issue Actual NOC": "amount"
+        "Average_days_to_issue_Actual_NOC": "number"
       },
       {
-        "SLA Compliance (Actual NOC)": "amount"
+        "SLA_Compliance(Actual_NOC)": "number"
       }
     ],
     "insight": {
@@ -5676,14 +5747,14 @@
         "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\",\"tenantId\" : \"dataObject.tenantId\", \"ulbId\" : \"dataObject.tenantId\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
 		"dateRefField": "dataObject.paymentDetails.receiptDate",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"FIRENOC\"]}}]}},\"aggs\":{\"Ward \":{\"terms\":{\"field\":\"domainObject.ward.name.keyword\",\"size\":200},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"FIRENOC\"]}}]}},\"aggs\":{\"Ward \":{\"terms\":{\"field\":\"domainObject.ward.name.keyword\",\"size\":200},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\", \"ulbId\" : \"Data.tenantId\", \"district\" : \"Data.tenantData.city.districtCode\"}",
         "dateRefField": "Data.auditDetails.createdTime",
         "indexName": "firenoc-services",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward \":{\"terms\":{\"field\":\"Data.ward.name.keyword\",\"size\":200},\"aggs\":{\"Total Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average days to issue Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average days to issue Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA Compliance (Actual NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA Compliance (Provisional NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward \":{\"terms\":{\"field\":\"Data.ward.name.keyword\",\"size\":200},\"aggs\":{\"Total_Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average_days_to_issue_Provisional_NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average_days_to_issue_Actual_NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA_Compliance(Actual_NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA_Compliance(Provisional_NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -5697,39 +5768,39 @@
     "action": "",
     "plotLabel": "Ward",
     "aggregationPaths": [
-      "Total Collection",
-      "Total Applications",
-      "Provisional Fire Nocs issued",
-      "Actual Fire Nocs issued",
-      "Average days to issue Provisional NOC",
-      "SLA Compliance (Provisional NOC)",
-      "Average days to issue Actual NOC",
-      "SLA Compliance (Actual NOC)"
+      "Total_Collection",
+      "Total_Applications",
+      "Provisional_Fire_Nocs_issued",
+      "Actual_Fire_Nocs_issued",
+      "Average_days_to_issue_Provisional_NOC",
+      "SLA_Compliance(Provisional_NOC)",
+      "Average_days_to_issue_Actual_NOC",
+      "SLA_Compliance(Actual_NOC)"
     ],
     "pathDataTypeMapping": [
       {
-        "Total Collection": "amount"
+        "Total_Collection": "amount"
       },
       {
-        "Total Applications": "amount"
+        "Total_Applications": "number"
       },
       {
-        "Provisional Fire Nocs issued": "amount"
+        "Provisional_Fire_Nocs_issued": "number"
       },
       {
-        "Actual Fire Nocs issued": "amount"
+        "Actual_Fire_Nocs_issued": "number"
       },
       {
-        "Average days to issue Provisional NOC": "amount"
+        "Average_days_to_issue_Provisional_NOC": "number"
       },
       {
-        "SLA Compliance (Provisional NOC)": "amount"
+        "SLA_Compliance(Provisional_NOC)": "number"
       },
       {
-        "Average days to issue Actual NOC": "amount"
+        "Average_days_to_issue_Actual_NOC": "number"
       },
       {
-        "SLA Compliance (Actual NOC)": "amount"
+        "SLA_Compliance(Actual_NOC)": "number"
       }
     ],
     "insight": {
@@ -5745,13 +5816,13 @@
         "requestQueryMap": "{\"wardId\" : \"dataObject.ward.name.keyword\", \"tenantId\" : \"dataObject.tenantId\"}",
         "dateRefField": "dataObject.paymentDetails.receiptDate",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"FIRENOC\"]}}]}},\"aggs\":{\"Department\":{\"terms\":{\"field\":\"domainObject.Department.keyword\",\"size\":1000},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"FIRENOC\"]}}]}},\"aggs\":{\"Department\":{\"terms\":{\"field\":\"domainObject.Department.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\"}",
         "indexName": "firenoc-services",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Department\":{\"terms\":{\"field\":\"Data.Department.keyword\",\"size\":1000},\"aggs\":{\"Total Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average days to issue Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average days to issue Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA Compliance (Actual NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA Compliance (Provisional NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Department\":{\"terms\":{\"field\":\"Data.Department.keyword\",\"size\":1000},\"aggs\":{\"Total_Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average_days_to_issue_Provisional_NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average_days_to_issue_Actual_NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA_Compliance(Actual_NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA_Compliance(Provisional_NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.fireNOCDetails.status.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -5763,39 +5834,39 @@
     "documentType": "_doc",
     "plotLabel": "Department",
     "aggregationPaths": [
-      "Total Collection",
-      "Total Applications",
-      "Provisional Fire Nocs issued",
-      "Actual Fire Nocs issued",
-      "Average days to issue Provisional NOC",
-      "SLA Compliance (Provisional NOC)",
-      "Average days to issue Actual NOC",
-      "SLA Compliance (Actual NOC)"
+      "Total_Collection",
+      "Total_Applications",
+      "Provisional_Fire_Nocs_issued",
+      "Actual_Fire_Nocs_issued",
+      "Average_days_to_issue_Provisional_NOC",
+      "SLA_Compliance(Provisional_NOC)",
+      "Average_days_to_issue_Actual_NOC",
+      "SLA_Compliance(Actual_NOC)"
     ],
     "pathDataTypeMapping": [
       {
-        "Total Collection": "amount"
+        "Total_Collection": "amount"
       },
       {
-        "Total Applications": "number"
+        "Total_Applications": "number"
       },
       {
-        "Provisional Fire Nocs issued": "number"
+        "Provisional_Fire_Nocs_issued": "number"
       },
       {
-        "Actual Fire Nocs issued": "number"
+        "Actual_Fire_Nocs_issued": "number"
       },
       {
-        "Average days to issue Provisional NOC": "number"
+        "Average_days_to_issue_Provisional_NOC": "number"
       },
       {
-        "SLA Compliance (Provisional NOC)": "number"
+        "SLA_Compliance(Provisional_NOC)": "number"
       },
       {
-        "Average days to issue Actual NOC": "number"
+        "Average_days_to_issue_Actual_NOC": "number"
       },
       {
-        "SLA Compliance (Actual NOC)": "number"
+        "SLA_Compliance(Actual_NOC)": "number"
       }
     ],
     "insight": {
@@ -6533,7 +6604,8 @@
       {
         "module": "BPA",
         "indexName": "dss-collection_v2",
-        "aggrQuery": " { \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"dataObject.paymentDetails.businessService.keyword\": [ \"BPA.LOW_RISK_PERMIT_FEE\",\"BPA.NC_APP_FEE\",\"BPA.NC_OC_APP_FEE\" ] } } ], \"must_not\": [ { \"term\": { \"dataObject.tenantId.keyword\": \"pb.testing\" } }, { \"term\": { \"dataObject.paymentStatus.keyword\": \"Cancelled\" } } ] } }, \"aggs\": { \"Total collection\": { \"sum\": { \"field\": \"dataObject.paymentDetails.totalAmountPaid\" } } } } } } ",        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
+        "aggrQuery": " { \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"dataObject.paymentDetails.businessService.keyword\": [ \"BPA.LOW_RISK_PERMIT_FEE\",\"BPA.NC_APP_FEE\",\"BPA.NC_OC_APP_FEE\" ] } } ], \"must_not\": [ { \"term\": { \"dataObject.tenantId.keyword\": \"pb.testing\" } }, { \"term\": { \"dataObject.paymentStatus.keyword\": \"Cancelled\" } } ] } }, \"aggs\": { \"Total collection\": { \"sum\": { \"field\": \"dataObject.paymentDetails.totalAmountPaid\" } } } } } } ",
+        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
         "dateRefField": "dataObject.paymentDetails.receiptDate"
       }
     ],
@@ -6561,7 +6633,7 @@
     "queries": [
       {
         "module": "OBPS",
-        "requestQueryMap": "{\"wardId\" : \"Data.complaintWard.name.keyword\", \"tenantId\" : \"Data.tenantId\"}",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\" \r\n}",
         "dateRefField": "Data.@timestamp",
         "indexName": "bpa-index",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Total Complaints\":{\"value_count\":{\"field\":\"Data.dateOfComplaint\"}}}}}}"
@@ -6592,9 +6664,9 @@
       {
         "module": "OBPS",
         "indexName": "bpa-index",
-        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ], \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\"] } } ] } }, \"aggs\": { \"Total Applications\": { \"value_count\": { \"field\": \"Data.applicationNo.keyword\" } } } } }} ",        "dateRefField": "",
+        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ], \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\"] } } ] } }, \"aggs\": { \"Total Applications\": { \"value_count\": { \"field\": \"Data.applicationNo.keyword\" } } } } }} ",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\" \r\n}",
         "dateRefField": "Data.@timestamp"
-
       }
     ],
     "translateTenantCode": true,
@@ -6622,6 +6694,7 @@
       {
         "module": "OBPS",
         "indexName": "bpa-index",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\" \r\n}",
         "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ], \"must\": [ { \"term\": { \"Data.status.keyword\": \"APPROVED\" } }, { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\"] } } ] } }, \"aggs\": { \"Total Permits Issued\": { \"value_count\": { \"field\": \"Data.applicationNo.keyword\" } } } } } }",
         "dateRefField": "Data.@timestamp"
       }
@@ -6651,6 +6724,7 @@
       {
         "module": "OBPS",
         "indexName": "bpa-index",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\" \r\n}",
         "aggrQuery":"{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ], \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\",\"BPA_OC\"] } } ] } }, \"aggs\": { \"Total Land Applied\": { \"sum\": { \"field\": \"Data.plotArea\" } } } } } }",
         "dateRefField": "Data.@timestamp"
       }
@@ -6681,6 +6755,7 @@
       {
         "module": "OBPS",
         "indexName": "bpa-index",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\" \r\n}",
         "aggrQuery":"{ \"aggs\": { \"BPA\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ] } }, \"aggs\": { \"Average days to issue Permit\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\"] } }, { \"term\": { \"Data.status.keyword\": \"APPROVED\" } } ] } }, \"aggs\": { \"average_days\": { \"avg\": { \"script\": { \"source\": \"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)/(86400*1000)\" } } } } } } } } }",
         "dateRefField": "Data.@timestamp"
       }
@@ -6710,6 +6785,7 @@
       {
         "module": "OBPS",
         "indexName": "bpa-index",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\" \r\n}",
         "aggrQuery":"{ \"aggs\": { \"BPA\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ] } }, \"aggs\": { \"SLA Compliance Permit\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA\",\"BPA_LOW\"] } }, { \"term\": { \"Data.status.keyword\": \"APPROVED\" } }, { \"script\": { \"script\": { \"source\": \"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\", \"lang\": \"painless\", \"params\": { \"threshold\": 172800000 } } } } ] } } } } } } }",
         "dateRefField": "Data.@timestamp"
       }
@@ -6739,6 +6815,7 @@
       {
         "module": "OBPS",
         "indexName": "bpa-index",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\" \r\n}",
         "aggrQuery":"{ \"aggs\": { \"BPA\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ] } }, \"aggs\": { \"Average days to issue OC\": { \"filter\": { \"bool\": { \"must\": [ { \"term\": { \"Data.businessService.keyword\": \"BPA_OC\" } }, { \"term\": { \"Data.status.keyword\": \"APPROVED\" } } ] } }, \"aggs\": { \"average_days\": { \"avg\": { \"script\": { \"source\": \"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)/(86400*1000)\" } } } } } } } } }",
         "dateRefField": "Data.@timestamp"
       }
@@ -6768,6 +6845,7 @@
       {
         "module": "OBPS",
         "indexName": "bpa-index",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\" \r\n}",
         "aggrQuery":"{ \"aggs\": { \"BPA\": { \"filter\": { \"bool\": { \"must_not\": [ { \"term\": { \"Data.tenantId.keyword\": \"pb.testing\" } } ] } }, \"aggs\": { \"SLA Compliance OC\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"Data.businessService.keyword\": [\"BPA_OC\"] } }, { \"term\": { \"Data.status.keyword\": \"APPROVED\" } }, { \"script\": { \"script\": { \"source\": \"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\", \"lang\": \"painless\", \"params\": { \"threshold\": 172800000 } } } } ] } } } } } } }",
         "dateRefField": "Data.@timestamp"
       }
