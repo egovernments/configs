@@ -5171,34 +5171,33 @@
 
 
   "wstodaysCollectionv2": {
-    "chartName": "DSS_W&S_TODAYS_COLLECTION",
+    "chartName": "NSS_W&S_TODAYS_COLLECTION",
     "queries": [
       {
         "module": "W&S",
-        "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.paymentDetails.billDate.keyword\":{\"gte\":\"now-24h\",\"lte\":\"now\"}}},{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}],\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"term\":{\"Data.paymentStatus.keyword\":\"Cancelled\"}}]}},\"aggs\":{\"Today's collection\":{\"sum\":{\"field\":\"Data.paymentDetails.totalAmountPaid\"}}}}}}",
+        "indexName": "ws-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"date\":{\"gt\":\"now-1d\/d\",\"lte\":\"now\"}}}]}},\"aggs\":{\"Todays Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}}}",
         "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
         "dateRefField": "Data.@timestamp"
       }
     ],
     "chartType": "metric",
     "valueType": "number",
-    "action": "",
     "drillChart": "none",
     "aggregationPaths": [
       "Today's collection"
     ],
     "insight": {
     },
-    "_comment": "W&S today's collections"
+    "_comment": " NSS W&S today's collections"
   },
   "wstotalCollectionv2": {
-    "chartName": "DSS_W&S_TOTAL_COLLECTION",
+    "chartName": "NSS_W&S_TARGET_COLLECTION",
     "queries": [
       {
         "module": "W&S",
-        "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.paymentStatus.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"Data.paymentDetails.totalAmountPaid\"}}}}}}",
+        "indexName": "ws-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}",
         "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
         "dateRefField": "Data.@timestamp"
       }
@@ -5213,17 +5212,18 @@
     ],
     "insight": {
     },
-    "_comment": "W&S total collections "
+    "_comment": " NSS W&S target collections "
   },
   "wstargetCollectionv2": {
-    "chartName": "DSS_W&S_TARGET_COLLECTION",
+    "chartName": "NSS_W&S_TOTAL_CUMULATIVE_COLLECTION",
     "queries": [
       {
         "module": "W&S",
         "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"ulbName.keyword\"}",
         "dateRefField": "",
-        "indexName": "dss-target_v1",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"businessService.keyword\":\"W&S\"}}]}},\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        "indexName": "ws-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Collections\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}}}"
+      },
       }
     ],
     "chartType": "metric",
@@ -5232,23 +5232,23 @@
     "drillChart": "none",
     "documentType": "_doc",
     "aggregationPaths": [
-      "Target Collection"
+      "Total Cumulative Collection"
     ],
     "isDayUnit": true,
     "postAggregationTheory" : "repsonseToDifferenceOfDates",
     "insight": {
     },
-    "_comment": " "
+    "_comment": "NSS W&S Total Cumulative Collection "
   },
   "wstargetAchievedv2": {
-    "chartName": "DSS_W&S_TARGET_ACHIEVED",
+    "chartName": "NSS_W&S_TARGET_ACHIEVED",
     "queries": [
       {
         "module": "W&S",
         "requestQueryMap": "{\r\n  \"module\" : \"businessService.keyword\", \n\"tenantId\" : \"ulbName.keyword\"}",
         "dateRefField": "",
         "indexName": "dss-target_v1",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"businessService.keyword\":\"W&S\"}}]}},\"aggs\":{\"Actual Collection\":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        "aggrQuery": " {\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"businessService.keyword\":\"W&S\"}}]}},\"aggs\":{\"Actual Collection\":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
       },
       {
         "module": "W&S",
@@ -9038,6 +9038,27 @@
     "insight": {
     },
     "_comment": " Bottom Performing Ulbs for target achieved"
+  },
+  "nssWsTodaysCollection": {
+    "chartName": "NSS_W&S_TODAYS_COLLECTION",
+    "queries": [
+      {
+        "module": "W&S",
+        "indexName": "ws-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"date\":{\"gt\":\"now-1d\/d\",\"lte\":\"now\"}}}]}},\"aggs\":{\"Todays Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}}}",
+        "requestQueryMap": "{\"module\" : \"module.keyword\", \"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Todays Collection"
+    ],
+    "insight": {
+    },
+    "_comment": " NSS W&S today's collections"
   }
 
 }
