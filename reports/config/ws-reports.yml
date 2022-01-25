@@ -633,13 +633,13 @@ ReportDefinitions:
     label: Start Date
     type: epoch
     source: pt
-    isMandatory: false
+    isMandatory: true
     searchClause: AND date(to_timestamp(ep.transactiondate/1000)) >= date($startdate)+1
   - name: enddate
     label: End Date
     type: epoch
     source: pt
-    isMandatory: false
+    isMandatory: true
     searchClause: AND date(to_timestamp(ep.transactiondate/1000)) <= date($enddate)+1
   query: |
       select INITCAP(SPLIT_PART(ep.tenantid,'.',2)) as ULB,	ce.username empuserid, ce."name" empname, 'Water' as head, to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as paymentdate, ep.paymentmode,	ep2.receiptnumber, ep2.amountpaid, ewc.connectionno, ewc.oldconnectionno, ch."name" holdername, EWC.ADDITIONALDETAILS->>'ward' as ward from egcl_payment ep inner join egcl_paymentdetail ep2 on ep2.paymentid = ep.id inner join eg_user ce on ce.id = cast(ep.createdby as INTEGER) inner join egcl_bill ebv on ep2.billid = ebv.id inner join eg_ws_connection ewc on ebv.consumercode = ewc.connectionno inner join eg_ws_connectionholder esc on esc.connectionid = ewc.id inner join eg_user ch on ch.uuid = esc.userid where ep2.businessservice like 'WS' and ce."type" ='EMPLOYEE' and ewc.isoldapplication = false
