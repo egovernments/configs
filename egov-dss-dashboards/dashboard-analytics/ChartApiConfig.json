@@ -7109,7 +7109,749 @@
     "insight": {
     },
     "_comment": "Bottom Performing Ulbs for provisional nocs issued"
+  },
+   "todaysCollectionv3": {
+    "chartName": "NATIONAL_DSS_TODAYS_COLLECTION",
+    "queries": [
+      {
+        "module": "PT",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"date\":{\"gt\":\"now-1d\/d\",\"lte\":\"now\"}}}]}},\"aggs\":{\"Todays Collection\":{\"sum\":{\"field\":\"todaysCollectionForUsageCategory\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "Amount",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "Todays Collection"
+    ],
+    "insight": {
+      "chartResponseMap" : "totalCollection",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " "
+  },
+   "totalCollectionv3": {
+    "chartName": "NATIONAL_DSS_TOTAL_COLLECTION",
+    "queries": [
+      {
+        "module": "PT",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForUsageCategory\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "Amount",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "Total Collection"
+    ],
+    "insight": {
+      "chartResponseMap" : "totalCollection",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " "
+  },
+
+  "targetCollectionv3": {
+    "chartName": "NATIONAL_DSS_TARGET_COLLECTION",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"module\" : \"module.keyword\", \"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "master-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "Target Collection"
+    ],
+    "isDayUnit": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "insight": {
+    },
+    "_comment": " "
+  },
+  "targetAchievedv3": {
+    "chartName": "NATIONAL_DSS_TARGET_ACHIEVED",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"module\" : \"module.keyword\", \"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "master-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Actual collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}"
+      },
+      {
+        "module": "PT",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForUsageCategory\"}}}}}}"
+      }
+
+    ],
+    "chartType": "metric",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "Total Collection",
+      "Actual collection"
+    ],
+    "insight": {
+      "chartResponseMap" : "targetAchieved",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " "
+  },
+  
+  "cumulativeCollectionv3": {
+    "chartName": "NATIONAL_DSS_TOTAL_CUMULATIVE_COLLECTION",
+    "queries": [
+      {
+        "module": "PT",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Collections\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForUsageCategory\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "Collections"
+    ],
+    "isCumulative": true,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": " "
+  },
+   
+  "topPerformingUlbsv3": {
+    "chartName": "NATIONAL_DSS_PT_TOP_3_PERFORMING_ULBS",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"module\" : \"module.keyword\", \"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "master-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"
+      },
+      {
+        "module": "PT",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Collection\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForUsageCategory\"}}}}}}}}"
+      }
+    ],
+    "chartType": "perform",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "plotLabel": "NATIONAL_DSS_TARGET_ACHIEVED",
+    "order": "desc",
+    "limit": 3,
+    "aggregationPaths": [
+      "Total Collection","Target Collection"
+    ],
+    "insight": {
+    },
+    "_comment": " Top Performing Ulbs for target achieved"
+  },
+
+  "bottomPerformingUlbsv3": {
+    "chartName": "DSS_PT_BOTTOM_3_PERFORMING_ULBS",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"module\" : \"module.keyword\", \"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "master-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"asc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"
+      },
+      {
+        "module": "PT",
+       "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Collection\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"asc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForUsageCategory\"}}}}}}}}"
+      }
+    ],
+    "chartType": "perform",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "plotLabel": "NATIONAL_DSS_TARGET_ACHIEVED",
+    "order": "asc",
+    "limit": 3,
+    "aggregationPaths": [
+      "Total Collection", "Target Collection"
+    ],
+    "insight": {
+    },
+    "_comment": " Bottom Performing Ulbs for target achieved"
+  },
+	
+  "collectionByUsageTypev3": {
+    "chartName": "NATIONAL_DSS_PT_COLLECTION_BY_USAGE_TYPE",
+    "queries": [
+      {
+        "module": "PT",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Usage Type\":{\"terms\":{\"field\":\"usageCategory.keyword\",\"size\":200},\"aggs\":{\"Amount Paid\":{\"sum\":{\"field\":\"todaysCollectionForUsageCategory\"}}}}}}}}"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "amount",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Usage Type"
+    ],
+    "insight": {
+    },
+    "_comment": " collection/amount per usage type"
+  },
+	
+  "demandCollectionIndexDDRRevenuev3": {
+    "chartName": "NATIONAL_DSS_PT_KEY_FY_INDICATORS",
+    "queries": [
+      {
+        "module": "PT",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"state \":{\"terms\":{\"field\":\"state.keyword\",\"size\":200},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForUsageCategory\"}},\"Transactions\":{\"sum\":{\"field\":\"transactionsForUsageCategory\"}},\"Assessed Properties\":{\"sum\":{\"field\":\"assessedPropertiesForUsageCategory\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+       "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "master-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"state \":{\"terms\":{\"field\":\"state.keyword\",\"size\":200},\"aggs\":{\"Target Collection\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "filterKeys": [
+      {"key": "state", "column": "State"}
+    ],
+    "chartType": "table",
+    "valueType": "number",
+    "drillChart": "none",
+    "action": "",
+    "plotLabel": "State",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "aggregationPaths": [
+      "Total Collection",
+      "Transactions",
+      "Assessed Properties",
+      "Target Collection"
+    ],
+     "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Collection","Target Collection"],
+        "newField" : "Target Achieved",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Collection": "amount"
+      },
+      {
+        "Transactions": "number"
+      },
+      {
+        "Assessed Properties": "number"
+      },
+      {
+        "Target Collection": "amount"
+      },
+      {
+      	"Target Achieved" : "percentage"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  
+  "demandCollectionIndexUsageRevenuev3": {
+    "chartName": "NATIONAL_DSS_PT_DEMAND_COLLECTION_USAGETYPE",
+    "queries": [
+      {
+        "module": "PT",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"UsageType \":{\"terms\":{\"field\":\"usageCategory.keyword\",\"size\":200},\"aggs\":{\"Total Collection\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"top_tags_per_comment\":{\"sum\":{\"field\":\"todaysCollectionForUsageCategory\"}}}},\"Transactions\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"txn\":{\"sum\":{\"field\":\"transactionsForUsageCategory\"}}}},\"Assessed Properties\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"assessedProperties\":{\"sum\":{\"field\":\"assessedPropertiesForUsageCategory\"}}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+
+    ],
+    "chartType": "table",
+    "valueType": "number",
+    "drillChart": "",
+    "drillFields": [
+      "ward",
+      ""
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Usage Type",
+    "aggregationPaths": [
+      "Total Collection",
+      "Transactions",
+      "Assessed Properties"
+
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Collection": "amount"
+      },
+      {
+        "Transactions": "number"
+      },
+      {
+        "Assessed Properties": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  
+ "taxHeadsBreakupDDRRevenuev3": {
+    "chartName": "NATIONAL_DSS_PT_TAX_HEAD_BREAKUP_REVENUE",
+    "queries": [
+      {
+        "module": "PT",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+      	"indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"State \":{\"terms\":{\"field\":\"state.keyword\",\"size\":200},\"aggs\":{\"Total Amount\":{\"sum\":{\"field\":\"todaysCollectionForUsageCategory\"}},\"PT Tax\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"propertyTaxForUsageCategory\"}}}},\"Cess\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"cessForUsageCategory\"}}}},\"Rebate\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"rebateForUsageCategory\"}}}},\"Penalty\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"penaltyForUsageCategory\"}}}},\"Interest\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"interestForUsageCategory\"}}}}}}}}}}"
+      
+      }
+    ],
+    "isMdmsEnabled": false,
+    "filterKeys": [
+      {"key": "state", "column": "State"}
+
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "taxHeadsBreakupRevenuev3",
+    "isPostResponseHandler": true,
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "State",
+    "aggregationPaths": [
+      "PT Tax",
+      "Cess",
+      "Rebate",
+      "Penalty",
+      "Interest"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "AdditiveComputedField",
+        "fields" : [ "PT Tax", "Cess", "Rebate", "Penalty", "Interest"],
+        "newField" : "Total Amount",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+
+  "taxHeadsBreakupRevenuev3": {
+    "chartName": "NATIONAL_DSS_PT_TAX_HEAD_BREAKUP_REVENUE",
+    "queries": [
+      {
+        "module": "PT",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"ulb \":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":200},\"aggs\":{\"Total Amount\":{\"sum\":{\"field\":\"todaysCollectionForUsageCategory\"}},\"PT Tax\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"propertyTaxForUsageCategory\"}}}},\"Cess\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"cessForUsageCategory\"}}}},\"Rebate\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"rebateForUsageCategory\"}}}},\"Penalty\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"penaltyForUsageCategory\"}}}},\"Interest\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"interestForUsageCategory\"}}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "ulb", "column": "Ulb"}
+
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "taxHeadsBreakupBoundaryDrillv3",
+    "drillFields": [
+      "ward",
+      ""
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Ulb",
+    "aggregationPaths": [
+     "PT Tax",
+      "Cess",
+      "Rebate",
+      "Penalty",
+      "Interest"
+    ],
+
+    "insight": {
+    },
+    "_comment": ""
+  },
+  
+  "taxHeadsBreakupBoundaryDrillv3": {
+    "chartName": "National Tax head Breakup boundary",
+    "queries": [
+      {
+      	"module": "PT",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"ward \":{\"terms\":{\"field\":\"ward.keyword\",\"size\":200},\"aggs\":{\"Total Amount\":{\"sum\":{\"field\":\"todaysCollectionForUsageCategory\"}},\"PT Tax\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"propertyTaxForUsageCategory\"}}}},\"Cess\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"cessForUsageCategory\"}}}},\"Rebate\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"rebateForUsageCategory\"}}}},\"Penalty\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"penaltyForUsageCategory\"}}}},\"Interest\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"interestForUsageCategory\"}}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "",
+    "drillFields": [
+      "ward",
+      ""
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Ward",
+    "aggregationPaths": [
+      "PT Tax",
+      "Cess",
+      "Rebate",
+      "Penalty",
+      "Interest"
+    ],
+
+    "insight": {
+    },
+    "_comment": ""
+  },
+   
+  "taxHeadsBreakupUsagev3": {
+    "chartName": "NATIONAL_DSS_PT_TAX_HEAD_BREAKUP_USAGE",
+    "queries": [
+      {
+        "module": "PT",
+       	"requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"usage \":{\"terms\":{\"field\":\"usageCategory.keyword\",\"size\":200},\"aggs\":{\"Total Amount\":{\"sum\":{\"field\":\"todaysCollectionForUsageCategory\"}},\"PT Tax\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"propertyTaxForUsageCategory\"}}}},\"Cess\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"cessForUsageCategory\"}}}},\"Rebate\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"rebateForUsageCategory\"}}}},\"Penalty\":{\"filter\":{\"term\":{\"module.keyword\":\"PT\"}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"penaltyForUsageCategory\"}}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+
+    ],
+    "chartType": "table",
+    "valueType": "number",
+    "drillChart": "",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Usage Type",
+    "aggregationPaths": [
+      "Total Amount",
+      "PT Tax",
+      "Cess",
+      "Rebate",
+      "Penalty"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Amount": "amount"
+      },
+      {
+        "PT Tax": "amount"
+      },
+      {
+        "Cess": "amount"
+      },
+      {
+        "Rebate": "amount"
+      },
+      {
+        "Penalty": "amount"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  "totalPropertiesv3": {
+    "chartName": "NATIONAL_DSS_PT_TOTAL_PROPERTIES",
+    "queries": [
+      {
+        "module": "PT",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Application\":{\"sum\":{\"field\":\"propertiesRegisteredForFinancialYear\"}}}}}}",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Application"
+    ],
+    "_comment": " totol properties count"
+  },
+  "propertiesAssessedv3": {
+    "chartName": "NATIONAL_DSS_PT_TOTAL_PROPERTIES_ASSESSED",
+    "queries": [
+      {
+        "module": "PT",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Assessed Properties\":{\"sum\":{\"field\":\"assessedPropertiesForUsageCategory\"}}}}}}",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Assessed Properties"
+    ],
+    "insight": {
+      "chartResponseMap" : "propertiesAssessed",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " totol properties having assessmentNumber "
+  },
+  "totalAssessmentv3": {
+    "chartName": "NATIONAL_DSS_PT_TOTAL_ASSESSMENTS",
+    "queries": [
+      {
+        "module": "PT",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"assessments\":{\"avg\":{\"field\":\"assessments\"}}}},\"Total Assessments\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.assessments\"}}}}}}",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Assessments"
+    ],
+    "insight": {
+      "chartResponseMap" : "totalAssessment",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " totol properties having assessmentNumber "
+  },
+  "cumulativePropertiesAssessedv3": {
+    "chartName": "NATIONAL_DSS_PT_CUMULATIVE_PROPERTIES_ASSESSED",
+    "queries": [
+      {
+        "module": "PT",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Collections\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"assessedPropertiesForUsageCategory\"}}}}}}}}",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Collections"
+    ],
+    "isCumulative": true,
+    "interval": "month",	
+    "insight": {
+    },
+    "_comment": " totol properties having assessmentNumber "
+  },
+  "topPerformingStatesCompletionRatev3": {
+    "chartName": "NATIONAL_DSS_PT_TOP_3_PERFORMING_ULBS",
+    "queries": [
+      {
+        "module": "PT",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Closed Application\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"assessedPropertiesForUsageCategory\"}}}},\"Total Application\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"propertiesRegisteredForFinancialYear\"}}}}}}}}"
+      }
+    ],
+    "chartType": "perform",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "plotLabel": "NATIONAL_DSS_COMPLETION_RATE",
+    "order": "desc",
+    "limit": 3,
+    "aggregationPaths": [
+      "Closed Application",
+      "Total Application"
+    ],
+    "insight": {
+    },
+    "_comment": " Top Performing states for Completion rate"
+  },
+  
+  "bottomPerformingStatesCompletionRatev3": {
+    "chartName": "NATIONAL_DSS_PT_BOTTOM_3_PERFORMING_ULBS",
+    "queries": [
+      {
+        "module": "PT",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Closed Application\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"assessedPropertiesForUsageCategory\"}}}},\"Total Application\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"propertiesRegisteredForFinancialYear\"}}}}}}}}"
+      }
+    ],
+    "chartType": "perform",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "plotLabel": "NATIONAL_DSS_COMPLETION_RATE",
+    "order": "asc",
+    "limit": 3,
+    "aggregationPaths": [
+      "Closed Application",
+      "Total Application"
+    ],
+    "insight": {
+    },
+    "_comment": " Bottom Performing states for Completion rate"
+  },
+  "propertiesByUsageTypev3": {
+    "chartName": "NATIONAL_DSS_PT_PROPERTIES_BY_USAGE_TYPE",
+    "queries": [
+      {
+        "module": "PT",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Usage Type\":{\"terms\":{\"field\":\"usageCategory.keyword\"},\"aggs\":{\"Assessed Properties\":{\"sum\":{\"field\":\"assessedPropertiesForUsageCategory\"}}}}}}}}"
+
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Usage Type"
+    ],
+    "insight": {
+    },
+    "_comment": " properties having assessmentNumber per usage type"
+  },
+
+  "xptFyByStetesv3": {
+    "chartName": "NATIONAL_DSS_PT_PROPERTIES_BY_FINANCIAL_YEAR",
+    "queries": [
+       {
+      
+        "module": "PT",
+		"requestQueryMap": "{\"state\" : \"state.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pt-national-dashboard",	
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"state \":{\"terms\":{\"field\":\"state.keyword\",\"size\":200},\"aggs\":{\"Fys\":{\"terms\":{\"field\":\"financialYear.keyword\",\"min_doc_count\":0},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"propertiesRegisteredForFinancialYear\"}}}}}}}}}}"
+      },
+      {
+        "module": "PT",
+        "requestQueryMap": "{\"state\" : \"state.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"state \":{\"terms\":{\"field\":\"state.keyword\",\"size\":200},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"propertiesRegisteredForFinancialYear\"}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "filterKeys": [
+      {"key": "state", "column": "State"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "plotLabel": "State",
+    "insight": {
+    },
+    "_comment": " fy data"
   }
+  
 
 
 
