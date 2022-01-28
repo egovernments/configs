@@ -4967,7 +4967,7 @@
         "dateRefField": "Data.connectionExecutionDate"
       }
     ],
-    "translateTenantCode": true,
+    "translateTenantCode": false,
     "chartType": "metric",
     "valueType": "number",
     "action": "",
@@ -4976,6 +4976,13 @@
       "Active Water Connections"
     ],
     "insight": {
+      "chartResponseMap" : "wsActiveWaterConnection",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year"
     },
     "_comment": "active water connections"
   },
@@ -4991,7 +4998,7 @@
         "dateRefField": "Data.connectionExecutionDate"
       }
     ],
-    "translateTenantCode": true,
+    "translateTenantCode": false,
     "chartType": "metric",
     "valueType": "number",
     "action": "",
@@ -5000,6 +5007,13 @@
       "Active Metered Water Connections"
     ],
     "insight": {
+      "chartResponseMap" : "wsActiveMeteredWaterConnection",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year"
     },
     "_comment": "active metered water connections"
   },
@@ -5015,7 +5029,7 @@
         "dateRefField": "Data.connectionExecutionDate"
       }
     ],
-    "translateTenantCode": true,
+    "translateTenantCode": false,
     "chartType": "metric",
     "valueType": "number",
     "action": "",
@@ -5024,6 +5038,13 @@
       "Active Non-Metered Water Connections"
     ],
     "insight": {
+      "chartResponseMap" : "wsActiveNonMeteredWaterConnection",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year"
     },
     "_comment": "active non-metered water connections"
   },
@@ -5038,7 +5059,7 @@
         "dateRefField": "Data.connectionExecutionDate"
       }
     ],
-    "translateTenantCode": true,
+    "translateTenantCode": false,
     "chartType": "metric",
     "valueType": "number",
     "action": "",
@@ -5047,6 +5068,13 @@
       "Active Sewerage Connections"
     ],
     "insight": {
+      "chartResponseMap" : "wsActiveSewerageConnection",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year"
     },
     "_comment": "active sewerage connections "
   },
@@ -5086,7 +5114,7 @@
         "dateRefField": "Data.@timestamp"
       }
     ],
-    "translateTenantCode": true,
+    "translateTenantCode": false,
     "chartType": "metric",
     "valueType": "amount",
     "action": "",
@@ -5142,7 +5170,7 @@
       }
 
     ],
-    "translateTenantCode": true,
+    "translateTenantCode": false,
     "chartType": "metric",
     "valueType": "percentage",
     "drillChart": "none",
@@ -12121,6 +12149,38 @@
     "insight": {
     },
     "_comment": "National PGR Cumulatiove closed complaints by month area chart"
-  }
+  },
+
+  "wsSLACompliance": {
+    "chartName": "DSS_WS_SLA_COMPLIANCE",
+    "queries": [
+      {
+        "module": "WS",
+        "indexName": "water-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Closed With In Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.history.auditDetails.lastModifiedTime'].value - doc['Data.history.auditDetails.createdTime'].value < params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}},\"Total Applications\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}}}}",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId.keyword\" \r\n}",
+        "dateRefField": "Data.history.auditDetails.createdTime"
+      }
+    ],
+    "translateTenantCode": false,
+    "chartType": "metric",
+    "valueType": "percentage",
+    "action": "percentage",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Closed With In Sla",
+      "Total Applications"
+    ],
+    "insight": {
+      "chartResponseMap" : "wsSLACompliance",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year"
+      },
+      "_comment": "WS SLA Compliance"
+    }
 	
 }
