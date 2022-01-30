@@ -12968,8 +12968,181 @@
     "insight": {
     },
     "_comment": " Total Number of License having issued"
+  },
+  "nurtOnboardedStates":{
+    "chartName": "NURT_ONBOARDED_STATES",
+    "queries": [
+      {
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "common-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"match\":{\"status\":\"OnBoarded\"}},\"aggs\":{\"OnBoardedStates\":{\"cardinality\":{\"field\":\"state.keyword\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "OnBoardedStates"
+    ],
+    "insight": {
+      "chartResponseMap" : "OnBoardedStates",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " "
+  },
+  "nurtUnderImpStates":{
+    "chartName": "NURT_UNDERIMPL_STATES",
+    "queries": [
+      {
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "common-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"match\":{\"status\":\"UnderImplementation\"}},\"aggs\":{\"underImpmStates\":{\"cardinality\":{\"field\":\"state.keyword\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "underImpmStates"
+    ],
+    "insight": {
+      "chartResponseMap" : "underImpmStates",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " "
+  },
+  "nurtLiveStates":{
+    "chartName": "NURT_LIVE_STATES",
+    "queries": [
+      {
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "common-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"match\":{\"status\":\"Live\"}},\"aggs\":{\"liveStates\":{\"cardinality\":{\"field\":\"state.keyword\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "liveStates"
+    ],
+    "insight": {
+      "chartResponseMap" : "liveStates",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " "
+  },
+  "nurtLiveUlbs":{
+    "chartName": "NURT_LIVE_ULB",
+    "queries": [
+      {
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "common-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"status.keyword\":\"Live\"}},{\"range\":{\"liveUlbsCountForModule\":{\"gte\":1}}}]}},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date.keyword\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"modules\":{\"terms\":{\"field\":\"module.keyword\"},\"aggs\":{\"intermediateAggr\":{\"avg\":{\"field\":\"liveUlbsCountForModule\"}}}},\"totalLiveUlbCount\":{\"sum_bucket\":{\"buckets_path\":\"modules.intermediateAggr\"}}}},\"totalLiveUlbCount\":{\"avg_bucket\":{\"buckets_path\":\"latest.totalLiveUlbCount\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "totalLiveUlbCount"
+    ],
+    "insight": {
+      "chartResponseMap" : "totalLiveUlbCount",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " "
+  },
+  "nurtTotalCitzens":{
+    "chartName": "NURT_TOTAL_CITIZENS",
+    "queries": [
+      {
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "common-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"status.keyword\":\"Live\"}}]}},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date.keyword\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"totalCitizensCount\":{\"avg\":{\"field\":\"totalCitizensCount\"}}}},\"totalCitizensCount\":{\"avg_bucket\":{\"buckets_path\":\"latest.totalCitizensCount\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "totalCitizensCount"
+    ],
+    "insight": {
+      "chartResponseMap" : "totalCitizensCount",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " "
+  },
+  "nurtSlaAchieved":{
+    "chartName": "NURT_SLA_ACHIEVED",
+    "queries": [
+      {
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "common-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"status.keyword\":\"Live\"}}]}},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date.keyword\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"slaAchievement\":{\"avg\":{\"field\":\"slaAchievement\"}}}},\"slaAchievement\":{\"avg_bucket\":{\"buckets_path\":\"latest.slaAchievement\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "slaAchievement"
+    ],
+    "insight": {
+      "chartResponseMap" : "slaAchievement",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " "
   }
-  
  
 	
 }
