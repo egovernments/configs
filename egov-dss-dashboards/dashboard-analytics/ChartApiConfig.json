@@ -10699,14 +10699,14 @@
     "_comment": " NSS W&S today's collections"
   },
   "nssWsTargetCollection": {
-    "chartName": "NSS_W&S_TARGET_COLLECTION",
+    "chartName": "NSS_WS_TARGET_COLLECTION",
     "queries": [
       {
-        "module": "W&S",
-        "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"tenantIdForMunicipalCorporation.keyword\"}",
-        "dateRefField": "",
-        "indexName": "ws-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}"
+        "module": "WS",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "master-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"term\":{\"module.keyword\":\"WS\"}},\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
       }
     ],
     "chartType": "metric",
@@ -10719,19 +10719,33 @@
     ],
     "isDayUnit": true,
     "postAggregationTheory" : "repsonseToDifferenceOfDates",
-    "insight": {
+    "insight":  {
+      "chartResponseMap" : "nssWsTargetCollection",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
     },
     "_comment": "NSS W&S Target Collection "
   },
   "nssWsTargetAchieved": {
-    "chartName": "NSS_DSS_TARGET_ACHIEVED",
+    "chartName": "NSS_WS_TARGET_ACHIEVED",
     "queries": [
       {
         "module": "COMMON",
-        "requestQueryMap": "{\"module\" : \"module.keyword\", \"ulb\" : \"ulb.keyword\"}",
+        "requestQueryMap": "{\"module\" : \"module.keyword\", \"ulb\" : \"ulb.keyword\",\"state\" : \"state.keyword\"}",
         "dateRefField": "date",
         "indexName": "ws-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"Actual collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}"
+        "aggrQuery": "{\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}"
+      },
+      {
+        "module": "WS",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "master-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"term\":{\"module.keyword\":\"WS\"}},\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
       }
     ],
     "chartType": "metric",
@@ -10741,10 +10755,10 @@
     "action": "percentage",
     "aggregationPaths": [
       "Total Collection",
-      "Actual collection"
+      "Target Collection"
     ],
     "insight": {
-      "chartResponseMap" : "targetAchieved",
+      "chartResponseMap" : "nssWsTargetAchieved",
       "action" : "differenceOfNumbers",
       "upwardIndicator" : "positive",
       "downwardIndicator" : "negative",
@@ -13345,7 +13359,7 @@
     },
     "_comment": " "
   },
-  "waterConnectionByUsageType": {
+  "nssWsWaterConnectionByUsageType": {
     "chartName": "NSS_W&S_WATER_CONNECTION_BY_USAGE",
     "queries": [
       {
@@ -13369,7 +13383,7 @@
     },
     "_comment": " "
   },
-  "sewerageConnectionByUsageType": {
+  "nssWsSewerageConnectionByUsageType": {
     "chartName": "NSS_W&S_SEWERAGE_CONNECTION_BY_USAGE",
     "queries": [
       {
@@ -13418,6 +13432,127 @@
     "insight": {
     },
     "_comment": " "
-  }
-	
+  },
+
+  "nssWsTotalCollection": {
+    "chartName": "NSS_WS_TOTAL_COLLECTION",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"module\" : \"module.keyword\", \"ulb\" : \"ulb.keyword\",\"state\" : \"state.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "ws-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentChannelType\"}}}}"
+      }
+    ],
+    "translateTenantCode": false,
+    "chartType": "metric",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Collection"
+    ],
+    "insight": {
+      "chartResponseMap" : "nssWsTotalCollection",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": "W&S total collections "
+  },
+	"nssWsActiveMeteredWaterConnection": {
+  "chartName": "NSS_W&S_ACTIVE_METERED_WATER_CONNECTIONS",
+  "queries": [
+    {
+      "module": "W&S",
+      "indexName": "ws-national-dashboard",
+      "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}},{\"terms\":{\"Data.connectionType.keyword\":[\"Metered\"]}}]}},\"aggs\":{\"Active Metered Water Connections\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
+      "requestQueryMap": "{\"module\" : \"module.keyword\", \"ulb\" : \"ulb.keyword\",\"state\" : \"state.keyword\"}",
+      "dateRefField": "Data.connectionExecutionDate"
+    }
+  ],
+  "translateTenantCode": false,
+  "chartType": "metric",
+  "valueType": "number",
+  "action": "",
+  "drillChart": "none",
+  "aggregationPaths": [
+    "Active Metered Water Connections"
+  ],
+  "insight": {
+    "chartResponseMap" : "nssWsActiveMeteredWaterConnection",
+    "action" : "differenceOfNumbers",
+    "upwardIndicator" : "positive",
+    "downwardIndicator" : "negative",
+    "textMessage" : "$indicator$value% than last $insightInterval",
+    "colorCode" : "#228B22",
+    "insightInterval" : "year"
+  },
+  "_comment": "active metered water connections"
+},
+
+"nssWsActiveNonMeteredWaterConnection": {
+  "chartName": "NSS_W&S_ACTIVE_NON_METERED_WATER_CONNECTIONS",
+  "queries": [
+    {
+      "module": "W&S",
+      "indexName": "ws-national-dashboard",
+      "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}},{\"terms\":{\"Data.connectionType.keyword\":[\"Non Metered\"]}}]}},\"aggs\":{\"Active Non-Metered Water Connections\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
+      "requestQueryMap": "{\"module\" : \"module.keyword\", \"ulb\" : \"ulb.keyword\",\"state\" : \"state.keyword\"}",
+      "dateRefField": "Data.connectionExecutionDate"
+    }
+  ],
+  "translateTenantCode": false,
+  "chartType": "metric",
+  "valueType": "number",
+  "action": "",
+  "drillChart": "none",
+  "aggregationPaths": [
+    "Active Non-Metered Water Connections"
+  ],
+  "insight": {
+    "chartResponseMap" : "nssWsActiveNonMeteredWaterConnection",
+    "action" : "differenceOfNumbers",
+    "upwardIndicator" : "positive",
+    "downwardIndicator" : "negative",
+    "textMessage" : "$indicator$value% than last $insightInterval",
+    "colorCode" : "#228B22",
+    "insightInterval" : "year"
+  },
+  "_comment": "active non-metered water connections"
+},
+"nssWsActiveSewerageConnection": {
+  "chartName": "NSS_W&S_ACTIVE_SEWERAGE_CONNECTIONS",
+  "queries": [
+    {
+      "module": "W&S",
+      "indexName": "ws-national-dashboard",
+      "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"Active Sewerage Connections\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
+      "requestQueryMap": "{\"module\" : \"module.keyword\", \"ulb\" : \"ulb.keyword\",\"state\" : \"state.keyword\"}",
+      "dateRefField": "Data.connectionExecutionDate"
+    }
+  ],
+  "translateTenantCode": false,
+  "chartType": "metric",
+  "valueType": "number",
+  "action": "",
+  "drillChart": "none",
+  "aggregationPaths": [
+    "Active Sewerage Connections"
+  ],
+  "insight": {
+    "chartResponseMap" : "nssWsActiveSewerageConnection",
+    "action" : "differenceOfNumbers",
+    "upwardIndicator" : "positive",
+    "downwardIndicator" : "negative",
+    "textMessage" : "$indicator$value% than last $insightInterval",
+    "colorCode" : "#228B22",
+    "insightInterval" : "year"
+  },
+  "_comment": "active sewerage connections "
+}
 }
