@@ -9146,9 +9146,548 @@
       "insightInterval" : "year"
       },
       "_comment": "WS SLA Compliance"
-    }
+    },
 
   
+    "_comment": "National Dashboard-WS configs start here-------------------------------",
 
-
+    "nssWsCumulativeCollections": {
+      "chartName": "NSS_WS_TOTAL_CUMULATIVE_COLLECTION",
+      "queries": [
+        {
+          "module": "WS",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+          "indexName": "ws-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"Water Collections\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"Water\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"connectionType.keyword\":[\"WATER.NONMETERED\",\"WATER.METERED\"]}}]}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForConnectionType\"}}}}}},\"Sewerage Collections\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"Sewerage\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"connectionType.keyword\":[\"SEWERAGE\"]}}]}},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"todaysCollectionForConnectionType\"}}}}}}}}"
+      }
+      ],
+      "translateTenantCode": false,
+      "chartType": "line",
+      "valueType": "number",
+      "action": "",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "aggregationPaths": [
+        "Water Collections",
+        "Sewerage Collections"
+  
+      ],
+      "isCumulative": true,
+      "interval": "month",
+      "insight": {
+      },
+      "_comment": " "
+    },
+    
+    "nssWsTopPerformingUlbs": {
+      "chartName": "NSS_WS_TOP_3_PERFORMING_STATES",
+      "queries": [
+        {
+          "module": "COMMON",
+         "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "master-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"term\":{\"module.keyword\":\"WS\"}},\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        },
+        {
+          "module": "WS",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "ws-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Collection\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForPaymentChannelType\"}}}}}}}}"
+        }
+      ],
+      "chartType": "perform",
+      "valueType": "percentage",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "percentage",
+      "plotLabel": "NSS_WS_TOP_3_PERFORMING_STATES",
+      "order": "desc",
+      "limit": 3,
+      "aggregationPaths": [
+        "Total Collection","Target Collection"
+      ],
+      "insight": {
+      },
+      "_comment": " Top Performing Ulbs for target achieved"
+    },
+    
+    "nssWsBottomPerformingUlbs": {
+      "chartName": "NSS_WS_BOTTOM_3_PERFORMING_STATES",
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"module\" : \"module.keyword\", \"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "master-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"term\":{\"module.keyword\":\"WS\"}},\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"asc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        },
+        {
+          "module": "WS",
+         "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "ws-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Collection\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"asc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForPaymentChannelType\"}}}}}}}}"
+        }
+      ],
+      "chartType": "perform",
+      "valueType": "percentage",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "percentage",
+      "plotLabel": "NSS_WS_BOTTOM_3_PERFORMING_STATES",
+      "order": "asc",
+      "limit": 3,
+      "aggregationPaths": [
+        "Total Collection", "Target Collection"
+      ],
+      "insight": {
+      },
+      "_comment": " Bottom Performing States for target achieved"
+    },
+    
+    "nssWsCollectionByUsage": {
+      "chartName": "NSS_WS_COLLECTION_BY_USAGE",
+      "queries": [
+        {
+          "module": "WS",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"tenantId\" : \"tenantId.keyword\",\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+          "indexName": "ws-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Collection by Usage Type\":{\"terms\":{\"field\":\"usageType.keyword\",\"size\":200},\"aggs\":{\"Amount Paid\":{\"sum\":{\"field\":\"todaysCollectionForUsageType\"}}}}}}}}"
+        }
+      ],
+      "translateTenantCode": true,
+      "chartType": "pie",
+      "valueType": "number",
+      "action": "",
+      "documentType": "_doc",
+      "drillChart": "none",
+      "aggregationPaths": [
+        "Collection by Usage Type"
+      ],
+      "insight": {
+      },
+      "_comment": " "
+    },
+    
+    
+    "nssWsCollectionByChannel": {
+      "chartName": "NSS_WS_COLLECTION_BY_CHANNEL",
+      "queries": [
+        {
+          "module": "WS",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"tenantId\" : \"tenantId.keyword\",\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+          "indexName": "ws-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Collection by Channel Type\":{\"terms\":{\"field\":\"paymentChannelType.keyword\",\"size\":200},\"aggs\":{\"Amount Paid\":{\"sum\":{\"field\":\"todaysCollectionForPaymentChannelType\"}}}}}}}}"
+        }
+      ],
+      "translateTenantCode": true,
+      "chartType": "pie",
+      "valueType": "number",
+      "action": "",
+      "documentType": "_doc",
+      "drillChart": "none",
+      "aggregationPaths": [
+        "Collection by Channel Type"
+      ],
+      "insight": {
+      },
+      "_comment": " "
+    },
+    
+    
+    "nssWsFinancialIndicatorState": {
+      "chartName": "NSS_WS_KEY_FY_INDICATORS",
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"module\" : \"module.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "master-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"state \":{\"terms\":{\"field\":\"state.keyword\",\"size\":200},\"aggs\":{\"Target_Collection\":{\"filter\":{\"term\":{\"module.keyword\":\"WS\"}},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        },
+        {
+          "module": "WS",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ward\" : \"ward.keyword\"}",
+          "indexName": "ws-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"State\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Total_Connections\":\"desc\"}},\"aggs\":{\"Total_Connections\":{\"sum\":{\"field\":\"connectionsCreatedForConnectionType\"}},\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentChannelType\"}},\"Total_Transactions\":{\"avg\":{\"field\":\"transactions\"}}}}}}}}"
+        }
+      ],
+      "filterKeys": [
+        {
+          "key": "state","column": "State"
+        }
+      ],
+      "isPostResponseHandler": true,
+      "postAggregationTheory": "repsonseToDifferenceOfDates",
+      "chartType": "xtable",
+      "valueType": "number",
+      "drillChart": "nssWsFinancialIndicatorTenant",
+      "documentType": "_doc",
+      "action": "",
+      "plotLabel": "State",
+      "aggregationPaths": [
+        "Target_Collection",
+        "Total_Collection",
+        "Total_Transactions",
+        "Total_Connections"
+      ],
+      "computedFields": [
+        {
+          "postAggregationTheory" : "",
+          "actionName": "PercentageComputedField",
+          "fields" : ["Total_Collection","Target_Collection"],
+          "newField" : "Target_Achieved",
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        }
+      ],
+      "pathDataTypeMapping": [
+        {
+          "Total_Collection": "amount"
+        },
+        {
+          "Total_Transactions": "number"
+        },
+        {
+          "Total_Connections": "number"
+        },
+        {
+          "Target_Collection": "amount"
+        },
+        {
+          "Target_Achieved": "percentage"
+        }
+      ],
+      "insight": {
+      },
+      "_comment": " "
+    },
+  
+    "nssWsFinancialIndicatorTenant": {
+      "chartName": "NSS_WS_DEMAND_COLLECTION_BOUNDARY",
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"module\" : \"module.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "master-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"state \":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":200},\"aggs\":{\"Target_Collection\":{\"filter\":{\"term\":{\"module.keyword\":\"WS\"}},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        },
+        {
+          "module": "WS",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+          "indexName": "ws-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"ULB\":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":\"200\",\"order\":{\"Total_Connections\":\"desc\"}},\"aggs\":{\"Total_Connections\":{\"sum\":{\"field\":\"connectionsCreatedForConnectionType\"}},\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentChannelType\"}},\"Total_Transactions\":{\"avg\":{\"field\":\"transactions\"}}}}}}}}"
+        }
+      ],
+      "filterKeys": [
+        {
+          "key": "ulb","column": "ULB"
+        }
+      ],
+      "postAggregationTheory": "repsonseToDifferenceOfDates",
+      "chartType": "xtable",
+      "valueType": "number",
+      "drillChart": "nssWsFinancialIndicatorWard",
+      "documentType": "_doc",
+      "action": "",
+      "plotLabel": "ULB",
+      "aggregationPaths": [
+        "Target_Collection",
+        "Total_Collection",
+        "Total_Transactions",
+        "Total_Connections"
+      ],
+      "computedFields": [
+        {
+          "postAggregationTheory" : "",
+          "actionName": "PercentageComputedField",
+          "fields" : ["Total_Collection","Target_Collection"],
+          "newField" : "Target_Achieved",
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        }
+      ],
+      "pathDataTypeMapping": [
+        {
+          "Total_Collection": "amount"
+        },
+        {
+          "Total_Transactions": "number"
+        },
+        {
+          "Total_Connections": "number"
+        },
+        {
+          "Target_Collection": "amount"
+        },
+        {
+          "Target_Achieved": "percentage"
+        }
+      ],
+      "insight": {},
+      "_comment": ""
+    },
+    
+    "nssWsFinancialIndicatorWard": {
+      "chartName": "",
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "master-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"state \":{\"terms\":{\"field\":\"ward.keyword\",\"size\":200},\"aggs\":{\"Target_Collection\":{\"filter\":{\"term\":{\"module.keyword\":\"WS\"}},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        },
+        {
+          "module": "WS",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+          "indexName": "ws-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"ward.keyword\",\"size\":\"200\",\"order\":{\"Total_Connections\":\"desc\"}},\"aggs\":{\"Total_Connections\":{\"sum\":{\"field\":\"connectionsCreatedForConnectionType\"}},\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentChannelType\"}},\"Total_Transactions\":{\"avg\":{\"field\":\"transactions\"}}}}}}}}"
+        }
+      ],
+      "isMdmsEnabled": false,
+      "filterKeys": [
+  
+      ],
+      "postAggregationTheory": "repsonseToDifferenceOfDates",
+      "chartType": "xtable",
+      "valueType": "number",
+      "drillChart": "",
+      "documentType": "_doc",
+      "action": "",
+      "plotLabel": "Ward",
+      "aggregationPaths": [
+        "Target_Collection",
+        "Total_Collection",
+        "Total_Transactions",
+        "Total_Connections"
+      ],
+      "computedFields": [
+        {
+          "postAggregationTheory" : "",
+          "actionName": "PercentageComputedField",
+          "fields" : ["Total_Collection","Target_Collection"],
+          "newField" : "Target_Achieved",
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        }
+      ],
+      "pathDataTypeMapping": [
+        {
+          "Total_Collection": "amount"
+        },
+        {
+          "Total_Transactions": "number"
+        },
+        {
+          "Total_Connections": "number"
+        },
+        {
+          "Target_Collection": "amount"
+        },
+        {
+          "Target_Achieved": "percentage"
+        }
+      ],
+      "insight": {
+      },
+      "_comment": ""
+    },
+    
+    
+    "nssWsTaxHeadState": {
+      "chartName": "NSS_WS_TAX_HEAD_BOUNDARY",
+      "queries": [
+        {
+          "module": "WS",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ward\" : \"ward.keyword\"}",
+          "indexName": "ws-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"State \":{\"terms\":{\"field\":\"state.keyword\",\"size\":200},\"aggs\":{\"Interest\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"INTEREST\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Late_Charges\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"LATE.CHARGES\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Arrear_Charges\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"ARREAR.CHARGES\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Advance\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"ADVANCE\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Current_Charges\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"CURRENT.CHARGES\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}}}}}}"
+        }
+      ],
+      "isMdmsEnabled": false,
+      "filterKeys": [
+        {"key": "state", "column": "State"}
+      ],
+      "chartType": "table",
+      "valueType": "number",
+      "drillChart": "nssWsTaxHeadTenant",
+      "action": "",
+      "plotLabel": "State",
+      "postAggregationTheory" : "",
+      "aggregationPaths": [
+        "Total_Collection",
+        "Late_Charges",
+        "Interest",
+      "Advance",
+        "Current_Charges",
+        "Arrear_Charges"
+  
+      ],
+      "pathDataTypeMapping": [
+        {
+          "Total_Collection": "amount"
+        },
+        {
+          "Late_Charges": "amount"
+        },
+        {
+          "Interest": "amount"
+        },
+        {
+          "Advance": "amount"
+        },
+        {
+          "Current_Charges": "amount"
+        },
+        {
+          "Arrear_Charges": "amount"
+        }
+      ],
+      "insight": {
+      },
+      "_comment": ""
+    },
+    
+    "nssWsTaxHeadTenant": {
+      "chartName": "NSS_WS_TAX_HEAD_BOUNDARY",
+      "queries": [
+        {
+          "module": "WS",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+          "indexName": "ws-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"ULB \":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":200},\"aggs\":{\"Interest\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"INTEREST\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Late_Charges\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"LATE.CHARGES\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Arrear_Charges\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"ARREAR.CHARGES\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Advance\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"ADVANCE\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Current_Charges\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"CURRENT.CHARGES\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}}}}}}"
+        }
+      ],
+      "translateTenantCode": false,
+      "isMdmsEnabled": false,
+      "filterKeys": [
+        {"key": "ulb", "column": "ULB"}
+      ],
+      "chartType": "table",
+      "valueType": "number",
+      "drillChart": "nssWsTaxHeadWard",
+      "action": "",
+      "plotLabel": "ULB",
+      "postAggregationTheory" : "",
+      "aggregationPaths": [
+        "Total_Collection",
+        "Late_Charges",
+        "Interest",
+      "Advance",
+        "Current_Charges",
+        "Arrear_Charges"
+  
+      ],
+      "pathDataTypeMapping": [
+        {
+          "Total_Collection": "amount"
+        },
+        {
+          "Late_Charges": "amount"
+        },
+        {
+          "Interest": "amount"
+        },
+        {
+          "Advance": "amount"
+        },
+        {
+          "Current_Charges": "amount"
+        },
+        {
+          "Arrear_Charges": "amount"
+        }
+      ],
+      "insight": {
+      },
+      "_comment": ""
+    },
+    
+    "nssWsTaxHeadWard": {
+      "chartName": "",
+      "queries": [
+        {
+          "module": "WS",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+          "indexName": "ws-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Ward \":{\"terms\":{\"field\":\"ward.keyword\",\"size\":200},\"aggs\":{\"Interest\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"INTEREST\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Late_Charges\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"LATE.CHARGES\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Arrear_Charges\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"ARREAR.CHARGES\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Advance\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"ADVANCE\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Current_Charges\":{\"filter\":{\"terms\":{\"taxHeads.keyword\":[\"CURRENT.CHARGES\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}},\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForTaxHeads\"}}}}}}}}"
+        }
+      ],
+      "isMdmsEnabled": false,
+      "translateTenantCode": false,
+      "filterKeys": [
+      ],
+      "chartType": "table",
+      "valueType": "number",
+      "drillChart": "none",
+      "action": "",
+      "plotLabel": "Ward",
+      "postAggregationTheory" : "",
+      "aggregationPaths": [
+        "Total_Collection",
+        "Late_Charges",
+        "Interest",
+      "Advance",
+        "Current_Charges",
+        "Arrear_Charges"
+  
+      ],
+      "pathDataTypeMapping": [
+        {
+          "Total_Collection": "amount"
+        },
+        {
+          "Late_Charges": "amount"
+        },
+        {
+          "Interest": "amount"
+        },
+        {
+          "Advance": "amount"
+        },
+        {
+          "Current_Charges": "amount"
+        },
+        {
+          "Arrear_Charges": "amount"
+        }
+      ],
+      "insight": {
+      },
+      "_comment": ""
+    },
+    
+    
+    "nssWsTodaysCollection": {
+      "chartName": "NSS_WS_TODAYS_COLLECTION",
+      "queries": [
+        {
+          "module": "WS",
+          "indexName": "ws-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"date\":{\"gt\":\"now-1d\/d\",\"lte\":\"now\"}}}]}},\"aggs\":{\"Todays Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}}}",
+          "requestQueryMap": "{\"module\" : \"module.keyword\", \"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date"
+        }
+      ],
+      "chartType": "metric",
+      "valueType": "number",
+      "drillChart": "none",
+      "aggregationPaths": [
+        "Todays Collection"
+      ],
+      "insight": {
+      },
+      "_comment": " NSS WS today's collections"
+    }
+    
 }
