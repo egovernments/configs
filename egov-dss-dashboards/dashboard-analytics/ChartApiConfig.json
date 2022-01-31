@@ -11815,7 +11815,7 @@
   },
 
 	"propertiesAssessedv3": {
-    "chartName": "NATIONAL_DSS_PT_TOTAL_PROPERTIES_ASSESSED",
+    "chartName": "NURT_PT_TOTAL_PROPERTIES_ASSESSED",
     "queries": [
       {
         "module": "PT",
@@ -12860,12 +12860,19 @@
         "aggrQuery": "{\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}"
       },
       {
-        "module": "MC",
+        "module": "COMMON",
         "dateRefField": "date",
         "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
         "indexName": "mcollect-national-dashboard",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}}}"
-      }
+      },
+      {
+        "module": "W&S",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+        "indexName": "ws-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Total Collection\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"Water\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"connectionType.keyword\":[\"WATER.NONMETERED\",\"WATER.METERED\"]}}]}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForConnectionType\"}}}}}},\"Sewerage Collections\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"Sewerage\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"connectionType.keyword\":[\"SEWERAGE\"]}}]}},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"todaysCollectionForConnectionType\"}}}}}}}}"
+    }
       
     ],
     "chartType": "metric",
@@ -12887,7 +12894,49 @@
     },
     "_comment": " "
   },
-  
+  "totalApplicationsOverview": {
+    "chartName": "DSS_TOTAL_APPLICATIONS",
+    "queries": [
+      {
+        "module": "TL",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "tl-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Applications\":{\"sum\":{\"field\":\"todaysApplications\"}}}}}}"
+      },
+      {
+        "module": "FIRENOC",
+        "dateRefField": "",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"tenantId\" : \"tenantId\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Total Applications\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}"
+      },
+      {
+        "module": "PT",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Applications\":{\"sum\":{\"field\":\"propertiesRegisteredForFinancialYear\"}}}}}}",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "Total Applications"
+    ],
+    "insight": {
+      "chartResponseMap" : "Total Applications",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    }
+  },
   "targetCollectionvOverview": {
     "chartName": "NATIONAL_DSS_TARGET_COLLECTION",
     "queries": [
