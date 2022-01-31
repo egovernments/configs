@@ -4916,7 +4916,7 @@
     "documentType": "_doc",
     "drillChart": "none",
     "aggregationPaths": [
-      "Payment Mode"
+      "collection_channels"
     ],
     "insight": {
     },
@@ -4936,7 +4936,7 @@
         "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\", \"tenantId\" : \"dataObject.tenantId\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
         "dateRefField": "dataObject.transactionDate",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}]}},\"aggs\":{\"UsageType\":{\"terms\":{\"field\":\"domainObject.usageCategory.keyword\",\"size\":200},\"aggs\":{\"AmountPaid\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}]}},\"aggs\":{\"Usage Type\":{\"terms\":{\"field\":\"domainObject.usageCategory.keyword\",\"size\":200},\"aggs\":{\"AmountPaid\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
       }
     ],
     "chartType": "pie",
@@ -4993,7 +4993,7 @@
         "module": "W&S",
         "indexName": "water-services",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}},{\"terms\":{\"Data.connectionType.keyword\":[\"Metered\"]}}]}},\"aggs\":{\"Active Metered Water Connections\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
-        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
+        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"block.keyword\"}",
         "dateRefField": "Data.connectionExecutionDate"
       }
     ],
@@ -5087,7 +5087,7 @@
         "module": "W&S",
         "indexName": "dss-collection_v2",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.paymentDetails.billDate.keyword\":{\"gte\":\"now-24h\",\"lte\":\"now\"}}},{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}],\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"term\":{\"Data.paymentStatus.keyword\":\"Cancelled\"}}]}},\"aggs\":{\"Today's collection\":{\"sum\":{\"field\":\"Data.paymentDetails.totalAmountPaid\"}}}}}}",
-        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
+        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"block.keyword\"}",
         "dateRefField": "Data.@timestamp"
       }
     ],
@@ -13937,7 +13937,7 @@
       {
         "module": "WS",
         "dateRefField": "date",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ward\" : \"ward.keyword\"}",
         "indexName": "ws-national-dashboard",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"State \":{\"terms\":{\"field\":\"state.keyword\",\"size\":200},\"aggs\":{\"Pending_from_0_to_3_days\":{\"filter\":{\"terms\":{\"duration.keyword\":[\"0to3Days\"]}},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"pendingConnectionsForDuration\"}}}},\"Pending_from_3_to_7_days\":{\"filter\":{\"terms\":{\"duration.keyword\":[\"3to7Days\"]}},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"pendingConnectionsForDuration\"}}}},\"Pending_from_7_to_15_days\":{\"filter\":{\"terms\":{\"duration.keyword\":[\"7to15Days\"]}},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"pendingConnectionsForDuration\"}}}},\"Pending_from_more_than_15_days\":{\"filter\":{\"terms\":{\"duration.keyword\":[\"MoreThan15Days\"]}},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"pendingConnectionsForDuration\"}}}},\"Total Connection\":{\"sum\":{\"field\":\"pendingConnectionsForDuration\"}}}}}}}}"
       }
@@ -13946,31 +13946,32 @@
     "filterKeys": [
       {"key": "state", "column": "State"}
     ],
-    "chartType": "table",
+    "chartType": "xtable",
     "valueType": "number",
     "drillChart": "nssWsConnectionAgeingULB",
     "action": "",
     "plotLabel": "State",
     "postAggregationTheory" : "",
-  "aggregationPaths": [
-    "Pending_from_0_to_3_days",
-    "Pending_from_3_to_7_days",
-    "Pending_from_7_to_15_days",
-    "Pending_from_more_than_15_days"
-  ],
-  "computedFields": [
-    {
-      "postAggregationTheory" : "",
-      "actionName": "AdditiveComputedField",
-      "fields" : ["Pending_from_0_to_3_days","Pending_from_3_to_7_days","Pending_from_7_to_15_days","Pending_from_more_than_15_days"],
-      "newField" : "Total_Pending",
-      "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-    }
+    "isPostResponseHandler": true,
+    "aggregationPaths": [
+      "Pending_from_0_to_3_days",
+      "Pending_from_3_to_7_days",
+      "Pending_from_7_to_15_days",
+      "Pending_from_more_than_15_days"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Pending_from_0_to_3_days","Pending_from_3_to_7_days","Pending_from_7_to_15_days","Pending_from_more_than_15_days"],
+        "newField" : "Total_Pending",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
   ],
 
-  "insight": {
-  },
-  "_comment": ""
+    "insight": {
+    },
+    "_comment": ""
 },
 "nssWsConnectionAgeingULB": {
   "chartName": "NSS_WS_CONNECTION_AGEING",
@@ -13978,7 +13979,7 @@
       {
         "module": "WS",
         "dateRefField": "date",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
         "indexName": "ws-national-dashboard",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"ULB \":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":200},\"aggs\":{\"Pending_from_0_to_3_days\":{\"filter\":{\"terms\":{\"duration.keyword\":[\"0to3Days\"]}},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"pendingConnectionsForDuration\"}}}},\"Pending_from_3_to_7_days\":{\"filter\":{\"terms\":{\"duration.keyword\":[\"3to7Days\"]}},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"pendingConnectionsForDuration\"}}}},\"Pending_from_7_to_15_days\":{\"filter\":{\"terms\":{\"duration.keyword\":[\"7to15Days\"]}},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"pendingConnectionsForDuration\"}}}},\"Pending_from_more_than_15_days\":{\"filter\":{\"terms\":{\"duration.keyword\":[\"MoreThan15Days\"]}},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"pendingConnectionsForDuration\"}}}},\"Total Connection\":{\"sum\":{\"field\":\"pendingConnectionsForDuration\"}}}}}}}}"
       }
@@ -13987,12 +13988,13 @@
     "filterKeys": [
       {"key": "ulb", "column": "ULB"}
     ],
-    "chartType": "table",
+    "chartType": "xtable",
     "valueType": "number",
     "drillChart": "nssWsConnectionAgeingWard",
     "action": "",
     "plotLabel": "State",
     "postAggregationTheory" : "",
+    "isPostResponseHandler": true,
     "aggregationPaths": [
       "Pending_from_0_to_3_days",
       "Pending_from_3_to_7_days",
@@ -14028,11 +14030,12 @@
     "filterKeys": [
       {"key": "ward", "column": "Ward"}
     ],
-    "chartType": "table",
+    "chartType": "xtable",
     "valueType": "number",
     "drillChart": "none",
     "action": "",
     "plotLabel": "Ward",
+    "isPostResponseHandler": true,
     "postAggregationTheory" : "",
     "aggregationPaths": [
           "Pending_from_0_to_3_days",
