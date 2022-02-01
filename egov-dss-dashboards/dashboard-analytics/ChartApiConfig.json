@@ -12954,7 +12954,7 @@
     "_comment": " "
   },
   "totalApplicationsOverview": {
-    "chartName": "DSS_TOTAL_APPLICATIONS",
+    "chartName": "NATIONAL_DSS_TOTAL_APPLICATIONS",
     "queries": [
       {
         "module": "TL",
@@ -13184,7 +13184,7 @@
       {
         "module": "COMMON",
         "indexName": "common-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"status.keyword\":\"Live\"}}]}},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date.keyword\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"totalCitizensCount\":{\"avg\":{\"field\":\"totalCitizensCount\"}}}},\"Citizen Registered\":{\"avg_bucket\":{\"buckets_path\":\"latest.totalCitizensCount\"}}}}}}",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"status.keyword\":\"Live\"}}]}},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"totalCitizensCount\":{\"avg\":{\"field\":\"totalCitizensCount\"}}}},\"Citizen Registered\":{\"avg_bucket\":{\"buckets_path\":\"latest.totalCitizensCount\"}}}}}}",
         "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
         "dateRefField": "date"
       }
@@ -13207,6 +13207,48 @@
       "insightInterval" : "month"
     },
     "_comment": " totalApplication is the chartId"
+  },
+
+  "totalApplication&ClosedApplicationOverview": {
+    "chartName": "NATIONAL_DSS_TOTAL_APPLICATION_&_CLOSED_APPLICATION",
+    "queries": [
+      {
+        "module": "PT",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Application\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"propertiesRegisteredForFinancialYear\"}}}}}}}}",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date"
+      },
+      {
+        "module": "TL",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "tl-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Application\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"todaysApplications\"}}}}}}}}"
+      },
+      {
+        "module": "WS",
+        "indexName": "ws-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Total Application\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Water\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"connectionType.keyword\":[\"WATER.NONMETERED\",\"WATER.METERED\",\"SEWERAGE\"]}}]}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"connectionsCreatedForConnectionType\"}}}}}}}}",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date"
+      }
+      
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "Total Application",
+      "Closed Application"
+    ],
+    "isCumulative": false,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": " "
   },
     
    "topPerformingStatesOverview": {
@@ -13305,6 +13347,71 @@
     "_comment": " Bottom Performing States for target achieved"
   },
   
+   "totalCollectionServiceWiseOverview": {
+    "chartName": "NATIONAL_DSS_TOTAL_CUMULATIVE_COLLECTION:_SERVICE_WISE",
+    "queries": [
+      {
+        "module": "PT",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"PT\":{\"sum\":{\"field\":\"todaysCollectionForUsageCategory\"}}}}}}"
+      },
+      {
+        "module": "TL",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "tl-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"TL\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}}}"
+      },
+      {
+        "module": "W&S",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+        "indexName": "ws-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"WS\":{\"sum\":{\"field\":\"todaysCollectionForPaymentChannelType\"}}}}"
+      },
+      {
+        "module": "OBPS",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"OBPS\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}"
+      },
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"FNOC\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}"
+      },
+      {
+        "module": "MC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "mcollect-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"MCOLLECT\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}}}"
+      }
+      
+    ],
+    "chartType": "pie",
+    "valueType": "Amount",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "PT",
+      "TL",
+      "WS",
+      "OBPS",
+      "FNOC",
+      "MCOLLECT"
+    ],
+    "insight": {
+    },
+    "_comment": " "
+  },
+  
   "topPerformingStatesCompletionRateOverview": {
     "chartName": "NATIONAL_DSS_PT_TOP_3_PERFORMING_STATES",
     "queries": [
@@ -13352,8 +13459,8 @@
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Licenses Within SLA\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"assessedPropertiesForUsageCategory\"}}}},\"Total Licenses\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"propertiesRegisteredForFinancialYear\"}}}}}}}}"
       },
       {
-          "module": "COMMON",
-          "requestQueryMap": "{\"ulb\" : \"ulb.keyword\" }",
+          "module": "TL",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
           "dateRefField": "date",
           "indexName": "tl-national-dashboard",
           "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Licenses Within SLA\":{\"terms\":{\"field\":\"state.keyword\",\"order\":{\"Sum\":\"asc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysLicenseIssuedWithinSLA\"}}}}, \"Total Licenses\":{\"terms\":{\"field\":\"state.keyword\",\"order\":{\"Sum\":\"asc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysLicenseIssued\"}}}} }}}}"
@@ -13376,6 +13483,62 @@
     "_comment": " Bottom Performing STATES for Completion rate"
   },  
   
+  "totalApplicationServiceWiseOverview": {
+    "chartName": "DSS_TOTAL_APPLICATIONS:_DEPARTMENT_WISE",
+    "queries": [
+       {
+        "module": "TL",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "tl-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"TL\":{\"sum\":{\"field\":\"todaysApplications\"}}}}}}"
+      },
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"FNOC\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}"
+      },
+      {
+        "module": "PT",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"PT\":{\"sum\":{\"field\":\"propertiesRegisteredForFinancialYear\"}}}}}}",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date"
+      },
+      {
+        "module": "OBPS",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"totalapps\":{\"filters\":{\"filters\":{\"all\":{\"match_all\":{}}}},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"ocSubmitted\":{\"avg\":{\"field\":\"ocSubmitted\"}}}},\"Total OC Submitted\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.ocSubmitted\"}},\"intermediateAggr1\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applicationsSubmitted\":{\"avg\":{\"field\":\"applicationsSubmitted\"}}}},\"Total Applications Submitted\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr1.applicationsSubmitted\"}},\"OBPS\":{\"bucket_script\":{\"buckets_path\":{\"att\":\"Total Applications Submitted\",\"com\":\"Total OC Submitted\"},\"script\":\"params.att + params.com\"}}}}}}",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date"
+      },
+      {
+        "module": "W&S",
+        "indexName": "ws-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"UsageType\":{\"terms\":{\"field\":\"connectionType.keyword\",\"size\":200},\"aggs\":{\"Connections\":{\"sum\":{\"field\":\"connectionsCreatedForConnectionType\"}}}},\"WS\":{\"sum_bucket\":{\"buckets_path\":\"UsageType.Connections\"}}}}}}",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date"
+      }
+      
+    ],
+    "chartType": "pie",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "PT",
+      "TL",
+      "WS",
+      "OBPS",
+      "FNOC"
+    ],
+    "insight": {
+    },
+    "_comment": " totalApplication is the chartId"
+  },
   
   "mcReportByCategoryv3": {
     "chartName": "DSS_MC_STATUS_BY_CATEGORY",
