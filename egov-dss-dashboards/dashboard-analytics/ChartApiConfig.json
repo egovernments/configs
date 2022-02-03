@@ -6258,7 +6258,7 @@
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\", \"district\" : \"Data.tenantData.city.districtCode\"}",
         "dateRefField": "Data.auditDetails.createdTime",
         "indexName": "firenoc-services",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Total Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average days to issue Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average days to issue Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA Compliance (Actual NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA Compliance (Provisional NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Total Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average days to issue Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average days to issue Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA Compliance Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA Compliance Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -6275,9 +6275,25 @@
       "Provisional Fire Nocs issued",
       "Actual Fire Nocs issued",
       "Average days to issue Provisional NOC",
-      "SLA Compliance (Provisional NOC)",
+      "SLA Compliance Provisional NOC",
       "Average days to issue Actual NOC",
-      "SLA Compliance (Actual NOC)"
+      "SLA Compliance Actual NOC"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["SLA Compliance Provisional NOC","Total Applications"],
+        "newField" : "SLA Compliance (Provisional NOC)",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["SLA Compliance Actual NOC","Total Applications"],
+        "newField" : "SLA Compliance (Actual NOC)",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
     ],
     "pathDataTypeMapping": [
       {
@@ -6325,7 +6341,7 @@
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\", \"ulbId\" : \"Data.tenantId\", \"district\" : \"Data.tenantData.city.districtCode\"}",
         "dateRefField": "Data.auditDetails.createdTime",
         "indexName": "firenoc-services",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"Data.tenantId.keyword\",\"size\":1000},\"aggs\":{\"Total Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average days to issue Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average days to issue Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA Compliance (Actual NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA Compliance (Provisional NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"Data.tenantId.keyword\",\"size\":1000},\"aggs\":{\"Total Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average days to issue Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average days to issue Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA Compliance Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA Compliance Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -6342,9 +6358,25 @@
       "Provisional Fire Nocs issued",
       "Actual Fire Nocs issued",
       "Average days to issue Provisional NOC",
-      "SLA Compliance (Provisional NOC)",
+      "SLA Compliance Provisional NOC",
       "Average days to issue Actual NOC",
-      "SLA Compliance (Actual NOC)"
+      "SLA Compliance Actual NOC"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["SLA Compliance Provisional NOC","Total Applications"],
+        "newField" : "SLA Compliance (Provisional NOC)",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["SLA Compliance Actual NOC","Total Applications"],
+        "newField" : "SLA Compliance (Actual NOC)",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
     ],
     "pathDataTypeMapping": [
       {
@@ -6392,7 +6424,7 @@
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\"}",
         "dateRefField": "Data.auditDetails.createdTime",
         "indexName": "firenoc-services",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Department\":{\"terms\":{\"field\":\"Data.Department.keyword\",\"size\":1000},\"aggs\":{\"Total Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average days to issue Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average days to issue Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA Compliance (Actual NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA Compliance (Provisional NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Department\":{\"terms\":{\"field\":\"Data.Department.keyword\",\"size\":1000},\"aggs\":{\"Total Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average days to issue Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average days to issue Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA Compliance Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA Compliance Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -6409,9 +6441,25 @@
       "Provisional Fire Nocs issued",
       "Actual Fire Nocs issued",
       "Average days to issue Provisional NOC",
-      "SLA Compliance (Provisional NOC)",
+      "SLA Compliance Provisional NOC",
       "Average days to issue Actual NOC",
-      "SLA Compliance (Actual NOC)"
+      "SLA Compliance Actual NOC"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["SLA Compliance Provisional NOC","Total Applications"],
+        "newField" : "SLA Compliance (Provisional NOC)",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["SLA Compliance Actual NOC","Total Applications"],
+        "newField" : "SLA Compliance (Actual NOC)",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
     ],
     "pathDataTypeMapping": [
       {
@@ -6460,7 +6508,7 @@
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\"}",
         "dateRefField": "Data.auditDetails.createdTime",
         "indexName": "firenoc-services",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward \":{\"terms\":{\"field\":\"Data.ward.name.keyword\",\"size\":200},\"aggs\":{\"Total Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average days to issue Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average days to issue Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA Compliance (Actual NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA Compliance (Provisional NOC)\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward \":{\"terms\":{\"field\":\"Data.ward.name.keyword\",\"size\":200},\"aggs\":{\"Total Applications\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}},\"Provisional Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}}},\"Actual Fire Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}}},\"Average days to issue Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"Average days to issue Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}}]}},\"aggs\":{\"average_days\":{\"avg\":{\"script\":{\"source\":\"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)\/(86400*1000)\"}}}}},\"SLA Compliance Actual NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"NEW\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}},\"SLA Compliance Provisional NOC\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.fireNOCDetails.fireNOCType.keyword\":\"PROVISIONAL\"}},{\"term\":{\"Data.workflow.state.keyword\":\"APPROVED\"}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -6479,9 +6527,25 @@
       "Provisional Fire Nocs issued",
       "Actual Fire Nocs issued",
       "Average days to issue Provisional NOC",
-      "SLA Compliance (Provisional NOC)",
+      "SLA Compliance Provisional NOC",
       "Average days to issue Actual NOC",
-      "SLA Compliance (Actual NOC)"
+      "SLA Compliance Actual NOC"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["SLA Compliance Provisional NOC","Total Applications"],
+        "newField" : "SLA Compliance (Provisional NOC)",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["SLA Compliance Actual NOC","Total Applications"],
+        "newField" : "SLA Compliance (Actual NOC)",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
     ],
     "pathDataTypeMapping": [
       {
