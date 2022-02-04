@@ -7,7 +7,7 @@ serviceMaps:
    isTransaction: true
    queryMaps:
 
-       - query: INSERT INTO  eg_fsm_application( id, applicationno, tenantid, additionaldetails, accountid, description, applicationstatus, source, sanitationtype, propertyusage, nooftrips, status, vehicle_id, vehicletype, applicationType, oldApplicationNo, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?, ?);
+       - query: INSERT INTO  eg_fsm_application( id, applicationno, tenantid, additionaldetails, accountid, description, applicationstatus, source, sanitationtype, propertyusage, nooftrips, status, vehicle_id, vehicletype, vehicleCapacity, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?, ?,?);
          basePath: fsm
          jsonMaps:
           - jsonPath: $.fsm.id
@@ -40,9 +40,7 @@ serviceMaps:
           
           - jsonPath: $.fsm.vehicleType
           
-          - jsonPath: $.fsm.applicationType
-          
-          - jsonPath: $.fsm.oldApplicationNo
+          - jsonPath: $.fsm.vehicleCapacity
 
           - jsonPath: $.fsm.auditDetails.createdBy
 
@@ -121,7 +119,7 @@ serviceMaps:
 
           - jsonPath: $.fsm.address.id
           
-       - query: INSERT INTO  eg_fsm_pit_detail( id, tenantid, height, length, width, diameter, distancefromroad, fsm_id,  createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); 
+       - query: INSERT INTO  eg_fsm_pit_detail( id, tenantid, height, length, width, diameter, distancefromroad, fsm_id, additionaldetails,  createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); 
          basePath: fsm.pitDetail
          jsonMaps:
           - jsonPath: $.fsm.pitDetail.id
@@ -139,6 +137,10 @@ serviceMaps:
           - jsonPath: $.fsm.pitDetail.distanceFromRoad
 
           - jsonPath: $.fsm.id
+          
+          - jsonPath: $.fsm.pitDetail.additionalDetails
+            type: JSON
+            dbType: JSONB
 
           - jsonPath: $.fsm.pitDetail.auditDetails.createdBy
 
@@ -160,7 +162,7 @@ serviceMaps:
          jsonMaps: 
             - jsonPath: $.fsm.id
              
-       - query: UPDATE  eg_fsm_application SET additionaldetails=?, description=?, applicationstatus=?, source=?, sanitationtype=?, propertyusage=?, nooftrips=?, status=?, vehicle_id=?, vehicletype=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=?, possible_srv_date=?, dso_id=? where id=? 
+       - query: UPDATE  eg_fsm_application SET additionaldetails=?, description=?, applicationstatus=?, source=?, sanitationtype=?, propertyusage=?, nooftrips=?, status=?, vehicle_id=?, vehicletype=?,vehicleCapacity=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=?, possible_srv_date=?, dso_id=?, completed_on=? where id=? 
          basePath: fsm
          jsonMaps:          
                 - jsonPath: $.fsm.additionalDetails
@@ -184,6 +186,8 @@ serviceMaps:
                 - jsonPath: $.fsm.vehicleId
                 
                 - jsonPath: $.fsm.vehicleType
+                
+                - jsonPath: $.fsm.vehicleCapacity
                   
                 - jsonPath: $.fsm.auditDetails.createdBy
       
@@ -196,6 +200,8 @@ serviceMaps:
                 - jsonPath: $.fsm.possibleServiceDate
 
                 - jsonPath: $.fsm.dsoId
+
+                - jsonPath: $.fsm.completedOn
                 
                 - jsonPath: $.fsm.id
                 
@@ -275,10 +281,15 @@ serviceMaps:
          jsonMaps: 
           - jsonPath: $.fsm.pitDetail.id
           
-       - query: UPDATE  eg_fsm_pit_detail SET height=?, length=?, width=?, diameter=?, distancefromroad=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=?  where id=?  
+       - query: UPDATE  eg_fsm_pit_detail SET additionaldetails=?,height=?, length=?, width=?, diameter=?, distancefromroad=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=?  where id=?  
          basePath: fsm.pitDetail
          jsonMaps:
             
+            
+            - jsonPath: $.fsm.pitDetail.additionalDetails
+              type: JSON
+              dbType: JSONB
+                  
             - jsonPath: $.fsm.pitDetail.height
              
             - jsonPath: $.fsm.pitDetail.length
@@ -311,7 +322,7 @@ serviceMaps:
             - jsonPath: $.fsm.id
              
 
-       - query: UPDATE eg_fsm_application SET additionaldetails=?, applicationstatus=?, vehicle_id =?, vehicletype=?, lastmodifiedby=?,  lastmodifiedtime=?, possible_srv_date=?, dso_id=? where id=? 
+       - query: UPDATE eg_fsm_application SET additionaldetails=?, applicationstatus=?, vehicle_id =?, vehicletype=?, lastmodifiedby=?,  lastmodifiedtime=?, possible_srv_date=?, dso_id=?, completed_on=? where id=? 
          basePath: fsm
          jsonMaps:          
                 - jsonPath: $.fsm.additionalDetails
@@ -331,57 +342,7 @@ serviceMaps:
                 - jsonPath: $.fsm.possibleServiceDate
 
                 - jsonPath: $.fsm.dsoId
+
+                - jsonPath: $.fsm.completedOn
                 
                 - jsonPath: $.fsm.id
-
- - version: 1.0
-   description: Persists FSTP-employee mapping in eg_fsm_plantmapping table
-   fromTopic: save-plant-map-application
-   isTransaction: true
-   queryMaps:
-
-       - query: INSERT INTO  eg_fsm_plantmapping( id, tenantId,  status, employeeUuid, plantCode, createdBy, lastmodifiedBy, createdTime, lastmodifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
-         basePath: plantMapping
-         jsonMaps:
-                - jsonPath: $.plantMapping.id
-
-                - jsonPath: $.plantMapping.tenantId
-
-                - jsonPath: $.plantMapping.status
-
-                - jsonPath: $.plantMapping.employeeUuid
-
-                - jsonPath: $.plantMapping.plantCode
-
-                - jsonPath: $.plantMapping.auditDetails.createdBy
-
-                - jsonPath: $.plantMapping.auditDetails.lastModifiedBy
-
-                - jsonPath: $.plantMapping.auditDetails.createdTime
-
-                - jsonPath: $.plantMapping.auditDetails.lastModifiedTime
-
- - version: 1.0
-   description: Update  FSTP-employee mapping in eg_fsm_plantmapping table
-   fromTopic: update-plant-map-application
-   isTransaction: true
-   queryMaps:
-
-       - query: UPDATE  eg_fsm_plantmapping SET  status=?, employeeuuid=?, plantcode=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? where id=?
-         basePath: plantMapping
-         jsonMaps:
-                - jsonPath: $.plantMapping.status
-
-                - jsonPath: $.plantMapping.employeeUuid
-
-                - jsonPath: $.plantMapping.plantCode
-
-                - jsonPath: $.plantMapping.auditDetails.createdBy
-
-                - jsonPath: $.plantMapping.auditDetails.lastModifiedBy
-
-                - jsonPath: $.plantMapping.auditDetails.createdTime
-
-                - jsonPath: $.plantMapping.auditDetails.lastModifiedTime
-
-                - jsonPath: $.plantMapping.id
