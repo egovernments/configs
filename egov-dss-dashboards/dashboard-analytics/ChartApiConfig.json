@@ -8702,13 +8702,7 @@
       "Todays Collection"
     ],
     "insight": {
-      "chartResponseMap" : "nocTodaysCollection",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      
     },
     "_comment": "NSS FIRE NOC todays collections "
   },
@@ -8894,7 +8888,7 @@
         "dateRefField": "date",
         "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
         "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"SLA Compliance (Provisional NOC)\":{\"sum\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"SLA Compliance (Provisional NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}"
       }
     ],
     "chartType": "metric",
@@ -8924,7 +8918,7 @@
         "dateRefField": "date",
         "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
         "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"SLA Compliance (Actual NOC)\":{\"sum\":{\"field\":\"slaComplianceActualForDepartment\"}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"SLA Compliance (Actual NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"slaComplianceActualForDepartment\"}}}}}}}}"
       }
     ],
     "chartType": "metric",
@@ -9232,7 +9226,7 @@
         "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"state\":\"state.keyword\"}",
         "dateRefField": "date",
         "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"State\":{\"terms\":{\"field\":\"state.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForApplicationType\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Actual_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Average_days_to_issue_Provisional_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}},\"Average_days_to_issue_Actual_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}},\"SLA_Compliance(Actual_NOC)\":{\"sum\":{\"field\":\"slaComplianceActualForDepartment\"}},\"SLA_Compliance(Provisional_NOC)\":{\"sum\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"State\":{\"terms\":{\"field\":\"state.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForApplicationType\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Actual_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Average_days_to_issue_Provisional_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}},\"Average_days_to_issue_Actual_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}},\"SLA_Compliance(Actual_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Average\":{\"avg\":{\"field\":\"slaComplianceActualForDepartment\"}}}},\"SLA_Compliance(Provisional_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Average\":{\"avg\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}}}"
       }
     ],
     "isMdmsEnabled": false,
@@ -9257,22 +9251,6 @@
       "Average_days_to_issue_Actual_NOC",
       "SLA_Compliance(Actual_NOC)"
     ],
-    "computedFields": [
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedFieldProvisional",
-        "fields" : ["SLA_Compliance(Provisional_NOC)","Total_Applications"],
-        "newField" : "SLA_Compliance(Provisional_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      },
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedFieldActual",
-        "fields" : ["SLA_Compliance(Actual_NOC)","Total_Applications"],
-        "newField" : "SLA_Compliance(Actual_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
     "pathDataTypeMapping": [
       {
         "Total_Collection": "amount"
@@ -9290,13 +9268,13 @@
         "Average_days_to_issue_Provisional_NOC": "number"
       },
       {
-        "SLA_Compliance(Provisional_NOC)": "number"
+        "SLA_Compliance(Provisional_NOC)": "percentage"
       },
       {
         "Average_days_to_issue_Actual_NOC": "number"
       },
       {
-        "SLA_Compliance(Actual_NOC)": "number"
+        "SLA_Compliance(Actual_NOC)": "percentage"
       }
     ],
     "insight": {
@@ -9312,7 +9290,7 @@
         "requestQueryMap": "{\"ward\" : \"ward.keyword\", \"ulb\":\"ulb.keyword\", \"state\":\"state.keyword\"}",
         "dateRefField": "date",
         "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForApplicationType\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Actual_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Average_days_to_issue_Provisional_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}},\"Average_days_to_issue_Actual_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}},\"SLA_Compliance(Actual_NOC)\":{\"sum\":{\"field\":\"slaComplianceActualForDepartment\"}},\"SLA_Compliance(Provisional_NOC)\":{\"sum\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForApplicationType\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Actual_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Average_days_to_issue_Provisional_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}},\"Average_days_to_issue_Actual_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}},\"SLA_Compliance(Actual_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Average\":{\"avg\":{\"field\":\"slaComplianceActualForDepartment\"}}}},\"SLA_Compliance(Provisional_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Average\":{\"avg\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}}}"
       }
     ],
     "isMdmsEnabled": false,
@@ -9337,22 +9315,6 @@
       "Average_days_to_issue_Actual_NOC",
       "SLA_Compliance(Actual_NOC)"
     ],
-    "computedFields": [
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedFieldProvisional",
-        "fields" : ["SLA_Compliance(Provisional_NOC)","Total_Applications"],
-        "newField" : "SLA_Compliance(Provisional_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      },
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedFieldActual",
-        "fields" : ["SLA_Compliance(Actual_NOC)","Total_Applications"],
-        "newField" : "SLA_Compliance(Actual_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
     "pathDataTypeMapping": [
       {
         "Total_Collection": "amount"
@@ -9370,13 +9332,13 @@
         "Average_days_to_issue_Provisional_NOC": "number"
       },
       {
-        "SLA_Compliance(Provisional_NOC)": "number"
+        "SLA_Compliance(Provisional_NOC)": "percentage"
       },
       {
         "Average_days_to_issue_Actual_NOC": "number"
       },
       {
-        "SLA_Compliance(Actual_NOC)": "number"
+        "SLA_Compliance(Actual_NOC)": "percentage"
       }
     ],
     "insight": {
@@ -9392,7 +9354,7 @@
         "requestQueryMap": "{\"ward\":\"ward.keyword\", \"state\":\"state.keyword\", \"ulb\":\"ulb.keyword\"}",
         "dateRefField": "date",
         "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"ward.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForApplicationType\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Actual_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Average_days_to_issue_Provisional_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}},\"Average_days_to_issue_Actual_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}},\"SLA_Compliance(Actual_NOC)\":{\"sum\":{\"field\":\"slaComplianceActualForDepartment\"}},\"SLA_Compliance(Provisional_NOC)\":{\"sum\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"ward.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForApplicationType\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Actual_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Average_days_to_issue_Provisional_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}},\"Average_days_to_issue_Actual_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}},\"SLA_Compliance(Actual_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Average\":{\"avg\":{\"field\":\"slaComplianceActualForDepartment\"}}}},\"SLA_Compliance(Provisional_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Average\":{\"avg\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}}}"
       }
     ],
     "isMdmsEnabled": false,
@@ -9414,22 +9376,6 @@
       "Average_days_to_issue_Actual_NOC",
       "SLA_Compliance(Actual_NOC)"
     ],
-    "computedFields": [
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedFieldProvisional",
-        "fields" : ["SLA_Compliance(Provisional_NOC)","Total_Applications"],
-        "newField" : "SLA_Compliance(Provisional_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      },
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedFieldActual",
-        "fields" : ["SLA_Compliance(Actual_NOC)","Total_Applications"],
-        "newField" : "SLA_Compliance(Actual_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
     "pathDataTypeMapping": [
       {
         "Total_Collection": "amount"
@@ -9447,13 +9393,13 @@
         "Average_days_to_issue_Provisional_NOC": "number"
       },
       {
-        "SLA_Compliance(Provisional_NOC)": "number"
+        "SLA_Compliance(Provisional_NOC)": "percentage"
       },
       {
         "Average_days_to_issue_Actual_NOC": "number"
       },
       {
-        "SLA_Compliance(Actual_NOC)": "number"
+        "SLA_Compliance(Actual_NOC)": "percentage"
       }
     ],
     "insight": {
@@ -9469,7 +9415,7 @@
         "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
         "dateRefField": "date",
         "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Department\":{\"terms\":{\"field\":\"department.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForDepartment\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForDepartment\"}},\"Provisional_Fire_Nocs_issued\":{\"sum\":{\"field\":\"provisionalNOCIssuedForDepartment\"}},\"Actual_Fire_Nocs_issued\":{\"sum\":{\"field\":\"actualNOCIssuedForDepartment\"}},\"Average_days_to_issue_Provisional_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}},\"Average_days_to_issue_Actual_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}},\"SLA_Compliance(Actual_NOC)\":{\"sum\":{\"field\":\"slaComplianceActualForDepartment\"}},\"SLA_Compliance(Provisional_NOC)\":{\"sum\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Department\":{\"terms\":{\"field\":\"department.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForDepartment\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForDepartment\"}},\"Provisional_Fire_Nocs_issued\":{\"sum\":{\"field\":\"provisionalNOCIssuedForDepartment\"}},\"Actual_Fire_Nocs_issued\":{\"sum\":{\"field\":\"actualNOCIssuedForDepartment\"}},\"Average_days_to_issue_Provisional_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}},\"Average_days_to_issue_Actual_NOC\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}},\"SLA_Compliance(Actual_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Average\":{\"avg\":{\"field\":\"slaComplianceActualForDepartment\"}}}},\"SLA_Compliance(Provisional_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Average\":{\"avg\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}}}"
       }
     ],
     "isMdmsEnabled": false,
@@ -9491,22 +9437,6 @@
       "Average_days_to_issue_Actual_NOC",
       "SLA_Compliance(Actual_NOC)"
     ],
-    "computedFields": [
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedFieldProvisional",
-        "fields" : ["SLA_Compliance(Provisional_NOC)","Total_Applications"],
-        "newField" : "SLA_Compliance(Provisional_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      },
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedFieldActual",
-        "fields" : ["SLA_Compliance(Actual_NOC)","Total_Applications"],
-        "newField" : "SLA_Compliance(Actual_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
     "pathDataTypeMapping": [
       {
         "Total_Collection": "amount"
@@ -9524,13 +9454,13 @@
         "Average_days_to_issue_Provisional_NOC": "number"
       },
       {
-        "SLA_Compliance(Provisional_NOC)": "number"
+        "SLA_Compliance(Provisional_NOC)": "percentage"
       },
       {
         "Average_days_to_issue_Actual_NOC": "number"
       },
       {
-        "SLA_Compliance(Actual_NOC)": "number"
+        "SLA_Compliance(Actual_NOC)": "percentage"
       }
     ],
     "insight": {
