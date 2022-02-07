@@ -8248,7 +8248,253 @@
     },
     "_comment": "NSS OBPS Top Performing Ulbs by permits issued"
   },
-
+  "nssOBPSServiceReport": {
+    "chartName": "NSS_OBPS_SERVICE_REPORT",
+    "queries": [
+      {
+        "module": "OBPS",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"region\":\"region.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{ \"aggs\": { \"obps\": { \"filter\": { \"bool\": { } }, \"aggs\": { \"State\": { \"terms\": { \"field\": \"state.keyword\", \"size\": 1000 }, \"aggs\": { \"Total Collection\": { \"sum\": { \"field\": \"todaysCollectionForPaymentMode\" } }, \"Total Plans Scrutinized\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"plansScrutinized\": { \"avg\": { \"field\": \"plansScrutinized\" } } } }, \"Total Plans Scrutinized\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.plansScrutinized\" } } } }, \"Total Applications\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"applicationsSubmitted\": { \"avg\": { \"field\": \"applicationsSubmitted\" } } } }, \"Total Applications\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.applicationsSubmitted\" } } } }, \"Total Permits Issued\": { \"sum\": { \"field\": \"permitsIssuedForRiskType\" } }, \"Average Days To Issue Permit\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"averageDaysToIssuePermit\": { \"avg\": { \"field\": \"averageDaysToIssuePermit\" } } } }, \"Average Days To Issue Permit\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.averageDaysToIssuePermit\" } } } }, \"SLA Compliance Permit\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"slaCompliancePermit\": { \"avg\": { \"field\": \"slaCompliancePermit\" } } } }, \"SLA Compliance Permit\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.slaCompliancePermit\" } } } }, \"Total OC Scrutinized\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"ocPlansScrutinized\": { \"avg\": { \"field\": \"ocPlansScrutinized\" } } } }, \"Total OC Scrutinized\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocPlansScrutinized\" } } } }, \"Total OC Submitted\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"ocSubmitted\": { \"avg\": { \"field\": \"ocSubmitted\" } } } }, \"Total OC Submitted\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocSubmitted\" } } } }, \"Total OC Issued\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"ocIssued\": { \"avg\": { \"field\": \"ocIssued\" } } } }, \"Total OC Issued\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocIssued\" } } } }, \"Average Days To Issue OC\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"averageDaysToIssueOC\": { \"avg\": { \"field\": \"averageDaysToIssueOC\" } } } }, \"Average Days To Issue OC\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.averageDaysToIssueOC\" } } } }, \"intermediateAggr1\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"applicationsWithDeviation\": { \"avg\": { \"field\": \"applicationsWithDeviation\" } }, \"averageDeviation\": { \"avg\": { \"field\": \"averageDeviation\" } }, \"TotalDeviation\": { \"avg\": { \"script\": { \"params\": { \"attr\": 2 }, \"source\": \"doc['applicationsWithDeviation'].value * doc['averageDeviation'].value\" } } } } }, \"Applications With Deviation\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr1.applicationsWithDeviation\" } }, \"Total Deviation\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr1.TotalDeviation\" } }, \"Average Deviation\": { \"bucket_script\": { \"buckets_path\": { \"att\": \"Applications With Deviation\", \"com\": \"Total Deviation\" }, \"script\": \"params.com / params.att\" } }, \"SLA Compliance OC\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"slaComplianceOC\": { \"avg\": { \"field\": \"slaComplianceOC\" } } } }, \"SLA Compliance OC\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.slaComplianceOC\" } } } }, \"Total OC With Deviation\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"ocWithDeviation\": { \"avg\": { \"field\": \"ocWithDeviation\" } } } }, \"Total OC Issued\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocWithDeviation\" } } } } } } } } } }"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "filterKeys": [
+      {"key": "region", "column": "Region"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "action": "",
+    "plotLabel": "Region",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "documentType": "_doc",
+    "drillChart": "nssOBPSServiceReportDrillDownUlb",
+    "aggregationPaths": [
+    "Total Collection",
+      "Total Plans Scrutinized",
+      "Total Applications",
+      "Total Permits Issued",
+      "Average Days To Issue Permit",
+      "SLA Compliance Permit",
+      "Total OC Scrutinized",
+      "Total OC Submitted",
+      "Total OC Issued",
+      "Average Days To Issue OC",
+      "Average Deviation",
+      "SLA Compliance OC",
+      "Total OC With Deviation"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Collection": "amount"
+      },
+      {
+        "Total Plans Scrutinized": "number"
+      },
+      {
+        "Total Applications": "number"
+      },
+      {
+        "Total Permits Issued": "number"
+      },
+      {
+        "Average Days To Issue Permit": "number"
+      },
+      {
+        "SLA Compliance Permit": "number"
+      },
+      {
+        "Total OC Scrutinized": "number"
+      },
+      {
+        "Total OC Submitted": "number"
+      },
+      {
+        "Total OC Issued": "number"
+      },
+      {
+        "Average Days To Issue OC": "number"
+      },
+      {
+        "Average Deviation": "number"
+      },
+      {
+        "SLA Compliance OC": "number"
+      },
+      {
+        "Total OC With Deviation": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  "nssOBPSServiceReportDrillDownUlb": {
+    "chartName": "NSS_NOC_SERVICE_REPORT_ULB",
+    "queries": [
+      {
+        "module": "OBPS",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\", \"ulb\":\"ulb.keyword\", \"region\":\"region.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{ \"aggs\": { \"obps\": { \"filter\": { \"bool\": { } }, \"aggs\": { \"ULBs\": { \"terms\": { \"field\": \"ulb.keyword\", \"size\": 1000 }, \"aggs\": { \"Total Collection\": { \"sum\": { \"field\": \"todaysCollectionForPaymentMode\" } }, \"Total Plans Scrutinized\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"plansScrutinized\": { \"avg\": { \"field\": \"plansScrutinized\" } } } }, \"Total Plans Scrutinized\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.plansScrutinized\" } } } }, \"Total Applications\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"applicationsSubmitted\": { \"avg\": { \"field\": \"applicationsSubmitted\" } } } }, \"Total Applications\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.applicationsSubmitted\" } } } }, \"Total Permits Issued\": { \"sum\": { \"field\": \"permitsIssuedForRiskType\" } }, \"Average Days To Issue Permit\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"averageDaysToIssuePermit\": { \"avg\": { \"field\": \"averageDaysToIssuePermit\" } } } }, \"Average Days To Issue Permit\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.averageDaysToIssuePermit\" } } } }, \"SLA Compliance Permit\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"slaCompliancePermit\": { \"avg\": { \"field\": \"slaCompliancePermit\" } } } }, \"SLA Compliance Permit\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.slaCompliancePermit\" } } } }, \"Total OC Scrutinized\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"ocPlansScrutinized\": { \"avg\": { \"field\": \"ocPlansScrutinized\" } } } }, \"Total OC Scrutinized\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocPlansScrutinized\" } } } }, \"Total OC Submitted\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"ocSubmitted\": { \"avg\": { \"field\": \"ocSubmitted\" } } } }, \"Total OC Submitted\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocSubmitted\" } } } }, \"Total OC Issued\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"ocIssued\": { \"avg\": { \"field\": \"ocIssued\" } } } }, \"Total OC Issued\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocIssued\" } } } }, \"Average Days To Issue OC\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"averageDaysToIssueOC\": { \"avg\": { \"field\": \"averageDaysToIssueOC\" } } } }, \"Average Days To Issue OC\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.averageDaysToIssueOC\" } } } }, \"intermediateAggr1\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"applicationsWithDeviation\": { \"avg\": { \"field\": \"applicationsWithDeviation\" } }, \"averageDeviation\": { \"avg\": { \"field\": \"averageDeviation\" } }, \"TotalDeviation\": { \"avg\": { \"script\": { \"params\": { \"attr\": 2 }, \"source\": \"doc['applicationsWithDeviation'].value * doc['averageDeviation'].value\" } } } } }, \"Applications With Deviation\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr1.applicationsWithDeviation\" } }, \"Total Deviation\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr1.TotalDeviation\" } }, \"Average Deviation\": { \"bucket_script\": { \"buckets_path\": { \"att\": \"Applications With Deviation\", \"com\": \"Total Deviation\" }, \"script\": \"params.com / params.att\" } }, \"SLA Compliance OC\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"slaComplianceOC\": { \"avg\": { \"field\": \"slaComplianceOC\" } } } }, \"SLA Compliance OC\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.slaComplianceOC\" } } } }, \"Total OC With Deviation\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"ocWithDeviation\": { \"avg\": { \"field\": \"ocWithDeviation\" } } } }, \"Total OC Issued\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocWithDeviation\" } } } } } } } } } }"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "filterKeys": [
+      {"key": "ulb", "column": "ULBs"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "action": "",
+    "plotLabel": "ULBs",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "documentType": "_doc",
+    "drillChart": "nssOBPSServiceReportDrillDownWard",
+    "aggregationPaths": [
+      "Total Collection",
+      "Total Plans Scrutinized",
+      "Total Applications",
+      "Total Permits Issued",
+      "Average Days To Issue Permit",
+      "SLA Compliance Permit",
+      "Total OC Scrutinized",
+      "Total OC Submitted",
+      "Total OC Issued",
+      "Average Days To Issue OC",
+      "Average Deviation",
+      "SLA Compliance OC",
+      "Total OC With Deviation"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Collection": "amount"
+      },
+      {
+        "Total Plans Scrutinized": "number"
+      },
+      {
+        "Total Applications": "number"
+      },
+      {
+        "Total Permits Issued": "number"
+      },
+      {
+        "Average Days To Issue Permit": "number"
+      },
+      {
+        "SLA Compliance Permit": "number"
+      },
+      {
+        "Total OC Scrutinized": "number"
+      },
+      {
+        "Total OC Submitted": "number"
+      },
+      {
+        "Total OC Issued": "number"
+      },
+      {
+        "Average Days To Issue OC": "number"
+      },
+      {
+        "Average Deviation": "number"
+      },
+      {
+        "SLA Compliance OC": "number"
+      },
+      {
+        "Total OC With Deviation": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": " "
+  },
+  "nssOBPSServiceReportDrillDownWard": {
+    "kind": "drillDown",
+    "chartName": "Boundary",
+    "queries": [
+      {
+        "module": "OBPS",
+        "requestQueryMap": "{\"ward\":\"ward.keyword\", \"region\":\"region.keyword\", \"ulb\":\"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{ \"aggs\": { \"obps\": { \"filter\": { \"bool\": { } }, \"aggs\": { \"Ward\": { \"terms\": { \"field\": \"ward.keyword\", \"size\": 1000 }, \"aggs\": { \"Total Collection\": { \"sum\": { \"field\": \"todaysCollectionForPaymentMode\" } }, \"Total Plans Scrutinized\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"plansScrutinized\": { \"avg\": { \"field\": \"plansScrutinized\" } } } }, \"Total Plans Scrutinized\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.plansScrutinized\" } } } }, \"Total Applications\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"applicationsSubmitted\": { \"avg\": { \"field\": \"applicationsSubmitted\" } } } }, \"Total Applications\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.applicationsSubmitted\" } } } }, \"Total Permits Issued\": { \"sum\": { \"field\": \"permitsIssuedForRiskType\" } }, \"Average Days To Issue Permit\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"averageDaysToIssuePermit\": { \"avg\": { \"field\": \"averageDaysToIssuePermit\" } } } }, \"Average Days To Issue Permit\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.averageDaysToIssuePermit\" } } } }, \"SLA Compliance Permit\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"slaCompliancePermit\": { \"avg\": { \"field\": \"slaCompliancePermit\" } } } }, \"SLA Compliance Permit\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.slaCompliancePermit\" } } } }, \"Total OC Scrutinized\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"ocPlansScrutinized\": { \"avg\": { \"field\": \"ocPlansScrutinized\" } } } }, \"Total OC Scrutinized\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocPlansScrutinized\" } } } }, \"Total OC Submitted\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"ocSubmitted\": { \"avg\": { \"field\": \"ocSubmitted\" } } } }, \"Total OC Submitted\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocSubmitted\" } } } }, \"Total OC Issued\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"ocIssued\": { \"avg\": { \"field\": \"ocIssued\" } } } }, \"Total OC Issued\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocIssued\" } } } }, \"Average Days To Issue OC\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"averageDaysToIssueOC\": { \"avg\": { \"field\": \"averageDaysToIssueOC\" } } } }, \"Average Days To Issue OC\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.averageDaysToIssueOC\" } } } }, \"intermediateAggr1\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"applicationsWithDeviation\": { \"avg\": { \"field\": \"applicationsWithDeviation\" } }, \"averageDeviation\": { \"avg\": { \"field\": \"averageDeviation\" } }, \"TotalDeviation\": { \"avg\": { \"script\": { \"params\": { \"attr\": 2 }, \"source\": \"doc['applicationsWithDeviation'].value * doc['averageDeviation'].value\" } } } } }, \"Applications With Deviation\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr1.applicationsWithDeviation\" } }, \"Total Deviation\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr1.TotalDeviation\" } }, \"Average Deviation\": { \"bucket_script\": { \"buckets_path\": { \"att\": \"Applications With Deviation\", \"com\": \"Total Deviation\" }, \"script\": \"params.com / params.att\" } }, \"SLA Compliance OC\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"slaComplianceOC\": { \"avg\": { \"field\": \"slaComplianceOC\" } } } }, \"SLA Compliance OC\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.slaComplianceOC\" } } } }, \"Total OC With Deviation\": { \"filter\": { \"bool\": { \"must_not\": [] } }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"ocWithDeviation\": { \"avg\": { \"field\": \"ocWithDeviation\" } } } }, \"Total OC Issued\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocWithDeviation\" } } } } } } } } } }"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "chartType": "table",
+    "valueType": "number",
+    "action": "",
+    "plotLabel": "Ward",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Collection",
+      "Total Plans Scrutinized",
+      "Total Applications",
+      "Total Permits Issued",
+      "Average Days To Issue Permit",
+      "SLA Compliance Permit",
+      "Total OC Scrutinized",
+      "Total OC Submitted",
+      "Total OC Issued",
+      "Average Days To Issue OC",
+      "Average Deviation",
+      "SLA Compliance OC",
+      "Total OC With Deviation"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Collection": "amount"
+      },
+      {
+        "Total Plans Scrutinized": "number"
+      },
+      {
+        "Total Applications": "number"
+      },
+      {
+        "Total Permits Issued": "number"
+      },
+      {
+        "Average Days To Issue Permit": "number"
+      },
+      {
+        "SLA Compliance Permit": "number"
+      },
+      {
+        "Total OC Scrutinized": "number"
+      },
+      {
+        "Total OC Submitted": "number"
+      },
+      {
+        "Total OC Issued": "number"
+      },
+      {
+        "Average Days To Issue OC": "number"
+      },
+      {
+        "Average Deviation": "number"
+      },
+      {
+        "SLA Compliance OC": "number"
+      },
+      {
+        "Total OC With Deviation": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
   "obpsTopUlbByPerformance": {
     "chartName": "DSS_OBPS_TOP_ULB_BY_PERFORMANCE",
     "queries": [
