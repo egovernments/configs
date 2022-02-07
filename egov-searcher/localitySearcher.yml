@@ -259,3 +259,26 @@ SearchDefinitions:
       jsonFormat: {"ResponseInfo": {}}
       outJsonPath: $.Localities
       responseInfoPath: $.ResponseInfo
+
+  - name: pgr-services
+    query:
+      baseQuery: |
+        Select row_to_json(result) from
+        (
+          select ser.serviceRequestId as referenceNumber,ads.locality from eg_pgr_service_v2 ser
+          INNER JOIN eg_pgr_address_v2 ads ON ads.parentId = ser.id
+        ) result  $where
+      groupBy:
+      orderBy:
+    searchParams:
+      condition: AND
+      params:
+        - name: result.referenceNumber
+          isMandatory: true
+          jsonPath: $.searchCriteria.referenceNumber
+          operator:
+
+    output:
+      jsonFormat: { "ResponseInfo": { } }
+      outJsonPath: $.Localities
+      responseInfoPath: $.ResponseInfo
