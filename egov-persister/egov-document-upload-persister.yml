@@ -1,0 +1,80 @@
+serviceMaps:
+  serviceName: egov-document-uploader
+  mappings:
+    - version: 1.0
+      description: Persists documents in eg_du_document table
+      fromTopic: save-du-document
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO eg_du_document( uuid,tenantid,name,category,description,filestoreId,documentLink,postedby,fileType,fileSize,active,createdby,lastmodifiedby,createdtime,lastmodifiedtime) VALUES (?,?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: DocumentEntity
+          jsonMaps:
+            - jsonPath: $.DocumentEntity.uuid
+
+            - jsonPath: $.DocumentEntity.tenantId
+
+            - jsonPath: $.DocumentEntity.name
+
+            - jsonPath: $.DocumentEntity.category
+
+            - jsonPath: $.DocumentEntity.description
+
+            - jsonPath: $.DocumentEntity.filestoreId
+
+            - jsonPath: $.DocumentEntity.documentLink
+
+            - jsonPath: $.DocumentEntity.postedBy
+
+            - jsonPath: $.DocumentEntity.fileType
+
+            - jsonPath: $.DocumentEntity.fileSize
+
+            - jsonPath: $.DocumentEntity.active
+
+            - jsonPath: $.DocumentEntity.auditDetails.createdBy
+
+            - jsonPath: $.DocumentEntity.auditDetails.lastModifiedBy
+
+            - jsonPath: $.DocumentEntity.auditDetails.createdTime
+
+            - jsonPath: $.DocumentEntity.auditDetails.lastModifiedTime
+
+    - version: 1.0
+      description: Updates document in tables
+      fromTopic: update-du-document
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE eg_du_document SET tenantid=?, name=?, category=?, documentLink=?, filestoreId=?, fileType=?, fileSize=?, lastmodifiedby=?, lastmodifiedtime=? WHERE uuid=?;
+          basePath: DocumentEntity
+          jsonMaps:
+            - jsonPath: $.DocumentEntity.tenantId
+
+            - jsonPath: $.DocumentEntity.name
+
+            - jsonPath: $.DocumentEntity.category
+
+            - jsonPath: $.DocumentEntity.documentLink
+
+            - jsonPath: $.DocumentEntity.filestoreId
+
+            - jsonPath: $.DocumentEntity.fileType
+
+            - jsonPath: $.DocumentEntity.fileSize
+
+            - jsonPath: $.DocumentEntity.auditDetails.lastModifiedBy
+
+            - jsonPath: $.DocumentEntity.auditDetails.lastModifiedTime
+
+            - jsonPath: $.DocumentEntity.uuid
+
+    - version: 1.0
+      description: Deletes document in tables
+      fromTopic: delete-du-document
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE eg_du_document SET active=? WHERE uuid=?;
+          basePath: DocumentEntity
+          jsonMaps:
+            - jsonPath: $.DocumentEntity.active
+
+            - jsonPath: $.DocumentEntity.uuid

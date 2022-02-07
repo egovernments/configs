@@ -217,7 +217,7 @@ SearchDefinitions:
             INNER JOIN eg_sw_connection conn ON bd.consumercode = conn.connectionno
             INNER JOIN eg_pt_property pt ON conn.property_id = pt.propertyid
             INNER JOIN eg_pt_address ptadd ON ptadd.propertyid = pt.id 
-            INNER JOIN eg_pt_owner ptown ON ptown.propertyid = pt.id $where )
+            INNER JOIN eg_pt_owner ptown ON ptown.propertyid = pt.id $where $pagination)
 
       select * from bill_data inner join (select max(b_createddate) as maxcreateddate, bd_consumercode from bill_data group by bd_consumercode) as max ON max.maxcreateddate=b_createddate
    searchParams: 
@@ -257,6 +257,9 @@ SearchDefinitions:
     - name: conn.property_id
       isMandatory: false
       jsonPath: $.searchCriteria.propertyId
+    pagination:
+      noOfRecords: $.searchCriteria.noOfRecords
+      offset: $.searchCriteria.offset
 
    output:
     jsonFormat: {"ResponseInfo": {},"Bills": []}
@@ -325,7 +328,7 @@ SearchDefinitions:
       isMandatory: false
       operator: ILIKE
       jsonPath: $.searchCriteria.billNo
-    - name: ptadd.locality
+    - name: challanadd.locality
       isMandatory: false
       jsonPath: $.searchCriteria.locality
     - name: fromperiod
