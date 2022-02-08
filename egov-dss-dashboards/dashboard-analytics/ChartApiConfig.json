@@ -15224,14 +15224,17 @@
         "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
         "dateRefField": "",
         "indexName": "common-national-dashboard",
-        "aggrQuery": "{\"query\":{\"bool\":{\"must_not\":[{\"term\":{\"status.keyword\":{\"value\":\"UnderImplementation\"}}}],\"must\":[{\"range\":{\"date\":{\"gte\":\"now-1d\/d\",\"lte\":\"now\"}}}]}},\"aggs\":{\"states\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"Status\":{\"significant_text\":{\"field\":\"status.keyword\"}},\"toalUlbs\":{\"avg\":{\"field\":\"totalUlbCount\"}},\"liveUlbs\":{\"avg\":{\"field\":\"totalLiveUlbsCount\"}}}}}}"
+        "aggrQuery": "{\"size\":0,\"query\":{\"bool\":{\"adjust_pure_negative\":true,\"boost\":1}},\"aggs\":{\"states\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"Status\":{\"terms\":{\"field\":\"status.keyword\"}},\"toalUlbs\":{\"avg\":{\"field\":\"totalUlbCount\"}},\"liveUlbs\":{\"avg\":{\"field\":\"totalLiveUlbsCount\"}}}}}}"
       }
     ],
     "isMdmsEnabled": false,
     "isPostResponseHandler": true,
     "chartType": "table",
-    "valueType": "number",  
-    "drillChart": "none",
+    "valueType": "number",    
+    "drillChart": "nurtProjectStatusModule",
+    "drillFields": [
+      "states"
+    ],
     "documentType": "_doc",
     "action": "",
     "aggregationPaths": [
@@ -15258,6 +15261,65 @@
     "insight": {
     },
     "_comment": ""
+  },
+  "nurtProjectStatusModule": {
+    "chartName": "NURT_PROJECT_STAUS",
+    "queries": [
+            {
+        "module": "COMMON",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "",
+        "indexName": "common-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"status.keyword\":\"Live\"}},{\"range\":{\"date\":{\"gte\":\"now-1d\/d\",\"lte\":\"now\"}}},{\"range\":{\"liveUlbsCountForServiceModuleCode\":{\"gte\":1}}}]}},\"aggs\":{\"module\":{\"terms\":{\"field\":\"serviceModuleCode.keyword\"},\"aggs\":{\"liveUlbPerModule\":{\"avg\":{\"field\":\"liveUlbsCountForServiceModuleCode\"}}}},\"totalLiveUlbCount\":{\"avg\":{\"field\":\"totalLiveUlbsCount\"}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "isPostResponseHandler": true,
+    "chartType": "table",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "module",
+      "liveUlbPerModule"
+    ],
+    "plotLabel": "module",
+    "pathDataTypeMapping": [
+      {
+        "module": "string"
+      },
+      {
+        "liveUlbPerModule": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  "nurtliveOnboardedUlbs": {
+    "chartName": "NURT_LIVE_ACTIVE_ULBS",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "",
+        "indexName": "common-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"latest\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"onBoardeUlbsCount\":{\"avg\":{\"field\":\"onboardedUlbsCount\"}},\"liveUlbsCount\":{\"avg\":{\"field\":\"totalLiveUlbsCount\"}}}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "onBoardeUlbsCount",
+      "liveUlbsCount"
+    ],
+    "isCumulative": false,
+    "interval": "month",
+    "insight": {},
+    "_comment": " "
   }
-
 }
