@@ -12816,6 +12816,112 @@
       "insightInterval" : "month"
     },
     "_comment": " SLA Achieved Percentage "
+  },
+  "nurtProjectStatus": {
+    "chartName": "NURT_PROJECT_STAUS",
+    "queries": [
+            {
+        "module": "COMMON",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "",
+        "indexName": "common-national-dashboard",
+        "aggrQuery": "{\"size\":0,\"query\":{\"bool\":{\"adjust_pure_negative\":true,\"boost\":1}},\"aggs\":{\"states\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"Status\":{\"terms\":{\"field\":\"status.keyword\"}},\"totalUlbs\":{\"avg\":{\"field\":\"totalUlbCount\"}},\"liveUlbs\":{\"avg\":{\"field\":\"totalLiveUlbsCount\"}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "isPostResponseHandler": true,
+    "chartType": "table",
+    "valueType": "number",    
+    "drillChart": "nurtProjectStatusModule",
+    "drillFields": [
+      "states"
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "states",
+      "Status",
+      "totalUlbs",
+      "liveUlbs"
+    ],
+    "plotLabel": "states",
+    "pathDataTypeMapping": [
+      {
+        "states": "string"
+      },
+      {
+        "Status": "string"
+      },
+      {
+        "totalUlbs": "number"
+      },
+      {
+        "liveUlbs": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  "nurtProjectStatusModule": {
+    "chartName": "NURT_PROJECT_STAUS",
+    "queries": [
+            {
+        "module": "COMMON",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "",
+        "indexName": "common-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"status.keyword\":\"Live\"}},{\"range\":{\"date\":{\"gte\":\"now-1d\/d\",\"lte\":\"now\"}}},{\"range\":{\"liveUlbsCountForServiceModuleCode\":{\"gte\":1}}}]}},\"aggs\":{\"module\":{\"terms\":{\"field\":\"serviceModuleCode.keyword\"},\"aggs\":{\"liveUlbPerModule\":{\"avg\":{\"field\":\"liveUlbsCountForServiceModuleCode\"}}}},\"totalLiveUlbCount\":{\"avg\":{\"field\":\"totalLiveUlbsCount\"}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "isPostResponseHandler": true,
+    "chartType": "table",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "module",
+      "liveUlbPerModule"
+    ],
+    "plotLabel": "module",
+    "pathDataTypeMapping": [
+      {
+        "module": "string"
+      },
+      {
+        "liveUlbPerModule": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  "nurtliveOnboardedUlbs": {
+    "chartName": "NURT_LIVE_ACTIVE_ULBS",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "",
+        "indexName": "common-national-dashboard",
+        "aggrQuery": "{\"size\":0,\"query\":{\"bool\":{\"adjust_pure_negative\":true,\"boost\":1}},\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"onBoardeUlbsCount\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"onBoardeUlbsCount\":{\"avg\":{\"field\":\"onboardedUlbsCount\"}}}},\"onBoardeUlbsCount\":{\"sum_bucket\":{\"buckets_path\":\"latest.onBoardeUlbsCount\"}}}},\"liveUlbsCount\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"liveUlbsCount\":{\"avg\":{\"field\":\"totalLiveUlbsCount\"}}}},\"liveUlbsCount\":{\"sum_bucket\":{\"buckets_path\":\"latest.liveUlbsCount\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "onBoardeUlbsCount",
+      "liveUlbsCount"
+    ],
+    "isCumulative": false,
+    "interval": "month",
+    "insight": {},
+    "_comment": " "
   }
     
     
