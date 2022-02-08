@@ -3800,14 +3800,14 @@
         "module": "WS",
         "indexName": "water-services",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"Total Water Connection\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
-        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\"}",
+        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"Data.ward.name.keyword\"}",
         "dateRefField": "Data.connectionExecutionDate"
       },
       {
         "module": "WS",
         "indexName": "sewerage-services",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.applicationStatus.keyword\":\"REJECTED\"}}],\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"Total Sewerage Connection\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
-        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\"}",
+        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"Data.ward.name.keyword\"}",
         "dateRefField": "Data.connectionExecutionDate"
       }
     ],
@@ -4052,6 +4052,37 @@
       "insightInterval" : "year"
     },
     "_comment": "active sewerage connections "
+  },
+
+  "wstotalApplications": {
+    "chartName": "DSS_WS_TOTAL_APPLICATIONS",
+    "queries": [
+      {
+        "module": "W&S",
+        "indexName": "water-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"REJECTED\",\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"Total Water Applications\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
+        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"Data.ward.name.keyword\"}",
+        "dateRefField": "Data.connectionExecutionDate"
+      },
+      {
+        "module": "W&S",
+        "indexName": "sewerage-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"REJECTED\",\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"Total Sewerage Applications\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
+        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"Data.ward.name.keyword\"}",
+        "dateRefField": "Data.connectionExecutionDate"
+      }
+    ],
+    "translateTenantCode": false,
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "additive",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Water Applications","Total Sewerage Applications"
+    ],
+    "insight": {
+    },
+    "_comment": ""
   },
   "wscumulativeCollectionsv2": {
     "chartName": "DSS_W&S_CUMULATIVE_COLLECTION",
@@ -12208,6 +12239,30 @@
       "insightInterval" : "year"
     },
     "_comment": "active sewerage connections "
+  },
+  
+  "nssWsTotalApplications": {
+    "chartName": "NSS_WS_TOTAL_APPLICATIONS",
+    "queries": [
+      {
+        "module": "WS",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+        "indexName": "ws-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysTotalApplications\"}}}},\"Total Applications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.applications\"}}}}}}"
+      }
+    ],
+    "translateTenantCode": false,
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Applications"
+    ],
+    "insight": {
+    },
+    "_comment": " "
   },
   
   "nssWsCumulativeConnections": {
