@@ -3545,14 +3545,14 @@
       }
     ],
     "filterKeys": [
-      {"key": "tenantId", "column": "Boundary"}
+      {"key": "tenantId", "column": "ULB"}
     ],
     "chartType": "xtable",
     "valueType": "number",
     "drillChart": "wsFinancialIndicatorWard",
     "documentType": "_doc",
     "action": "",
-    "plotLabel": "Boundary",
+    "plotLabel": "ULB",
     "postAggregationTheory" : "repsonseToDifferenceOfDates",
     "aggregationPaths": [
       "Target_Collection",
@@ -3792,9 +3792,45 @@
     "_comment": ""
   },
 
-
+  "wstotalApplications": {
+    "chartName": "DSS_WS_TOTAL_APPLICATIONS",
+    "queries": [
+      {
+        "module": "W&S",
+        "indexName": "water-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"REJECTED\",\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"Total Water Applications\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
+        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"Data.ward.name.keyword\"}",
+        "dateRefField": "Data.@timestamp"
+      },
+      {
+        "module": "W&S",
+        "indexName": "sewerage-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"REJECTED\",\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"Total Sewerage Applications\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
+        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"Data.ward.name.keyword\"}",
+        "dateRefField": "Data.@timestamp"
+      }
+    ],
+    "translateTenantCode": false,
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "additive",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Water Applications","Total Sewerage Applications"
+    ],
+    "insight": {
+      "chartResponseMap" : "wstotalApplications",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year"
+    },
+    "_comment": ""
+  },
   "wstotalConnection": {
-    "chartName": "DSS_WS_CONNECTIONS",
+    "chartName": "DSS_WS_ACTIVE_CONNECTIONS",
     "queries": [
       {
         "module": "WS",
@@ -4054,43 +4090,6 @@
     "_comment": "active sewerage connections "
   },
 
-  "wstotalApplications": {
-    "chartName": "DSS_WS_TOTAL_APPLICATIONS",
-    "queries": [
-      {
-        "module": "W&S",
-        "indexName": "water-services",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"REJECTED\",\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"Total Water Applications\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
-        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"Data.ward.name.keyword\"}",
-        "dateRefField": "Data.@timestamp"
-      },
-      {
-        "module": "W&S",
-        "indexName": "sewerage-services",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"REJECTED\",\"CONNECTION_ACTIVATED\"]}}]}},\"aggs\":{\"Total Sewerage Applications\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
-        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"Data.ward.name.keyword\"}",
-        "dateRefField": "Data.@timestamp"
-      }
-    ],
-    "translateTenantCode": false,
-    "chartType": "metric",
-    "valueType": "number",
-    "action": "additive",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Total Water Applications","Total Sewerage Applications"
-    ],
-    "insight": {
-      "chartResponseMap" : "wstotalApplications",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
-    },
-    "_comment": ""
-  },
   "wscumulativeCollectionsv2": {
     "chartName": "DSS_W&S_CUMULATIVE_COLLECTION",
     "queries": [
@@ -12341,8 +12340,38 @@
       "_comment": " "
     },
     
+    "nssWsTotalApplications": {
+      "chartName": "NSS_WS_TOTAL_APPLICATIONS",
+      "queries": [
+        {
+          "module": "WS",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+          "indexName": "ws-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysTotalApplications\"}}}},\"Total Applications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.applications\"}}}}}}"
+        }
+      ],
+      "translateTenantCode": false,
+      "chartType": "metric",
+      "valueType": "number",
+      "action": "",
+      "drillChart": "none",
+      "aggregationPaths": [
+        "Total Applications"
+      ],
+      "insight": {
+        "chartResponseMap" : "nssWsTotalApplications",
+        "action" : "differenceOfNumbers",
+        "upwardIndicator" : "positive",
+        "downwardIndicator" : "negative",
+        "textMessage" : "$indicator$value% than last $insightInterval",
+        "colorCode" : "#228B22",
+        "insightInterval" : "year"
+      },
+      "_comment": " "
+    },
    "nssWsTotalConnection": {
-    "chartName": "NSS_WS_TOTAL_COLLECTIONS",
+    "chartName": "NSS_WS_ACTIVE_CONNECTIONS",
     "queries": [
       {
         "module": "WS",
@@ -12490,36 +12519,7 @@
     "_comment": "active sewerage connections "
   },
   
-  "nssWsTotalApplications": {
-    "chartName": "NSS_WS_TOTAL_APPLICATIONS",
-    "queries": [
-      {
-        "module": "WS",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
-        "indexName": "ws-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysTotalApplications\"}}}},\"Total Applications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.applications\"}}}}}}"
-      }
-    ],
-    "translateTenantCode": false,
-    "chartType": "metric",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Total Applications"
-    ],
-    "insight": {
-      "chartResponseMap" : "nssWsTotalApplications",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
-    },
-    "_comment": " "
-  },
+ 
   
   "nssWsCumulativeConnections": {
     "chartName": "NSS_WS_CUMULATIVE_CONNECTION",
