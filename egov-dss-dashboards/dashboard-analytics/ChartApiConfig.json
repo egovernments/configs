@@ -14451,6 +14451,224 @@
   "insight": {
   },
   "_comment": "Top Complaints By Their Statuses"
+  },
+
+  "nationalPgrStatusByState": {
+    "chartName": "NATIONAL_DSS_PGR_STATUS_BY_STATE",
+    "queries": [
+      {
+        "module": "PGR",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"state\":\"state.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pgr-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"State\":{\"terms\":{\"field\":\"state.keyword\",\"size\":1000},\"aggs\":{\"closed\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"closedComplaints\":{\"avg\":{\"field\":\"closedComplaints\"}}}},\"Total_Closed_Complaints\":{\"sum_bucket\":{\"buckets_path\":\"closed.closedComplaints\"}},\"Reponed_Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"reopened\"]}},\"aggs\":{\"Reopened\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Open_Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"open\"]}},\"aggs\":{\"Open\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Total_Complaints\":{\"sum\":{\"field\":\"todaysComplaintsForCategory\"}},\"CompletionRate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"completionRate\":{\"avg\":{\"field\":\"completionRate\"}}}},\"Completion_Rate\":{\"avg_bucket\":{\"buckets_path\":\"CompletionRate.completionRate\"}},\"SLA_Achieved\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"slaAchived\":{\"avg\":{\"field\":\"slaAchievement\"}}}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "filterKeys": [
+      {"key": "state", "column": "State"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "action": "",
+    "plotLabel": "State",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "documentType": "_doc",
+    "drillChart": "nationalPgrStatusDrillDownUlb",
+    "aggregationPaths": [
+      "Total_Closed_Complaints",
+      "Reponed_Complaints",
+      "Open_Complaints",
+      "Total_Complaints",
+      "Completion_Rate",
+      "SLA_Achieved"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total_Closed_Complaints": "number"
+      },
+      {
+        "Reponed_Complaints": "number"
+      },
+      {
+        "Open_Complaints": "number"
+      },
+      {
+        "Total_Complaints": "number"
+      },
+      {
+        "Completion_Rate": "percentage"
+      },
+      {
+        "SLA_Achieved": "percentage"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": " "
+  },
+  
+  "nationalPgrStatusDrillDownUlb": {
+    "chartName": "NATIONAL_DSS_STATUS_ULB",
+    "queries": [
+      {
+        "module": "PGR",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\", \"ulb\":\"ulb.keyword\", \"state\":\"state.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pgr-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":1000},\"aggs\":{\"closed\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"closedComplaints\":{\"avg\":{\"field\":\"closedComplaints\"}}}},\"Total_Closed_Complaints\":{\"sum_bucket\":{\"buckets_path\":\"closed.closedComplaints\"}},\"Reponed_Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"reopened\"]}},\"aggs\":{\"Reopened\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Open_Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"open\"]}},\"aggs\":{\"Open\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Total_Complaints\":{\"sum\":{\"field\":\"todaysComplaintsForCategory\"}},\"CompletionRate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"completionRate\":{\"avg\":{\"field\":\"completionRate\"}}}},\"Completion_Rate\":{\"avg_bucket\":{\"buckets_path\":\"CompletionRate.completionRate\"}},\"SLA_Achieved\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"slaAchived\":{\"avg\":{\"field\":\"slaAchievement\"}}}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "filterKeys": [
+      {"key": "ulb", "column": "ULBs"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "action": "",
+    "plotLabel": "ULBs",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "documentType": "_doc",
+    "drillChart": "nationalPgrStatusDrillDownWard",
+    "aggregationPaths": [
+      "Total_Closed_Complaints",
+      "Reponed_Complaints",
+      "Open_Complaints",
+      "Total_Complaints",
+      "Completion_Rate",
+      "SLA_Achieved"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total_Closed_Complaints": "number"
+      },
+      {
+        "Reponed_Complaints": "number"
+      },
+      {
+        "Open_Complaints": "number"
+      },
+      {
+        "Total_Complaints": "number"
+      },
+      {
+        "Completion_Rate": "percentage"
+      },
+      {
+        "SLA_Achieved": "percentage"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": " "
+  },
+   "nationalPgrStatusDrillDownWard": {
+    "kind": "drillDown",
+    "chartName": "Boundary",
+    "queries": [
+      {
+        "module": "PGR",
+        "requestQueryMap": "{\"ward\":\"ward.keyword\", \"state\":\"state.keyword\", \"ulb\":\"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pgr-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"ward.keyword\",\"size\":1000},\"aggs\":{\"closed\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"closedComplaints\":{\"avg\":{\"field\":\"closedComplaints\"}}}},\"Total_Closed_Complaints\":{\"sum_bucket\":{\"buckets_path\":\"closed.closedComplaints\"}},\"Reponed_Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"reopened\"]}},\"aggs\":{\"Reopened\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Open_Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"open\"]}},\"aggs\":{\"Open\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Total_Complaints\":{\"sum\":{\"field\":\"todaysComplaintsForCategory\"}},\"CompletionRate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"completionRate\":{\"avg\":{\"field\":\"completionRate\"}}}},\"Completion_Rate\":{\"avg_bucket\":{\"buckets_path\":\"CompletionRate.completionRate\"}},\"SLA_Achieved\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"slaAchived\":{\"avg\":{\"field\":\"slaAchievement\"}}}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "chartType": "table",
+    "valueType": "number",
+    "action": "",
+    "plotLabel": "Ward",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total_Closed_Complaints",
+      "Reponed_Complaints",
+      "Open_Complaints",
+      "Total_Complaints",
+      "Completion_Rate",
+      "SLA_Achieved"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total_Closed_Complaints": "number"
+      },
+      {
+        "Reponed_Complaints": "number"
+      },
+      {
+        "Open_Complaints": "number"
+      },
+      {
+        "Total_Complaints": "number"
+      },
+      {
+        "Completion_Rate": "percentage"
+      },
+      {
+        "SLA_Achieved": "percentage"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+
+  "nationalPgrStatusByDepartment": {
+    "chartName": "NATIONAL_DSS_PGR_STATUS_BY_DEPARTMENT",
+    "queries": [
+      {
+        "module": "PGR",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pgr-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Department\":{\"terms\":{\"field\":\"department.keyword\",\"size\":1000},\"aggs\":{\"closed\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"closedComplaints\":{\"avg\":{\"field\":\"closedComplaints\"}}}},\"Total_Closed_Complaints\":{\"sum_bucket\":{\"buckets_path\":\"closed.closedComplaints\"}},\"Reponed_Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"reopened\"]}},\"aggs\":{\"Reopened\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Open_Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"open\"]}},\"aggs\":{\"Open\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Total_Complaints\":{\"sum\":{\"field\":\"todaysComplaintsForCategory\"}},\"CompletionRate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"completionRate\":{\"avg\":{\"field\":\"completionRate\"}}}},\"Completion_Rate\":{\"avg_bucket\":{\"buckets_path\":\"CompletionRate.completionRate\"}},\"SLA_Achieved\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"slaAchived\":{\"avg\":{\"field\":\"slaAchievement\"}}}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "chartType": "table",
+    "valueType": "number",
+    "action": "",
+    "plotLabel": "Department",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total_Closed_Complaints",
+      "Reponed_Complaints",
+      "Open_Complaints",
+      "Total_Complaints",
+      "Completion_Rate",
+      "SLA_Achieved"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total_Closed_Complaints": "number"
+      },
+      {
+        "Reponed_Complaints": "number"
+      },
+      {
+        "Open_Complaints": "number"
+      },
+      {
+        "Total_Complaints": "number"
+      },
+      {
+        "Completion_Rate": "percentage"
+      },
+      {
+        "SLA_Achieved": "percentage"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
   }
   
 }
