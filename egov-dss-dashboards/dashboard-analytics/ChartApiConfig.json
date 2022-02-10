@@ -14759,23 +14759,324 @@
     },
     "_comment": "WS SLA Compliance"
   },
+  "nationalPgrStatusByDDR": {
+    "chartName": "NATIONAL_DSS_PGR_STATUS_BY_TENANT",
+    "queries": [
+      {
+        "module": "PGR",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "pgr-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"State\":{\"terms\":{\"field\":\"state.keyword\",\"size\":1000},\"aggs\":{\"Closed Complaints\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"closedComplaints\":{\"avg\":{\"field\":\"closedComplaints\"}}}},\"Total Closed Complaints\":{\"sum_bucket\":{\"buckets_path\":\"Closed Complaints.closedComplaints\"}},\"Reponed Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"reopened\"]}},\"aggs\":{\"Reopened\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Open Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"open\"]}},\"aggs\":{\"Open\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Total Complaints\":{\"sum\":{\"field\":\"todaysComplaintsForCategory\"}},\"withinSLA\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"slaAchived\":{\"avg\":{\"field\":\"slaAchievement\"}}}},\"CompletionRate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"completionRate\":{\"avg\":{\"field\":\"completionRate\"}}}},\"Completion Rate\":{\"avg_bucket\":{\"buckets_path\":\"CompletionRate.completionRate\"}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": true,
+    "filterKeys": [
+      {"key": "state", "column": "state"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "nationalPgrStatusByUlbs",
+    "plotLabel": "DDRs",
+    "excludedColumns": ["withinSLA"],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Closed Complaints", "Total Complaints"],
+        "newField" : "Completion Rate",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["withinSLA","Total Complaints"],
+        "newField" : "Sla Achieved",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
 
+  "nationalPgrStatusByUlbs": {
+    "chartName": "NATIONAL_DSS_PGR_STATUS_BY_ULB",
+    "queries": [
+      {
+        "module": "PGR",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "pgr-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBS\":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":1000},\"aggs\":{\"Closed Complaints\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"closedComplaints\":{\"avg\":{\"field\":\"closedComplaints\"}}}},\"Total Closed Complaints\":{\"sum_bucket\":{\"buckets_path\":\"Closed Complaints.closedComplaints\"}},\"Reponed Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"reopened\"]}},\"aggs\":{\"Reopened\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Open Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"open\"]}},\"aggs\":{\"Open\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Total Complaints\":{\"sum\":{\"field\":\"todaysComplaintsForCategory\"}},\"withinSLA\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"slaAchived\":{\"avg\":{\"field\":\"slaAchievement\"}}}},\"CompletionRate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"completionRate\":{\"avg\":{\"field\":\"completionRate\"}}}},\"Completion Rate\":{\"avg_bucket\":{\"buckets_path\":\"CompletionRate.completionRate\"}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "ulb", "column": "Boundary"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "nationalPgrStatusByWard",
+    "plotLabel": "Boundary",
+    "excludedColumns": ["withinSLA"],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Closed Complaints", "Total Complaints"],
+        "newField" : "Completion Rate",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Complaints", "withinSLA"],
+        "newField" : "Sla Achieved",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+
+  "nationalPgrStatusByWard": {
+    "chartName": "NATIONAL_DSS_PGR_STATUS_BY_TENANT",
+    "queries": [
+      {
+        "module": "PGR",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\", \"ward\" : \"ward.keyword\"}",
+        "indexName": "pgr-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"ward.keyword\",\"size\":1000},\"aggs\":{\"Closed Complaints\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"closedComplaints\":{\"avg\":{\"field\":\"closedComplaints\"}}}},\"Total Closed Complaints\":{\"sum_bucket\":{\"buckets_path\":\"Closed Complaints.closedComplaints\"}},\"Reponed Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"reopened\"]}},\"aggs\":{\"Reopened\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Open Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"open\"]}},\"aggs\":{\"Open\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Total Complaints\":{\"sum\":{\"field\":\"todaysComplaintsForCategory\"}},\"withinSLA\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"slaAchived\":{\"avg\":{\"field\":\"slaAchievement\"}}}},\"CompletionRate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"completionRate\":{\"avg\":{\"field\":\"completionRate\"}}}},\"Completion Rate\":{\"avg_bucket\":{\"buckets_path\":\"CompletionRate.completionRate\"}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "ward", "column": "Ward"},
+      {"key": "ulb", "column": "ULB"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "nationalPgrStatusByComplaintCategory",
+
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Ward",
+    "excludedColumns": ["withinSLA"],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Closed Complaints", "Total Complaints"],
+        "newField" : "Completion Rate",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Complaints", "withinSLA"],
+        "newField" : "Sla Achieved",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+
+  "nationalPgrStatusByComplaintCategory": {
+    "chartName": "NATIONAL_DSS_PGR_STATUS_BY_COMPLAINT_CATEGORY",
+    "queries": [
+      {
+        "module": "PGR",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\", \"ward\" : \"ward.keyword\", \"department\" : \"department.keyword\"}",
+        "indexName": "pgr-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Department\":{\"terms\":{\"field\":\"department.keyword\",\"size\":1000},\"aggs\":{\"Closed Complaints\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"closedComplaints\":{\"avg\":{\"field\":\"closedComplaints\"}}}},\"Total Closed Complaints\":{\"sum_bucket\":{\"buckets_path\":\"Closed Complaints.closedComplaints\"}},\"Reponed Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"reopened\"]}},\"aggs\":{\"Reopened\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Open Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"open\"]}},\"aggs\":{\"Open\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Total Complaints\":{\"sum\":{\"field\":\"todaysComplaintsForCategory\"}},\"withinSLA\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"slaAchived\":{\"avg\":{\"field\":\"slaAchievement\"}}}},\"CompletionRate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"completionRate\":{\"avg\":{\"field\":\"completionRate\"}}}},\"Completion Rate\":{\"avg_bucket\":{\"buckets_path\":\"CompletionRate.completionRate\"}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "department", "column": "Department"},
+      {"key": "ward", "column": "Ward"},
+      {"key": "ulb", "column": "ULB"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "nationalPgrComplaintDrillDown",
+
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Department",
+    "excludedColumns": ["withinSLA"],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Closed Complaints", "Total Complaints"],
+        "newField" : "Completion Rate",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Complaints", "withinSLA"],
+        "newField" : "Sla Achieved",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+
+  "nationalPgrComplaintDrillDown": {
+    "kind": "drillDown",
+    "chartName": "NATIONAL_DSS_PGR_COMPLAINT_LIST",
+    "queries": [
+      {
+        "module": "PGR",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\", \"ward\" : \"ward.keyword\", \"department\" : \"department.keyword\"}",
+        "indexName": "pgr-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Complaint No \":{\"terms\":{\"field\":\"_id\",\"size\":200},\"aggs\":{\"Complaint Type\":{\"terms\":{\"field\":\"category.keyword\"},\"aggs\":{\"Complaint Date\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"Status\":{\"terms\":{\"field\":\"status.keyword\"}}}}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "ward", "column": "Ward"},
+      {"key": "ulb", "column": "ULB"},
+      {"key": "department", "column": "Department"}
+    ],
+    "chartType": "table",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Complaint No",
+    "aggregationPaths": [
+      "Complaint No",
+      "Complaint Type", 
+      "Complaint Date",
+      "Status"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Complaint No": "string"
+      },
+      {
+        "Complaint Type": "string"
+      },
+      {
+        "Complaint Date": "string"
+      },
+      {
+        "Status": "string"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+
+  "nationalPgrStatusByDept": {
+    "chartName": "NATIONAL_DSS_PGR_STATUS_BY_TENANT",
+    "queries": [
+      {
+        "module": "PGR",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\", \"ward\" : \"ward.keyword\", \"department\" : \"department.keyword\"}",
+        "indexName": "pgr-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"department.keyword\",\"size\":1000},\"aggs\":{\"Closed Complaints\":{\"avg\":{\"field\":\"closedComplaints\"}},\"Reponed Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"reopened\"]}},\"aggs\":{\"Reopened\":{\"avg\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Open Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"open\"]}},\"aggs\":{\"Open\":{\"avg\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Total Complaints\":{\"value_count\":{\"field\":\"ulb.keyword\"}},\"withinSLA\":{\"avg\":{\"field\":\"slaAchievement\"}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "department", "column": "Department"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "nationalPgrStatusByCatagory",
+
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Department",
+    "excludedColumns": ["withinSLA"],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Closed Complaints", "Total Complaints"],
+        "newField" : "Completion Rate",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Complaints", "withinSLA"],
+        "newField" : "Sla Achieved",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+
+  "nationalPgrStatusByCatagory": {
+    "chartName": "NATIONAL_DSS_PGR_STATUS_BY_TENANT",
+    "queries": [
+      {
+        "module": "PGR",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\", \"ward\" : \"ward.keyword\", \"department\" : \"department.keyword\"}",
+        "indexName": "pgr-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"category.keyword\",\"size\":1000},\"aggs\":{\"Closed Complaints\":{\"avg\":{\"field\":\"closedComplaints\"}},\"Reponed Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"reopened\"]}},\"aggs\":{\"Reopened\":{\"avg\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Open Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"open\"]}},\"aggs\":{\"Open\":{\"avg\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Total Complaints\":{\"value_count\":{\"field\":\"ulb.keyword\"}},\"withinSLA\":{\"avg\":{\"field\":\"slaAchievement\"}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "department", "column": "Department"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Complaint Category",
+    "excludedColumns": ["withinSLA"],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Closed Complaints", "Total Complaints"],
+        "newField" : "Completion Rate",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Complaints", "withinSLA"],
+        "newField" : "Sla Achieved",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
   "obpsServiceReport": {
     "chartName": "DSS_OBPS_SERVICE_REPORT",
     "queries": [
       {
-        "module": "COMMON",
+        "module": "OBPS",
         "requestQueryMap": "{\"wardId\" : \"dataObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\",\"tenantId\" : \"dataObject.tenantId\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
     "dateRefField": "dataObject.paymentDetails.receiptDate",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\":{\"Obps\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"BPA.LOW_RISK_PERMIT_FEE\",\"BPA.NC_APP_FEE\",\"BPA.NC_OC_APP_FEE\"]}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"BPA.LOW_RISK_PERMIT_FEE\",\"BPA.NC_APP_FEE\",\"BPA.NC_OC_APP_FEE\"]}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}"
       },
       {
-        "module": "COMMON",
+        "module": "OBPS",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\", \"district\" : \"Data.tenantData.city.districtCode\"}",
         "dateRefField": "Data.auditDetails.createdTime",
         "indexName": "bpa-index",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"Obps\": {\n      \"filter\": {\n        \"bool\": {\n          \"must_not\": [\n            {\n              \"term\": {\n                \"Data.tenantId.keyword\": \"pb.testing\"\n              }\n            }\n          ]\n        }\n      },\n          \"aggs\": {\n            \"Total Applications\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Total Permits Issued\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Average days to issue Permit\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    }\n                  ]\n                }\n              },\n              \"aggs\": {\n                \"average_days\": {\n                  \"avg\": {\n                    \"script\": {\n                      \"source\": \"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)/(86400*1000)\"\n                    }\n                  }\n                }\n              }\n            },\n            \"Average days to issue OC\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.businessService.keyword\": \"BPA_OC\"\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    }\n                  ]\n                }\n              },\n              \"aggs\": {\n                \"average_days\": {\n                  \"avg\": {\n                    \"script\": {\n                      \"source\": \"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)/(86400*1000)\"\n                    }\n                  }\n                }\n              }\n            },\n            \"SLA Compliance Permit\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"script\": {\n                        \"script\": {\n                          \"source\": \"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\n                          \"lang\": \"painless\",\n                          \"params\": {\n                            \"threshold\": 172800000\n                          }\n                        }\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"SLA Compliance OC\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.businessService.keyword\": \"BPA_OC\"\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"script\": {\n                        \"script\": {\n                          \"source\": \"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\n                          \"lang\": \"painless\",\n                          \"params\": {\n                            \"threshold\": 172800000\n                          }\n                        }\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Total OC Issued\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA_OC\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Total OC Submitted\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA_OC\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Deviation\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA_OC\",\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"exists\": {\n                        \"field\": \"Data.plotAreaApproved\"\n                      }\n                    }\n                  ]\n                }\n              },\n              \"aggs\": {\n                \"deviation\": {\n                  \"avg\": {\n                    \"script\": {\n                      \"source\": \" Math.round(((doc['Data.plotAreaApproved'].value-doc['Data.plotArea'].value)*100)/(doc['Data.plotArea'].value))\"\n                    }\n                  }\n                }\n              }\n            }\n          }\n    }\n  }\n}"
+        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n        \"bool\": {\n          \"must_not\": [\n            {\n              \"term\": {\n                \"Data.tenantId.keyword\": \"pb.testing\"\n              }\n            }\n          ]\n        }\n      },\n          \"aggs\": {\n            \"Total Applications\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Total Permits Issued\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Average days to issue Permit\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    }\n                  ]\n                }\n              },\n              \"aggs\": {\n                \"average_days\": {\n                  \"avg\": {\n                    \"script\": {\n                      \"source\": \"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)/(86400*1000)\"\n                    }\n                  }\n                }\n              }\n            },\n            \"Average days to issue OC\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.businessService.keyword\": \"BPA_OC\"\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    }\n                  ]\n                }\n              },\n              \"aggs\": {\n                \"average_days\": {\n                  \"avg\": {\n                    \"script\": {\n                      \"source\": \"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)/(86400*1000)\"\n                    }\n                  }\n                }\n              }\n            },\n            \"SLA Compliance Permit\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"script\": {\n                        \"script\": {\n                          \"source\": \"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\n                          \"lang\": \"painless\",\n                          \"params\": {\n                            \"threshold\": 172800000\n                          }\n                        }\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"SLA Compliance OC\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.businessService.keyword\": \"BPA_OC\"\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"script\": {\n                        \"script\": {\n                          \"source\": \"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\n                          \"lang\": \"painless\",\n                          \"params\": {\n                            \"threshold\": 172800000\n                          }\n                        }\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Total OC Issued\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA_OC\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Total OC Submitted\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA_OC\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Deviation\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA_OC\",\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"exists\": {\n                        \"field\": \"Data.plotAreaApproved\"\n                      }\n                    }\n                  ]\n                }\n              },\n              \"aggs\": {\n                \"deviation\": {\n                  \"avg\": {\n                    \"script\": {\n                      \"source\": \" Math.round(((doc['Data.plotAreaApproved'].value-doc['Data.plotArea'].value)*100)/(doc['Data.plotArea'].value))\"\n                    }\n                  }\n                }\n              }\n            }\n          }\n    }\n  }\n}"
       }
     ],
     "filterKeys": [
@@ -14840,18 +15141,18 @@
     "chartName": "DSS_OBPS_SERVICE_REPORT_DRILL_DOWN",
     "queries": [
       {
-        "module": "COMMON",
+        "module": "OBPS",
         "requestQueryMap": "{\"wardId\" : \"dataObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\",\"tenantId\" : \"dataObject.tenantId\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
         "dateRefField": "dataObject.paymentDetails.receiptDate",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"Obps\": {\n      \"filter\": {\n        \"bool\": {\n          \"must_not\": [\n            {\n              \"term\": {\n                \"dataObject.tenantId.keyword\": \"pb.testing\"\n              }\n            },\n            {\n              \"terms\": {\n                \"dataObject.bill.status.keyword\": [\n                  \"Cancelled\"\n                ]\n              }\n            }\n          ],\n          \"must\": [\n            {\n              \"terms\": {\n                \"dataObject.paymentDetails.businessService.keyword\": [\n                  \"BPA.LOW_RISK_PERMIT_FEE\",\n                  \"BPA.NC_APP_FEE\",\n                  \"BPA.NC_OC_APP_FEE\"\n                ]\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"ULBs\": {\n          \"terms\": {\n            \"field\": \"dataObject.tenantId.keyword\",\n            \"size\": 1000\n          },\n          \"aggs\": {\n            \"Total Collection\": {\n              \"sum\": {\n                \"field\": \"dataObject.paymentDetails.totalAmountPaid\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
+        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n        \"bool\": {\n          \"must_not\": [\n            {\n              \"term\": {\n                \"dataObject.tenantId.keyword\": \"pb.testing\"\n              }\n            },\n            {\n              \"terms\": {\n                \"dataObject.bill.status.keyword\": [\n                  \"Cancelled\"\n                ]\n              }\n            }\n          ],\n          \"must\": [\n            {\n              \"terms\": {\n                \"dataObject.paymentDetails.businessService.keyword\": [\n                  \"BPA.LOW_RISK_PERMIT_FEE\",\n                  \"BPA.NC_APP_FEE\",\n                  \"BPA.NC_OC_APP_FEE\"\n                ]\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"ULBs\": {\n          \"terms\": {\n            \"field\": \"dataObject.tenantId.keyword\",\n            \"size\": 1000\n          },\n          \"aggs\": {\n            \"Total Collection\": {\n              \"sum\": {\n                \"field\": \"dataObject.paymentDetails.totalAmountPaid\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
       },
       {
-        "module": "COMMON",
+        "module": "OBPS",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\", \"district\" : \"Data.tenantData.city.districtCode\"}",
         "dateRefField": "Data.auditDetails.createdTime",
         "indexName": "bpa-index",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"Obps\": {\n      \"filter\": {\n        \"bool\": {\n          \"must_not\": [\n            {\n              \"term\": {\n                \"Data.tenantId.keyword\": \"pb.testing\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"ULBs\": {\n          \"terms\": {\n            \"field\": \"Data.tenantId.keyword\",\n            \"size\": 1000\n          },\n          \"aggs\": {\n            \"Total Applications\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Total Permits Issued\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Average days to issue Permit\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    }\n                  ]\n                }\n              },\n              \"aggs\": {\n                \"average_days\": {\n                  \"avg\": {\n                    \"script\": {\n                      \"source\": \"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)/(86400*1000)\"\n                    }\n                  }\n                }\n              }\n            },\n            \"Average days to issue OC\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.businessService.keyword\": \"BPA_OC\"\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    }\n                  ]\n                }\n              },\n              \"aggs\": {\n                \"average_days\": {\n                  \"avg\": {\n                    \"script\": {\n                      \"source\": \"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)/(86400*1000)\"\n                    }\n                  }\n                }\n              }\n            },\n            \"SLA Compliance Permit\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"script\": {\n                        \"script\": {\n                          \"source\": \"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\n                          \"lang\": \"painless\",\n                          \"params\": {\n                            \"threshold\": 172800000\n                          }\n                        }\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"SLA Compliance OC\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.businessService.keyword\": \"BPA_OC\"\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"script\": {\n                        \"script\": {\n                          \"source\": \"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\n                          \"lang\": \"painless\",\n                          \"params\": {\n                            \"threshold\": 172800000\n                          }\n                        }\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Total OC Issued\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA_OC\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Total OC Submitted\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA_OC\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Deviation\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA_OC\",\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"exists\": {\n                        \"field\": \"Data.plotAreaApproved\"\n                      }\n                    }\n                  ]\n                }\n              },\n              \"aggs\": {\n                \"deviation\": {\n                  \"avg\": {\n                    \"script\": {\n                      \"source\": \" Math.round(((doc['Data.plotAreaApproved'].value-doc['Data.plotArea'].value)*100)/(doc['Data.plotArea'].value))\"\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"      }
+        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n        \"bool\": {\n          \"must_not\": [\n            {\n              \"term\": {\n                \"Data.tenantId.keyword\": \"pb.testing\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"ULBs\": {\n          \"terms\": {\n            \"field\": \"Data.tenantId.keyword\",\n            \"size\": 1000\n          },\n          \"aggs\": {\n            \"Total Applications\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Total Permits Issued\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Average days to issue Permit\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    }\n                  ]\n                }\n              },\n              \"aggs\": {\n                \"average_days\": {\n                  \"avg\": {\n                    \"script\": {\n                      \"source\": \"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)/(86400*1000)\"\n                    }\n                  }\n                }\n              }\n            },\n            \"Average days to issue OC\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.businessService.keyword\": \"BPA_OC\"\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    }\n                  ]\n                }\n              },\n              \"aggs\": {\n                \"average_days\": {\n                  \"avg\": {\n                    \"script\": {\n                      \"source\": \"(doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value)/(86400*1000)\"\n                    }\n                  }\n                }\n              }\n            },\n            \"SLA Compliance Permit\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"script\": {\n                        \"script\": {\n                          \"source\": \"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\n                          \"lang\": \"painless\",\n                          \"params\": {\n                            \"threshold\": 172800000\n                          }\n                        }\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"SLA Compliance OC\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.businessService.keyword\": \"BPA_OC\"\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"script\": {\n                        \"script\": {\n                          \"source\": \"doc['Data.auditDetails.lastModifiedTime'].value-doc['Data.auditDetails.createdTime'].value<params.threshold\",\n                          \"lang\": \"painless\",\n                          \"params\": {\n                            \"threshold\": 172800000\n                          }\n                        }\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Total OC Issued\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA_OC\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Total OC Submitted\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA_OC\"\n                        ]\n                      }\n                    }\n                  ]\n                }\n              }\n            },\n            \"Deviation\": {\n              \"filter\": {\n                \"bool\": {\n                  \"must\": [\n                    {\n                      \"terms\": {\n                        \"Data.businessService.keyword\": [\n                          \"BPA_OC\",\n                          \"BPA\",\n                          \"BPA_LOW\"\n                        ]\n                      }\n                    },\n                    {\n                      \"term\": {\n                        \"Data.status.keyword\": \"APPROVED\"\n                      }\n                    },\n                    {\n                      \"exists\": {\n                        \"field\": \"Data.plotAreaApproved\"\n                      }\n                    }\n                  ]\n                }\n              },\n              \"aggs\": {\n                \"deviation\": {\n                  \"avg\": {\n                    \"script\": {\n                      \"source\": \" Math.round(((doc['Data.plotAreaApproved'].value-doc['Data.plotArea'].value)*100)/(doc['Data.plotArea'].value))\"\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"      }
     ],
     "filterKeys": [
       {"key": "tenantId", "column": "DDRs"}
