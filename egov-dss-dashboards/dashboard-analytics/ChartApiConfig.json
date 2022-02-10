@@ -6563,7 +6563,7 @@
       {"key": "tenantId", "column": "Boundary"}
     ],
     "chartType": "xtable",
-    "drillChart": "none",
+    "drillChart": "mcReportByWard",
     "plotLabel": "Boundary",
     "aggregationPaths": [
       "Total_Collection",
@@ -6586,6 +6586,55 @@
     },
     "_comment": ""
   },
+
+  "mcReportByWard": {
+    "chartName": "DSS_MC_REPORT_BY_WARD",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"tenantId\" : \"dataObject.tenantId.keyword\" , \"ward\" : \"domainObject.ward.name.keyword\" }",
+        "dateRefField": "dataObject.paymentDetails.receiptDate",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}},{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"TL\",\"PT\"]}}]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"domainObject.ward.name.keyword\",\"size\":1000},  \"aggs\":{\"Total_Receipts\":{\"value_count\":{\"field\":\"dataObject.paymentDetails.receiptNumber.keyword\"}},\"Total_Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
+      },
+
+      {
+        "module": "CHALLAN",
+        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"ward\" : \"Data.ward.name.keyword\"  }",
+        "dateRefField": "Data.taxPeriodFrom",
+        "indexName": "echallan-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.businessService.keyword\":[\"TL\",\"PT\"]}}]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"Data.ward.name.keyword\",\"size\":1000},\"aggs\":{\"Total_Challans\":{\"value_count\":{\"field\":\"Data.challanNo.keyword\"}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "ward", "column": "Wards"}
+    ],
+    "chartType": "table",
+    "drillChart": "none",
+    "plotLabel": "Wards",
+    "aggregationPaths": [
+      "Total_Collection",
+      "Total_Challans",
+      "Total_Receipts"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total_Collection": "amount"
+      },
+      {
+        "Total_Challans": "number"
+      },
+      {
+        "Total_Receipts": "number"
+      }
+    ],
+
+    "insight": {
+    },
+    "_comment": ""
+  },
+
+
 
   "mcReportByCategoryv2": {
     "chartName": "DSS_PGR_STATUS_BY_CATEGORY",
