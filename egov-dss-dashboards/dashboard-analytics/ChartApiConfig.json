@@ -9681,7 +9681,7 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "month"
+      "insightInterval" : "year"
     },
     "_comment": " "
   },
@@ -9773,7 +9773,7 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "month"
+      "insightInterval" : "year"
     },
     "_comment": " "
   },
@@ -9835,7 +9835,7 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "month"
+      "insightInterval" : "year"
     },
     "_comment": " "
   },
@@ -9866,7 +9866,7 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "month"
+      "insightInterval" : "year"
     },
     "_comment": " "
   },
@@ -9897,7 +9897,7 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "month"
+      "insightInterval" : "year"
     },
     "_comment": " SLA Achieved Percentage "
   },
@@ -13835,7 +13835,7 @@
         "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
         "indexName": "firenoc-national-dashboard",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Application\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Total Applications\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Closed Application\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysClosedApplications\"}}}},\"Applications Closed\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.applications\"}}}}}}}}"
-      }
+      }  
     
     ],
     "chartType": "line",
@@ -14759,6 +14759,86 @@
     },
     "_comment": "WS SLA Compliance"
   },
+  "nationalPgrStatusByDDR": {
+    "chartName": "NATIONAL_DSS_PGR_STATUS_BY_TENANT",
+    "queries": [
+      {
+        "module": "PGR",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "pgr-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"State\":{\"terms\":{\"field\":\"state.keyword\",\"size\":1000},\"aggs\":{\"Closed Complaints\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"closedComplaints\":{\"avg\":{\"field\":\"closedComplaints\"}}}},\"Total Closed Complaints\":{\"sum_bucket\":{\"buckets_path\":\"Closed Complaints.closedComplaints\"}},\"Reponed Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"reopened\"]}},\"aggs\":{\"Reopened\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Open Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"open\"]}},\"aggs\":{\"Open\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Total Complaints\":{\"sum\":{\"field\":\"todaysComplaintsForCategory\"}},\"withinSLA\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"slaAchived\":{\"avg\":{\"field\":\"slaAchievement\"}}}},\"CompletionRate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"completionRate\":{\"avg\":{\"field\":\"completionRate\"}}}},\"Completion Rate\":{\"avg_bucket\":{\"buckets_path\":\"CompletionRate.completionRate\"}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": true,
+    "filterKeys": [
+      {"key": "state", "column": "state"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "nationalPgrStatusByUlbs",
+    "plotLabel": "DDRs",
+    "excludedColumns": ["withinSLA"],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Closed Complaints", "Total Complaints"],
+        "newField" : "Completion Rate",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["withinSLA","Total Complaints"],
+        "newField" : "Sla Achieved",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+
+  "nationalPgrStatusByUlbs": {
+    "chartName": "NATIONAL_DSS_PGR_STATUS_BY_ULB",
+    "queries": [
+      {
+        "module": "PGR",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "pgr-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBS\":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":1000},\"aggs\":{\"Closed Complaints\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"closedComplaints\":{\"avg\":{\"field\":\"closedComplaints\"}}}},\"Total Closed Complaints\":{\"sum_bucket\":{\"buckets_path\":\"Closed Complaints.closedComplaints\"}},\"Reponed Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"reopened\"]}},\"aggs\":{\"Reopened\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Open Complaints\":{\"filter\":{\"terms\":{\"status.keyword\":[\"open\"]}},\"aggs\":{\"Open\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Total Complaints\":{\"sum\":{\"field\":\"todaysComplaintsForCategory\"}},\"withinSLA\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"slaAchived\":{\"avg\":{\"field\":\"slaAchievement\"}}}},\"CompletionRate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"completionRate\":{\"avg\":{\"field\":\"completionRate\"}}}},\"Completion Rate\":{\"avg_bucket\":{\"buckets_path\":\"CompletionRate.completionRate\"}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "ulb", "column": "Boundary"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "nationalPgrStatusByWard",
+    "plotLabel": "Boundary",
+    "excludedColumns": ["withinSLA"],
+    "computedFields": [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Closed Complaints", "Total Complaints"],
+        "newField" : "Completion Rate",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total Complaints", "withinSLA"],
+        "newField" : "Sla Achieved",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
 
   "nationalPgrStatusByWard": {
     "chartName": "NATIONAL_DSS_PGR_STATUS_BY_TENANT",
@@ -14957,7 +15037,6 @@
     "chartType": "xtable",
     "valueType": "number",
     "drillChart": "none",
-
     "documentType": "_doc",
     "action": "",
     "plotLabel": "Complaint Category",
@@ -14982,15 +15061,16 @@
     },
     "_comment": ""
   },
+>>>>>>>>> Temporary merge branch 2
   "obpsServiceReport": {
     "chartName": "DSS_OBPS_SERVICE_REPORT",
     "queries": [
       {
         "module": "OBPS",
         "requestQueryMap": "{\"wardId\" : \"dataObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\",\"tenantId\" : \"dataObject.tenantId\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
-    "dateRefField": "Data.paymentDetails.receiptDate",
+    "dateRefField": "dataObject.paymentDetails.receiptDate",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"BPA.LOW_RISK_PERMIT_FEE\",\"BPA.NC_APP_FEE\",\"BPA.NC_OC_APP_FEE\"]}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"Data.paymentDetails.totalAmountPaid\"}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"BPA.LOW_RISK_PERMIT_FEE\",\"BPA.NC_APP_FEE\",\"BPA.NC_OC_APP_FEE\"]}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}"
       },
       {
         "module": "OBPS",
@@ -15012,13 +15092,14 @@
       "Total Collection",
       "Total Applications",
       "Total Permits Issued",
+      "Total Land Applied",
       "Average days to issue Permit",
       "Average days to issue OC",
       "SLA Compliance Permit",
       "SLA Compliance OC",
       "Total OC Issued",
       "Total OC Submitted",
-      "Deviation"
+"Deviation"
     ],
     "pathDataTypeMapping": [
       {
@@ -15063,9 +15144,9 @@
       {
         "module": "OBPS",
         "requestQueryMap": "{\"wardId\" : \"dataObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\",\"tenantId\" : \"dataObject.tenantId\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
-        "dateRefField": "Data.paymentDetails.receiptDate",
+        "dateRefField": "dataObject.paymentDetails.receiptDate",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"BPA.LOW_RISK_PERMIT_FEE\",\"BPA.NC_APP_FEE\",\"BPA.NC_OC_APP_FEE\"]}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"Data.paymentDetails.totalAmountPaid\"}}}}}}"
+        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n        \"bool\": {\n          \"must_not\": [\n            {\n              \"term\": {\n                \"dataObject.tenantId.keyword\": \"pb.testing\"\n              }\n            },\n            {\n              \"terms\": {\n                \"dataObject.bill.status.keyword\": [\n                  \"Cancelled\"\n                ]\n              }\n            }\n          ],\n          \"must\": [\n            {\n              \"terms\": {\n                \"dataObject.paymentDetails.businessService.keyword\": [\n                  \"BPA.LOW_RISK_PERMIT_FEE\",\n                  \"BPA.NC_APP_FEE\",\n                  \"BPA.NC_OC_APP_FEE\"\n                ]\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"ULBs\": {\n          \"terms\": {\n            \"field\": \"dataObject.tenantId.keyword\",\n            \"size\": 1000\n          },\n          \"aggs\": {\n            \"Total Collection\": {\n              \"sum\": {\n                \"field\": \"dataObject.paymentDetails.totalAmountPaid\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
       },
       {
         "module": "OBPS",
@@ -15086,6 +15167,7 @@
       "Total Collection",
       "Total Applications",
       "Total Permits Issued",
+      "Total Land Applied",
       "Average days to issue Permit",
       "Average days to issue OC",
       "SLA Compliance Permit",
@@ -15384,7 +15466,7 @@
     },
     "_comment": " "
   },
-
+  
   "nationalPgrStatusDrillDownUlb": {
     "chartName": "NATIONAL_DSS_STATUS_ULB",
     "queries": [
