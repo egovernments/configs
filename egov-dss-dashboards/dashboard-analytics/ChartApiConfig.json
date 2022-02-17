@@ -15261,7 +15261,7 @@
         "dateRefField": "date",
         "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
         "indexName": "pgr-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Complaints By Status\":{\"terms\":{\"field\":\"status.keyword\"},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"closed\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"closedComplaints\":{\"avg\":{\"field\":\"closedComplaints\"}}}},\"Closed\":{\"sum_bucket\":{\"buckets_path\":\"closed.closedComplaints\"}},\"Open\":{\"filter\":{\"terms\":{\"status.keyword\":[\"open\"]}},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Assigned\":{\"filter\":{\"terms\":{\"status.keyword\":[\"assigned\"]}},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Rejected\":{\"filter\":{\"terms\":{\"status.keyword\":[\"rejected\"]}},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"Reassigned\":{\"filter\":{\"terms\":{\"status.keyword\":[\"reassign\"]}},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"todaysComplaintsForStatus\"}}}},\"resolved\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"}},\"aggs\":{\"resolvedComplaints\":{\"avg\":{\"field\":\"resolvedComplaints\"}}}},\"Resolved\":{\"sum_bucket\":{\"buckets_path\":\"resolved.resolvedComplaints\"}}}}}}"
       }
     ],
     "chartType": "pie",
@@ -15270,7 +15270,12 @@
     "documentType": "_doc",
     "drillChart": "none",
     "aggregationPaths": [
-      "Complaints By Status"
+      "Resolved",
+      "Closed",
+      "Open",
+      "Assigned",
+      "Rejected",
+      "Reassigned"
     ],
     "insight": {
     },
