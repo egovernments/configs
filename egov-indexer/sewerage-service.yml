@@ -11,7 +11,7 @@ ServiceMaps:
         timeStampField: $.auditDetails.createdTime
         jsonPath: $.SewerageConnection
         customJsonMapping:
-          indexMapping: {"Data":{"workflow": {"state": {}, "action": "", "assignes": []},"applicationNo":"","applicationStatus":"","status":"","connectionNo":"","oldConnectionNo":"","plumberInfo":[],"roadCuttingInfo":[],"connectionHolders":[],"roadType":"","roadCuttingArea":"","connectionExecutionDate":"","connectionCategory":"","connectionType":"","additionalDetails":{},"auditDetails":{},"id":"","propertyId":"","propertyUsageType":"","tenantId":"","proposedWaterClosets":"","proposedToilets":"","noOfWaterClosets":"","noOfToilets":"","applicationType":"","dateEffectiveFrom":"","@timestamp":"timestamp","history":{}}}
+          indexMapping: {"Data":{"workflow": {"state": {}, "action": "", "assignes": []},"applicationNo":"","applicationStatus":"","status":"","connectionNo":"","oldConnectionNo":"","plumberInfo":[],"roadCuttingInfo":[],"connectionHolders":[],"roadType":"","roadCuttingArea":"","connectionExecutionDate":"","connectionCategory":"","connectionType":"","additionalDetails":{},"auditDetails":{},"id":"","propertyId":"","propertyUsageType":"","tenantId":"","proposedWaterClosets":"","proposedToilets":"","noOfWaterClosets":"","noOfToilets":"","applicationType":"","dateEffectiveFrom":"","channel":"","@timestamp":"timestamp","history":{}}}
           fieldMapping:
           - inJsonPath: $.applicationStatus.state
             outJsonPath: $.Data.workflow.state
@@ -67,6 +67,8 @@ ServiceMaps:
             outJsonPath: $.Data.applicationType
           - inJsonPath: $.dateEffectiveFrom
             outJsonPath: $.Data.dateEffectiveFrom
+          - inJsonPath: $.channel
+            outJsonPath: $.Data.channel
           - inJsonPath: $.@timestamp
             outJsonPath: $.Data.@timestamp
           externalUriMapping:
@@ -89,6 +91,18 @@ ServiceMaps:
             uriResponseMapping:
             - inJsonPath: $.TenantBoundary[0].boundary[0]
               outJsonPath: $.Data.ward
+          mdmsMapping:
+          - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+            moduleName: tenant
+            masterName: tenants
+            tenantId: pb
+            filter: "[?(@.code == $tenant)]"
+            filterMapping:
+            - variable: $tenant
+              valueJsonpath: $.tenantId
+            uriResponseMapping:
+            - inJsonPath: $.MdmsRes.tenant.tenants
+              outJsonPath: $.Data.tenantData
 
   - topic: update-sw-connection
     configKey: INDEX
@@ -99,7 +113,7 @@ ServiceMaps:
         timeStampField: $.auditDetails.lastModifiedTime
         jsonPath: $.SewerageConnection
         customJsonMapping:
-          indexMapping: {"Data":{"workflow": {"state": {}, "action": "", "assignes": []},"applicationNo":"","applicationStatus":"","status":"","connectionNo":"","oldConnectionNo":"","plumberInfo":[],"roadCuttingInfo":[],"connectionHolders":[],"roadType":"","roadCuttingArea":"","connectionExecutionDate":"","connectionCategory":"","connectionType":"","additionalDetails":{},"auditDetails":{},"id":"","propertyId":"","propertyUsageType":"","tenantId":"","proposedWaterClosets":"","proposedToilets":"","noOfWaterClosets":"","noOfToilets":"","applicationType":"","dateEffectiveFrom":"","@timestamp":"timestamp","history":{}}}
+          indexMapping: {"Data":{"workflow": {"state": {}, "action": "", "assignes": []},"applicationNo":"","applicationStatus":"","status":"","connectionNo":"","oldConnectionNo":"","plumberInfo":[],"roadCuttingInfo":[],"connectionHolders":[],"roadType":"","roadCuttingArea":"","connectionExecutionDate":"","connectionCategory":"","connectionType":"","additionalDetails":{},"auditDetails":{},"id":"","propertyId":"","propertyUsageType":"","tenantId":"","proposedWaterClosets":"","proposedToilets":"","noOfWaterClosets":"","noOfToilets":"","applicationType":"","dateEffectiveFrom":"","channel":"","@timestamp":"timestamp","history":{}}}
           fieldMapping:
           - inJsonPath: $.applicationStatus.state
             outJsonPath: $.Data.workflow.state
@@ -155,6 +169,8 @@ ServiceMaps:
             outJsonPath: $.Data.applicationType
           - inJsonPath: $.dateEffectiveFrom
             outJsonPath: $.Data.dateEffectiveFrom
+          - inJsonPath: $.channel
+            outJsonPath: $.Data.channel
           - inJsonPath: $.@timestamp
             outJsonPath: $.Data.@timestamp
           externalUriMapping:
@@ -177,6 +193,18 @@ ServiceMaps:
             uriResponseMapping:
             - inJsonPath: $.TenantBoundary[0].boundary[0]
               outJsonPath: $.Data.ward
+          mdmsMapping:
+          - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+            moduleName: tenant
+            masterName: tenants
+            tenantId: pb
+            filter: "[?(@.code == $tenant)]"
+            filterMapping:
+            - variable: $tenant
+              valueJsonpath: $.tenantId
+            uriResponseMapping:
+            - inJsonPath: $.MdmsRes.tenant.tenants
+              outJsonPath: $.Data.tenantData
 
 
   - topic: update-sw-workflow
@@ -188,7 +216,7 @@ ServiceMaps:
         timeStampField: $.auditDetails.lastModifiedTime
         jsonPath: $.SewerageConnection
         customJsonMapping:
-          indexMapping: {"Data":{"workflow": {"state": {}, "action": "", "assignes": []},"applicationNo":"","applicationStatus":"","status":"","connectionNo":"","oldConnectionNo":"","plumberInfo":[],"roadCuttingInfo":[],"connectionHolders":[],"roadType":"","roadCuttingArea":"","connectionExecutionDate":"","connectionCategory":"","connectionType":"","additionalDetails":{},"auditDetails":{},"id":"","propertyId":"","tenantId":"","proposedWaterClosets":"","proposedToilets":"","noOfWaterClosets":"","noOfToilets":"","applicationType":"","dateEffectiveFrom":"","history":{}}}
+          indexMapping: {"Data":{"workflow": {"state": {}, "action": "", "assignes": []},"applicationNo":"","applicationStatus":"","status":"","connectionNo":"","oldConnectionNo":"","plumberInfo":[],"roadCuttingInfo":[],"connectionHolders":[],"roadType":"","roadCuttingArea":"","connectionExecutionDate":"","connectionCategory":"","connectionType":"","additionalDetails":{},"auditDetails":{},"id":"","propertyId":"","tenantId":"","proposedWaterClosets":"","proposedToilets":"","noOfWaterClosets":"","noOfToilets":"","applicationType":"","dateEffectiveFrom":"","channel":"","history":{}}}
           fieldMapping:
           - inJsonPath: $.applicationStatus.state
             outJsonPath: $.Data.workflow.state
@@ -244,6 +272,8 @@ ServiceMaps:
             outJsonPath: $.Data.applicationType
           - inJsonPath: $.dateEffectiveFrom
             outJsonPath: $.Data.dateEffectiveFrom
+          - inJsonPath: $.channel
+            outJsonPath: $.Data.channel
           externalUriMapping:
           - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
             queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
@@ -264,4 +294,16 @@ ServiceMaps:
             uriResponseMapping:
             - inJsonPath: $.TenantBoundary[0].boundary[0]
               outJsonPath: $.Data.ward
+          mdmsMapping:
+          - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+            moduleName: tenant
+            masterName: tenants
+            tenantId: pb
+            filter: "[?(@.code == $tenant)]"
+            filterMapping:
+            - variable: $tenant
+              valueJsonpath: $.tenantId
+            uriResponseMapping:
+            - inJsonPath: $.MdmsRes.tenant.tenants
+              outJsonPath: $.Data.tenantData
                    
