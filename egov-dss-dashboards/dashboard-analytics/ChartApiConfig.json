@@ -14325,41 +14325,13 @@
   	"topPerformingStatesCompletionRateOverview": {
     "chartName": "NATIONAL_DSS_TOP_3_PERFORMING_STATES_COMPLETION_RATE",
     "queries": [
-     {
-        "module": "PT",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "pt-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Completed Within SLA\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"assessedPropertiesForUsageCategory\"}}}},\"Total Applications\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"propertiesRegisteredForFinancialYear\"}}}}}}}}"
-      },
       {
           "module": "TL",
           "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
           "dateRefField": "date",
           "indexName": "tl-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Issued\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysLicenseIssuedWithinSLA\"}}}},\"Completed Within SLA\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.applications\"}}}},\"Total Licenses\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysApplications\"}}}},\"Total Applications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.applications\"}}}}}}}}"
-       },
-       {
-         "module": "WS",
-         "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
-         "dateRefField": "date",
-         "indexName": "ws-national-dashboard",
-         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Completed\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysCompletedApplicationsWithinSLA\"}}}},\"Completed Within SLA\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.applications\"}}}},\"Total\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysTotalApplications\"}}}},\"Total Applications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.applications\"}}}}}}}}"
-      },
-      {
-         "module": "OBPS",
-         "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
-         "dateRefField": "date",
-         "indexName": "obps-national-dashboard",
-         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Completed\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"ocWithinSla\":{\"avg\":{\"field\":\"todaysCompletedApplicationsWithinSLAOC\"}}}},\"Total OC within sla\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.ocWithinSla\"}},\"intermediateAggr1\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"permitWithinSla\":{\"avg\":{\"field\":\"todaysCompletedApplicationsWithinSLAPermit\"}}}},\"Total Permit within sla\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr1.permitWithinSla\"}},\"Completed Within SLA\":{\"bucket_script\":{\"buckets_path\":{\"att\":\"Total Permit within sla\",\"com\":\"Total OC within sla\"},\"script\":\"params.att + params.com\"}}}},\"Total\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"ocSubmitted\":{\"avg\":{\"field\":\"ocSubmitted\"}}}},\"Total OC Submitted\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.ocSubmitted\"}},\"intermediateAggr1\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applicationsSubmitted\":{\"avg\":{\"field\":\"applicationsSubmitted\"}}}},\"Total Applications Submitted\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr1.applicationsSubmitted\"}},\"Total Applications\":{\"bucket_script\":{\"buckets_path\":{\"att\":\"Total Applications Submitted\",\"com\":\"Total OC Submitted\"},\"script\":\"params.att + params.com\"}}}}}}}}"
-      },
-      {
-         "module": "FIRENOC",
-         "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
-         "dateRefField": "date",
-         "indexName": "firenoc-national-dashboard",
-         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Completed Within SLA\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysCompletedApplicationsWithinSLA\"}}}},\"Completed Within SLA\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.applications\"}}}},\"Total Applications\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}"
-      }
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Completed Within SLA\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"state\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysLicenseIssuedWithinSLA\"}}}},\"wardapplications\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}},\"ulbApplications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplications\"}}}},\"stateApplications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbApplications\"}}}},\"total\":{\"sum_bucket\":{\"buckets_path\":\"state.stateApplications\"}}}},\"Total Licenses\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}}}"
+       }
       
     ],
     "chartType": "perform",
