@@ -50,11 +50,6 @@ ReportDefinitions:
     source: eg_hrms_employee
     isLocalisationRequired: true
     localisationPrefix: EGOV_HRMS_EMPLOYEESTATUS_
-  - name: active
-    label: reports.hrms.active
-    type: string
-    source: eg_hrms_employee
-    isLocalisationRequired: false
   searchParams:
   - name: ulb
     label: ULB
@@ -100,8 +95,7 @@ ReportDefinitions:
       (SELECT ARRAY(SELECT DISTINCT er.code from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE eu.uuid=ehe.uuid AND er.code IS NOT NULL)) as rolecodes,
       eha.designation,
       eha.department,
-      ehe.employeestatus,
-      ehe.active
+      ehe.employeestatus
       FROM eg_hrms_employee ehe
       LEFT OUTER JOIN eg_user eu ON ehe.uuid = eu.uuid
       LEFT OUTER JOIN eg_hrms_assignment eha ON eu.uuid = eha.employeeid
@@ -112,8 +106,7 @@ ReportDefinitions:
       ARRAY_TO_STRING(emp_data.rolecodes, ',') as rolecodes,
       desigmap_def.code as designation,
       deptmap_def.code as department,
-      emp_data.employeestatus as status,
-      emp_data.active as active
+      emp_data.employeestatus as status
     FROM emp_data
     INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap_def.code=emp_data.department
     INNER JOIN (VALUES tbl_def_desig) AS desigmap_def(name,code) ON desigmap_def.code=emp_data.designation
