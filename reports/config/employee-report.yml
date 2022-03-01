@@ -19,33 +19,37 @@ ReportDefinitions:
     tableName: tbl_def_roles
   sourceColumns:
   - name: id
-    label: reports.hrms.id
+    label: Id
     type: string
     source: eg_hrms_employee
   - name: name
-    label: reports.hrms.name
+    label: Name
+    type: string
+    source: eg_hrms_employee
+  - name: mobilenumber
+    label: Mobile Number
     type: string
     source: eg_hrms_employee
   - name: rolecodes
-    label: reports.hrms.role
+    label: Assigned Roles
     type: stringarray
     source: eg_hrms_employee
     isLocalisationRequired: true
     localisationPrefix: ACCESSCONTROL_ROLES_ROLES_
   - name: designation
-    label: reports.hrms.designation
+    label: Designation
     type: string
     source: eg_hrms_employee
     isLocalisationRequired: true
     localisationPrefix: COMMON_MASTERS_DESIGNATION_
   - name: department
-    label: reports.hrms.department
+    label: Department
     type: string
     source: eg_hrms_employee
     isLocalisationRequired: true
     localisationPrefix: COMMON_MASTERS_DEPARTMENT_
   - name: status
-    label: reports.hrms.status
+    label: Status
     type: string
     source: eg_hrms_employee
     isLocalisationRequired: true
@@ -91,6 +95,7 @@ ReportDefinitions:
       ehe.uuid,
       ehe.tenantid,
       eu.name,
+	  eu.mobilenumber,
       (SELECT ARRAY(SELECT DISTINCT er.name from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE eu.uuid=ehe.uuid AND er.name IS NOT NULL)) as role,
       (SELECT ARRAY(SELECT DISTINCT er.code from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE eu.uuid=ehe.uuid AND er.code IS NOT NULL)) as rolecodes,
       eha.designation,
@@ -102,6 +107,7 @@ ReportDefinitions:
       WHERE eu.active = true)
     SELECT emp_data.id as id,
       emp_data.name as name,
+	  emp_data.mobilenumber as mobilenumber,
       ARRAY_TO_STRING(emp_data.role, ',') as role,
       ARRAY_TO_STRING(emp_data.rolecodes, ',') as rolecodes,
       desigmap_def.code as designation,
