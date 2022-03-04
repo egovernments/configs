@@ -1,73 +1,209 @@
 ServiceMaps:
- serviceName: BPA Service
- version: 1.0.0
- mappings:
-  - topic: save-bpa-buildingplan
-    configKey: INDEX
-    indexes:
-    - name: bpa-index
-      type: bpaapplication
-      id: $.id, $.tenantId
-      isBulk: false
-      timeStampField: $.auditDetails.createdTime
-      jsonPath: $.BPA
-      customJsonMapping:
-        indexMapping: {"Data":{"businessService":"businessService","edcrNumber":"edcrNumber","riskType":"riskType","applicationNo":"applicationNo","landInfo": {},"approvalNo":"approvalNo","applicationDate":"applicationDate","status":"status","approvalDate":"approvalDate","tenantId":"tenantId","@timestamp":"timestamp"}}
-        fieldMapping:
-        - inJsonPath: $.businessService
-          outJsonPath: $.Data.businessService
-        - inJsonPath: $.edcrNumber
-          outJsonPath: $.Data.edcrNumber        
-        - inJsonPath: $.riskType
-          outJsonPath: $.Data.riskType
-        - inJsonPath: $.applicationNo
-          outJsonPath: $.Data.applicationNo
-        - inJsonPath: $.landInfo
-          outJsonPath: $.Data.landInfo 
-        - inJsonPath: $.approvalNo
-          outJsonPath: $.Data.approvalNo
-        - inJsonPath: $.applicationDate
-          outJsonPath: $.Data.applicationDate
-        - inJsonPath: $.status
-          outJsonPath: $.Data.status
-        - inJsonPath: $.approvalDate
-          outJsonPath: $.Data.approvalDate
-        - inJsonPath: $.tenantId
-          outJsonPath: $.Data.tenantId
-        - inJsonPath: $.@timestamp
-          outJsonPath: $.Data.@timestamp
-          
-  - topic: update-bpa-buildingplan
-    configKey: INDEX
-    indexes:
-    - name: bpa-index
-      type: bpaapplication
-      id: $.id, $.tenantId
-      isBulk: false
-      jsonPath: $.BPA
-      timeStampField: $.auditDetails.createdTime
-      customJsonMapping:
-        indexMapping: {"Data":{"businessService":"businessService","edcrNumber":"edcrNumber","riskType":"riskType","applicationNo":"applicationNo","landInfo":  {},"approvalNo":"approvalNo","applicationDate":"applicationDate","status":"status","approvalDate":"approvalDate","tenantId":"tenantId","@timestamp":"timestamp"}}
-        fieldMapping:
-        - inJsonPath: $.businessService
-          outJsonPath: $.Data.businessService
-        - inJsonPath: $.edcrNumber
-          outJsonPath: $.Data.edcrNumber        
-        - inJsonPath: $.riskType
-          outJsonPath: $.Data.riskType
-        - inJsonPath: $.applicationNo
-          outJsonPath: $.Data.applicationNo
-        - inJsonPath: $.landInfo
-          outJsonPath: $.Data.landInfo 
-        - inJsonPath: $.approvalNo
-          outJsonPath: $.Data.approvalNo
-        - inJsonPath: $.applicationDate
-          outJsonPath: $.Data.applicationDate
-        - inJsonPath: $.status
-          outJsonPath: $.Data.status
-        - inJsonPath: $.approvalDate
-          outJsonPath: $.Data.approvalDate
-        - inJsonPath: $.tenantId
-          outJsonPath: $.Data.tenantId
-        - inJsonPath: $.@timestamp
-          outJsonPath: $.Data.@timestamp      
+  serviceName: BPA Service
+  version: 1.0.0
+  mappings:
+   - topic: save-bpa-buildingplan
+     configKey: INDEX
+     indexes:
+       - name: bpa-index
+         type: bpaapplication
+         id: $.id, $.tenantId
+         isBulk: false
+         timeStampField: $.auditDetails.createdTime
+         jsonPath: $.BPA
+         customJsonMapping:
+           indexMapping: {"Data":{ "workflow":{"action":"",  "assignes":[ ]},"businessService":"businessService","edcrNumber":"edcrNumber","riskType":"riskType","applicationNo":"applicationNo","approvalNo":"","approvalDate":"approvalDate","landInfo":{},"applicationDate":"applicationDate","status":"status","tenantId":"tenantId","@timestamp":"timestamp", "serviceType":"", "applicationType":"","auditDetails":{},"plotArea":"plotArea","plotAreaApproved":"plotAreaApproved"}}
+           fieldMapping:
+           - inJsonPath: $.applicationStatus.state
+             outJsonPath: $.Data.workflow.state
+           - inJsonPath: $.workflow.action
+             outJsonPath: $.Data.workflow.action
+           - inJsonPath: $.workflow.assignes.*.uuid
+             outJsonPath: $.Data.workflow.assignes
+           - inJsonPath: $.businessService
+             outJsonPath: $.Data.businessService
+           - inJsonPath: $.edcrNumber
+             outJsonPath: $.Data.edcrNumber
+           - inJsonPath: $.riskType
+             outJsonPath: $.Data.riskType
+           - inJsonPath: $.applicationNo
+             outJsonPath: $.Data.applicationNo
+           - inJsonPath: $.landInfo
+             outJsonPath: $.Data.landInfo
+           - inJsonPath: $.approvalNo
+             outJsonPath: $.Data.approvalNo
+           - inJsonPath: $.applicationDate
+             outJsonPath: $.Data.applicationDate
+           - inJsonPath: $.status
+             outJsonPath: $.Data.status
+           - inJsonPath: $.approvalDate
+             outJsonPath: $.Data.approvalDate
+           - inJsonPath: $.tenantId
+             outJsonPath: $.Data.tenantId
+           - inJsonPath: $.@timestamp
+             outJsonPath: $.Data.@timestamp
+           - inJsonPath: $.additionalDetails
+             outJsonPath: $.Data.additionalDetails
+           - inJsonPath: $.accountId
+             outJsonPath: $.Data.accountId
+           - inJsonPath: $.auditDetails
+             outJsonPath: $.Data.auditDetails
+           - inJsonPath: $.landInfo.plotAreaApproved
+             outJsonPath: $.Data.plotAreaApproved
+           - inJsonPath: $.landInfo.plotArea
+             outJsonPath: $.Data.plotArea
+           externalUriMapping:
+           - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
+             queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.landInfo.address.locality.code,tenantId=$.tenantId
+             apiRequest: { "RequestInfo": { "apiId": "org.egov.bpa","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61","authToken": "02dbe5be-28df-4d82-954f-3d27c56cca7d","userInfo": { "id": 73 } } }
+             uriResponseMapping:
+             - inJsonPath: $.TenantBoundary[0].boundary[0]
+               outJsonPath: $.Data.ward
+             - inJsonPath: $.TenantBoundary[0].boundary[0].children
+               outJsonPath: $.Data.ward.children
+               filter: "[?(@.code == $locality)]"
+               filterMapping:
+               - variable: $locality
+                 valueJsonpath: $.address.locality.code
+           - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+             queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
+             apiRequest: { "RequestInfo": { "apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654","requesterId": "61","authToken": "d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo": { "id": 1,"uuid": "1fec8102-0e02-4d0a-b283-cd80d5dab067","type": "EMPLOYEE","tenantId": "pg.citya","roles": [ { "name": "Employee","code": "EMPLOYEE","tenantId": "pg.citya" } ] } } }
+             uriResponseMapping:
+             - inJsonPath: $.ProcessInstances
+               outJsonPath: $.Data.history
+
+   - topic: update-bpa-buildingplan
+     configKey: INDEX
+     indexes:
+     - name: bpa-index
+       type: bpaapplication
+       id: $.id, $.tenantId
+       isBulk: false
+       jsonPath: $.BPA
+       timeStampField: $.auditDetails.createdTime
+       customJsonMapping:
+         indexMapping: {"Data":{ "workflow":{"action":"",  "assignes":[ ]},"businessService":"businessService","edcrNumber":"edcrNumber","riskType":"riskType","applicationNo":"applicationNo","approvalNo":"","approvalDate":"approvalDate","landInfo":{},"applicationDate":"applicationDate","status":"status","tenantId":"tenantId","@timestamp":"timestamp", "serviceType":"", "applicationType":"","auditDetails":{},"plotArea":"plotArea","plotAreaApproved":"plotAreaApproved"}}
+         fieldMapping:
+         - inJsonPath: $.workflow.action
+           outJsonPath: $.Data.workflow.action
+         - inJsonPath: $.workflow.assignes
+           outJsonPath: $.Data.workflow.assignes
+         - inJsonPath: $.businessService
+           outJsonPath: $.Data.businessService
+         - inJsonPath: $.edcrNumber
+           outJsonPath: $.Data.edcrNumber
+         - inJsonPath: $.riskType
+           outJsonPath: $.Data.riskType
+         - inJsonPath: $.applicationNo
+           outJsonPath: $.Data.applicationNo
+         - inJsonPath: $.approvalNo
+           outJsonPath: $.Data.approvalNo
+         - inJsonPath: $.approvalDate
+           outJsonPath: $.Data.approvalDate
+         - inJsonPath: $.landInfo
+           outJsonPath: $.Data.landInfo
+         - inJsonPath: $.applicationDate
+           outJsonPath: $.Data.applicationDate
+         - inJsonPath: $.status
+           outJsonPath: $.Data.status
+         - inJsonPath: $.tenantId
+           outJsonPath: $.Data.tenantId
+         - inJsonPath: $.@timestamp
+           outJsonPath: $.Data.@timestamp
+         - inJsonPath: $.additionalDetails.serviceType
+           outJsonPath: $.Data.serviceType
+         - inJsonPath: $.additionalDetails.applicationType
+           outJsonPath: $.Data.applicationType
+         - inJsonPath: $.auditDetails
+           outJsonPath: $.Data.auditDetails
+         - inJsonPath: $.landInfo.plotAreaApproved
+           outJsonPath: $.Data.plotAreaApproved
+         - inJsonPath: $.landInfo.plotArea
+           outJsonPath: $.Data.plotArea
+         externalUriMapping:
+           - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
+             queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.landInfo.address.locality.code,tenantId=$.tenantId
+             apiRequest: { "RequestInfo": { "apiId": "org.egov.bpa","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61","authToken": "02dbe5be-28df-4d82-954f-3d27c56cca7d","userInfo": { "id": 73 } } }
+             uriResponseMapping:
+             - inJsonPath: $.TenantBoundary[0].boundary[0]
+               outJsonPath: $.Data.ward
+             - inJsonPath: $.TenantBoundary[0].boundary[0].children
+               outJsonPath: $.Data.ward.children
+               filter: "[?(@.code == $locality)]"
+               filterMapping:
+               - variable: $locality
+                 valueJsonpath: $.address.locality.code
+           - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+             queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
+             apiRequest: { "RequestInfo": { "apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654","requesterId": "61","authToken": "d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo": { "id": 1,"uuid": "1fec8102-0e02-4d0a-b283-cd80d5dab067","type": "EMPLOYEE","tenantId": "pg.citya","roles": [ { "name": "Employee","code": "EMPLOYEE","tenantId": "pg.citya" } ] } } }
+             uriResponseMapping:
+             - inJsonPath: $.ProcessInstances
+               outJsonPath: $.Data.history
+
+   - topic: update-bpa-workflow
+     configKey: INDEX
+     indexes:
+     - name: bpa-index
+       type: bpaapplication
+       id: $.id, $.tenantId
+       isBulk: false
+       jsonPath: $.BPA
+       timeStampField: $.auditDetails.createdTime
+       customJsonMapping:
+         indexMapping: {"Data":{ "workflow":{"action":"",  "assignes":[ ]},"businessService":"businessService","edcrNumber":"edcrNumber","riskType":"riskType","applicationNo":"applicationNo","approvalNo":"approvalNo","approvalDate":"approvalDate","landInfo":{},"applicationDate":"applicationDate","status":"status","tenantId":"tenantId","@timestamp":"timestamp", "serviceType":"", "applicationType":"","auditDetails":{},"plotArea":"plotArea","plotAreaApproved":"plotAreaApproved"}}
+         fieldMapping:
+         - inJsonPath: $.workflow.action
+           outJsonPath: $.Data.workflow.action
+         - inJsonPath: $.workflow.assignes
+           outJsonPath: $.Data.workflow.assignes
+         - inJsonPath: $.businessService
+           outJsonPath: $.Data.businessService
+         - inJsonPath: $.edcrNumber
+           outJsonPath: $.Data.edcrNumber
+         - inJsonPath: $.riskType
+           outJsonPath: $.Data.riskType
+         - inJsonPath: $.applicationNo
+           outJsonPath: $.Data.applicationNo
+         - inJsonPath: $.approvalNo
+           outJsonPath: $.Data.approvalNo
+         - inJsonPath: $.approvalDate
+           outJsonPath: $.Data.approvalDate
+         - inJsonPath: $.landInfo
+           outJsonPath: $.Data.landInfo
+         - inJsonPath: $.applicationDate
+           outJsonPath: $.Data.applicationDate
+         - inJsonPath: $.status
+           outJsonPath: $.Data.status
+         - inJsonPath: $.tenantId
+           outJsonPath: $.Data.tenantId
+         - inJsonPath: $.@timestamp
+           outJsonPath: $.Data.@timestamp
+         - inJsonPath: $.additionalDetails.serviceType
+           outJsonPath: $.Data.serviceType
+         - inJsonPath: $.additionalDetails.applicationType
+           outJsonPath: $.Data.applicationType
+         - inJsonPath: $.auditDetails
+           outJsonPath: $.Data.auditDetails
+         - inJsonPath: $.landInfo.plotAreaApproved
+           outJsonPath: $.Data.plotAreaApproved
+         - inJsonPath: $.landInfo.plotArea
+           outJsonPath: $.Data.plotArea
+         externalUriMapping:
+           - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
+             queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.landInfo.address.locality.code,tenantId=$.tenantId
+             apiRequest: { "RequestInfo": { "apiId": "org.egov.bpa","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61","authToken": "02dbe5be-28df-4d82-954f-3d27c56cca7d","userInfo": { "id": 73 } } }
+             uriResponseMapping:
+             - inJsonPath: $.TenantBoundary[0].boundary[0]
+               outJsonPath: $.Data.ward
+             - inJsonPath: $.TenantBoundary[0].boundary[0].children
+               outJsonPath: $.Data.ward.children
+               filter: "[?(@.code == $locality)]"
+               filterMapping:
+               - variable: $locality
+                 valueJsonpath: $.address.locality.code
+           - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+             queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
+             apiRequest: { "RequestInfo": { "apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654","requesterId": "61","authToken": "d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo": { "id": 1,"uuid": "1fec8102-0e02-4d0a-b283-cd80d5dab067","type": "EMPLOYEE","tenantId": "pg.citya","roles": [ { "name": "Employee","code": "EMPLOYEE","tenantId": "pg.citya" } ] } } }
+             uriResponseMapping:
+             - inJsonPath: $.ProcessInstances
+               outJsonPath: $.Data.history
