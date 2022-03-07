@@ -3234,6 +3234,7 @@
       "Target Collection"
     ],
     "isDayUnit": false,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
     "insight": {
       "chartResponseMap" : "wstargetCollection",
       "action" : "differenceOfNumbers",
@@ -3241,7 +3242,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": " "
   },
@@ -3273,6 +3275,7 @@
       "Total Collection",
       "Target Collection"
     ],
+    "isRoundOff": true,
     "insight": {
       "chartResponseMap" : "wstargetAchieved",
       "action" : "differenceOfNumbers",
@@ -3280,7 +3283,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": " "
   },
@@ -3339,6 +3343,7 @@
     "plotLabel": "DSS_TARGET_ACHIEVED",
     "order": "desc",
     "limit": 3,
+    "isRoundOff": true,
     "aggregationPaths": [
       "Total Collection","Target Collection"
     ],
@@ -3373,6 +3378,7 @@
     "plotLabel": "DSS_TARGET_ACHIEVED",
     "order": "asc",
     "limit": 3,
+    "isRoundOff": true,
     "aggregationPaths": [
       "Total Collection", "Target Collection"
     ],
@@ -3445,7 +3451,7 @@
         "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"tenantIdForMunicipalCorporation.keyword\"}",
         "dateRefField": "",
         "indexName": "dss-target_v1",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"businessService.keyword\":[\"W&S\"]}}]}},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"      
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"businessService.keyword\":[\"W&S\"]}}]}},\"aggs\":{\"Ws_Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"      
       },
       {
       "module": "COMMON",
@@ -3475,21 +3481,32 @@
     "postAggregationTheory" : "repsonseToDifferenceOfDates",
     "documentType": "_doc",
     "aggregationPaths": [
-      "Target_Collection",
+      "Ws_Target_Collection",
       "Ws_Total_Collection",
       "Total_Transactions",
       "Total_Connections"     
     ],
     "computedFields": [
       {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedField",
-        "fields" : ["Ws_Total_Collection","Target_Collection"],
-        "newField" : "Target_Achieved",
+        "postAggregationTheory" : "repsonseToDifferenceOfDates",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Ws_Target_Collection"],
+        "newField" : "Target_Collection",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
-    "pathDataTypeMapping": [
+      },
+      {
+         "postAggregationTheory" : "",
+         "actionName": "PercentageComputedField",
+         "fields" : ["Ws_Total_Collection","Target_Collection"],
+         "newField" : "Target_Achieved",
+         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+       }
+     ],
+     "excludedColumns":["Ws_Target_Collection"],
+     "pathDataTypeMapping": [
+      {
+        "Ws_Target_Collection": "amount"
+      },
       {
         "Ws_Total_Collection": "amount"
       },
@@ -3525,7 +3542,7 @@
         "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"tenantIdForMunicipalCorporation.keyword\"}",
         "dateRefField": "",
         "indexName": "dss-target_v1",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"businessService.keyword\":[\"W&S\"]}}]}},\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":1000},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"businessService.keyword\":[\"W&S\"]}}]}},\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":1000},\"aggs\":{\"Ws_Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
       },
       {
       "module": "COMMON",
@@ -3553,22 +3570,32 @@
     "plotLabel": "ULB",
     "postAggregationTheory" : "repsonseToDifferenceOfDates",
     "aggregationPaths": [
-      "Target_Collection",
+      "Ws_Target_Collection",
       "Ws_Total_Collection",
       "Total_Transactions",
-      "Total_Connections"
-     
+      "Total_Connections"    
     ],
     "computedFields": [
       {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedField",
-        "fields" : ["Ws_Total_Collection","Target_Collection"],
-        "newField" : "Target_Achieved",
+        "postAggregationTheory" : "repsonseToDifferenceOfDates",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Ws_Target_Collection"],
+        "newField" : "Target_Collection",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
-    "pathDataTypeMapping": [
+      },
+      {
+         "postAggregationTheory" : "",
+         "actionName": "PercentageComputedField",
+         "fields" : ["Ws_Total_Collection","Target_Collection"],
+         "newField" : "Target_Achieved",
+         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+       }
+     ],
+     "excludedColumns":["Ws_Target_Collection"],
+     "pathDataTypeMapping": [
+      {
+        "Ws_Target_Collection": "amount"
+      },
       {
         "Ws_Total_Collection": "amount"
       },
@@ -3650,14 +3677,14 @@
         "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\", \"tenantId\" : \"dataObject.tenantId.keyword\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
         "dateRefField": "dataObject.paymentDetails.receiptDate",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pg.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}]}},\"aggs\":{\"Ws_Total_Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.totalAmount\"}},\"Penalty\":{\"nested\":{\"path\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.keyword\":[\"SW_TIME_PENALTY\",\"WS_TIME_PENALTY\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.amount\"}}}}}},\"Interest\":{\"nested\":{\"path\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.keyword\":[\"SW_TIME_INTEREST\",\"WS_TIME_INTEREST\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.amount\"}}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pg.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}]}},\"aggs\":{\"Ws_Total_Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}},\"Penalty\":{\"nested\":{\"path\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.keyword\":[\"SW_TIME_PENALTY\",\"WS_TIME_PENALTY\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.amount\"}}}}}},\"Interest\":{\"nested\":{\"path\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.keyword\":[\"SW_TIME_INTEREST\",\"WS_TIME_INTEREST\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.amount\"}}}}}}}}}}"
       },
       {
         "module": "W&S",
         "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"tenantIdForMunicipalCorporation.keyword\"}",
         "dateRefField": "",
         "indexName": "dss-target_v1",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"businessService.keyword\":[\"W&S\"]}}]}},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"      
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"businessService.keyword\":[\"W&S\"]}}]}},\"aggs\":{\"Ws_Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"      
       }
     ],
     "translateTenantCode": false,
@@ -3665,7 +3692,7 @@
     "filterKeys": [
       {"key": "tenantId", "column": "DDRs"}
     ],
-    "chartType": "table",
+    "chartType": "xtable",
     "valueType": "amount",
     "drillChart": "wsTaxHeadUlb",
     "action": "",
@@ -3675,8 +3702,18 @@
       "Ws_Total_Collection",
       "Penalty",
       "Interest",
-	    "Target_Collection"
-    ],
+	    "Ws_Target_Collection"
+    ], 
+    "computedFields": [
+      {
+        "postAggregationTheory" : "repsonseToDifferenceOfDates",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Ws_Target_Collection"],
+        "newField" : "Target_Collection",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+     ],
+    "excludedColumns":["Ws_Target_Collection"],
     "pathDataTypeMapping": [
       {
         "Ws_Total_Collection": "amount"
@@ -3686,6 +3723,9 @@
       },
       {
         "Interest": "amount"
+      },
+      {
+        "Ws_Target_Collection": "amount"
       },
       {
         "Target_Collection": "amount"
@@ -3703,14 +3743,14 @@
         "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\", \"tenantId\" : \"dataObject.tenantId.keyword\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
         "dateRefField": "dataObject.paymentDetails.receiptDate",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pg.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}]}},\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"dataObject.tenantId.keyword\",\"size\":200},\"aggs\":{\"Ws_Total_Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.totalAmount\"}},\"Penalty\":{\"nested\":{\"path\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.keyword\":[\"SW_TIME_PENALTY\",\"WS_TIME_PENALTY\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.amount\"}}}}}},\"Interest\":{\"nested\":{\"path\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.keyword\":[\"SW_TIME_INTEREST\",\"WS_TIME_INTEREST\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.amount\"}}}}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pg.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}]}},\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"dataObject.tenantId.keyword\",\"size\":200},\"aggs\":{\"Ws_Total_Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}},\"Penalty\":{\"nested\":{\"path\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.keyword\":[\"SW_TIME_PENALTY\",\"WS_TIME_PENALTY\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.amount\"}}}}}},\"Interest\":{\"nested\":{\"path\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.keyword\":[\"SW_TIME_INTEREST\",\"WS_TIME_INTEREST\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.amount\"}}}}}}}}}}}}"
       },
       {
         "module": "W&S",
         "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"tenantIdForMunicipalCorporation.keyword\"}",
         "dateRefField": "",
         "indexName": "dss-target_v1",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"businessService.keyword\":[\"W&S\"]}}]}},\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":1000},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"      
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"businessService.keyword\":[\"W&S\"]}}]}},\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":1000},\"aggs\":{\"Ws_Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"      
       }
     ],
     "translateTenantCode": false,
@@ -3718,7 +3758,7 @@
     "filterKeys": [
       {"key": "tenantId", "column": "ULB"}
     ],
-    "chartType": "table",
+    "chartType": "xtable",
     "valueType": "amount",
     "drillChart": "wsTaxHeadWard",
     "action": "",
@@ -3728,8 +3768,18 @@
       "Ws_Total_Collection",
       "Penalty",
       "Interest",
-	    "Target_Collection"
-    ],
+	    "Ws_Target_Collection"
+    ], 
+    "computedFields": [
+      {
+        "postAggregationTheory" : "repsonseToDifferenceOfDates",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Ws_Target_Collection"],
+        "newField" : "Target_Collection",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+     ],
+    "excludedColumns":["Ws_Target_Collection"],
     "pathDataTypeMapping": [
       {
         "Ws_Total_Collection": "amount"
@@ -3739,6 +3789,9 @@
       },
       {
         "Interest": "amount"
+      },
+      {
+        "Ws_Target_Collection": "amount"
       },
       {
         "Target_Collection": "amount"
@@ -3756,14 +3809,14 @@
         "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\", \"tenantId\" : \"dataObject.tenantId.keyword\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
         "dateRefField": "dataObject.paymentDetails.receiptDate",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pg.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}]}},\"aggs\":{\"Ward \":{\"terms\":{\"field\":\"domainObject.ward.name.keyword\",\"size\":200},\"aggs\":{\"Ws_Total_Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.totalAmount\"}},\"Penalty\":{\"nested\":{\"path\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.keyword\":[\"SW_TIME_PENALTY\",\"WS_TIME_PENALTY\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.amount\"}}}}}},\"Interest\":{\"nested\":{\"path\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.keyword\":[\"SW_TIME_INTEREST\",\"WS_TIME_INTEREST\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.amount\"}}}}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pg.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}]}},\"aggs\":{\"Ward \":{\"terms\":{\"field\":\"domainObject.ward.name.keyword\",\"size\":200},\"aggs\":{\"Ws_Total_Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}},\"Penalty\":{\"nested\":{\"path\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.keyword\":[\"SW_TIME_PENALTY\",\"WS_TIME_PENALTY\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.amount\"}}}}}},\"Interest\":{\"nested\":{\"path\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails\"},\"aggs\":{\"aggrFilter\":{\"filter\":{\"terms\":{\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.taxHeadCode.keyword\":[\"SW_TIME_INTEREST\",\"WS_TIME_INTEREST\"]}},\"aggs\":{\"amount\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.billAccountDetails.amount\"}}}}}}}}}}}}"
       }
     ],
     "isMdmsEnabled": false,
     "translateTenantCode": false,
     "filterKeys": [
     ],
-    "chartType": "table",
+    "chartType": "xtable",
     "valueType": "amount",
     "drillChart": "none",
     "action": "",
@@ -3823,7 +3876,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": ""
   },
@@ -3953,7 +4007,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": "active water connections"
   },
@@ -3963,14 +4018,14 @@
       {
         "module": "WS",
         "indexName": "water-services",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"Closed With In Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\",\"REJECTED\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.history.auditDetails.lastModifiedTime'].value - doc['Data.history.auditDetails.createdTime'].value < params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}},\"Total Applications\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}}}}",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"Closed With In Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\",\"REJECTED\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].date.millis - doc['Data.auditDetails.createdTime'].date.millis < params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}},\"Total Applications\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}}}}",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId.keyword\" \r\n}",
         "dateRefField": "Data.history.auditDetails.createdTime"
       },
       {
         "module": "WS",
         "indexName": "sewerage-services",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"Closed With In Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\",\"REJECTED\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.history.auditDetails.lastModifiedTime'].value - doc['Data.history.auditDetails.createdTime'].value < params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}},\"Total Applications\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}}}}",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"Closed With In Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\",\"REJECTED\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].date.millis - doc['Data.auditDetails.createdTime'].date.millis < params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}},\"Total Applications\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}}}}",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId.keyword\" \r\n}",
         "dateRefField": "Data.history.auditDetails.createdTime"
       }
@@ -3984,6 +4039,7 @@
       "Closed With In Sla",
       "Total Applications"
     ],
+    "isRoundOff": true,
     "insight": {
       "chartResponseMap" : "wsSLACompliance",
       "action" : "differenceOfNumbers",
@@ -3991,7 +4047,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
       },
       "_comment": "WS SLA Compliance"
     },
@@ -4022,7 +4079,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": "active metered water connections"
   },
@@ -4053,7 +4111,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": "active non-metered water connections"
   },
@@ -4083,7 +4142,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": "active sewerage connections "
   },
@@ -4108,7 +4168,6 @@
     "aggregationPaths": [
       "Water Collections",
       "Sewerage Collections"
-
     ],
     "isCumulative": true,
     "interval": "month",
@@ -4144,7 +4203,6 @@
     "aggregationPaths": [
       "Water Connections",
       "Sewerage Connections"
-
     ],
     "isCumulative": true,
     "interval": "month",
@@ -6734,26 +6792,20 @@
       {
         "module": "BPA",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must\": [ { \"range\": { \"dataObject.paymentDetails.billDate.keyword\": { \"gte\": \"now-24h\", \"lte\": \"now\" } } }, { \"terms\": { \"dataObject.paymentDetails.businessService.keyword\": [ \"BPA.LOW_RISK_PERMIT_FEE\",\"BPA.NC_APP_FEE\",\"BPA.NC_OC_APP_FEE\" ] } } ], \"must_not\": [ { \"term\": { \"dataObject.tenantId.keyword\": \"pg.testing\" } }, { \"term\": { \"dataObject.paymentStatus.keyword\": \"Cancelled\" } } ] } }, \"aggs\": { \"Today's Collection\": { \"sum\": { \"field\": \"dataObject.paymentDetails.totalAmountPaid\" } } } } } }",
+        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must\": [ { \"range\": { \"dataObject.paymentDetails.receiptDate\": { \"gte\": \"now-24h\", \"lte\": \"now\" } } }, { \"terms\": { \"dataObject.paymentDetails.businessService.keyword\": [ \"BPA.LOW_RISK_PERMIT_FEE\",\"BPA.NC_APP_FEE\",\"BPA.NC_OC_APP_FEE\" ] } } ], \"must_not\": [ { \"term\": { \"dataObject.tenantId.keyword\": \"pg.testing\" } }, { \"term\": { \"dataObject.paymentStatus.keyword\": \"Cancelled\" } } ] } }, \"aggs\": { \"Today's Collection\": { \"sum\": { \"field\": \"dataObject.paymentDetails.totalAmountPaid\" } } } } } }",
         "requestQueryMap":"{\"wardId\" : \"dataObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\",\"tenantId\" : \"dataObject.tenantId\", \"district\" : \"dataObject.tenantData.city.districtCode\" }",
         "dateRefField": ""
       }
     ],
     "chartType": "metric",
-    "valueType": "number",
+    "valueType": "amount",
     "action": "",
     "drillChart": "none",
     "aggregationPaths": [
       "Today's Collection"
     ],
     "insight": {
-      "chartResponseMap" : "bpaTodaysCollection",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
+     
     },
     "_comment": "BPA Today's collections "
   },
@@ -7353,7 +7405,7 @@
     "queries": [
       {
         "module": "MASTER",
-        "requestQueryMap": "{\"module\" : \"module.keyword\", \"ulb\" : \"ulb.keyword\"}",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
         "dateRefField": "date",
         "indexName": "master-national-dashboard",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"module.keyword\":\"PT\"}}]}},\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"
@@ -7584,13 +7636,21 @@
     ],
      "computedFields": [
       {
+        "postAggregationTheory" : "repsonseToDifferenceOfDates",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["PT_Target_Collection"],
+        "newField" : "Target_Collection_PT",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
         "postAggregationTheory" : "",
         "actionName": "PercentageComputedField",
-        "fields" : ["PT_Total_Collection","PT_Target_Collection"],
+        "fields" : ["PT_Total_Collection","Target_Collection_PT"],
         "newField" : "Target Achieved",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
       }
     ],
+    "excludedColumns":["PT_Target_Collection"],
     "pathDataTypeMapping": [
       {
         "PT_Total_Collection": "amount"
@@ -7606,6 +7666,9 @@
       },
       {
       	"Target Achieved" : "percentage"
+      },
+      {
+         "Target_Collection_PT": "amount"
       }
     ],
     "insight": {
@@ -7653,13 +7716,21 @@
     ],
      "computedFields": [
       {
+        "postAggregationTheory" : "repsonseToDifferenceOfDates",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["PT_Target_Collection"],
+        "newField" : "Target_Collection_PT",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
         "postAggregationTheory" : "",
         "actionName": "PercentageComputedField",
-        "fields" : ["PT_Total_Collection","PT_Target_Collection"],
+        "fields" : ["PT_Total_Collection","Target_Collection_PT"],
         "newField" : "Target Achieved",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
       }
     ],
+    "excludedColumns":["PT_Target_Collection"],
     "pathDataTypeMapping": [
       {
         "PT_Total_Collection": "amount"
@@ -7675,6 +7746,9 @@
       },
       {
       	"Target Achieved" : "percentage"
+      },
+      {
+      	"Target_Collection_PT" : "amount"
       }
     ],
     "insight": {
@@ -7717,13 +7791,21 @@
     ],
      "computedFields": [
       {
+        "postAggregationTheory" : "repsonseToDifferenceOfDates",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["PT_Target_Collection"],
+        "newField" : "Target_Collection_PT",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      },
+      {
         "postAggregationTheory" : "",
         "actionName": "PercentageComputedField",
-        "fields" : ["PT_Total_Collection","PT_Target_Collection"],
+        "fields" : ["PT_Total_Collection","Target_Collection_PT"],
         "newField" : "Target Achieved",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
       }
     ],
+    "excludedColumns":["PT_Target_Collection"],
     "pathDataTypeMapping": [
       {
         "PT_Total_Collection": "amount"
@@ -7739,6 +7821,9 @@
       },
       {
       	"Target Achieved" : "percentage"
+      },
+      {
+        "Target_Collection_PT": "amount"
       }
     ],
     "insight": {
@@ -10363,7 +10448,7 @@
           "requestQueryMap": "{\"state\" : \"state.keyword\",\"module\" : \"module.keyword\"}",
           "dateRefField": "date",
           "indexName": "master-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"state \":{\"terms\":{\"field\":\"state.keyword\",\"size\":200},\"aggs\":{\"Target_Collection\":{\"filter\":{\"term\":{\"module.keyword\":\"WS\"}},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+          "aggrQuery": "{\"aggs\":{\"state \":{\"terms\":{\"field\":\"state.keyword\",\"size\":200},\"aggs\":{\"Ws_Target_Collection\":{\"filter\":{\"term\":{\"module.keyword\":\"WS\"}},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
         },
         {
           "module": "WS",
@@ -10387,21 +10472,32 @@
       "action": "",
       "plotLabel": "State",
       "aggregationPaths": [
-        "Target_Collection",
+        "Ws_Target_Collection",
         "Ws_Total_Collection",
         "Total_Transactions",
         "Total_Connections"
       ],
       "computedFields": [
         {
-          "postAggregationTheory" : "",
-          "actionName": "PercentageComputedField",
-          "fields" : ["Ws_Total_Collection","Target_Collection"],
-          "newField" : "Target_Achieved",
+          "postAggregationTheory" : "repsonseToDifferenceOfDates",
+          "actionName": "AdditiveComputedField",
+          "fields" : ["Ws_Target_Collection"],
+          "newField" : "Target_Collection",
           "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-        }
-      ],
-      "pathDataTypeMapping": [
+        },
+        {
+           "postAggregationTheory" : "",
+           "actionName": "PercentageComputedField",
+           "fields" : ["Ws_Total_Collection","Target_Collection"],
+           "newField" : "Target_Achieved",
+           "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+         }
+       ],
+       "excludedColumns":["Ws_Target_Collection"],
+       "pathDataTypeMapping": [
+        {
+          "Ws_Target_Collection": "amount"
+        },
         {
           "Ws_Total_Collection": "amount"
         },
@@ -10431,7 +10527,7 @@
           "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"module\" : \"module.keyword\"}",
           "dateRefField": "date",
           "indexName": "master-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"state \":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":200},\"aggs\":{\"Target_Collection\":{\"filter\":{\"term\":{\"module.keyword\":\"WS\"}},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+          "aggrQuery": "{\"aggs\":{\"state \":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":200},\"aggs\":{\"Ws_Target_Collection\":{\"filter\":{\"term\":{\"module.keyword\":\"WS\"}},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
         },
         {
           "module": "WS",
@@ -10454,21 +10550,32 @@
       "action": "",
       "plotLabel": "ULB",
       "aggregationPaths": [
-        "Target_Collection",
+        "Ws_Target_Collection",
         "Ws_Total_Collection",
         "Total_Transactions",
         "Total_Connections"
       ],
       "computedFields": [
         {
-          "postAggregationTheory" : "",
-          "actionName": "PercentageComputedField",
-          "fields" : ["Ws_Total_Collection","Target_Collection"],
-          "newField" : "Target_Achieved",
+          "postAggregationTheory" : "repsonseToDifferenceOfDates",
+          "actionName": "AdditiveComputedField",
+          "fields" : ["Ws_Target_Collection"],
+          "newField" : "Target_Collection",
           "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-        }
-      ],
-      "pathDataTypeMapping": [
+        },
+        {
+           "postAggregationTheory" : "",
+           "actionName": "PercentageComputedField",
+           "fields" : ["Ws_Total_Collection","Target_Collection"],
+           "newField" : "Target_Achieved",
+           "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+         }
+       ],
+       "excludedColumns":["Ws_Target_Collection"],
+       "pathDataTypeMapping": [
+        {
+          "Ws_Target_Collection": "amount"
+        },
         {
           "Ws_Total_Collection": "amount"
         },
@@ -10497,7 +10604,7 @@
           "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
           "dateRefField": "date",
           "indexName": "master-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"state \":{\"terms\":{\"field\":\"ward.keyword\",\"size\":200},\"aggs\":{\"Target_Collection\":{\"filter\":{\"term\":{\"module.keyword\":\"WS\"}},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+          "aggrQuery": "{\"aggs\":{\"state \":{\"terms\":{\"field\":\"ward.keyword\",\"size\":200},\"aggs\":{\"Ws_Target_Collection\":{\"filter\":{\"term\":{\"module.keyword\":\"WS\"}},\"aggs\":{\"sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
         },
         {
           "module": "WS",
@@ -10508,8 +10615,7 @@
         }
       ],
       "isMdmsEnabled": false,
-      "filterKeys": [
-  
+      "filterKeys": [  
       ],
       "postAggregationTheory": "repsonseToDifferenceOfDates",
       "chartType": "xtable",
@@ -10519,21 +10625,32 @@
       "action": "",
       "plotLabel": "Ward",
       "aggregationPaths": [
-        "Target_Collection",
+        "Ws_Target_Collection",
         "Ws_Total_Collection",
         "Total_Transactions",
         "Total_Connections"
       ],
       "computedFields": [
         {
-          "postAggregationTheory" : "",
-          "actionName": "PercentageComputedField",
-          "fields" : ["Ws_Total_Collection","Target_Collection"],
-          "newField" : "Target_Achieved",
+          "postAggregationTheory" : "repsonseToDifferenceOfDates",
+          "actionName": "AdditiveComputedField",
+          "fields" : ["Ws_Target_Collection"],
+          "newField" : "Target_Collection",
           "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-        }
-      ],
-      "pathDataTypeMapping": [
+        },
+        {
+           "postAggregationTheory" : "",
+           "actionName": "PercentageComputedField",
+           "fields" : ["Ws_Total_Collection","Target_Collection"],
+           "newField" : "Target_Achieved",
+           "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+         }
+       ],
+       "excludedColumns":["Ws_Target_Collection"],
+       "pathDataTypeMapping": [
+        {
+          "Ws_Target_Collection": "amount"
+        },
         {
           "Ws_Total_Collection": "amount"
         },
@@ -12390,9 +12507,9 @@
         {
           "module": "COMMON",
           "requestQueryMap": "{\"state\" : \"state.keyword\"}",
-          "dateRefField": "",
+          "dateRefField": "date",
           "indexName": "master-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"States\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"TL_Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"States\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
         }
         
       ],
@@ -12410,11 +12527,14 @@
         "TL_Total_Collection",
         "Transactions",
         "Total_Licence_Issued",
-        "TL_Target_Collection"
+        "Target_Collection"
       ],
       "pathDataTypeMapping": [
         {
           "TL_Total_Collection": "amount"
+        },
+        {
+          "Target_Collection": "amount"
         },
         {
           "Transactions": "number"
@@ -12427,8 +12547,15 @@
         }
       ],
       "computedFields": [
-        {
+       {
           "postAggregationTheory" : "repsonseToDifferenceOfDates",
+          "actionName": "AdditiveComputedField",
+          "fields" : ["Target_Collection"],
+          "newField" : "TL_Target_Collection",
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        },
+        {
+          "postAggregationTheory" : "",
           "actionName": "PercentageComputedField",
           "fields" : ["TL_Total_Collection", "TL_Target_Collection"],
           "newField" : "TL_Target_Achieved",
@@ -12437,6 +12564,7 @@
         }
         
       ],
+      "excludedColumns":["Target_Collection"],
       "insight": {
       },
       "_comment": ""
@@ -12518,9 +12646,9 @@
         {
           "module": "COMMON",
           "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\"}",
-          "dateRefField": "",
+          "dateRefField": "date",
           "indexName": "master-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"Tenants\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"TL_Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"Tenants\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
         }
       ],
       "filterKeys": [
@@ -12537,11 +12665,14 @@
         "TL_Total_Collection",
         "Transactions",
         "Total_Licence_Issued",
-        "TL_Target_Collection"
+        "Target_Collection"
       ],
       "pathDataTypeMapping": [
         {
           "TL_Total_Collection": "amount"
+        },
+        {
+          "Target_Collection": "amount"
         },
         {
           "Transactions": "number"
@@ -12554,8 +12685,15 @@
         }
       ],
       "computedFields": [
-        {
+       {
           "postAggregationTheory" : "repsonseToDifferenceOfDates",
+          "actionName": "AdditiveComputedField",
+          "fields" : ["Target_Collection"],
+          "newField" : "TL_Target_Collection",
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        },
+        {
+          "postAggregationTheory" : "",
           "actionName": "PercentageComputedField",
           "fields" : ["TL_Total_Collection", "TL_Target_Collection"],
           "newField" : "TL_Target_Achieved",
@@ -12564,6 +12702,7 @@
         }
         
       ],
+      "excludedColumns":["Target_Collection"],
       "insight": {
       },
       "_comment": ""
@@ -12582,9 +12721,9 @@
         {
           "module": "COMMON",
           "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
-          "dateRefField": "",
+          "dateRefField": "date",
           "indexName": "master-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"TL_Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
         }
       ],
       "filterKeys": [
@@ -12601,11 +12740,14 @@
         "TL_Total_Collection",
         "Transactions",
         "Total_Licence_Issued",
-        "TL_Target_Collection"
+        "Target_Collection"
       ],
       "pathDataTypeMapping": [
         {
           "TL_Total_Collection": "amount"
+        },
+        {
+          "Target_Collection": "amount"
         },
         {
           "Transactions": "number"
@@ -12618,8 +12760,15 @@
         }
       ],
       "computedFields": [
-        {
+       {
           "postAggregationTheory" : "repsonseToDifferenceOfDates",
+          "actionName": "AdditiveComputedField",
+          "fields" : ["Target_Collection"],
+          "newField" : "TL_Target_Collection",
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        },
+        {
+          "postAggregationTheory" : "",
           "actionName": "PercentageComputedField",
           "fields" : ["TL_Total_Collection", "TL_Target_Collection"],
           "newField" : "TL_Target_Achieved",
@@ -12628,6 +12777,7 @@
         }
         
       ],
+      "excludedColumns":["Target_Collection"],
       "insight": {
       },
       "_comment": ""
