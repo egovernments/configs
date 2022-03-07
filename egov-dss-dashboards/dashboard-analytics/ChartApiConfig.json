@@ -3234,6 +3234,7 @@
       "Target Collection"
     ],
     "isDayUnit": false,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
     "insight": {
       "chartResponseMap" : "wstargetCollection",
       "action" : "differenceOfNumbers",
@@ -3241,7 +3242,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": " "
   },
@@ -3273,6 +3275,7 @@
       "Total Collection",
       "Target Collection"
     ],
+    "isRoundOff": true,
     "insight": {
       "chartResponseMap" : "wstargetAchieved",
       "action" : "differenceOfNumbers",
@@ -3280,7 +3283,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": " "
   },
@@ -3339,6 +3343,7 @@
     "plotLabel": "DSS_TARGET_ACHIEVED",
     "order": "desc",
     "limit": 3,
+    "isRoundOff": true,
     "aggregationPaths": [
       "Total Collection","Target Collection"
     ],
@@ -3373,6 +3378,7 @@
     "plotLabel": "DSS_TARGET_ACHIEVED",
     "order": "asc",
     "limit": 3,
+    "isRoundOff": true,
     "aggregationPaths": [
       "Total Collection", "Target Collection"
     ],
@@ -3445,7 +3451,7 @@
         "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"tenantIdForMunicipalCorporation.keyword\"}",
         "dateRefField": "",
         "indexName": "dss-target_v1",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"businessService.keyword\":[\"W&S\"]}}]}},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"      
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"businessService.keyword\":[\"W&S\"]}}]}},\"aggs\":{\"Ws_Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"      
       },
       {
       "module": "COMMON",
@@ -3475,21 +3481,32 @@
     "postAggregationTheory" : "repsonseToDifferenceOfDates",
     "documentType": "_doc",
     "aggregationPaths": [
-      "Target_Collection",
+      "Ws_Target_Collection",
       "Ws_Total_Collection",
       "Total_Transactions",
       "Total_Connections"     
     ],
     "computedFields": [
       {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedField",
-        "fields" : ["Ws_Total_Collection","Target_Collection"],
-        "newField" : "Target_Achieved",
+        "postAggregationTheory" : "repsonseToDifferenceOfDates",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Ws_Target_Collection"],
+        "newField" : "Target_Collection",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
-    "pathDataTypeMapping": [
+      },
+      {
+         "postAggregationTheory" : "",
+         "actionName": "PercentageComputedField",
+         "fields" : ["Ws_Total_Collection","Target_Collection"],
+         "newField" : "Target_Achieved",
+         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+       }
+     ],
+     "excludedColumns":["Ws_Target_Collection"],
+     "pathDataTypeMapping": [
+      {
+        "Ws_Target_Collection": "amount"
+      },
       {
         "Ws_Total_Collection": "amount"
       },
@@ -3525,7 +3542,7 @@
         "requestQueryMap": "{\"module\" : \"businessService.keyword\", \"tenantId\" : \"tenantIdForMunicipalCorporation.keyword\"}",
         "dateRefField": "",
         "indexName": "dss-target_v1",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"businessService.keyword\":[\"W&S\"]}}]}},\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":1000},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"businessService.keyword\":[\"W&S\"]}}]}},\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"tenantIdForMunicipalCorporation.keyword\",\"size\":1000},\"aggs\":{\"Ws_Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
       },
       {
       "module": "COMMON",
@@ -3553,22 +3570,32 @@
     "plotLabel": "ULB",
     "postAggregationTheory" : "repsonseToDifferenceOfDates",
     "aggregationPaths": [
-      "Target_Collection",
+      "Ws_Target_Collection",
       "Ws_Total_Collection",
       "Total_Transactions",
-      "Total_Connections"
-     
+      "Total_Connections"    
     ],
     "computedFields": [
       {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedField",
-        "fields" : ["Ws_Total_Collection","Target_Collection"],
-        "newField" : "Target_Achieved",
+        "postAggregationTheory" : "repsonseToDifferenceOfDates",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Ws_Target_Collection"],
+        "newField" : "Target_Collection",
         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
-    "pathDataTypeMapping": [
+      },
+      {
+         "postAggregationTheory" : "",
+         "actionName": "PercentageComputedField",
+         "fields" : ["Ws_Total_Collection","Target_Collection"],
+         "newField" : "Target_Achieved",
+         "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+       }
+     ],
+     "excludedColumns":["Ws_Target_Collection"],
+     "pathDataTypeMapping": [
+      {
+        "Ws_Target_Collection": "amount"
+      },
       {
         "Ws_Total_Collection": "amount"
       },
@@ -3823,7 +3850,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": ""
   },
@@ -3953,7 +3981,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": "active water connections"
   },
@@ -3963,14 +3992,14 @@
       {
         "module": "WS",
         "indexName": "water-services",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Closed With In Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\",\"REJECTED\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.history.auditDetails.lastModifiedTime'].value - doc['Data.history.auditDetails.createdTime'].value < params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}},\"Total Applications\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}}}}",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Closed With In Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\",\"REJECTED\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].date.millis - doc['Data.auditDetails.createdTime'].date.millis < params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}},\"Total Applications\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}}}}",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId.keyword\" \r\n}",
         "dateRefField": "Data.history.auditDetails.createdTime"
       },
       {
         "module": "WS",
         "indexName": "sewerage-services",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Closed With In Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\",\"REJECTED\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.history.auditDetails.lastModifiedTime'].value - doc['Data.history.auditDetails.createdTime'].value < params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}},\"Total Applications\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}}}}",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Closed With In Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"CONNECTION_ACTIVATED\",\"REJECTED\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].date.millis - doc['Data.auditDetails.createdTime'].date.millis < params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}},\"Total Applications\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}}}}",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId.keyword\" \r\n}",
         "dateRefField": "Data.history.auditDetails.createdTime"
       }
@@ -3984,6 +4013,7 @@
       "Closed With In Sla",
       "Total Applications"
     ],
+    "isRoundOff": true,
     "insight": {
       "chartResponseMap" : "wsSLACompliance",
       "action" : "differenceOfNumbers",
@@ -3991,7 +4021,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
       },
       "_comment": "WS SLA Compliance"
     },
@@ -4022,7 +4053,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": "active metered water connections"
   },
@@ -4053,7 +4085,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": "active non-metered water connections"
   },
@@ -4083,7 +4116,8 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": "active sewerage connections "
   },
@@ -4108,7 +4142,6 @@
     "aggregationPaths": [
       "Water Collections",
       "Sewerage Collections"
-
     ],
     "isCumulative": true,
     "interval": "month",
@@ -4144,7 +4177,6 @@
     "aggregationPaths": [
       "Water Connections",
       "Sewerage Connections"
-
     ],
     "isCumulative": true,
     "interval": "month",
