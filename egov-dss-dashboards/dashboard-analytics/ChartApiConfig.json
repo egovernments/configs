@@ -13189,70 +13189,78 @@
   "licenseIssuedBoundaryRevenuev3": {
     "chartName": "DSS_TL_DEMAND_COLLECTION_BOUNDARY",
     "queries": [
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"state\" : \"state.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"States\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}},\"Transactions\":{\"sum\":{\"field\":\"transactions\"}},\"Total Licence Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}}}"
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"States\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"TL_Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}},\"Total_Licence_Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}},\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"transactions\"}}}},\"wardapplications\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}},\"ulbApplications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplications\"}}}},\"Transactions\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbApplications\"}}}}}}}}"
+        },
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "master-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"States\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        }
+        
+      ],
+      "filterKeys": [
+        {"key": "state", "column": "States"}
+      ],
+      "postAggregationTheory" : "repsonseToDifferenceOfDates",
+      "chartType": "xtable",
+      "valueType": "number",
+      "drillChart": "licenseIssuedTenantRevenuev3",
+      "documentType": "_doc",
+      "action": "",
+      "plotLabel": "States",
+      "aggregationPaths": [
+        "TL_Total_Collection",
+        "Transactions",
+        "Total_Licence_Issued",
+        "Target_Collection"
+      ],
+      "pathDataTypeMapping": [
+        {
+          "TL_Total_Collection": "amount"
+        },
+        {
+          "Target_Collection": "amount"
+        },
+        {
+          "Transactions": "number"
+        },
+        {
+          "Total_Licence_Issued": "number"
+        },
+        {
+          "TL_Target_Collection": "amount"
+        }
+      ],
+      "computedFields": [
+       {
+          "postAggregationTheory" : "repsonseToDifferenceOfDates",
+          "actionName": "AdditiveComputedField",
+          "fields" : ["Target_Collection"],
+          "newField" : "TL_Target_Collection",
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        },
+        {
+          "postAggregationTheory" : "",
+          "actionName": "PercentageComputedField",
+          "fields" : ["TL_Total_Collection", "TL_Target_Collection"],
+          "newField" : "TL_Target_Achieved",
+          "isRoundOff": true,
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        }
+        
+      ],
+      "excludedColumns":["Target_Collection"],
+      "insight": {
       },
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"state\" : \"state.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "master-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"States\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
-      }
-      
-    ],
-    "filterKeys": [
-      {"key": "stateId", "column": "States"}
-    ],
-    "postAggregationTheory" : "repsonseToDifferenceOfDates",
-    "chartType": "xtable",
-    "valueType": "number",
-    "drillChart": "licenseIssuedTenantRevenuev3",
-    "isRoundOff":true,
-    "documentType": "_doc",
-    "action": "",
-    "plotLabel": "States",
-    "aggregationPaths": [
-      "Total Collection",
-      "Transactions",
-      "Total Licence Issued",
-      "Target Collection"
-    ],
-    "pathDataTypeMapping": [
-      {
-        "Total Collection": "amount"
-      },
-      {
-        "Transactions": "number"
-      },
-      {
-        "Total Licence Issued": "number"
-      },
-      {
-        "Target Collection": "amount"
-      },
-      {
-        "Target Achieved": "percentage"
-      }
-    ],
-    "computedFields": [
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedField",
-        "fields" : ["Total Collection", "Target Collection"],
-        "newField" : "Target Achieved",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-      
-    ],
-    "insight": {
+      "_comment": ""
     },
-    "_comment": ""
-  },
 
   "licenseIssuedDDDRRevenuev3": {
     "chartName": "DSS_TL_DEMAND_COLLECTION_BOUNDARY",
@@ -13318,139 +13326,154 @@
   },
 
   "licenseIssuedTenantRevenuev3": {
-    "chartName": "DSS_TL_DEMAND_COLLECTION_BOUNDARY",
     "queries": [
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Tenants\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}},\"Transactions\":{\"sum\":{\"field\":\"transactions\"}},\"Total Licence Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}}}"
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Tenants\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"TL_Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}},\"Total_Licence_Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}},\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"transactions\"}}}},\"wardapplications\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}},\"Transactions\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplications\"}}}}}}}}"
+        },
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "master-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"Tenants\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        }
+      ],
+      "filterKeys": [
+        {"key": "ulb", "column": "ULB"}
+      ],
+      "postAggregationTheory" : "repsonseToDifferenceOfDates",
+      "chartType": "xtable",
+      "valueType": "number",
+      "drillChart": "licenseIssuedWardRevenuev3",
+      "documentType": "_doc",
+      "action": "",
+      "plotLabel": "ULB",
+      "aggregationPaths": [
+        "TL_Total_Collection",
+        "Transactions",
+        "Total_Licence_Issued",
+        "Target_Collection"
+      ],
+      "pathDataTypeMapping": [
+        {
+          "TL_Total_Collection": "amount"
+        },
+        {
+          "Target_Collection": "amount"
+        },
+        {
+          "Transactions": "number"
+        },
+        {
+          "Total_Licence_Issued": "number"
+        },
+        {
+          "TL_Target_Collection": "amount"
+        }
+      ],
+      "computedFields": [
+       {
+          "postAggregationTheory" : "repsonseToDifferenceOfDates",
+          "actionName": "AdditiveComputedField",
+          "fields" : ["Target_Collection"],
+          "newField" : "TL_Target_Collection",
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        },
+        {
+          "postAggregationTheory" : "",
+          "actionName": "PercentageComputedField",
+          "fields" : ["TL_Total_Collection", "TL_Target_Collection"],
+          "newField" : "TL_Target_Achieved",
+          "isRoundOff": true,
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        }
+        
+      ],
+      "excludedColumns":["Target_Collection"],
+      "insight": {
       },
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "master-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Tenants\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
-      }
-    ],
-    "filterKeys": [
-      {"key": "tenantId", "column": "Tenants"}
-    ],
-    "postAggregationTheory" : "repsonseToDifferenceOfDates",
-    "chartType": "xtable",
-    "valueType": "number",
-    "drillChart": "licenseIssuedWardRevenuev3",
-    "documentType": "_doc",
-    "isRoundOff":true,
-    "action": "",
-    "plotLabel": "Tenants",
-    "aggregationPaths": [
-      "Total Collection",
-      "Transactions",
-      "Total Licence Issued",
-      "Target Collection"
-    ],
-    "pathDataTypeMapping": [
-      {
-        "Total Collection": "amount"
-      },
-      {
-        "Transactions": "number"
-      },
-      {
-        "Total Licence Issued": "number"
-      },
-      {
-        "Target Collection": "amount"
-      },
-      {
-        "Target Achieved": "percentage"
-      }
-    ],
-    "computedFields": [
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedField",
-        "fields" : ["Total Collection", "Target Collection"],
-        "newField" : "Target Achieved",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-      
-    ],
-    "insight": {
+      "_comment": ""
     },
-    "_comment": ""
-  },
 
   "licenseIssuedWardRevenuev3": {
     "kind": "drillDown",
     "chartName": "DSS_TL_DEMAND_COLLECTION_BOUNDARY",
-    "queries": [
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\" }",
-        "dateRefField": "date",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}},\"Transactions\":{\"sum\":{\"field\":\"transactions\"}},\"Total Licence Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}}}"
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\" }",
+          "dateRefField": "date",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"TL_Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}},\"Total_Licence_Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}},\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"transactions\"}}}},\"Transactions\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}}}}}}"
+        },
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "master-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        }
+      ],
+      "filterKeys": [
+        {"key": "ward", "column": "Wards"}
+      ],
+      "postAggregationTheory" : "repsonseToDifferenceOfDates",
+      "chartType": "xtable",
+      "valueType": "number",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "",
+      "plotLabel": "Wards",
+      "aggregationPaths": [
+        "TL_Total_Collection",
+        "Transactions",
+        "Total_Licence_Issued",
+        "Target_Collection"
+      ],
+      "pathDataTypeMapping": [
+        {
+          "TL_Total_Collection": "amount"
+        },
+        {
+          "Target_Collection": "amount"
+        },
+        {
+          "Transactions": "number"
+        },
+        {
+          "Total_Licence_Issued": "number"
+        },
+        {
+          "TL_Target_Collection": "amount"
+        }
+      ],
+      "computedFields": [
+       {
+          "postAggregationTheory" : "repsonseToDifferenceOfDates",
+          "actionName": "AdditiveComputedField",
+          "fields" : ["Target_Collection"],
+          "newField" : "TL_Target_Collection",
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        },
+        {
+          "postAggregationTheory" : "",
+          "actionName": "PercentageComputedField",
+          "fields" : ["TL_Total_Collection", "TL_Target_Collection"],
+          "newField" : "TL_Target_Achieved",
+          "isRoundOff": true,
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        }
+        
+      ],
+      "excludedColumns":["Target_Collection"],
+      "insight": {
       },
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "master-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
-      }
-    ],
-    "filterKeys": [
-      {"key": "ward", "column": "Wards"}
-    ],
-    "postAggregationTheory" : "repsonseToDifferenceOfDates",
-    "chartType": "table",
-    "valueType": "number",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "isRoundOff":true,
-    "action": "",
-    "plotLabel": "Wards",
-    "aggregationPaths": [
-      "Total Collection",
-      "Transactions",
-      "Total Licence Issued",
-      "Target Collection"
-    ],
-    "pathDataTypeMapping": [
-      {
-        "Total Collection": "amount"
-      },
-      {
-        "Transactions": "number"
-      },
-      {
-        "Total Licence Issued": "number"
-      },
-      {
-        "Target Collection": "amount"
-      },
-      {
-        "Target Achieved": "percentage"
-      }
-    ],
-    "computedFields": [
-      {
-        "postAggregationTheory" : "",
-        "actionName": "PercentageComputedField",
-        "fields" : ["Total Collection", "Target Collection"],
-        "newField" : "Target Achieved",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-      
-    ],
-    "insight": {
+      "_comment": ""
     },
-    "_comment": ""
-  },
 
   "licenceTaxHeadsBreakupState": {
     "chartName": "DSS_TL_TAX_HEAD_BREAKUP_BOUNDARY",
