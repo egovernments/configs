@@ -8103,6 +8103,132 @@
     "_comment": " "
   },
   
+  "nssNOCServiceReportDrillDownUlb": {
+    "chartName": "NSS_NOC_SERVICE_REPORT_ULB",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\", \"ulb\":\"ulb.keyword\", \"state\":\"state.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForApplicationType\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Actual_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Average_days_to_issue_Provisional_NOC\":{\"terms\":{\"field\":\"date\",\"size\":1,\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}}}},\"Average_days_to_issue_Actual_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}}}},\"SLA_Compliance(Actual_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceActualForDepartment\"}}}},\"SLA_Compliance(Provisional_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "filterKeys": [
+      {"key": "ulb", "column": "ULBs"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "action": "",
+    "plotLabel": "ULBs",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "documentType": "_doc",
+    "drillChart": "nssNOCServiceReportDrillDownWard",
+    "aggregationPaths": [
+      "Total_Collection",
+      "Total_Applications",
+      "Provisional_Fire_Nocs_issued",
+      "Actual_Fire_Nocs_issued",
+      "Average_days_to_issue_Provisional_NOC",
+      "SLA_Compliance(Provisional_NOC)",
+      "Average_days_to_issue_Actual_NOC",
+      "SLA_Compliance(Actual_NOC)"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total_Collection": "amount"
+      },
+      {
+        "Total_Applications": "number"
+      },
+      {
+        "Provisional_Fire_Nocs_issued": "number"
+      },
+      {
+        "Actual_Fire_Nocs_issued": "number"
+      },
+      {
+        "Average_days_to_issue_Provisional_NOC": "number"
+      },
+      {
+        "SLA_Compliance(Provisional_NOC)": "percentage"
+      },
+      {
+        "Average_days_to_issue_Actual_NOC": "number"
+      },
+      {
+        "SLA_Compliance(Actual_NOC)": "percentage"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": " "
+  },
+   
+  "nssNOCServiceReportDrillDownWard": {
+    "chartName": "NSS_NOC_SERVICE_REPORT_WARD",
+    "kind": "drillDown",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "requestQueryMap": "{\"ward\":\"ward.keyword\", \"state\":\"state.keyword\", \"ulb\":\"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"ward.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForApplicationType\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Actual_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Average_days_to_issue_Provisional_NOC\":{\"terms\":{\"field\":\"date\",\"size\":1,\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}}}},\"Average_days_to_issue_Actual_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}}}},\"SLA_Compliance(Actual_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceActualForDepartment\"}}}},\"SLA_Compliance(Provisional_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "chartType": "table",
+    "valueType": "number",
+    "action": "",
+    "plotLabel": "Ward",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total_Collection",
+      "Total_Applications",
+      "Provisional_Fire_Nocs_issued",
+      "Actual_Fire_Nocs_issued",
+      "Average_days_to_issue_Provisional_NOC",
+      "SLA_Compliance(Provisional_NOC)",
+      "Average_days_to_issue_Actual_NOC",
+      "SLA_Compliance(Actual_NOC)"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total_Collection": "amount"
+      },
+      {
+        "Total_Applications": "number"
+      },
+      {
+        "Provisional_Fire_Nocs_issued": "number"
+      },
+      {
+        "Actual_Fire_Nocs_issued": "number"
+      },
+      {
+        "Average_days_to_issue_Provisional_NOC": "number"
+      },
+      {
+        "SLA_Compliance(Provisional_NOC)": "percentage"
+      },
+      {
+        "Average_days_to_issue_Actual_NOC": "number"
+      },
+      {
+        "SLA_Compliance(Actual_NOC)": "percentage"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+ 
   "nssNOCServiceReportByDepartment": {
     "chartName": "NSS_NOC_SERVICE_REPORT_DEPARTMENT",
     "queries": [
@@ -8165,8 +8291,6 @@
   },
   
     
-    
-  
   "nocApplicationVsProvisionalVsActual": {
     "chartName": "DSS_APPLICATION_VS_PROVISIONAL_VS_ACTUAL",
     "queries": [
@@ -8532,8 +8656,8 @@
     "queries": [
       {
         "module": "OBPS",
-        "dateRefField": "",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
         "indexName": "obps-national-dashboard",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"date\":{\"gt\":\"now-1d\/d\",\"lte\":\"now\"}}}]}},\"aggs\":{\"todaysDate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"Todays Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}},\"lastUpdatedTime\":{\"terms\":{\"field\":\"lastModifiedTime\",\"order\":{\"_term\":\"desc\"},\"size\":1}}}}}}"
       }
@@ -8542,7 +8666,7 @@
     "valueType": "amount",
     "action": "",
     "drillChart": "none",
-    "TodaysCollection":true,  
+    "TodaysCollection":true,
     "aggregationPaths": [
       "Todays Collection"
     ],
@@ -8550,13 +8674,14 @@
     },
     "_comment": "DSS OBPS todays collections "
   },
+  
   "nssOBPSTotalCollection": {
     "chartName": "NSS_OBPS_TOTAL_COLLECTION",
     "queries": [
       {
         "module": "OBPS",
-        "dateRefField": "",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
         "indexName": "obps-national-dashboard",
         "aggrQuery": "{\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}"
       }
@@ -8580,13 +8705,40 @@
     },
     "_comment": "DSS OBPS Total Collection"
   },
+  
+  "nssOBPSCumulativeCollection": {
+    "chartName": "NSS_OBPS_TOTAL_CUMULATIVE_COLLECTION",
+    "queries": [
+      {
+        "module": "OBPS",
+        "dateRefField": "date",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Collections\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "Collections"
+    ],
+    "isCumulative": true,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": "DSS OBPS Total cumulative collections "
+  },
+  
   "nssOBPSTotalPlansScrutinized": {
     "chartName": "NSS_OBPS_TOTAL_PLANS_SCRUTINIZED",
     "queries": [
       {
         "module": "OBPS",
-        "dateRefField": "",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
         "indexName": "obps-national-dashboard",
         "aggrQuery": "{\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"plansScrutinized\":{\"avg\":{\"field\":\"plansScrutinized\"}}}},\"Total Plans Scrutinized\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.plansScrutinized\"}}}}"
       }
@@ -8610,42 +8762,14 @@
     },
     "_comment": "DSS OBPS Total Plans Scrutinized "
   },
-  "nssOBPSTotalApplicationsSubmmited": {
-    "chartName": "NSS_OBPS_TOTAL_APPLICATIONS_SUBMITTED",
-    "queries": [
-      {
-        "module": "OBPS",
-        "dateRefField": "",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "obps-national-dashboard",
-        "aggrQuery": "{ \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\":{ \"applicationsSubmitted\":{ \"avg\":{ \"field\":\"applicationsSubmitted\" } } } }, \"Total Applications Submitted\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.applicationsSubmitted\" } } } }"      }
-    ],
-    "chartType": "metric",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Total Applications Submitted"
-    ],
-    "insight":  {
-      "chartResponseMap" : "nssOBPSTotalApplicationsSubmmited",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year",
-      "isRoundOff": true
-    },
-    "_comment": "DSS OBPS Total Applications Submitted"
-  },
+  
   "nssOBPSTotalPermitsIssued": {
     "chartName": "NSS_OBPS_TOTAL_PERMITS_ISSUED",
     "queries": [
       {
         "module": "OBPS",
-        "dateRefField": "",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "requestQueryMap":   "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
         "indexName": "obps-national-dashboard",
         "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"riskType.keyword\": [ \"LOW\", \"MEDIUM\",\"HIGH\" ] } } ] } }, \"aggs\": { \"Total Permits Issued\": { \"sum\": { \"field\": \"permitsIssuedForRiskType\" } } } } } }"
       }
@@ -8669,13 +8793,14 @@
     },
     "_comment": "DSS OBPS Total Permits Issued"
   },
+  
   "nssOBPSTotalOCIssued": {
     "chartName": "NSS_OBPS_TOTAL_OC_ISSUED",
     "queries": [
       {
         "module": "OBPS",
-        "dateRefField": "",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
         "indexName": "obps-national-dashboard",
         "aggrQuery": "{ \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\":{ \"ocIssued\":{ \"avg\":{ \"field\":\"ocIssued\" } } } }, \"Total OC Issued\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.ocIssued\" } } } }"      }
     ],
@@ -8698,69 +8823,303 @@
     },
     "_comment": "DSS OBPS Total OC Issued"
   },
-  "nssOBPSBottomPerformingUlbs": {
-    "chartName": "NSS_OBPS_BOTTOM_3_PERFORMING_ULBS",
+  
+  "nssOBPSTotalOCPlansScrutinized": {
+    "chartName": "NSS_OBPS_TOTAL_OC_PLANS_SCRUTINIZED",
     "queries": [
       {
         "module": "OBPS",
         "dateRefField": "date",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
         "indexName": "obps-national-dashboard",
-        "aggrQuery": "{ \"aggs\": { \"StateWiseApplications\": { \"terms\": { \"field\": \"state.keyword\" }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"applicationsSubmitted\": { \"avg\": { \"field\": \"applicationsSubmitted\" } } } }, \"TAS1\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.applicationsSubmitted\" } } } }, \"Total Applications Submitted\": { \"sum_bucket\": { \"buckets_path\": \"StateWiseApplications.TAS1\" } } } }"      },
-      {
-        "module": "OBPS",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "obps-national-dashboard",
-        "aggrQuery": "{ \"aggs\": { \"Total Permits Issued\": { \"terms\": { \"field\": \"state.keyword\", \"size\": 200, \"order\": { \"Total Permits\": \"desc\" } }, \"aggs\": { \"Total Permits\": { \"sum\": { \"field\": \"permitsIssuedForRiskType\" } } } } } } "
+        "aggrQuery": "{\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"ocPlansScrutinized\":{\"avg\":{\"field\":\"ocPlansScrutinized\"}}}},\"Total OC plans scrutinized\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.ocPlansScrutinized\"}}}}"
       }
     ],
-    "chartType": "perform",
-    "valueType": "percentage",
-    "isMdmsEnabled": false,
-    "isPostResponseHandler": true,
-    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total OC plans scrutinized"
+    ],
+    "insight": {
+      "chartResponseMap" : "nssOBPSTotalOCPlansScrutinized",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": "DSS OBPS Total OC plans scrutinized"
+  },
+  
+  "nssOBPSAverageDaysIssuePermit": {
+    "chartName": "NSS_OBPS_AVERAGE_DAYS_TO_ISSUE_PERMIT",
+    "queries": [
+      {
+        "module": "OBPS",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery":  "{\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"averageDaysToIssuePermit\":{\"avg\":{\"field\":\"averageDaysToIssuePermit\"}}}},\"Average Days to issue permit\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.averageDaysToIssuePermit\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Average Days to issue permit"
+    ],
+    "insight": {
+      "chartResponseMap" : "nssOBPSAverageDaysIssuePermit",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": "DSS OBPS Average Days to issue permit"
+  },
+  
+  "nssOBPSAverageDaysIssueOC": {
+    "chartName": "NSS_OBPS_AVERAGE_DAYS_TO_ISSUE_PERMIT",
+    "queries": [
+      {
+        "module": "OBPS",
+        "dateRefField": "date",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery":  "{\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"averageDaysToIssueOC\":{\"avg\":{\"field\":\"averageDaysToIssueOC\"}}}},\"Average Days to issue OC\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.averageDaysToIssueOC\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Average Days to issue OC"
+    ],
+    "insight": {
+      "chartResponseMap" : "nssOBPSAverageDaysIssueOC",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": "DSS OBPS Average Days to issue OC"
+  },
+  
+  "nssOBPSTotalOCSubmitted": {
+    "chartName": "NSS_OBPS_TOTAL_OC_SUBMITTED",
+    "queries": [
+      {
+        "module": "OBPS",
+        "dateRefField": "date",
+        "requestQueryMap":   "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"ocSubmitted\":{\"avg\":{\"field\":\"ocSubmitted\"}}}},\"Total OC Submitted\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.ocSubmitted\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total OC Submitted"
+    ],
+    "insight": {
+      "chartResponseMap" : "nssOBPSTotalOCSubmitted",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": "DSS OBPS Total OC submitted"
+  },
+  
+  "nssOBPSSlaCompliancePermit": {
+    "chartName": "NSS_OBPS__SLA_COMPLIANCE_PERMIT",
+    "queries": [
+      {
+        "module": "OBPS",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"slaCompliancePermit\":{\"avg\":{\"field\":\"slaCompliancePermit\"}}}},\"SLA Compliance Permit\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.slaCompliancePermit\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "SLA Compliance Permit"
+    ],
+    "insight": {
+      "chartResponseMap" : "nssOBPSSlaCompliancePermit",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": "DSS OBPS SLA Compliance Permit"
+  },
+  
+  "nssOBPSSlaComplianceOC": {
+    "chartName": "NSS_OBPS_SLA_COMPLIANCE_OC",
+    "queries": [
+      {
+        "module": "OBPS",
+        "dateRefField": "date",
+        "requestQueryMap":   "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"slaComplianceOC\":{\"avg\":{\"field\":\"slaComplianceOC\"}}}},\"SLA Compliance OC\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.slaComplianceOC\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "SLA Compliance OC"
+    ],
+    "insight": {
+      "chartResponseMap" : "nssOBPSSlaComplianceOC",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": "DSS OBPS SLA Compliance OC"
+  },
+  
+  "nssOBPSTotalLandAreaAppliedInSystem": {
+    "chartName": "TOTAL_Sq_m_LAND_AREA_APPLIED_IN_SYSTEM",
+    "queries": [
+      {
+        "module": "OBPS",
+        "dateRefField": "date",
+        "requestQueryMap":   "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"landAreaAppliedInSystemForBPA\":{\"avg\":{\"field\":\"landAreaAppliedInSystemForBPA\"}}}},\"Land Area Applied In System For BPA\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.landAreaAppliedInSystemForBPA\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Land Area Applied In System For BPA"
+    ],
+    "insight": {
+      "chartResponseMap" : "nssOBPSTotalLandAreaAppliedInSystem",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": "DSS OBPS Total sq m of land applied in BPA system "
+  },
+  
+  "nssOBPSTotalPermitsVsTotalOCSubmittedVsTotalOCIssued": {
+    "chartName": "NSS_TOTAL_PERMITS_VS_TOTAL_OC_SUBMITTED_VS_OC_ISSUED",
+    "queries": [
+      {
+        "module": "OBPS",
+        "dateRefField": "date",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Permits Issued\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Permits\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"riskType.keyword\":[\"HIGH\",\"MEDIUM\",\"LOW\"]}}]}},\"aggs\":{\"Total Permits Issued\":{\"sum\":{\"field\":\"permitsIssuedForRiskType\"}}}}}},\"OC Issued\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"ocIssued\":{\"avg\":{\"field\":\"ocIssued\"}}}},\"Total OC Issued\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.ocIssued\"}}}},\"OC Submitted\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"ocSubmitted\":{\"avg\":{\"field\":\"ocSubmitted\"}}}},\"Total OC submitted\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.ocSubmitted\"}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
     "drillChart": "none",
     "documentType": "_doc",
-    "action": "percentage",
-    "isRoundOff": true,
-    "plotLabel": "NSS_OBPS_BOTTOM_3_PERFORMING_ULBS",
-    "order": "asc",
-    "limit": 3,
     "aggregationPaths": [
-      "Total Permits Issued",
-      "StateWiseApplications"
+      "Permits Issued",
+      "OC Issued",
+      "OC Submitted"
+    ],
+    "isRoundOff": true,
+    "isCumulative": true,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": "NSS OBPS TotalPermits Vs TotalOCSubmitted Vs TotalOCIssued"
+  },
+  
+  "nssOBPSCollectionByPaymentMode": {
+    "chartName": "NSS_OBPS_COLLECTION_BY_PAYMENT_MODE",
+    "queries": [
+      {
+        "module": "OBPS",
+        "dateRefField": "date",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{ \"aggs\": { \"Collection By Payment Mode\": { \"terms\": { \"field\": \"paymentMode.keyword\" }, \"aggs\": { \"Collection\": { \"sum\": { \"field\": \"todaysCollectionForPaymentMode\" } } } } } }"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "amount",
+    "action": "",
+    "isRoundOff": true,
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Collection By Payment Mode"
     ],
     "insight": {
     },
-    "_comment": "NSS OBPS Bottom Performing Ulbs by permits issued"
+    "_comment": "NSS OBPS Collection By Payment Mode"
   },
+  
   "nssOBPSTopPerformingUlbs": {
     "chartName": "NSS_OBPS_TOP_3_PERFORMING_ULBS",
     "queries": [
       {
         "module": "OBPS",
         "dateRefField": "date",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
         "indexName": "obps-national-dashboard",
         "aggrQuery": "{ \"aggs\": { \"StateWiseApplications\": { \"terms\": { \"field\": \"state.keyword\" }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"applicationsSubmitted\": { \"avg\": { \"field\": \"applicationsSubmitted\" } } } }, \"TAS1\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.applicationsSubmitted\" } } } }, \"Total Applications Submitted\": { \"sum_bucket\": { \"buckets_path\": \"StateWiseApplications.TAS1\" } } } }"      },
       {
         "module": "OBPS",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
         "dateRefField": "date",
         "indexName": "obps-national-dashboard",
         "aggrQuery": "{ \"aggs\": { \"Total Permits Issued\": { \"terms\": { \"field\": \"state.keyword\", \"size\": 200, \"order\": { \"Total Permits\": \"desc\" } }, \"aggs\": { \"Total Permits\": { \"sum\": { \"field\": \"permitsIssuedForRiskType\" } } } } } } "
       }
     ],
-    "chartType": "perform",
-    "valueType": "percentage",
     "isMdmsEnabled": false,
     "isPostResponseHandler": true,
-    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "chartType": "perform",
+    "valueType": "percentage",
+    "isRoundOff": true,
     "drillChart": "none",
     "documentType": "_doc",
     "action": "percentage",
-    "isRoundOff": true,
     "plotLabel": "NSS_OBPS_TOP_3_PERFORMING_ULBS",
     "order": "desc",
     "limit": 3,
@@ -8772,6 +9131,94 @@
     },
     "_comment": "NSS OBPS Top Performing Ulbs by permits issued"
   },
+  
+  "nssOBPSBottomPerformingUlbs": {
+    "chartName": "NSS_OBPS_BOTTOM_3_PERFORMING_ULBS",
+    "queries": [
+      {
+        "module": "OBPS",
+        "dateRefField": "date",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{ \"aggs\": { \"StateWiseApplications\": { \"terms\": { \"field\": \"state.keyword\" }, \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\": { \"applicationsSubmitted\": { \"avg\": { \"field\": \"applicationsSubmitted\" } } } }, \"TAS1\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.applicationsSubmitted\" } } } }, \"Total Applications Submitted\": { \"sum_bucket\": { \"buckets_path\": \"StateWiseApplications.TAS1\" } } } }"      },
+      {
+        "module": "OBPS",
+        "requestQueryMap":"{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{ \"aggs\": { \"Total Permits Issued\": { \"terms\": { \"field\": \"state.keyword\", \"size\": 200, \"order\": { \"Total Permits\": \"desc\" } }, \"aggs\": { \"Total Permits\": { \"sum\": { \"field\": \"permitsIssuedForRiskType\" } } } } } } "
+      }
+    ],
+    "isMdmsEnabled": false,
+    "isPostResponseHandler": true,
+    "chartType": "perform",
+    "valueType": "percentage",
+    "isRoundOff": true,
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "plotLabel": "NSS_OBPS_BOTTOM_3_PERFORMING_ULBS",
+    "order": "asc",
+    "limit": 3,
+    "aggregationPaths": [
+      "Total Permits Issued",
+      "StateWiseApplications"
+    ],
+    "insight": {
+    },
+    "_comment": "NSS OBPS Bottom Performing Ulbs by permits issued"
+  },
+  
+  "nssOBPSPermitIssuedByRiskType": {
+    "chartName": "NSS_OBPS_PERMIT_ISSUED_BY_RISK_TYPE",
+    "queries": [
+      {
+        "module": "OBPS",
+        "dateRefField": "date",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Permit Issued By RiskType\":{\"terms\":{\"field\":\"riskType.keyword\"},\"aggs\":{\"Pemrit Issued\":{\"sum\":{\"field\":\"permitsIssuedForRiskType\"}}}}}}"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "number",
+    "action": "",
+    "isRoundOff": true,
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Permit Issued By RiskType"
+    ],
+    "insight": {
+    },
+    "_comment": "NSS OBPS Permit Issued By RiskType"
+  },
+  
+  "nssOBPSPermitIssuedByOccupancyType": {
+    "chartName": "NSS_OBPS_PERMIT_ISSUED_BY_OCCUPANCY_TYPE",
+    "queries": [
+      {
+        "module": "OBPS",
+        "dateRefField": "date",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Permit Issued By OccupancyType\":{\"terms\":{\"field\":\"occupancyType.keyword\"},\"aggs\":{\"PemritIssued\":{\"sum\":{\"field\":\"permitsIssuedForOccupancyType\"}}}}}}"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "number",
+    "action": "",
+    "isRoundOff": true,
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Permit Issued By OccupancyType"
+    ],
+    "insight": {
+    },
+    "_comment": "NSS OBPS Permit Issued By OccupancyType"
+  },
+  
   "nssOBPSServiceReport": {
     "chartName": "NSS_OBPS_SERVICE_REPORT",
     "queries": [
@@ -8784,7 +9231,6 @@
       }
     ],
     "isMdmsEnabled": false,
-    "isPostResponseHandler": true,
     "filterKeys": [
       {"key": "state", "column": "State"}
     ],
@@ -8853,6 +9299,7 @@
     },
     "_comment": ""
   },
+  
   "nssOBPSServiceReportDrillDownUlb": {
     "chartName": "NSS_OBPS_SERVICE_REPORT_ULB",
     "queries": [
@@ -8865,7 +9312,6 @@
       }
     ],
     "isMdmsEnabled": false,
-    "isPostResponseHandler": true,
     "filterKeys": [
       {"key": "ulb", "column": "ULBs"}
     ],
@@ -8934,6 +9380,7 @@
     },
     "_comment": " "
   },
+  
   "nssOBPSServiceReportDrillDownWard": {
     "chartName": "",
     "queries": [
@@ -8946,7 +9393,6 @@
       }
     ],
     "isMdmsEnabled": false,
-    "isPostResponseHandler": true,
     "chartType": "table",
     "valueType": "number",
     "action": "",
@@ -9014,7 +9460,40 @@
     },
     "_comment": ""
   },
-  "obpsTopUlbByPerformance": {
+  
+
+  "nssOBPSTotalApplicationsSubmmited": {
+    "chartName": "NSS_OBPS_TOTAL_APPLICATIONS_SUBMITTED",
+    "queries": [
+      {
+        "module": "OBPS",
+        "dateRefField": "",
+        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "indexName": "obps-national-dashboard",
+        "aggrQuery": "{ \"aggs\": { \"intermediateAggr\": { \"terms\": { \"field\": \"date\" }, \"aggs\":{ \"applicationsSubmitted\":{ \"avg\":{ \"field\":\"applicationsSubmitted\" } } } }, \"Total Applications Submitted\": { \"sum_bucket\": { \"buckets_path\": \"intermediateAggr.applicationsSubmitted\" } } } }"      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Applications Submitted"
+    ],
+    "insight":  {
+      "chartResponseMap" : "nssOBPSTotalApplicationsSubmmited",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": "DSS OBPS Total Applications Submitted"
+  },
+          
+
+    "obpsTopUlbByPerformance": {
     "chartName": "DSS_OBPS_TOP_ULB_BY_PERFORMANCE",
     "queries": [
       {
@@ -9254,186 +9733,7 @@
     },
     "_comment": ""
   },
-
-
-  "nssOBPSTotalOCPlansScrutinized": {
-    "chartName": "NSS_OBPS_TOTAL_OC_PLANS_SCRUTINIZED",
-    "queries": [
-      {
-        "module": "OBPS",
-        "dateRefField": "",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "obps-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"ocPlansScrutinized\":{\"avg\":{\"field\":\"ocPlansScrutinized\"}}}},\"Total OC plans scrutinized\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.ocPlansScrutinized\"}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Total OC plans scrutinized"
-    ],
-    "insight": {
-      "chartResponseMap" : "nssOBPSTotalOCPlansScrutinized",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year",
-      "isRoundOff": true
-    },
-    "_comment": "DSS OBPS Total OC plans scrutinized"
-  },
-  "nssOBPSAverageDaysIssuePermit": {
-    "chartName": "NSS_OBPS_AVERAGE_DAYS_TO_ISSUE_PERMIT",
-    "queries": [
-      {
-        "module": "OBPS",
-        "dateRefField": "",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "obps-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Average Days to issue permit\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"state\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"avgDaysToIssuePermit\":{\"avg\":{\"field\":\"averageDaysToIssuePermit\"}}}},\"wardAvgDaysToIssuePermit\":{\"sum_bucket\":{\"buckets_path\":\"days.avgDaysToIssuePermit\"}}}},\"ulbAvgDaysToIssuePermit\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardAvgDaysToIssuePermit\"}}}},\"stateAvgDaysToIssuePermit\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbAvgDaysToIssuePermit\"}}}},\"allAvgDaysToIssuePermit\":{\"sum_bucket\":{\"buckets_path\":\"state.stateAvgDaysToIssuePermit\"}}}}}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Average Days to issue permit"
-    ],
-    "insight": {
-      "chartResponseMap" : "nssOBPSAverageDaysIssuePermit",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year",
-      "isRoundOff": true
-    },
-    "_comment": "DSS OBPS Average Days to issue permit"
-  },
-  "nssOBPSAverageDaysIssueOC": {
-    "chartName": "NSS_OBPS_AVERAGE_DAYS_TO_ISSUE_PERMIT",
-    "queries": [
-      {
-        "module": "OBPS",
-        "dateRefField": "",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "obps-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Average Days to issue OC\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"state\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"avgDaysToIssueOC\":{\"avg\":{\"field\":\"averageDaysToIssueOC\"}}}},\"wardAvgDaysToIssueOC\":{\"sum_bucket\":{\"buckets_path\":\"days.avgDaysToIssueOC\"}}}},\"ulbAvgDaysToIssueOC\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardAvgDaysToIssueOC\"}}}},\"stateAvgDaysToIssueOC\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbAvgDaysToIssueOC\"}}}},\"allAvgDaysToIssueOC\":{\"sum_bucket\":{\"buckets_path\":\"state.stateAvgDaysToIssueOC\"}}}}}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Average Days to issue OC"
-    ],
-    "insight": {
-      "chartResponseMap" : "nssOBPSAverageDaysIssueOC",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year",
-      "isRoundOff": true
-    },
-    "_comment": "DSS OBPS Average Days to issue OC"
-  },
-  "nssOBPSTotalOCSubmitted": {
-    "chartName": "NSS_OBPS_TOTAL_OC_SUBMITTED",
-    "queries": [
-      {
-        "module": "OBPS",
-        "dateRefField": "",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "obps-national-dashboard",
-        "aggrQuery":"{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total OC Submitted\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"state\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"totalOcSubmitted\":{\"avg\":{\"field\":\"ocSubmitted\"}}}},\"wardOcSubmitted\":{\"sum_bucket\":{\"buckets_path\":\"days.totalOcSubmitted\"}}}},\"ulbOcSubmitted\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardOcSubmitted\"}}}},\"stateOcSubmitted\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbOcSubmitted\"}}}},\"allOcSubmitted\":{\"sum_bucket\":{\"buckets_path\":\"state.stateOcSubmitted\"}}}}}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Total OC Submitted"
-    ],
-    "insight": {
-      "chartResponseMap" : "nssOBPSTotalOCSubmitted",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year",
-      "isRoundOff": true
-    },
-    "_comment": "DSS OBPS Total OC submitted"
-  },
-  "nssOBPSTotalLandAreaAppliedInSystem": {
-    "chartName": "TOTAL_Sq_m_LAND_AREA_APPLIED_IN_SYSTEM",
-    "queries": [
-      {
-        "module": "OBPS",
-        "dateRefField": "",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "obps-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"landAreaAppliedInSystemForBPA\":{\"avg\":{\"field\":\"landAreaAppliedInSystemForBPA\"}}}},\"Land Area Applied In System For BPA\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.landAreaAppliedInSystemForBPA\"}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Land Area Applied In System For BPA"
-    ],
-    "insight": {
-      "chartResponseMap" : "nssOBPSTotalLandAreaAppliedInSystem",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year",
-      "isRoundOff": true
-    },
-    "_comment": "DSS OBPS Total sq m of land applied in BPA system "
-  },
-  "nssOBPSCumulativeCollection": {
-    "chartName": "NSS_OBPS_TOTAL_CUMULATIVE_COLLECTION",
-    "queries": [
-      {
-        "module": "OBPS",
-        "dateRefField": "",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "obps-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"Collections\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}}}"
-      }
-    ],
-    "chartType": "line",
-    "valueType": "amount",
-    "action": "",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "aggregationPaths": [
-      "Collections"
-    ],
-    "isCumulative": true,
-    "interval": "month",
-    "insight": {
-    },
-    "_comment": "DSS OBPS Total cumulative collections "
-  },
-
-  
-
+    
   "mcMonthlyCollectionv2": {
     "chartName": "DSS_MC_MONTHLY_REPORT",
     "queries": [
@@ -11779,162 +12079,7 @@
     },
     "_comment": ""
   },
-    
-  "nssNOCServiceReportDrillDownUlb": {
-    "chartName": "NSS_NOC_SERVICE_REPORT_ULB",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\", \"ulb\":\"ulb.keyword\", \"state\":\"state.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForApplicationType\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Actual_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Average_days_to_issue_Provisional_NOC\":{\"terms\":{\"field\":\"date\",\"size\":1,\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}}}},\"Average_days_to_issue_Actual_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}}}},\"SLA_Compliance_Actual_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceActualForDepartment\"}}}},\"SLA_Compliance_Provisional_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}}}"
-      }
-    ],
-    "isMdmsEnabled": false,
-    "filterKeys": [
-      {"key": "ulb", "column": "ULBs"}
-    ],
-    "chartType": "xtable",
-    "valueType": "number",
-    "action": "",
-    "plotLabel": "ULBs",
-    "isPostResponseHandler": true,
-    "postAggregationTheory" : "repsonseToDifferenceOfDates",
-    "documentType": "_doc",
-    "drillChart": "nssNOCServiceReportDrillDownWard",
-    "excludedColumns": ["SLA_Compliance_Provisional_NOC", "SLA_Compliance_Actual_NOC"],
-    "aggregationPaths": [
-      "Total_Collection",
-      "Total_Applications",
-      "Provisional_Fire_Nocs_issued",
-      "Actual_Fire_Nocs_issued",
-      "Average_days_to_issue_Provisional_NOC",
-      "Average_days_to_issue_Actual_NOC"
-      ],
-      "computedFields": [
-      {
-        "postAggregationTheory" : "repsonseToDifferenceOfDates",
-        "actionName": "PercentageComputedField",
-        "fields" : ["SLA_Compliance_Provisional_NOC","Total_Applications"],
-        "newField" : "SLA_Compliance(Provisional_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      },
-      {
-        "postAggregationTheory" : "repsonseToDifferenceOfDates",
-        "actionName": "PercentageComputedField",
-        "fields" : ["SLA_Compliance_Actual_NOC","Total_Applications"],
-        "newField" : "SLA_Compliance(Actual_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
-    "pathDataTypeMapping": [
-      {
-        "Total_Collection": "amount"
-      },
-      {
-        "Total_Applications": "number"
-      },
-      {
-        "Provisional_Fire_Nocs_issued": "number"
-      },
-      {
-        "Actual_Fire_Nocs_issued": "number"
-      },
-      {
-        "Average_days_to_issue_Provisional_NOC": "number"
-      },
-      {
-        "SLA_Compliance(Provisional_NOC)": "percentage"
-      },
-      {
-        "Average_days_to_issue_Actual_NOC": "number"
-      },
-      {
-        "SLA_Compliance(Actual_NOC)": "percentage"
-      }
-    ],
-    "insight": {
-    },
-    "_comment": " "
-  },
-   "nssNOCServiceReportDrillDownWard": {
-    "kind": "drillDown",
-    "chartName": "Boundary",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "requestQueryMap": "{\"ward\":\"ward.keyword\", \"state\":\"state.keyword\", \"ulb\":\"ulb.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"ward.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForApplicationType\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Actual_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Average_days_to_issue_Provisional_NOC\":{\"terms\":{\"field\":\"date\",\"size\":1,\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}}}},\"Average_days_to_issue_Actual_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}}}},\"SLA_Compliance_Actual_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceActualForDepartment\"}}}},\"SLA_Compliance_Provisional_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}}}"
-      }
-    ],
-    "isMdmsEnabled": false,
-    "chartType": "xtable",
-    "valueType": "number",
-    "action": "",
-    "plotLabel": "Ward",
-    "isPostResponseHandler": true,
-    "postAggregationTheory" : "repsonseToDifferenceOfDates",
-    "excludedColumns": ["SLA_Compliance_Provisional_NOC", "SLA_Compliance_Actual_NOC"],
-    "documentType": "_doc",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Total_Collection",
-      "Total_Applications",
-      "Provisional_Fire_Nocs_issued",
-      "Actual_Fire_Nocs_issued",
-      "Average_days_to_issue_Provisional_NOC",
-      "Average_days_to_issue_Actual_NOC"
-      ],
-      "computedFields": [
-      {
-        "postAggregationTheory" : "repsonseToDifferenceOfDates",
-        "actionName": "PercentageComputedField",
-        "fields" : ["SLA_Compliance_Provisional_NOC","Total_Applications"],
-        "newField" : "SLA_Compliance(Provisional_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      },
-      {
-        "postAggregationTheory" : "repsonseToDifferenceOfDates",
-        "actionName": "PercentageComputedField",
-        "fields" : ["SLA_Compliance_Actual_NOC","Total_Applications"],
-        "newField" : "SLA_Compliance(Actual_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
-    "pathDataTypeMapping": [
-      {
-        "Total_Collection": "amount"
-      },
-      {
-        "Total_Applications": "number"
-      },
-      {
-        "Provisional_Fire_Nocs_issued": "number"
-      },
-      {
-        "Actual_Fire_Nocs_issued": "number"
-      },
-      {
-        "Average_days_to_issue_Provisional_NOC": "number"
-      },
-      {
-        "SLA_Compliance(Provisional_NOC)": "percentage"
-      },
-      {
-        "Average_days_to_issue_Actual_NOC": "number"
-      },
-      {
-        "SLA_Compliance(Actual_NOC)": "percentage"
-      }
-    ],
-    "insight": {
-    },
-    "_comment": ""
-  },
-    
+        
   "pgrComplaintsByDepartment": {
     "chartName": "NATIONAL_DSS_PGR_COMPLAINTS_BY_DEPARTMENT",
     "queries": [
@@ -11982,115 +12127,7 @@
     },
     "_comment": "PGR Channels For Complaints"
   },
-  "nssOBPSPermitIssuedByOccupancyType": {
-    "chartName": "NSS_OBPS_PERMIT_ISSUED_BY_OCCUPANCY_TYPE",
-    "queries": [
-      {
-        "module": "OBPS",
-        "dateRefField": "date",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "obps-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"Permit Issued By OccupancyType\":{\"terms\":{\"field\":\"occupancyType.keyword\"},\"aggs\":{\"PemritIssued\":{\"sum\":{\"field\":\"permitsIssuedForOccupancyType\"}}}}}}"
-      }
-    ],
-    "chartType": "pie",
-    "valueType": "amount",
-    "action": "",
-    "documentType": "_doc",
-    "isRoundOff": true,
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Permit Issued By OccupancyType"
-    ],
-    "insight": {
-    },
-    "_comment": "NSS OBPS Permit Issued By OccupancyType"
-  },
-  "nssOBPSPermitIssuedByRiskType": {
-    "chartName": "NSS_OBPS_PERMIT_ISSUED_BY_RISK_TYPE",
-    "queries": [
-      {
-        "module": "OBPS",
-        "dateRefField": "date",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "obps-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"Permit Issued By RiskType\":{\"terms\":{\"field\":\"riskType.keyword\"},\"aggs\":{\"Pemrit Issued\":{\"sum\":{\"field\":\"permitsIssuedForRiskType\"}}}}}}"
-      }
-    ],
-    "chartType": "pie",
-    "valueType": "amount",
-    "isRoundOff": true,
-    "action": "",
-    "documentType": "_doc",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Permit Issued By RiskType"
-    ],
-    "insight": {
-    },
-    "_comment": "NSS OBPS Permit Issued By RiskType"
-  },
-  "nssOBPSSlaCompliancePermit": {
-    "chartName": "NSS_OBPS__SLA_COMPLIANCE_PERMIT",
-    "queries": [
-      {
-        "module": "OBPS",
-        "dateRefField": "",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "obps-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"slaCompliancePermit\":{\"avg\":{\"field\":\"slaCompliancePermit\"}}}},\"SLA Compliance Permit\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.slaCompliancePermit\"}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "SLA Compliance Permit"
-    ],
-    "insight": {
-      "chartResponseMap" : "nssOBPSSlaCompliancePermit",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year",
-      "isRoundOff": true
-    },
-    "_comment": "DSS OBPS SLA Compliance Permit"
-  },
-  "nssOBPSSlaComplianceOC": {
-    "chartName": "NSS_OBPS_SLA_COMPLIANCE_OC",
-    "queries": [
-      {
-        "module": "OBPS",
-        "dateRefField": "",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "obps-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"slaComplianceOC\":{\"avg\":{\"field\":\"slaComplianceOC\"}}}},\"SLA Compliance OC\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.slaComplianceOC\"}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "SLA Compliance OC"
-    ],
-    "insight": {
-      "chartResponseMap" : "nssOBPSSlaComplianceOC",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year",
-      "isRoundOff": true
-    },
-    "_comment": "DSS OBPS SLA Compliance OC"
-  },
-
+          
    "_comment": "NSS-PROPERTYTAX",
    
  	"todaysCollectionv3": {
@@ -13195,35 +13232,6 @@
   },
   	  
   	  
-  	  
-  "nssOBPSTotalPermitsVsTotalOCSubmittedVsTotalOCIssued": {
-    "chartName": "NSS_TOTAL_PERMITS_VS_TOTAL_OC_SUBMITTED_VS_OC_ISSUED",
-    "queries": [
-      {
-        "module": "OBPS",
-        "dateRefField": "date",
-        "requestQueryMap":  "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "obps-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"Permits Issued\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Permits\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"riskType.keyword\":[\"HIGH\",\"MEDIUM\",\"LOW\"]}}]}},\"aggs\":{\"Total Permits Issued\":{\"sum\":{\"field\":\"permitsIssuedForRiskType\"}}}}}},\"OC Issued\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"ocIssued\":{\"avg\":{\"field\":\"ocIssued\"}}}},\"Total OC Issued\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.ocIssued\"}}}},\"OC Submitted\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"intermediateAggr\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"ocSubmitted\":{\"avg\":{\"field\":\"ocSubmitted\"}}}},\"Total OC submitted\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggr.ocSubmitted\"}}}}}}"
-      }
-    ],
-    "chartType": "line",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "aggregationPaths": [
-      "Permits Issued",
-      "OC Issued",
-      "OC Submitted"
-    ],
-    "isCumulative": true,
-    "interval": "month",
-    "insight": {
-    },
-    "_comment": "NSS OBPS TotalPermits Vs TotalOCSubmitted Vs TotalOCIssued"
-  },
-
   "licenseIssuedBoundaryRevenuev3": {
     "chartName": "DSS_TL_DEMAND_COLLECTION_BOUNDARY",
     "queries": [
