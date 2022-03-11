@@ -7483,36 +7483,40 @@
     "_comment": ""
 },
   
+  "_comment": "NSS-FIRENOC",
+  
   "nssNOCTodaysCollection": {
     "chartName": "NSS_NOC_TODAYS_COLLECTION",
     "queries": [
       {
         "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\",\"state\" : \"state.keyword\"}",
         "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"todaysDate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"Todays Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}},\"lastUpdatedTime\":{\"terms\":{\"field\":\"lastModifiedTime\",\"order\":{\"_term\":\"desc\"},\"size\":1}}}}}}"
-      }
+ 		"aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"todaysDate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"Todays Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}},\"lastUpdatedTime\":{\"terms\":{\"field\":\"lastModifiedTime\",\"order\":{\"_term\":\"desc\"},\"size\":1}}}}}}"      
+ 	  }
     ],
     "chartType": "metric",
     "valueType": "amount",
     "action": "",
     "drillChart": "none",
+    "TodaysCollection":true,
     "aggregationPaths": [
       "Todays Collection"
     ],
     "insight": {
+      
     },
     "_comment": "NSS FIRE NOC todays collections "
   },
-  
+    
   "nssNOCTotalCollection": {
     "chartName": "NSS_NOC_TOTAL_COLLECTION",
     "queries": [
       {
         "module": "FIRENOC",
         "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\", \"ulb\" : \"ulb.keyword\"}",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\", \"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
         "indexName": "firenoc-national-dashboard",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}}}"
       }
@@ -7531,9 +7535,36 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": "NSS FIRE NOC Total collections "
+  },
+  
+  "nssNOCCumulativeCollection": {
+    "chartName": "NSS_NOC_TOTAL_CUMULATIVE_COLLECTION",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Collections\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "amount",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "Collections"
+    ],
+    "isCumulative": true,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": "NSS FIRE NOC Total cumulative collections "
   },
   
   "nssNOCTotalApplications": {
@@ -7542,7 +7573,7 @@
       {
         "module": "FIRENOC",
         "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
         "indexName": "firenoc-national-dashboard",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total applications\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}"
       }
@@ -7561,9 +7592,41 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": "NSS FIRE NOC Total applications "
+  },
+  
+  "nssNOCProvisionalIssued": {
+    "chartName": "NSS_NOC_PROVISIONAL_ISSUED",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional Noc's Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Provisional Noc's Issued"
+    ],
+    "insight": {
+      "chartResponseMap" : "nocProvisionalIssued",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": "NSS FIRE NOC Provisional Issued "
   },
   
   "nssNOCActualIssued": {
@@ -7572,9 +7635,9 @@
       {
         "module": "FIRENOC",
         "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
         "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Actual Noc's Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"NEW\"}}]}},\"aggs\":{\"Actual Noc's Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}"
       }
     ],
     "chartType": "metric",
@@ -7591,11 +7654,519 @@
       "downwardIndicator" : "negative",
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
-      "insightInterval" : "year"
+      "insightInterval" : "year",
+      "isRoundOff": true
     },
     "_comment": "NSS FIRE NOC Actual Issued "
   },
-
+  
+  "nssNOCAverageDaysToIssueProvisional": {
+    "chartName": "NSS_NOC_AVERAGE_DAYS_TO_ISSUE_PROVISIONAL",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"todaysDate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"Average days to issue Provisional NOC\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}}}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Average days to issue Provisional NOC"
+    ],
+     "insight": {
+      "chartResponseMap" : "nocAvgDayToIssueProvisional",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": "Average days to issue Provisional NOC"
+  },
+  
+  "nssNOCSLAComplianceProvisional": {
+    "chartName": "NSS_NOC_SLA_COMPLIANCE_PROVISIONAL",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"SLA Compliance (Provisional NOC)\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}},\"Total applications\":{\"sum\":{\"field\":\"todaysApplicationsForDepartment\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "percentage",
+    "action": "",
+    "drillChart": "none",
+    "isRoundOff": true,
+    "aggregationPaths": [
+      "SLA Compliance (Provisional NOC)"
+    ],
+    "insight": {
+      "chartResponseMap" : "slaCompliance",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": "SLA Compliance (Provisional NOC)"
+  },
+  
+  "nssNOCAverageDaysToIssueActual": {
+    "chartName": "NSS_NOC_AVERAGE_DAYS_TO_ISSUE_ACTUAL",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"todaysDate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"Average days to issue Actual NOC\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}}}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Average days to issue Actual NOC"
+    ],
+    "insight": {
+      "chartResponseMap" : "nocAvgDayToIssueActual",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": "Average days to issue Actual NOC"
+  },
+	
+  "nssNOCSLAComplianceActual": {
+    "chartName": "NSS_NOC_SLA_COMPLIANCE_ACTUAL",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"SLA Compliance (Actual NOC)\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceActualForDepartment\"}}}},\"Total applications\":{\"sum\":{\"field\":\"todaysApplicationsForDepartment\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "percentage",
+    "action": "",
+    "drillChart": "none",
+    "isRoundOff": true,
+    "aggregationPaths": [
+      "SLA Compliance (Actual NOC)"
+    ],
+    "insight": {
+      "chartResponseMap" : "slaCompliance",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": "SLA Compliance (Actual NOC)"
+  },
+   	  
+  "nssNOCApplicationVsProvisionalVsActual": {
+    "chartName": "NSS_APPLICATION_VS_PROVISIONAL_VS_ACTUAL",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Applications\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Applications\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Provisional NOCs Issued\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Provisional\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional Noc's Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}},\"Actual NOCs Issued\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Actual\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"NEW\"}}]}},\"aggs\":{\"Actual Noc's Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "Total Applications",
+      "Provisional NOCs Issued",
+      "Actual NOCs Issued"
+    ],
+    "isCumulative": true,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": "NSS FIRE NOC application vs provisional vs actual"
+  },
+   	  
+  "nssNocCollectionByPaymentMode": {
+    "chartName": "NSS_NOC_COLLECTION_BY_PAYMENT_MODE",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"NOC Collection by PaymentMode\":{\"terms\":{\"field\":\"paymentMode.keyword\"},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}}}}}"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "amount",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "NOC Collection by PaymentMode"
+    ],
+    "insight": {
+    },
+    "_comment": "NSS FIRE NOC Collection by payment mode"
+  },
+  
+  "nssTotalNocIssuedByType": {
+    "chartName": "NSS_TOTAL_NOC_ISSUED_TYPE",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"fire NOC Issued\":{\"terms\":{\"field\":\"type.keyword\"},\"aggs\":{\"nocs issued by type\":{\"sum\":{\"field\":\"nocIssuedTodayForType\"}}}}}}}}"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "fire NOC Issued"
+    ],
+    "insight": {
+    },
+    "_comment": "NSS FIRE NOC issued by type"
+  },
+  
+  "nssActualNocIssuedByUsageType": {
+    "chartName": "NSS_ACTUAL_NOC_ISSUED_USAGETYPE",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"fire NOC Issued\":{\"terms\":{\"field\":\"usageType.keyword\"},\"aggs\":{\"nocs issued by type\":{\"sum\":{\"field\":\"actualNOCIssuedForUsageType\"}}}}}}}}"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "fire NOC Issued"
+    ],
+    "insight": {
+    },
+    "_comment": "NSS Actual FIRE NOC issued by usagetype"
+  },
+  
+  "nssNOCTopPerformingStatesActual": {
+    "chartName": "NSS_NOC_TOP_3_PERFORMING_STATES_ACTUAL",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Total applications\":\"desc\"}},\"aggs\":{\"Total applications\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}"
+      },
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Actual Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"NEW\"}}]}},\"aggs\":{\"Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "chartType": "perform",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "plotLabel": "Actual",
+    "order": "desc",
+    "limit": 3,
+    "isRoundOff": true,
+    "aggregationPaths": [
+      "Actual Nocs issued",
+      "Total Noc's issued"
+    ],
+    "insight": {
+    },
+    "_comment": "NSS FIRE NOC top performing state actual"
+  },
+  
+  "nssNOCTopPerformingStatesProvisional": {
+    "chartName": "NSS_NOC_TOP_3_PERFORMING_STATES_PROVISIONAL",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Total applications\":\"desc\"}},\"aggs\":{\"Total applications\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}"
+      },
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Provisional Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "isPostResponseHandler": true,
+    "chartType": "perform",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "plotLabel": "Provisional",
+    "order": "desc",
+    "limit": 3,
+    "isRoundOff": true,
+    "aggregationPaths": [
+      "Provisional Nocs issued",
+      "Total Noc's issued"      
+    ],
+    "insight": {
+    },
+    "_comment": "NSS FIRE NOC top performing state provisional"
+  },
+  
+  "nssNOCBottomPerformingStatesActual": {
+    "chartName": "NSS_NOC_BOTTOM_3_PERFORMING_STATES_ACTUAL",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Total Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Total applications\":\"desc\"}},\"aggs\":{\"Total applications\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}"
+      },
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"Actual Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"NEW\"}}]}},\"aggs\":{\"Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "isPostResponseHandler": true,
+    "chartType": "perform",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "plotLabel": "Actual",
+    "order": "asc",
+    "limit": 3,
+    "isRoundOff": true,
+    "aggregationPaths": [
+      "Actual Nocs issued",
+      "Total Noc's issued"
+    ],
+    "insight": {
+    },
+    "_comment": "NSS FIRE NOC bottom performing state actual"
+  },
+  
+  "nssNOCBottomPerformingStatesProvisional": {
+    "chartName": "NSS_NOC_BOTTOM_3_PERFORMING_STATES_PROVISIONAL",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Total applications\":\"desc\"}},\"aggs\":{\"Total applications\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}"
+      },
+      {
+        "module": "FIRENOC",
+        "dateRefField": "date",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\", \"state\" : \"state.keyword\"}",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Provisional Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "isPostResponseHandler": true,
+    "chartType": "perform",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "plotLabel": "Provisional",
+    "order": "asc",
+    "limit": 3,
+    "isRoundOff": true,
+    "aggregationPaths": [
+      "Provisional Nocs issued",
+      "Total Noc's issued" 
+    ],
+    "insight": {
+    },
+    "_comment": "NSS FIRE NOC bottom performing state provisional"
+  },
+  
+  "nssNOCServiceReportByState": {
+    "chartName": "NSS_NOC_SERVICE_REPORT_STATE",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"state\":\"state.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"State\":{\"terms\":{\"field\":\"state.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForApplicationType\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"NEW\"}}]}},\"aggs\":{\"Actual_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Average_days_to_issue_Provisional_NOC\":{\"terms\":{\"field\":\"date\",\"size\":1,\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}}}},\"Average_days_to_issue_Actual_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}}}},\"SLA_Compliance(Actual_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceActualForDepartment\"}}}},\"SLA_Compliance(Provisional_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "filterKeys": [
+      {"key": "state", "column": "State"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "action": "",
+    "plotLabel": "State",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "documentType": "_doc",
+    "drillChart": "nssNOCServiceReportDrillDownUlb",
+    "aggregationPaths": [
+      "Total_Collection",
+      "Total_Applications",
+      "Provisional_Fire_Nocs_issued",
+      "Actual_Fire_Nocs_issued",
+      "Average_days_to_issue_Provisional_NOC",
+      "SLA_Compliance(Provisional_NOC)",
+      "Average_days_to_issue_Actual_NOC",
+      "SLA_Compliance(Actual_NOC)"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total_Collection": "amount"
+      },
+      {
+        "Total_Applications": "number"
+      },
+      {
+        "Provisional_Fire_Nocs_issued": "number"
+      },
+      {
+        "Actual_Fire_Nocs_issued": "number"
+      },
+      {
+        "Average_days_to_issue_Provisional_NOC": "number"
+      },
+      {
+        "SLA_Compliance(Provisional_NOC)": "percentage"
+      },
+      {
+        "Average_days_to_issue_Actual_NOC": "number"
+      },
+      {
+        "SLA_Compliance(Actual_NOC)": "percentage"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": " "
+  },
+  
+  "nssNOCServiceReportByDepartment": {
+    "chartName": "NSS_NOC_SERVICE_REPORT_DEPARTMENT",
+    "queries": [
+      {
+        "module": "FIRENOC",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "firenoc-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Department\":{\"terms\":{\"field\":\"department.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForDepartment\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForDepartment\"}},\"Provisional_Fire_Nocs_issued\":{\"sum\":{\"field\":\"provisionalNOCIssuedForDepartment\"}},\"Actual_Fire_Nocs_issued\":{\"sum\":{\"field\":\"actualNOCIssuedForDepartment\"}},\"Average_days_to_issue_Provisional_NOC\":{\"terms\":{\"field\":\"date\",\"size\":1,\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}}}},\"Average_days_to_issue_Actual_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}}}},\"SLA_Compliance(Actual_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceActualForDepartment\"}}}},\"SLA_Compliance(Provisional_NOC)\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "chartType": "table",
+    "valueType": "number",
+    "action": "",
+    "plotLabel": "Department",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total_Collection",
+      "Total_Applications",
+      "Provisional_Fire_Nocs_issued",
+      "Actual_Fire_Nocs_issued",
+      "Average_days_to_issue_Provisional_NOC",
+      "SLA_Compliance(Provisional_NOC)",
+      "Average_days_to_issue_Actual_NOC",
+      "SLA_Compliance(Actual_NOC)"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total_Collection": "amount"
+      },
+      {
+        "Total_Applications": "number"
+      },
+      {
+        "Provisional_Fire_Nocs_issued": "number"
+      },
+      {
+        "Actual_Fire_Nocs_issued": "number"
+      },
+      {
+        "Average_days_to_issue_Provisional_NOC": "number"
+      },
+      {
+        "SLA_Compliance(Provisional_NOC)": "percentage"
+      },
+      {
+        "Average_days_to_issue_Actual_NOC": "number"
+      },
+      {
+        "SLA_Compliance(Actual_NOC)": "percentage"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  
+    
+    
+  
   "nocApplicationVsProvisionalVsActual": {
     "chartName": "DSS_APPLICATION_VS_PROVISIONAL_VS_ACTUAL",
     "queries": [
@@ -7624,32 +8195,7 @@
     },
     "_comment": ""
   },
-  "nssNOCCumulativeCollection": {
-    "chartName": "NSS_NOC_TOTAL_CUMULATIVE_COLLECTION",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Collections\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}}}}}"
-      }
-    ],
-    "chartType": "line",
-    "valueType": "amount",
-    "action": "",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "aggregationPaths": [
-      "Collections"
-    ],
-    "isCumulative": true,
-    "interval": "month",
-    "insight": {
-    },
-    "_comment": "NSS FIRE NOC Total cumulative collections "
-  },
-
+  
   "mCollectTodaysCollectionv2": {
     "chartName": "DSS_TODAYS_COLLECTION",
     "queries": [
@@ -7774,156 +8320,7 @@
     "_comment": " "
   },
 
-"nssNOCAverageDaysToIssueProvisional": {
-    "chartName": "NSS_NOC_AVERAGE_DAYS_TO_ISSUE_PROVISIONAL",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"todaysDate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"Average days to issue Provisional NOC\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}}}}}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Average days to issue Provisional NOC"
-    ],
-     "insight": {
-      "chartResponseMap" : "nocAvgDayToIssueProvisional",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
-    },
-    "_comment": "Average days to issue Provisional NOC"
-  },
-  "nssNOCAverageDaysToIssueActual": {
-    "chartName": "NSS_NOC_AVERAGE_DAYS_TO_ISSUE_ACTUAL",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"todaysDate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"Average days to issue Actual NOC\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}}}}}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Average days to issue Actual NOC"
-    ],
-    "insight": {
-      "chartResponseMap" : "nocAvgDayToIssueActual",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
-    },
-    "_comment": "Average days to issue Actual NOC"
-  },
-  "nssNOCSLAComplianceProvisional": {
-    "chartName": "NSS_NOC_SLA_COMPLIANCE_PROVISIONAL",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"SLA Compliance (Provisional NOC)\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}},\"Total applications\":{\"sum\":{\"field\":\"todaysApplicationsForDepartment\"}}}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "percentage",
-    "action": "percentage",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "SLA Compliance (Provisional NOC)",
-      "Total applications"
-    ],
-    "insight": {
-      "chartResponseMap" : "slaCompliance",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year",
-      "isRoundOff": true
-    },
-    "_comment": "SLA Compliance (Provisional NOC)"
-  },
-  "nssNOCSLAComplianceActual": {
-    "chartName": "NSS_NOC_SLA_COMPLIANCE_ACTUAL",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"SLA Compliance (Actual NOC)\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceActualForDepartment\"}}}},\"Total applications\":{\"sum\":{\"field\":\"todaysApplicationsForDepartment\"}}}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "percentage",
-    "action": "percentage",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "SLA Compliance (Actual NOC)",
-      "Total applications"
-    ],
-    "insight": {
-      "chartResponseMap" : "slaCompliance",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year",
-      "isRoundOff": true
-    },
-    "_comment": "SLA Compliance (Actual NOC)"
-  },
-  "nssNOCProvisionalIssued": {
-    "chartName": "NSS_NOC_PROVISIONAL_ISSUED",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional Noc's Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Provisional Noc's Issued"
-    ],
-    "insight": {
-      "chartResponseMap" : "nocProvisionalIssued",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
-    },
-    "_comment": "NSS FIRE NOC Provisional Issued "
-  },
-
+       
   "mCollectTotalCategoriesv2": {
     "chartName": "DSS_TOTAL_CATEGORIES",
     "queries": [
@@ -8127,6 +8524,9 @@
     "insight": {},
     "_comment": " "
   },
+
+  "_comment": "NSS-OBPS",
+  
   "nssOBPSTodaysCollection": {
     "chartName": "NSS_OBPS_TODAYS_COLLECTION",
     "queries": [
@@ -9185,155 +9585,7 @@
     },
     "_comment": " "
   },
-  "nssNOCApplicationVsProvisionalVsActual": {
-    "chartName": "NSS_APPLICATION_VS_PROVISIONAL_VS_ACTUAL",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Applications\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Applications\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Provisional NOCs Issued\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Provisional\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional Noc's Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}},\"Actual NOCs Issued\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Actual\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Actual Noc's Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}}}"
-      }
-    ],
-    "chartType": "line",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "aggregationPaths": [
-      "Total Applications",
-      "Provisional NOCs Issued",
-      "Actual NOCs Issued"
-    ],
-    "isCumulative": true,
-    "interval": "month",
-    "insight": {
-    },
-    "_comment": "NSS FIRE NOC application vs provisional vs actual"
-  },
-  "nssNocCollectionByPaymentMode": {
-    "chartName": "NSS_NOC_COLLECTION_BY_PAYMENT_MODE",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"NOC Collection by PaymentMode\":{\"terms\":{\"field\":\"paymentMode.keyword\"},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}}}}}}}}"
-      }
-    ],
-    "chartType": "pie",
-    "valueType": "amount",
-    "action": "",
-    "documentType": "_doc",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "NOC Collection by PaymentMode"
-    ],
-    "insight": {
-    },
-    "_comment": "NSS FIRE NOC Collection by payment mode"
-  },
-  "nssTotalNocIssuedByType": {
-    "chartName": "NSS_TOTAL_NOC_ISSUED_TYPE",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"fire NOC Issued\":{\"terms\":{\"field\":\"type.keyword\"},\"aggs\":{\"nocs issued by type\":{\"sum\":{\"field\":\"nocIssuedTodayForType\"}}}}}}}}"
-      }
-    ],
-    "chartType": "pie",
-    "valueType": "amount",
-    "action": "",
-    "documentType": "_doc",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "fire NOC Issued"
-    ],
-    "insight": {
-    },
-    "_comment": "NSS FIRE NOC issued by type"
-  },
-  
-  "nssNOCTopPerformingStatesActual": {
-    "chartName": "NSS_NOC_TOP_3_PERFORMING_STATES_ACTUAL",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Total applications\":\"desc\"}},\"aggs\":{\"Total applications\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}"
-      },
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Actual Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}}}"
-      }
-    ],
-    "isMdmsEnabled": false,
-    "isPostResponseHandler": true,
-    "postAggregationTheory" : "repsonseToDifferenceOfDates",
-    "chartType": "perform",
-    "valueType": "percentage",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "action": "percentage",
-    "plotLabel": "Actual",
-    "order": "desc",
-    "limit": 3,
-    "aggregationPaths": [
-      "Total Noc's issued",
-      "Actual Nocs issued"
-    ],
-    "insight": {
-    },
-    "_comment": "NSS FIRE NOC top performing state actual"
-  },
-  
-   "nssNOCTopPerformingStatesProvisional": {
-    "chartName": "NSS_NOC_TOP_3_PERFORMING_STATES_PROVISIONAL",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Total applications\":\"desc\"}},\"aggs\":{\"Total applications\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}"
-      },
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Provisional Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}}}"
-      }
-    ],
-    "isMdmsEnabled": false,
-    "isPostResponseHandler": true,
-    "chartType": "perform",
-    "valueType": "percentage",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "action": "percentage",
-    "plotLabel": "Provisional",
-    "order": "desc",
-    "limit": 3,
-    "aggregationPaths": [
-      "Total Noc's issued",
-      "Provisional Nocs issued"
-    ],
-    "insight": {
-    },
-    "_comment": "NSS FIRE NOC top performing state provisional"
-  },
-
+          
   "_comment": "National Dashboard-WS Revenue Tab configs start here-------------------------------",
 
   "nssWsTodaysCollection": {
@@ -10592,81 +10844,8 @@
     },
     "_comment": "Bottom Performing Ulbs for provisional nocs issued"
   },
-
-  "nssNOCBottomPerformingStatesActual": {
-    "chartName": "NSS_NOC_BOTTOM_3_PERFORMING_STATES_ACTUAL",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Total applications\":\"desc\"}},\"aggs\":{\"Total applications\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}"
-      },
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Actual Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"ACTUAL\"}}]}},\"aggs\":{\"Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}}}"
-      }
-    ],
-    "isMdmsEnabled": false,
-    "isPostResponseHandler": true,
-    "chartType": "perform",
-    "valueType": "percentage",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "action": "percentage",
-    "plotLabel": "Actual",
-    "order": "asc",
-    "limit": 3,
-    "aggregationPaths": [
-      "Total Noc's issued",
-      "Actual Nocs issued"
-    ],
-    "insight": {
-    },
-    "_comment": "NSS FIRE NOC bottom performing state actual"
-  },
   
-   "nssNOCBottomPerformingStatesProvisional": {
-    "chartName": "NSS_NOC_BOTTOM_3_PERFORMING_STATES_PROVISIONAL",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Total applications\":\"desc\"}},\"aggs\":{\"Total applications\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}"
-      },
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Provisional Nocs issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Noc's issued\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}}}}}}}}"
-      }
-    ],
-    "isMdmsEnabled": false,
-    "isPostResponseHandler": true,
-    "chartType": "perform",
-    "valueType": "percentage",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "action": "percentage",
-    "plotLabel": "Provisional",
-    "order": "asc",
-    "limit": 3,
-    "aggregationPaths": [
-      "Total Noc's issued",
-      "Provisional Nocs issued"
-    ],
-    "insight": {
-    },
-    "_comment": "NSS FIRE NOC bottom performing state provisional"
-  },
-  "pgrTotalComplaints": {
+     "pgrTotalComplaints": {
     "chartName": "NATIONAL_DSS_TOTAL_COMPLAINTS",
     "queries": [
       {
@@ -11600,86 +11779,7 @@
     },
     "_comment": ""
   },
-  
-  "nssNOCServiceReportByState": {
-    "chartName": "NSS_NOC_SERVICE_REPORT_STATE",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"state\":\"state.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"State\":{\"terms\":{\"field\":\"state.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForPaymentMode\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForApplicationType\"}},\"Provisional_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"PROVISIONAL\"}}]}},\"aggs\":{\"Provisional_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Actual_Fire_Nocs_issued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"applicationType.keyword\":\"NEW\"}}]}},\"aggs\":{\"Actual_Noc's_Issued\":{\"sum\":{\"field\":\"todaysApplicationsForApplicationType\"}}}},\"Average_days_to_issue_Provisional_NOC\":{\"terms\":{\"field\":\"date\",\"size\":1,\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}}}},\"Average_days_to_issue_Actual_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}}}},\"SLA_Compliance_Actual_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceActualForDepartment\"}}}},\"SLA_Compliance_Provisional_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}}}"
-      }
-    ],
-    "isMdmsEnabled": false,
-    "filterKeys": [
-      {"key": "state", "column": "State"}
-    ],
-    "chartType": "xtable",
-    "valueType": "number",
-    "action": "",
-    "plotLabel": "State",
-    "isPostResponseHandler": true,
-    "postAggregationTheory" : "repsonseToDifferenceOfDates",
-    "documentType": "_doc",
-    "drillChart": "nssNOCServiceReportDrillDownUlb",
-    "excludedColumns": ["SLA_Compliance_Provisional_NOC", "SLA_Compliance_Actual_NOC"],
-    "aggregationPaths": [
-      "Total_Collection",
-      "Total_Applications",
-      "Provisional_Fire_Nocs_issued",
-      "Actual_Fire_Nocs_issued",
-      "Average_days_to_issue_Provisional_NOC",
-      "Average_days_to_issue_Actual_NOC"
-      ],
-      "computedFields": [
-      {
-        "postAggregationTheory" : "repsonseToDifferenceOfDates",
-        "actionName": "PercentageComputedField",
-        "fields" : ["SLA_Compliance_Provisional_NOC","Total_Applications"],
-        "newField" : "SLA_Compliance(Provisional_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      },
-      {
-        "postAggregationTheory" : "repsonseToDifferenceOfDates",
-        "actionName": "PercentageComputedField",
-        "fields" : ["SLA_Compliance_Actual_NOC","Total_Applications"],
-        "newField" : "SLA_Compliance(Actual_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
-    "pathDataTypeMapping": [
-      {
-        "Total_Collection": "amount"
-      },
-      {
-        "Total_Applications": "number"
-      },
-      {
-        "Provisional_Fire_Nocs_issued": "number"
-      },
-      {
-        "Actual_Fire_Nocs_issued": "number"
-      },
-      {
-        "Average_days_to_issue_Provisional_NOC": "number"
-      },
-      {
-        "SLA_Compliance(Provisional_NOC)": "percentage"
-      },
-      {
-        "Average_days_to_issue_Actual_NOC": "number"
-      },
-      {
-        "SLA_Compliance(Actual_NOC)": "percentage"
-      }
-    ],
-    "insight": {
-    },
-    "_comment": " "
-  },
-  
+    
   "nssNOCServiceReportDrillDownUlb": {
     "chartName": "NSS_NOC_SERVICE_REPORT_ULB",
     "queries": [
@@ -11834,107 +11934,7 @@
     },
     "_comment": ""
   },
-  
-  "nssNOCServiceReportByDepartment": {
-    "chartName": "NSS_NOC_SERVICE_REPORT_DEPARTMENT",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"FireNOC\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Department\":{\"terms\":{\"field\":\"department.keyword\",\"size\":1000},\"aggs\":{\"Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForDepartment\"}},\"Total_Applications\":{\"value_count\":{\"field\":\"todaysApplicationsForDepartment\"}},\"Provisional_Fire_Nocs_issued\":{\"sum\":{\"field\":\"provisionalNOCIssuedForDepartment\"}},\"Actual_Fire_Nocs_issued\":{\"sum\":{\"field\":\"actualNOCIssuedForDepartment\"}},\"Average_days_to_issue_Provisional_NOC\":{\"terms\":{\"field\":\"date\",\"size\":1,\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueProvisionalNOCForDepartment\"}}}},\"Average_days_to_issue_Actual_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"avgDaysToIssueActualNOCForDepartment\"}}}},\"SLA_Compliance_Actual_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceActualForDepartment\"}}}},\"SLA_Compliance_Provisional_NOC\":{\"terms\":{\"field\":\"date\",\"size\":\"1\",\"order\":{\"_key\":\"desc\"}},\"aggs\":{\"Sum\":{\"avg\":{\"field\":\"slaComplianceProvisionalForDepartment\"}}}}}}}}}}"
-      }
-    ],
-    "isMdmsEnabled": false,
-    "chartType": "xtable",
-    "valueType": "number",
-    "action": "",
-    "plotLabel": "Department",
-    "isPostResponseHandler": true,
-    "postAggregationTheory" : "repsonseToDifferenceOfDates",
-    "documentType": "_doc",
-    "drillChart": "none",
-    "excludedColumns": ["SLA_Compliance_Provisional_NOC", "SLA_Compliance_Actual_NOC"],
-    "aggregationPaths": [
-      "Total_Collection",
-      "Total_Applications",
-      "Provisional_Fire_Nocs_issued",
-      "Actual_Fire_Nocs_issued",
-      "Average_days_to_issue_Provisional_NOC",
-      "Average_days_to_issue_Actual_NOC"
-      ],
-      "computedFields": [
-      {
-        "postAggregationTheory" : "repsonseToDifferenceOfDates",
-        "actionName": "PercentageComputedField",
-        "fields" : ["SLA_Compliance_Provisional_NOC","Total_Applications"],
-        "newField" : "SLA_Compliance(Provisional_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      },
-      {
-        "postAggregationTheory" : "repsonseToDifferenceOfDates",
-        "actionName": "PercentageComputedField",
-        "fields" : ["SLA_Compliance_Actual_NOC","Total_Applications"],
-        "newField" : "SLA_Compliance(Actual_NOC)",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
-    "pathDataTypeMapping": [
-      {
-        "Total_Collection": "amount"
-      },
-      {
-        "Total_Applications": "number"
-      },
-      {
-        "Provisional_Fire_Nocs_issued": "number"
-      },
-      {
-        "Actual_Fire_Nocs_issued": "number"
-      },
-      {
-        "Average_days_to_issue_Provisional_NOC": "number"
-      },
-      {
-        "SLA_Compliance(Provisional_NOC)": "percentage"
-      },
-      {
-        "Average_days_to_issue_Actual_NOC": "number"
-      },
-      {
-        "SLA_Compliance(Actual_NOC)": "percentage"
-      }
-    ],
-    "insight": {
-    },
-    "_comment": ""
-  },
-  
-  "nssActualNocIssuedByUsageType": {
-    "chartName": "NSS_ACTUAL_NOC_ISSUED_USAGETYPE",
-    "queries": [
-      {
-        "module": "FIRENOC",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "firenoc-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"fire NOC Issued\":{\"terms\":{\"field\":\"usageType.keyword\"},\"aggs\":{\"nocs issued by type\":{\"sum\":{\"field\":\"actualNOCIssuedForUsageType\"}}}}}}}}"
-      }
-    ],
-    "chartType": "pie",
-    "valueType": "amount",
-    "action": "",
-    "documentType": "_doc",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "fire NOC Issued"
-    ],
-    "insight": {
-    },
-    "_comment": "NSS Actual FIRE NOC issued by usagetype"
-  },
-
+    
   "pgrComplaintsByDepartment": {
     "chartName": "NATIONAL_DSS_PGR_COMPLAINTS_BY_DEPARTMENT",
     "queries": [
@@ -12293,9 +12293,9 @@
     "aggregationPaths": [
       "Total Collection","Target Collection"
     ],
-     "preActionTheory":{
-        "Target Collection":"repsonseToDifferenceOfDates"
-      },
+    "preActionTheory":{
+      "Target Collection":"repsonseToDifferenceOfDates"
+    },		
     "insight": {
     },
     "_comment": " Top Performing Ulbs for target achieved"
@@ -12332,8 +12332,8 @@
       "Total Collection", "Target Collection"
     ],
     "preActionTheory":{
-        "Target Collection":"repsonseToDifferenceOfDates"
-      },
+      "Target Collection":"repsonseToDifferenceOfDates"
+    },	
     "insight": {
     },
     "_comment": " Bottom Performing Ulbs for target achieved"
@@ -13193,7 +13193,9 @@
     },
     "_comment": " fy data"
   },
- 	  
+  	  
+  	  
+  	  
   "nssOBPSTotalPermitsVsTotalOCSubmittedVsTotalOCIssued": {
     "chartName": "NSS_TOTAL_PERMITS_VS_TOTAL_OC_SUBMITTED_VS_OC_ISSUED",
     "queries": [
