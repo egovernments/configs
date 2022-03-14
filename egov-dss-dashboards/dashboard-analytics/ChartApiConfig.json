@@ -14879,7 +14879,7 @@
     },
     "_comment": " "
   },
-
+   
   "cumulativeLicenseIssuedv2": {
     "chartName": "DSS_TL_CUMULATIVE_LICENSE_ISSUED",
     "queries": [
@@ -14913,6 +14913,9 @@
     },
     "_comment": " Total Number of License having issued"
   },
+  
+  "_comment": "NSS-NURT",
+       
   "nurtOnboardedStates":{
     "chartName": "NURT_ONBOARDED_STATES",
     "queries": [
@@ -14933,16 +14936,10 @@
       "OnBoardedStates"
     ],
     "insight": {
-      "chartResponseMap" : "nurtOnboardedStates",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
     },
     "_comment": " "
   },
+  
   "nurtUnderImpStates":{
     "chartName": "NURT_UNDERIMPL_STATES",
     "queries": [
@@ -14963,16 +14960,10 @@
       "underImpmStates"
     ],
     "insight": {
-      "chartResponseMap" : "nurtUnderImpStates",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
     },
     "_comment": " "
   },
+  
   "nurtLiveStates":{
     "chartName": "NURT_LIVE_STATES",
     "queries": [
@@ -14993,16 +14984,10 @@
       "liveStates"
     ],
     "insight": {
-      "chartResponseMap" : "nurtLiveStates",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
     },
     "_comment": " "
   },
+  
   "nurtLiveUlbs":{
     "chartName": "NURT_LIVE_ULB",
     "queries": [
@@ -15023,16 +15008,10 @@
       "totalLiveUlbCount"
     ],
     "insight": {
-      "chartResponseMap" : "nurtLiveUlbs",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
     },
     "_comment": " "
   },
+  
   "nurtTotalCitzens":{
     "chartName": "NURT_TOTAL_CITIZENS",
     "queries": [
@@ -15057,12 +15036,14 @@
       "action" : "differenceOfNumbers",
       "upwardIndicator" : "positive",
       "downwardIndicator" : "negative",
+      "isRoundOff":true,
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
       "insightInterval" : "year"
     },
     "_comment": " "
   },
+  
   "nurtSlaAchieved":{
     "chartName": "NURT_SLA_ACHIEVED",
     "queries": [
@@ -15088,14 +15069,124 @@
       "action" : "differenceOfNumbers",
       "upwardIndicator" : "positive",
       "downwardIndicator" : "negative",
+      "isRoundOff":true,
       "textMessage" : "$indicator$value% than last $insightInterval",
       "colorCode" : "#228B22",
       "insightInterval" : "year",
-      "isRoundOff": true
+      "isRoundOff": true 
     },
     "_comment": " "
   },
-
+  
+  "nurtProjectStatus": {
+    "chartName": "NURT_PROJECT_STAUS",
+    "queries": [
+            {
+        "module": "COMMON",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "common-national-dashboard",
+        "aggrQuery": "{\"size\":0,\"query\":{\"bool\":{\"adjust_pure_negative\":true,\"boost\":1}},\"aggs\":{\"states\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"Status\":{\"terms\":{\"field\":\"status.keyword\"}},\"totalUlbs\":{\"avg\":{\"field\":\"totalUlbCount\"}},\"liveUlbs\":{\"avg\":{\"field\":\"totalLiveUlbsCount\"}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "isPostResponseHandler": true,
+    "chartType": "table",
+    "valueType": "number",    
+    "drillChart": "nurtProjectStatusModule",
+    "drillFields": [
+      "states"
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "states",
+      "Status",
+      "totalUlbs",
+      "liveUlbs"
+    ],
+    "plotLabel": "states",
+    "pathDataTypeMapping": [
+      {
+        "states": "string"
+      },
+      {
+        "Status": "string"
+      },
+      {
+        "totalUlbs": "number"
+      },
+      {
+        "liveUlbs": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  
+  "nurtProjectStatusModule": {
+    "chartName": "NURT_PROJECT_STAUS",
+    "queries": [
+            {
+        "module": "COMMON",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "common-national-dashboard",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"status.keyword\":\"Live\"}},{\"range\":{\"liveUlbsCountForServiceModuleCode\":{\"gte\":1}}}]}},\"aggs\":{\"module\":{\"terms\":{\"field\":\"serviceModuleCode.keyword\"},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"liveUlbPerModule\":{\"avg\":{\"field\":\"liveUlbsCountForServiceModuleCode\"}}}}}},\"totalLiveUlbCount\":{\"avg\":{\"field\":\"totalLiveUlbsCount\"}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "isPostResponseHandler": true,
+    "chartType": "table",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "module",
+      "liveUlbPerModule"
+    ],
+    "plotLabel": "module",
+    "pathDataTypeMapping": [
+      {
+        "module": "string"
+      },
+      {
+        "liveUlbPerModule": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  
+  "nurtliveOnboardedUlbs": {
+    "chartName": "NURT_LIVE_ACTIVE_ULBS",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "common-national-dashboard",
+        "aggrQuery": "{\"size\":0,\"query\":{\"bool\":{\"adjust_pure_negative\":true,\"boost\":1}},\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"onBoardeUlbsCount\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"onBoardeUlbsCount\":{\"avg\":{\"field\":\"onboardedUlbsCount\"}}}},\"onBoardeUlbsCount\":{\"sum_bucket\":{\"buckets_path\":\"latest.onBoardeUlbsCount\"}}}},\"liveUlbsCount\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"status.keyword\":\"Live\"}},{\"range\":{\"liveUlbsCountForServiceModuleCode\":{\"gte\":1}}}]}},\"aggs\":{\"test\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"LiveUlbCount\":{\"avg\":{\"field\":\"totalLiveUlbsCount\"}}}},\"liveUlbsCount\":{\"sum_bucket\":{\"buckets_path\":\"latest.LiveUlbCount\"}}}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "onBoardeUlbsCount",
+      "liveUlbsCount"
+    ],
+    "isCumulative": false,
+    "interval": "month",
+    "insight": {},
+    "_comment": " "
+  },
+      
   "pgrAverageSolutionTime": {
     "chartName": "NATIONAL_DSS_PGR_EVENT_DASHBOARD",
     "queries": [
@@ -15479,113 +15570,7 @@
     },
     "_comment": ""
   },
-  "nurtProjectStatus": {
-    "chartName": "NURT_PROJECT_STAUS",
-    "queries": [
-            {
-        "module": "COMMON",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "dateRefField": "",
-        "indexName": "common-national-dashboard",
-        "aggrQuery": "{\"size\":0,\"query\":{\"bool\":{\"adjust_pure_negative\":true,\"boost\":1}},\"aggs\":{\"states\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":5},\"aggs\":{\"Status\":{\"terms\":{\"field\":\"status.keyword\"}},\"totalUlbs\":{\"avg\":{\"field\":\"totalUlbCount\"}},\"liveUlbs\":{\"avg\":{\"field\":\"totalLiveUlbsCount\"}}}}}}}}"
-      }
-    ],
-    "isMdmsEnabled": false,
-    "isPostResponseHandler": true,
-    "chartType": "table",
-    "valueType": "number",    
-    "drillChart": "nurtProjectStatusModule",
-    "drillFields": [
-      "states"
-    ],
-    "documentType": "_doc",
-    "action": "",
-    "aggregationPaths": [
-      "states",
-      "Status",
-      "totalUlbs",
-      "liveUlbs"
-    ],
-    "plotLabel": "states",
-    "pathDataTypeMapping": [
-      {
-        "states": "string"
-      },
-      {
-        "Status": "string"
-      },
-      {
-        "totalUlbs": "number"
-      },
-      {
-        "liveUlbs": "number"
-      }
-    ],
-    "insight": {
-    },
-    "_comment": ""
-  },
-  "nurtProjectStatusModule": {
-    "chartName": "NURT_PROJECT_STAUS",
-    "queries": [
-            {
-        "module": "COMMON",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "dateRefField": "",
-        "indexName": "common-national-dashboard",
-        "aggrQuery": "{\"size\":0,\"query\":{\"bool\":{\"filter\":[{\"terms\":{\"state.keyword\":[\"Punjab\"],\"boost\":1}}],\"adjust_pure_negative\":true,\"boost\":1}},\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"status.keyword\":\"Live\"}},{\"range\":{\"liveUlbsCountForServiceModuleCode\":{\"gte\":1}}}]}},\"aggs\":{\"module\":{\"terms\":{\"field\":\"serviceModuleCode.keyword\"},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"liveUlbPerModule\":{\"avg\":{\"field\":\"liveUlbsCountForServiceModuleCode\"}}}}}},\"totalLiveUlbCount\":{\"avg\":{\"field\":\"totalLiveUlbsCount\"}}}}}}"
-      }
-    ],
-    "isMdmsEnabled": false,
-    "isPostResponseHandler": true,
-    "chartType": "table",
-    "valueType": "number",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "action": "",
-    "aggregationPaths": [
-      "module",
-      "liveUlbPerModule"
-    ],
-    "plotLabel": "module",
-    "pathDataTypeMapping": [
-      {
-        "module": "string"
-      },
-      {
-        "liveUlbPerModule": "number"
-      }
-    ],
-    "insight": {
-    },
-    "_comment": ""
-  },
-  "nurtliveOnboardedUlbs": {
-    "chartName": "NURT_LIVE_ACTIVE_ULBS",
-    "queries": [
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "dateRefField": "",
-        "indexName": "common-national-dashboard",
-        "aggrQuery": "{\"size\":0,\"query\":{\"bool\":{\"adjust_pure_negative\":true,\"boost\":1}},\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"onBoardeUlbsCount\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"onBoardeUlbsCount\":{\"avg\":{\"field\":\"onboardedUlbsCount\"}}}},\"onBoardeUlbsCount\":{\"sum_bucket\":{\"buckets_path\":\"latest.onBoardeUlbsCount\"}}}},\"liveUlbsCount\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"status.keyword\":\"Live\"}},{\"range\":{\"liveUlbsCountForServiceModuleCode\":{\"gte\":1}}}]}},\"aggs\":{\"test\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"latest\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"LiveUlbCount\":{\"avg\":{\"field\":\"totalLiveUlbsCount\"}}}},\"liveUlbsCount\":{\"sum_bucket\":{\"buckets_path\":\"latest.LiveUlbCount\"}}}}}}}}}}"
-      }
-    ],
-    "chartType": "line",
-    "valueType": "number",
-    "action": "",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "aggregationPaths": [
-      "onBoardeUlbsCount",
-      "liveUlbsCount"
-    ],
-    "isCumulative": false,
-    "interval": "month",
-    "insight": {},
-    "_comment": " "
-  },
-
+    
   "nationalPgrStatusByState": {
     "chartName": "NATIONAL_DSS_PGR_STATUS_BY_STATE",
     "queries": [
