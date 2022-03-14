@@ -9812,98 +9812,1028 @@
     "_comment": ""
   },
    
+  "_comment": "NSS-TradeLicence",
+  
   "tradeLicenseTodaysCollectionv2": {
-    "chartName": "DSS_TODAYS_COLLECTION",
-    "queries": [
-      {
-        "module": "COMMON",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"date\":{\"gt\":\"now-1d\/d\",\"lte\":\"now\"}}}]}},\"aggs\":{\"Todays Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "Amount",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "action": "",
-    "aggregationPaths": [
-      "Todays Collection"
-    ],
-    "insight": {
-      "chartResponseMap" : "tradeLicenseTodaysCollectionv2",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "month"
+      "chartName": "DSS_TODAYS_COLLECTION",
+      "queries": [
+        {
+          "module": "COMMON",
+          "dateRefField": "",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"todaysDate\":{\"terms\":{\"field\":\"date\",\"order\":{\"_term\":\"desc\"},\"size\":1},\"aggs\":{\"Todays Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}},\"lastUpdatedTime\":{\"terms\":{\"field\":\"lastModifiedTime\",\"order\":{\"_term\":\"desc\"},\"size\":1}}}}}}"
+        }
+      ],
+      "chartType": "metric",
+      "valueType": "Amount",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "",
+      "TodaysCollection":true,
+      "aggregationPaths": [
+        "Todays Collection"
+      ],
+      "insight": {
+        
+      },
+      "_comment": " "
     },
-    "_comment": " "
-  },
-
+  
   "tradeLicenseTotalCollectionv2": {
-    "chartName": "DSS_TOTAL_COLLECTION",
+      "chartName": "DSS_TL_TOTAL_COLLECTION",
+      "queries": [
+        {
+          "module": "COMMON",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}}}"
+        }
+      ],
+      "chartType": "metric",
+      "valueType": "Amount",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "",
+      "aggregationPaths": [
+        "Total Collection"
+      ],
+      "insight": {
+        "chartResponseMap" : "tradeLicenseTotalCollectionv2",
+        "action" : "differenceOfNumbers",
+        "upwardIndicator" : "positive",
+        "downwardIndicator" : "negative",
+        "textMessage" : "$indicator$value% than last $insightInterval",
+        "colorCode" : "#228B22",
+        "insightInterval" : "year",
+        "isRoundOff": true
+      },
+      "_comment": " "
+    },
+  
+  "tlTargetCollection": {
+      "chartName": "DSS_TARGET_COLLECTION",
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\", \"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "master-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"term\":{\"module.keyword\":\"TL\"}},\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"
+        }
+      ],
+      "chartType": "metric",
+      "valueType": "amount",
+      "action": "",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "aggregationPaths": [
+        "Target Collection"
+      ],
+      "isDayUnit": true,
+      "postAggregationTheory" : "repsonseToDifferenceOfDates",
+      "insight": {
+      },
+      "_comment": " "
+    },
+  
+  "tlTargetAchieved": {
+      "chartName": "DSS_TARGET_ACHIEVED",
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "master-national-dashboard",
+          
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"term\":{\"module.keyword\":\"TL\"}},\"aggs\":{\"Target Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}"
+        },
+        {
+          "module": "COMMON",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}"
+        }
+  
+      ],
+      "chartType": "metric",
+      "valueType": "percentage",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "percentage",
+      "isRoundOff": true,
+      "preActionTheory":{
+        "Target Collection":"repsonseToDifferenceOfDates"
+      },
+      "aggregationPaths": [
+        "Total Collection",
+        "Target Collection"
+      ],
+      "insight": {
+        "chartResponseMap" : "tlTargetAchieved",
+        "action" : "differenceOfNumbers",
+        "upwardIndicator" : "positive",
+        "downwardIndicator" : "negative",
+        "textMessage" : "$indicator$value% than last $insightInterval",
+        "colorCode" : "#228B22",
+        "insightInterval" : "year",
+        "isRoundOff": true
+      },
+      "_comment": " "
+    },
+  
+  "tlMonthlyCumulativeCollectionv2": {
+      "chartName": "DSS_TL_MONTHLY_CUMULATIVE",
+      "queries": [
+        {
+          "module": "COMMON",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Collections\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}}}}}"
+        }
+      ],
+      "chartType": "line",
+      "valueType": "amount",
+      "action": "",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "aggregationPaths": [
+        "Collections"
+      ],
+      "isCumulative": true,
+      "interval": "month",
+      "insight": {},
+      "_comment": " "
+    },
+  
+  "tlTopPerformingUlbs": {
+      "chartName": "NATIONAL_DSS_TOP_PERFORMING_STATES",
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\r\n  \"module\" : \"module.keyword\", \n\"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "",
+          "indexName": "master-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"term\":{\"module.keyword\":\"TL\"}},\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"state.keyword\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        },
+        {
+          "module": "COMMON",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Total Collection\":{\"terms\":{\"field\":\"state.keyword\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}}}}}"
+        }
+      ],
+      "chartType": "perform",
+      "valueType": "percentage",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "percentage",
+      "isRoundOff": true,
+      "plotLabel": "DSS_TARGET_ACHIEVED",
+      "order": "desc",
+      "limit": 3,
+      "aggregationPaths": [
+        "Total Collection","Target Collection"
+      ],
+      "preActionTheory":{
+        "Target Collection":"repsonseToDifferenceOfDates"
+      },
+      "insight": {
+      },
+      "_comment": " Top Performing Ulbs for target achieved"
+    },
+  
+  "tlBottomPerformingUlbs": {
+      "chartName": "NATIONAL_DSS_BOTTOM_PERFORMING_STATES",
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\r\n  \"module\" : \"module.keyword\", \n\"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "",
+          "indexName": "master-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"term\":{\"module.keyword\":\"TL\"}},\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"state.keyword\",\"order\":{\"Sum\":\"asc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        },
+        {
+          "module": "COMMON",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Total Collection\":{\"terms\":{\"field\":\"state.keyword\",\"order\":{\"Sum\":\"asc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}}}}}"
+        }
+      ],
+      "chartType": "perform",
+      "valueType": "percentage",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "percentage",
+      "isRoundOff": true,
+      "plotLabel": "DSS_TARGET_ACHIEVED",
+      "order": "asc",
+      "limit": 3,
+      "aggregationPaths": [
+        "Total Collection","Target Collection"
+      ],
+      "preActionTheory":{
+        "Target Collection":"repsonseToDifferenceOfDates"
+      },
+      "insight": {
+      },
+      "_comment": " Bottom Performing Ulbs for target achieved"
+    },
+  
+  "tlCollectionByTradeTypev2": {
+      "chartName": "DSS_TL_COLLECTION_BY_TRADE_TYPE",
+      "queries": [
+        {
+          "module": "COMMON",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Trade Type\":{\"terms\":{\"field\":\"tradeType.keyword\"},\"aggs\":{\"Total collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}}}}}"
+        }
+      ],
+      "chartType": "pie",
+      "valueType": "amount",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "",
+      "aggregationPaths": [
+        "Trade Type"
+      ],
+      "insight": {
+        
+      },
+      "_comment": " "
+    },
+  
+  "licenseIssuedBoundaryRevenuev3": {
+      "chartName": "DSS_TL_DEMAND_COLLECTION_BOUNDARY",
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"States\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"TL_Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}},\"Total_Licence_Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}},\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"transactions\"}}}},\"wardapplications\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}},\"ulbApplications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplications\"}}}},\"Transactions\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbApplications\"}}}}}}}}"
+        },
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "master-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"States\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        }
+        
+      ],
+      "filterKeys": [
+        {"key": "state", "column": "States"}
+      ],
+      "postAggregationTheory" : "repsonseToDifferenceOfDates",
+      "chartType": "xtable",
+      "valueType": "number",
+      "drillChart": "licenseIssuedTenantRevenuev3",
+      "documentType": "_doc",
+      "action": "",
+      "plotLabel": "States",
+      "aggregationPaths": [
+        "TL_Total_Collection",
+        "Transactions",
+        "Total_Licence_Issued",
+        "Target_Collection"
+      ],
+      "pathDataTypeMapping": [
+        {
+          "TL_Total_Collection": "amount"
+        },
+        {
+          "Target_Collection": "amount"
+        },
+        {
+          "Transactions": "number"
+        },
+        {
+          "Total_Licence_Issued": "number"
+        },
+        {
+          "TL_Target_Collection": "amount"
+        }
+      ],
+      "computedFields": [
+       {
+          "postAggregationTheory" : "repsonseToDifferenceOfDates",
+          "actionName": "AdditiveComputedField",
+          "fields" : ["Target_Collection"],
+          "newField" : "TL_Target_Collection",
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        },
+        {
+          "postAggregationTheory" : "",
+          "actionName": "PercentageComputedField",
+          "fields" : ["TL_Total_Collection", "TL_Target_Collection"],
+          "newField" : "TL_Target_Achieved",
+          "isRoundOff": true,
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        }
+        
+      ],
+      "excludedColumns":["Target_Collection"],
+      "insight": {
+      },
+      "_comment": ""
+    },
+    
+  "licenseIssuedTenantRevenuev3": {
+      "chartName": "DSS_TL_DEMAND_COLLECTION_BOUNDARY",
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Tenants\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"TL_Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}},\"Total_Licence_Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}},\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"transactions\"}}}},\"wardapplications\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}},\"Transactions\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplications\"}}}}}}}}"
+        },
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "master-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"Tenants\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        }
+      ],
+      "filterKeys": [
+        {"key": "ulb", "column": "ULB"}
+      ],
+      "postAggregationTheory" : "repsonseToDifferenceOfDates",
+      "chartType": "xtable",
+      "valueType": "number",
+      "drillChart": "licenseIssuedWardRevenuev3",
+      "documentType": "_doc",
+      "action": "",
+      "plotLabel": "ULB",
+      "aggregationPaths": [
+        "TL_Total_Collection",
+        "Transactions",
+        "Total_Licence_Issued",
+        "Target_Collection"
+      ],
+      "pathDataTypeMapping": [
+        {
+          "TL_Total_Collection": "amount"
+        },
+        {
+          "Target_Collection": "amount"
+        },
+        {
+          "Transactions": "number"
+        },
+        {
+          "Total_Licence_Issued": "number"
+        },
+        {
+          "TL_Target_Collection": "amount"
+        }
+      ],
+      "computedFields": [
+       {
+          "postAggregationTheory" : "repsonseToDifferenceOfDates",
+          "actionName": "AdditiveComputedField",
+          "fields" : ["Target_Collection"],
+          "newField" : "TL_Target_Collection",
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        },
+        {
+          "postAggregationTheory" : "",
+          "actionName": "PercentageComputedField",
+          "fields" : ["TL_Total_Collection", "TL_Target_Collection"],
+          "newField" : "TL_Target_Achieved",
+          "isRoundOff": true,
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        }
+        
+      ],
+      "excludedColumns":["Target_Collection"],
+      "insight": {
+      },
+      "_comment": ""
+    },
+  
+  "licenseIssuedWardRevenuev3": {
+      "chartName": "DSS_TL_DEMAND_COLLECTION_BOUNDARY",
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\" }",
+          "dateRefField": "date",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"TL_Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}},\"Total_Licence_Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}},\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"transactions\"}}}},\"Transactions\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}}}}}}"
+        },
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "master-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
+        }
+      ],
+      "filterKeys": [
+        {"key": "ward", "column": "Wards"}
+      ],
+      "postAggregationTheory" : "repsonseToDifferenceOfDates",
+      "chartType": "xtable",
+      "valueType": "number",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "",
+      "plotLabel": "Wards",
+      "aggregationPaths": [
+        "TL_Total_Collection",
+        "Transactions",
+        "Total_Licence_Issued",
+        "Target_Collection"
+      ],
+      "pathDataTypeMapping": [
+        {
+          "TL_Total_Collection": "amount"
+        },
+        {
+          "Target_Collection": "amount"
+        },
+        {
+          "Transactions": "number"
+        },
+        {
+          "Total_Licence_Issued": "number"
+        },
+        {
+          "TL_Target_Collection": "amount"
+        }
+      ],
+      "computedFields": [
+       {
+          "postAggregationTheory" : "repsonseToDifferenceOfDates",
+          "actionName": "AdditiveComputedField",
+          "fields" : ["Target_Collection"],
+          "newField" : "TL_Target_Collection",
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        },
+        {
+          "postAggregationTheory" : "",
+          "actionName": "PercentageComputedField",
+          "fields" : ["TL_Total_Collection", "TL_Target_Collection"],
+          "newField" : "TL_Target_Achieved",
+          "isRoundOff": true,
+          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+        }
+        
+      ],
+      "excludedColumns":["Target_Collection"],
+      "insight": {
+      },
+      "_comment": ""
+    },
+  
+  "licenceTaxHeadsBreakupState": {
+      "chartName": "DSS_TL_TAX_HEAD_BREAKUP_BOUNDARY",
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"States\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applicationsTax\":{\"avg\":{\"field\":\"tlTax\"}},\"applicationsPenalty\":{\"avg\":{\"field\":\"adhocPenalty\"}},\"applicationsRebate\":{\"avg\":{\"field\":\"adhocRebate\"}}}},\"wardapplicationsTax\":{\"sum_bucket\":{\"buckets_path\":\"days.applicationsTax\"}},\"wardapplicationsPenalty\":{\"sum_bucket\":{\"buckets_path\":\"days.applicationsPenalty\"}},\"wardapplicationsRebate\":{\"sum_bucket\":{\"buckets_path\":\"days.applicationsRebate\"}}}},\"ulbApplicationsTax\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplicationsTax\"}},\"ulbApplicationsPenalty\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplicationsPenalty\"}},\"ulbApplicationsRebate\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplicationsRebate\"}}}},\"TL_Tax\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbApplicationsTax\"}},\"Adhoc_Penalty\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbApplicationsPenalty\"}},\"Adhoc_Rebate\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbApplicationsRebate\"}},\"Total_Amount\":{\"bucket_script\":{\"buckets_path\":{\"Adhoc_Rebate\":\"Adhoc_Rebate\",\"TL_Tax\":\"TL_Tax\",\"Adhoc_Penalty\":\"Adhoc_Penalty\"},\"script\":{\"source\":\" params.TL_Tax + params.Adhoc_Penalty - params.Adhoc_Rebate\"}}}}}}}}}"
+        }
+      ],
+      "filterKeys": [
+        {"key": "state", "column": "States"}
+      ],
+      "chartType": "xtable",
+      "valueType": "amount",
+      "drillChart": "licenceTaxHeadsBreakupTenant",
+      "documentType": "_doc",
+      "action": "",
+      "plotLabel": "States",
+      "aggregationPaths": [
+        "TL_Tax",
+        "Adhoc_Penalty",
+        "Adhoc_Rebate",
+        "Total_Amount"
+      ],
+      "pathDataTypeMapping": [
+        {
+          "TL_Tax": "amount"
+        },
+        {
+          "Adhoc_Penalty": "amount"
+        },
+        {
+          "Adhoc_Rebate": "amount"
+        },
+        {
+          "Total_Amount":"amount"
+        }
+      ],
+  
+      
+  
+      "insight": {
+      },
+      "_comment": ""
+    },
+    
+  "licenceTaxHeadsBreakupTenant": {
+      "chartName": "DSS_TL_TAX_HEAD_BREAKUP_BOUNDARY",
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applicationsTax\":{\"avg\":{\"field\":\"tlTax\"}},\"applicationsPenalty\":{\"avg\":{\"field\":\"adhocPenalty\"}},\"applicationsRebate\":{\"avg\":{\"field\":\"adhocRebate\"}}}},\"wardapplicationsTax\":{\"sum_bucket\":{\"buckets_path\":\"days.applicationsTax\"}},\"wardapplicationsPenalty\":{\"sum_bucket\":{\"buckets_path\":\"days.applicationsPenalty\"}},\"wardapplicationsRebate\":{\"sum_bucket\":{\"buckets_path\":\"days.applicationsRebate\"}}}},\"TL_Tax\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplicationsTax\"}},\"Adhoc_Penalty\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplicationsPenalty\"}},\"Adhoc_Rebate\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplicationsRebate\"}},\"Total_Amount\":{\"bucket_script\":{\"buckets_path\":{\"Adhoc_Rebate\":\"Adhoc_Rebate\",\"TL_Tax\":\"TL_Tax\",\"Adhoc_Penalty\":\"Adhoc_Penalty\"},\"script\":{\"source\":\" params.TL_Tax + params.Adhoc_Penalty - params.Adhoc_Rebate\"}}}}}}}}}"
+        }
+      ],
+      "filterKeys": [
+        {"key": "ulb", "column": "ULB"}
+      ],
+      "chartType": "xtable",
+      "valueType": "amount",
+      "drillChart": "licenceTaxHeadsBreakupWardv3",
+      "documentType": "_doc",
+      "action": "",
+      "plotLabel": "ULB",
+      "aggregationPaths": [
+        "TL_Tax",
+        "Adhoc_Penalty",
+        "Adhoc_Rebate",
+        "Total_Amount"
+      ],
+      "pathDataTypeMapping": [
+        {
+          "TL_Tax": "amount"
+        },
+        {
+          "Adhoc_Penalty": "amount"
+        },
+        {
+          "Adhoc_Rebate": "amount"
+        },
+        {
+          "Total_Amount": "amount"
+        }
+      ],
+      
+  
+      "insight": {
+      },
+      "_comment": ""
+    },
+  
+  "licenceTaxHeadsBreakupWardv3": {
+      "chartName": "DSS_TL_TAX_HEAD_BREAKUP_BOUNDARY",
+      "queries": [
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\" }",
+          "dateRefField": "date",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applicationsTax\":{\"avg\":{\"field\":\"tlTax\"}},\"applicationsPenalty\":{\"avg\":{\"field\":\"adhocPenalty\"}},\"applicationsRebate\":{\"avg\":{\"field\":\"adhocRebate\"}}}},\"TL_Tax\":{\"sum_bucket\":{\"buckets_path\":\"days.applicationsTax\"}},\"Adhoc_Penalty\":{\"sum_bucket\":{\"buckets_path\":\"days.applicationsPenalty\"}},\"Adhoc_Rebate\":{\"sum_bucket\":{\"buckets_path\":\"days.applicationsRebate\"}},\"Total_Amount\":{\"bucket_script\":{\"buckets_path\":{\"Adhoc_Rebate\":\"Adhoc_Rebate\",\"TL_Tax\":\"TL_Tax\",\"Adhoc_Penalty\":\"Adhoc_Penalty\"},\"script\":{\"source\":\" params.TL_Tax + params.Adhoc_Penalty - params.Adhoc_Rebate\"}}}}}}}}}"
+        }
+      ],
+      "filterKeys": [
+        {"key": "ward", "column": "Wards"}
+      ],
+      "chartType": "xtable",
+      "valueType": "amount",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "",
+      "plotLabel": "Wards",
+      "aggregationPaths": [
+        "TL_Tax",
+        "Adhoc_Penalty",
+        "Adhoc_Rebate",
+        "Total_Amount"
+      ],
+      "pathDataTypeMapping": [
+        {
+          "TL_Tax": "amount"
+        },
+        {
+          "Adhoc_Penalty": "amount"
+        },
+        {
+          "Adhoc_Rebate": "amount"
+        },
+        {
+          "Total_Amount" : "amount"
+        }
+      ],
+      
+  
+      "insight": {
+      },
+      "_comment": ""
+    },
+   
+  "totalApplicationsv2": {
+      "chartName": "DSS_TOTAL_APPLICATIONS",
+      "queries": [
+        {
+          "module": "COMMON",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"state\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysApplications\"}}}},\"wardapplications\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}},\"ulbApplications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplications\"}}}},\"stateApplications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbApplications\"}}}},\"Total Applications\":{\"sum_bucket\":{\"buckets_path\":\"state.stateApplications\"}}}}}}"
+        }
+      ],
+      "chartType": "metric",
+      "valueType": "number",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "",
+      "aggregationPaths": [
+        "Total Applications"
+      ],
+      "insight": {
+        "chartResponseMap" : "totalApplicationsv2",
+        "action" : "differenceOfNumbers",
+        "upwardIndicator" : "positive",
+        "downwardIndicator" : "negative",
+        "textMessage" : "$indicator$value% than last $insightInterval",
+        "colorCode" : "#228B22",
+        "insightInterval" : "year",
+        "isRoundOff": true
+      }
+    },
+   
+  "totalLicensesIssuedv2": {
+      "chartName": "DSS_TOTAL_LICENSES",
+      "queries": [
+        {
+          "module": "COMMON",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Licenses\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}"
+        }
+      ],
+      "chartType": "metric",
+      "valueType": "number",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "",
+      "aggregationPaths": [
+        "Total Licenses"
+      ],
+      "insight": {
+        "chartResponseMap" : "totalLicensesIssuedv2",
+        "action" : "differenceOfNumbers",
+        "upwardIndicator" : "positive",
+        "downwardIndicator" : "negative",
+        "textMessage" : "$indicator$value% than last $insightInterval",
+        "colorCode" : "#228B22",
+        "insightInterval" : "year",
+        "isRoundOff": true
+      }
+    },
+   
+  "cumulativeLicenseIssuedv2": {
+      "chartName": "DSS_TL_CUMULATIVE_LICENSE_ISSUED",
+      "queries": [
+        {
+          "module": "COMMON",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Trade Licence Issued\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}}}",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date"
+        },
+        {
+          "module": "COMMON",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Application\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"state\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysApplications\"}}}},\"wardapplications\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}},\"ulbApplications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplications\"}}}},\"stateApplications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbApplications\"}}}},\"allApplications\":{\"sum_bucket\":{\"buckets_path\":\"state.stateApplications\"}}}}}}}}",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date"
+        }
+      ],
+      "chartType": "line",
+      "valueType": "number",
+      "action": "",
+      "documentType": "_doc",
+      "drillChart": "none",
+      "aggregationPaths": [
+        "Trade Licence Issued",
+        "Total Application"
+      ],
+      "isCumulative": true,
+      "interval": "month",
+      "insight": {
+      },
+      "_comment": " Total Number of License having issued"
+    },
+   
+  "tlTopPerformingUlbsCompletionRate": {
+      "chartName": "NATIONAL_DSS_TOP_3_PERFORMING_STATES_COMPLETION_RATE",
+      "queries": [
+        
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Licenses Within SLA\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysLicenseIssuedWithinSLA\"}}}},\"wardapplications\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}},\"ulbApplications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplications\"}}}},\"Licenses Within SLA\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbApplications\"}}}},\"Total Licenses\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"licenses\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}},\"wardlicenses\":{\"sum_bucket\":{\"buckets_path\":\"days.licenses\"}}}},\"ulblicenses\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardlicenses\"}}}},\"totalLicenses\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulblicenses\"}}}}}}}}"
+        }
+      ],
+      "chartType": "perform",
+      "valueType": "percentage",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "percentage",
+      "isRoundOff": true,
+      "plotLabel": "DSS_COMPLETION_RATE",
+      "order": "desc",
+      "limit": 3,
+      "aggregationPaths": [
+        "Licenses Within SLA",
+        "Total Licenses"
+      ],
+      "insight": {
+      },
+      "_comment": " Top Performing Ulbs for Completion rate"
+    },
+
+  "tlBottomPerformingUlbsCompletionRate": {
+      "chartName": "NATIONAL_DSS_BOTTOM_3_PERFORMING_STATES_COMPLETION_RATE",
+      "queries": [
+        
+        {
+          "module": "COMMON",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "dateRefField": "date",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Licenses Within SLA\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysLicenseIssuedWithinSLA\"}}}},\"wardapplications\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}},\"ulbApplications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplications\"}}}},\"Licenses Within SLA\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbApplications\"}}}},\"Total Licenses\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"licenses\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}},\"wardlicenses\":{\"sum_bucket\":{\"buckets_path\":\"days.licenses\"}}}},\"ulblicenses\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardlicenses\"}}}},\"totalLicenses\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulblicenses\"}}}}}}}}"
+        }
+      ],
+      "chartType": "perform",
+      "valueType": "percentage",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "percentage",
+      "isRoundOff": true,
+      "plotLabel": "DSS_COMPLETION_RATE",
+      "order": "asc",
+      "limit": 3,
+      "aggregationPaths": [
+        "Licenses Within SLA",
+        "Total Licenses"
+      ],
+      "insight": {
+      },
+      "_comment": " Top Performing Ulbs for Completion rate"
+    },
+   
+  "tlTradeLicenseByStatusv2": {
+      "chartName": "DSS_TL_COLLECTION_BY_TRADE_TYPE",
+      "queries": [
+        {
+          "module": "COMMON",
+          "dateRefField": "date",
+          "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
+          "indexName": "tl-national-dashboard",
+          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Status\":{\"terms\":{\"field\":\"status.keyword\"},\"aggs\":{\"Total Licenses\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}}}"
+        }
+      ],
+      "chartType": "pie",
+      "valueType": "number",
+      "drillChart": "none",
+      "documentType": "_doc",
+      "action": "",
+      "aggregationPaths": [
+        "Status"
+      ],
+      "insight": {
+        
+      },
+      "_comment": " "
+    },
+   
+  "tlStatusByState": {
+    "chartName": "DSS_TL_STATUS_BY_STATE",
     "queries": [
       {
         "module": "COMMON",
+        "requestQueryMap": "{\"state\" : \"state.keyword\"} ",
         "dateRefField": "date",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
         "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"State\":{\"terms\":{\"field\":\"state.keyword\",\"size\":1000},\"aggs\":{\"Status\":{\"terms\":{\"field\":\"status.keyword\",\"size\":1000,\"min_doc_count\":0,\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"License Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}}}}}"
+        
       }
     ],
-    "chartType": "metric",
-    "valueType": "Amount",
-    "drillChart": "none",
+    "filterKeys": [
+      {"key": "state", "column": "State"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "tlStatusByUlb",
+    "drillFields": [
+      ""
+    ],
+    "pathDataTypeMapping": [
+      
+      {
+        "INITIATED": "number"
+      },
+      {
+        "FIELDINSPECTION": "number"
+      },
+      {
+        "REJECTED": "number"
+      },
+      {
+        "APPROVED": "number"
+      },
+      {
+        "APPLIED": "number"
+      },
+      {
+        "PENDINGAPPROVAL": "number"
+      },
+      {
+        "CANCELLED": "number"
+      },
+      {
+        "PENDINGPAYMENT": "number"
+      },
+      {
+        "PAID": "number"
+      },
+      {
+        "EXPIRED": "number"
+      },
+      {
+        "DOCUMENTVERIFICATION" : "number"
+      },
+      {
+        "CITIZENACTIONREQUIRED" : "number"
+      }
+    ],
+
     "documentType": "_doc",
     "action": "",
-    "aggregationPaths": [
-      "Total Collection"
-    ],
+    "plotLabel": "State",
+    
+    
+
+
     "insight": {
-      "chartResponseMap" : "tradeLicenseTotalCollectionv2",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
     },
-    "_comment": " "
+    "_comment": ""
   },
 
-  "totalLicensesIssuedv2": {
-    "chartName": "DSS_TOTAL_LICENSES",
+  "tlStatusByUlb": {
+    "chartName": "DSS_TL_STATUS_BY_WARD",
     "queries": [
       {
         "module": "COMMON",
+        "requestQueryMap": "{\"state\" : \"state.keyword\" , \"ulb\" : \"ulb.keyword\" } ",
         "dateRefField": "date",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"tenantId\" : \"ulb.keyword\"}",
         "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Licenses\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULB\":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":1000},\"aggs\":{\"Status\":{\"terms\":{\"field\":\"status.keyword\",\"size\":1000,\"min_doc_count\":0,\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"License Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}}}}}"
+        
       }
     ],
-    "chartType": "metric",
+    "filterKeys": [
+      {"key": "ulb", "column": "ULB"}
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "tlStatusByWard",
+    "drillFields": [
+      ""
+    ],
+    "pathDataTypeMapping": [
+      
+      {
+        "INITIATED": "number"
+      },
+      {
+        "FIELDINSPECTION": "number"
+      },
+      {
+        "REJECTED": "number"
+      },
+      {
+        "APPROVED": "number"
+      },
+      {
+        "APPLIED": "number"
+      },
+      {
+        "PENDINGAPPROVAL": "number"
+      },
+      {
+        "CANCELLED": "number"
+      },
+      {
+        "PENDINGPAYMENT": "number"
+      },
+      {
+        "PAID": "number"
+      },
+      {
+        "EXPIRED": "number"
+      },
+      {
+        "DOCUMENTVERIFICATION" : "number"
+      },
+      {
+        "CITIZENACTIONREQUIRED" : "number"
+      }
+    ],
+
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "ULB",
+    
+    
+
+
+    "insight": {
+    },
+    "_comment": ""
+  },
+
+  "tlStatusByWard": {
+    "chartName": "DSS_TL_STATUS_BY_WARD",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{\"state\" : \"state.keyword\" , \"ulb\" : \"ulb.keyword\" , \"ward\" : \"ward.keyword\" } ",
+        "dateRefField": "date",
+        "indexName": "tl-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"ward.keyword\",\"size\":1000},\"aggs\":{\"Status\":{\"terms\":{\"field\":\"status.keyword\",\"size\":1000,\"min_doc_count\":0,\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"License Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}}}}}"
+        
+      }
+    ],
+    "filterKeys": [
+      {"key": "ward", "column": "Ward"}
+    ],
+    "chartType": "xtable",
     "valueType": "number",
     "drillChart": "none",
+    "drillFields": [
+      ""
+    ],
+    "pathDataTypeMapping": [
+      
+      {
+        "INITIATED": "number"
+      },
+      {
+        "FIELDINSPECTION": "number"
+      },
+      {
+        "REJECTED": "number"
+      },
+      {
+        "APPROVED": "number"
+      },
+      {
+        "APPLIED": "number"
+      },
+      {
+        "PENDINGAPPROVAL": "number"
+      },
+      {
+        "CANCELLED": "number"
+      },
+      {
+        "PENDINGPAYMENT": "number"
+      },
+      {
+        "PAID": "number"
+      },
+      {
+        "EXPIRED": "number"
+      },
+      {
+        "DOCUMENTVERIFICATION" : "number"
+      },
+      {
+        "CITIZENACTIONREQUIRED" : "number"
+      }
+    ],
+
     "documentType": "_doc",
     "action": "",
-    "aggregationPaths": [
-      "Total Licenses"
-    ],
+    "plotLabel": "Ward",
     "insight": {
-      "chartResponseMap" : "totalLicensesIssuedv2",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
-    }
+    },
+    "_comment": ""
   },
-  
+     
   "obpsCollectionByPaymentMode": {
     "chartName": "DSS_OBPS_COLLECTION_BY_PAYMENT_MODE",
     "queries": [
@@ -12084,31 +13014,7 @@
     "_comment": " SLA Achieved Percentage "
   },
 
-  "tlMonthlyCumulativeCollectionv2": {
-    "chartName": "DSS_TL_MONTHLY_CUMULATIVE",
-    "queries": [
-      {
-        "module": "COMMON",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"tenantId\" : \"ulb.keyword\"}",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Collections\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}}}}}"
-      }
-    ],
-    "chartType": "line",
-    "valueType": "amount",
-    "action": "",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "aggregationPaths": [
-      "Collections"
-    ],
-    "isCumulative": true,
-    "interval": "month",
-    "insight": {},
-    "_comment": " "
-  },
-
+ 
   "totalTransactionsv2": {
     "chartName": "DSS_TOTAL_TRANSACTIONS",
     "queries": [
@@ -12138,231 +13044,7 @@
       "insightInterval" : "year"
     }
   },
-
-  "totalApplicationsv2": {
-    "chartName": "DSS_TOTAL_APPLICATIONS",
-    "queries": [
-      {
-        "module": "COMMON",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"tenantId\" : \"ulb.keyword\"}",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{}},\"aggs\":{\"Total Applications\":{\"sum\":{\"field\":\"todaysApplications\"}}}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "number",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "action": "",
-    "aggregationPaths": [
-      "Total Applications"
-    ],
-    "insight": {
-      "chartResponseMap" : "totalApplicationsv2",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
-    }
-  },
-
-  "tlCollectionByTradeTypev2": {
-    "chartName": "DSS_TL_COLLECTION_BY_TRADE_TYPE",
-    "queries": [
-      {
-        "module": "COMMON",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"tenantId\" : \"ulb.keyword\"}",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Trade Type\":{\"terms\":{\"field\":\"tradeType.keyword\"},\"aggs\":{\"Total collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}}}}}"
-      }
-    ],
-    "chartType": "pie",
-    "valueType": "amount",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "action": "",
-    "aggregationPaths": [
-      "Trade Type"
-    ],
-    "insight": {
-      
-    },
-    "_comment": " "
-  },
-
-  "tlTradeLicenseByStatusv2": {
-    "chartName": "DSS_TL_COLLECTION_BY_TRADE_TYPE",
-    "queries": [
-      {
-        "module": "COMMON",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"tenantId\" : \"ulb.keyword\"}",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Status\":{\"terms\":{\"field\":\"status.keyword\"},\"aggs\":{\"Total Licenses\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}}}"
-      }
-    ],
-    "chartType": "pie",
-    "valueType": "number",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "action": "",
-    "aggregationPaths": [
-      "Status"
-    ],
-    "insight": {
-      
-    },
-    "_comment": " "
-  },
-
-  "tlTargetAchieved": {
-    "chartName": "DSS_TARGET_ACHIEVED",
-    "queries": [
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "master-national-dashboard",
-        
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"term\":{\"module.keyword\":\"TL\"}},\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
-        
-      },
-      {
-        "module": "COMMON",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}"
-        
-        
-      }
-
-    ],
-    "chartType": "metric",
-    "valueType": "percentage",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "action": "percentage",
-    "isRoundOff": true,
-    "aggregationPaths": [
-      "Total Collection",
-      "Target Collection"
-    ],
-    "preActionTheory":{
-      "Target Collection":"repsonseToDifferenceOfDates"
-    },
-    "insight": {
-      "chartResponseMap" : "targetAchieved",
-      "action" : "differenceOfNumbers",
-      "upwardIndicator" : "positive",
-      "downwardIndicator" : "negative",
-      "textMessage" : "$indicator$value% than last $insightInterval",
-      "colorCode" : "#228B22",
-      "insightInterval" : "year"
-    },
-    "_comment": " "
-  },
-
-  "tlTargetCollection": {
-    "chartName": "DSS_TARGET_COLLECTION",
-    "queries": [
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "master-national-dashboard",
-        
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"term\":{\"module.keyword\":\"TL\"}},\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"state.keyword\",\"size\":\"200\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
-      }
-    ],
-    "chartType": "metric",
-    "valueType": "amount",
-    "action": "",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "aggregationPaths": [
-      "Target Collection"
-    ],
-    "isDayUnit": true,
-    "postAggregationTheory" : "repsonseToDifferenceOfDates",
-    "insight": {
-    },
-    "_comment": " "
-  },
-
-  "tlTopPerformingUlbs": {
-    "chartName": "DSS_TL_TOP_3_PERFORMING_ULBS",
-    "queries": [
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\r\n  \"module\" : \"module.keyword\", \n\"tenantId\" : \"ulb.keyword\"}",
-        "dateRefField": "",
-        "indexName": "master-national-dashboard",
-        
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"term\":{\"module.keyword\":\"TL\"}},\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"state.keyword\",\"order\":{\"Sum\":\"desc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
-      },
-      {
-        "module": "COMMON",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"tenantId\" : \"ulb.keyword\"}",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Licenses Within SLA\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysLicenseIssuedWithinSLA\"}}}},\"wardapplications\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}},\"ulbApplications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplications\"}}}},\"Licenses Within SLA\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbApplications\"}}}},\"Total Licenses\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"licenses\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}},\"wardlicenses\":{\"sum_bucket\":{\"buckets_path\":\"days.licenses\"}}}},\"ulblicenses\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardlicenses\"}}}},\"totalLicenses\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulblicenses\"}}}}}}}}"
-      }
-    ],
-    "chartType": "perform",
-    "valueType": "percentage",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "action": "percentage",
-    "plotLabel": "DSS_TARGET_ACHIEVED",
-    "order": "desc",
-    "limit": 3,
-    "aggregationPaths": [
-      "Total Collection","Target Collection"
-    ],
-    "insight": {
-    },
-    "_comment": " Top Performing Ulbs for target achieved"
-  },
-
-  "tlBottomPerformingUlbs": {
-    "chartName": "DSS_TL_BOTTOM_3_PERFORMING_ULBS",
-    "queries": [
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\r\n  \"module\" : \"module.keyword\", \n\"tenantId\" : \"ulb.keyword\"}",
-        "dateRefField": "",
-        "indexName": "master-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"term\":{\"module.keyword\":\"TL\"}},\"aggs\":{\"Target Collection\":{\"terms\":{\"field\":\"state.keyword\",\"order\":{\"Sum\":\"asc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
-      },
-      {
-        "module": "COMMON",
-        "dateRefField": "date",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"tenantId.keyword\"}",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Total Collection\":{\"terms\":{\"field\":\"state.keyword\",\"order\":{\"Sum\":\"asc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}}}}}}}}"
-      }
-    ],
-    "chartType": "perform",
-    "valueType": "percentage",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "action": "percentage",
-    "plotLabel": "DSS_TARGET_ACHIEVED",
-    "order": "asc",
-    "limit": 3,
-    "aggregationPaths": [
-      "Total Collection","Target Collection"
-    ],
-    "insight": {
-    },
-    "_comment": " Bottom Performing Ulbs for target achieved"
-  },
-
+  
   "tlactiveUlbs": {
     "chartName": "DSS_TL_TOTAL_ACTIVE_ULBS",
     "queries": [
@@ -13770,82 +14452,7 @@
   },
   	  
   	  
-  "licenseIssuedBoundaryRevenuev3": {
-    "chartName": "DSS_TL_DEMAND_COLLECTION_BOUNDARY",
-    "queries": [
-        {
-          "module": "COMMON",
-          "requestQueryMap": "{\"state\" : \"state.keyword\"}",
-          "dateRefField": "date",
-          "indexName": "tl-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"States\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"TL_Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}},\"Total_Licence_Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}},\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"transactions\"}}}},\"wardapplications\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}},\"ulbApplications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplications\"}}}},\"Transactions\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbApplications\"}}}}}}}}"
-        },
-        {
-          "module": "COMMON",
-          "requestQueryMap": "{\"state\" : \"state.keyword\"}",
-          "dateRefField": "date",
-          "indexName": "master-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"States\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
-        }
-        
-      ],
-      "filterKeys": [
-        {"key": "state", "column": "States"}
-      ],
-      "postAggregationTheory" : "repsonseToDifferenceOfDates",
-      "chartType": "xtable",
-      "valueType": "number",
-      "drillChart": "licenseIssuedTenantRevenuev3",
-      "documentType": "_doc",
-      "action": "",
-      "plotLabel": "States",
-      "aggregationPaths": [
-        "TL_Total_Collection",
-        "Transactions",
-        "Total_Licence_Issued",
-        "Target_Collection"
-      ],
-      "pathDataTypeMapping": [
-        {
-          "TL_Total_Collection": "amount"
-        },
-        {
-          "Target_Collection": "amount"
-        },
-        {
-          "Transactions": "number"
-        },
-        {
-          "Total_Licence_Issued": "number"
-        },
-        {
-          "TL_Target_Collection": "amount"
-        }
-      ],
-      "computedFields": [
-       {
-          "postAggregationTheory" : "repsonseToDifferenceOfDates",
-          "actionName": "AdditiveComputedField",
-          "fields" : ["Target_Collection"],
-          "newField" : "TL_Target_Collection",
-          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-        },
-        {
-          "postAggregationTheory" : "",
-          "actionName": "PercentageComputedField",
-          "fields" : ["TL_Total_Collection", "TL_Target_Collection"],
-          "newField" : "TL_Target_Achieved",
-          "isRoundOff": true,
-          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-        }
-        
-      ],
-      "excludedColumns":["Target_Collection"],
-      "insight": {
-      },
-      "_comment": ""
-    },
-
+  
   "licenseIssuedDDDRRevenuev3": {
     "chartName": "DSS_TL_DEMAND_COLLECTION_BOUNDARY",
     "queries": [
@@ -13909,204 +14516,7 @@
     "_comment": ""
   },
 
-  "licenseIssuedTenantRevenuev3": {
-    "queries": [
-        {
-          "module": "COMMON",
-          "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\"}",
-          "dateRefField": "date",
-          "indexName": "tl-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Tenants\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"TL_Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}},\"Total_Licence_Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}},\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"transactions\"}}}},\"wardapplications\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}},\"Transactions\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplications\"}}}}}}}}"
-        },
-        {
-          "module": "COMMON",
-          "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\"}",
-          "dateRefField": "date",
-          "indexName": "master-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"Tenants\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
-        }
-      ],
-      "filterKeys": [
-        {"key": "ulb", "column": "ULB"}
-      ],
-      "postAggregationTheory" : "repsonseToDifferenceOfDates",
-      "chartType": "xtable",
-      "valueType": "number",
-      "drillChart": "licenseIssuedWardRevenuev3",
-      "documentType": "_doc",
-      "action": "",
-      "plotLabel": "ULB",
-      "aggregationPaths": [
-        "TL_Total_Collection",
-        "Transactions",
-        "Total_Licence_Issued",
-        "Target_Collection"
-      ],
-      "pathDataTypeMapping": [
-        {
-          "TL_Total_Collection": "amount"
-        },
-        {
-          "Target_Collection": "amount"
-        },
-        {
-          "Transactions": "number"
-        },
-        {
-          "Total_Licence_Issued": "number"
-        },
-        {
-          "TL_Target_Collection": "amount"
-        }
-      ],
-      "computedFields": [
-       {
-          "postAggregationTheory" : "repsonseToDifferenceOfDates",
-          "actionName": "AdditiveComputedField",
-          "fields" : ["Target_Collection"],
-          "newField" : "TL_Target_Collection",
-          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-        },
-        {
-          "postAggregationTheory" : "",
-          "actionName": "PercentageComputedField",
-          "fields" : ["TL_Total_Collection", "TL_Target_Collection"],
-          "newField" : "TL_Target_Achieved",
-          "isRoundOff": true,
-          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-        }
-        
-      ],
-      "excludedColumns":["Target_Collection"],
-      "insight": {
-      },
-      "_comment": ""
-    },
-
-  "licenseIssuedWardRevenuev3": {
-    "kind": "drillDown",
-    "chartName": "DSS_TL_DEMAND_COLLECTION_BOUNDARY",
-      "queries": [
-        {
-          "module": "COMMON",
-          "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\" }",
-          "dateRefField": "date",
-          "indexName": "tl-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"TL_Total_Collection\":{\"sum\":{\"field\":\"todaysCollectionForTradeType\"}},\"Total_Licence_Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}},\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"transactions\"}}}},\"Transactions\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}}}}}}"
-        },
-        {
-          "module": "COMMON",
-          "requestQueryMap": "{\"state\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
-          "dateRefField": "date",
-          "indexName": "master-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[],\"must\":[{\"term\":{\"module.keyword\":\"TL\"}}]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"Target_Collection\":{\"sum\":{\"field\":\"budgetProposedForMunicipalCorporation\"}}}}}}}}"
-        }
-      ],
-      "filterKeys": [
-        {"key": "ward", "column": "Wards"}
-      ],
-      "postAggregationTheory" : "repsonseToDifferenceOfDates",
-      "chartType": "xtable",
-      "valueType": "number",
-      "drillChart": "none",
-      "documentType": "_doc",
-      "action": "",
-      "plotLabel": "Wards",
-      "aggregationPaths": [
-        "TL_Total_Collection",
-        "Transactions",
-        "Total_Licence_Issued",
-        "Target_Collection"
-      ],
-      "pathDataTypeMapping": [
-        {
-          "TL_Total_Collection": "amount"
-        },
-        {
-          "Target_Collection": "amount"
-        },
-        {
-          "Transactions": "number"
-        },
-        {
-          "Total_Licence_Issued": "number"
-        },
-        {
-          "TL_Target_Collection": "amount"
-        }
-      ],
-      "computedFields": [
-       {
-          "postAggregationTheory" : "repsonseToDifferenceOfDates",
-          "actionName": "AdditiveComputedField",
-          "fields" : ["Target_Collection"],
-          "newField" : "TL_Target_Collection",
-          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-        },
-        {
-          "postAggregationTheory" : "",
-          "actionName": "PercentageComputedField",
-          "fields" : ["TL_Total_Collection", "TL_Target_Collection"],
-          "newField" : "TL_Target_Achieved",
-          "isRoundOff": true,
-          "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-        }
-        
-      ],
-      "excludedColumns":["Target_Collection"],
-      "insight": {
-      },
-      "_comment": ""
-    },
-
-  "licenceTaxHeadsBreakupState": {
-    "chartName": "DSS_TL_TAX_HEAD_BREAKUP_BOUNDARY",
-    "queries": [
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"stateId\" : \"state.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"States\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"TL_Tax\":{\"sum\":{\"field\":\"tlTax\"}},\"Adhoc_Penalty\":{\"sum\":{\"field\":\"adhocPenalty\"}},\"Adhoc_Rebate\":{\"sum\":{\"field\":\"adhocRebate\"}} , \"Total_Amount\": {\"bucket_script\": {\"buckets_path\": {\"Adhoc_Rebate\": \"Adhoc_Rebate\",\"TL_Tax\":\"TL_Tax\" , \"Adhoc_Penalty\" : \"Adhoc_Penalty\" },\"script\": {\"source\": \" params.TL_Tax + params.Adhoc_Penalty - params.Adhoc_Rebate\"}}}}}}}}}"
-      }
-    ],
-    "filterKeys": [
-      {"key": "stateId", "column": "States"}
-    ],
-    "chartType": "xtable",
-    "valueType": "amount",
-    "drillChart": "licenceTaxHeadsBreakupTenant",
-    "documentType": "_doc",
-    "action": "",
-    "plotLabel": "States",
-    "aggregationPaths": [
-      "TL_Tax",
-      "Adhoc_Penalty",
-      "Adhoc_Rebate",
-      "Total_Amount"
-    ],
-    "pathDataTypeMapping": [
-      {
-        "TL_Tax": "amount"
-      },
-      {
-        "Adhoc_Penalty": "amount"
-      },
-      {
-        "Adhoc_Rebate": "amount"
-      },
-      {
-        "Total_Amount": "amount" 
-      }
-    ],
-
-    
-
-    "insight": {
-    },
-    "_comment": ""
-  },
-
+  
   "licenceTaxHeadsBreakupDDRv3": {
     "chartName": "DSS_TL_TAX_HEAD_BREAKUP_BOUNDARY",
     "queries": [
@@ -14158,101 +14568,6 @@
     "_comment": ""
   },
 
-  "licenceTaxHeadsBreakupTenant": {
-    "chartName": "DSS_TL_TAX_HEAD_BREAKUP_BOUNDARY",
-    "queries": [
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"stateId\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"tenantId\" : \"ulb.keyword\"}",
-        "dateRefField": "date",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"TL_Tax\":{\"sum\":{\"field\":\"tlTax\"}},\"Adhoc_Penalty\":{\"sum\":{\"field\":\"adhocPenalty\"}},\"Adhoc_Rebate\":{\"sum\":{\"field\":\"adhocRebate\"}} , \"Total_Amount\": {\"bucket_script\": {\"buckets_path\": {\"Adhoc_Rebate\": \"Adhoc_Rebate\",\"TL_Tax\":\"TL_Tax\" , \"Adhoc_Penalty\" : \"Adhoc_Penalty\" },\"script\": {\"source\": \" params.TL_Tax + params.Adhoc_Penalty - params.Adhoc_Rebate\"}}}}}}}}}"
-      }
-    ],
-    "filterKeys": [
-      {"key": "tenantId", "column": "Tenants"}
-    ],
-    "chartType": "xtable",
-    "valueType": "amount",
-    "drillChart": "licenceTaxHeadsBreakupWardv3",
-    "documentType": "_doc",
-    "action": "",
-    "plotLabel": "Tenants",
-    "aggregationPaths": [
-      "TL_Tax",
-      "Adhoc_Penalty",
-      "Adhoc_Rebate",
-      "Total_Amount"
-    ],
-    "pathDataTypeMapping": [
-      {
-        "TL_Tax": "amount"
-      },
-      {
-        "Adhoc_Penalty": "amount"
-      },
-      {
-        "Adhoc_Rebate": "amount"
-      },
-      {
-        "Total_Amount": "amount"
-      }
-    ],
-    
-
-    "insight": {
-    },
-    "_comment": ""
-  },
-
-  "licenceTaxHeadsBreakupWardv3": {
-    "kind": "drillDown",
-    "chartName": "DSS_TL_TAX_HEAD_BREAKUP_BOUNDARY",
-    "queries": [
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"stateId\" : \"state.keyword\", \"regionId\" : \"region.keyword\", \"tenantId\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\" }",
-        "dateRefField": "date",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Wards\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"TL_Tax\":{\"sum\":{\"field\":\"tlTax\"}},\"Adhoc_Penalty\":{\"sum\":{\"field\":\"adhocPenalty\"}},\"Adhoc_Rebate\":{\"sum\":{\"field\":\"adhocRebate\"}} , \"Total_Amount\": {\"bucket_script\": {\"buckets_path\": {\"Adhoc_Rebate\": \"Adhoc_Rebate\",\"TL_Tax\":\"TL_Tax\" , \"Adhoc_Penalty\" : \"Adhoc_Penalty\" },\"script\": {\"source\": \" params.TL_Tax + params.Adhoc_Penalty - params.Adhoc_Rebate\"}}}}}}}}}"
-      }
-    ],
-    "filterKeys": [
-      {"key": "ward", "column": "Wards"}
-    ],
-    "chartType": "table",
-    "valueType": "amount",
-    "drillChart": "none",
-    "documentType": "_doc",
-    "action": "",
-    "plotLabel": "Wards",
-    "aggregationPaths": [
-      "TL_Tax",
-      "Adhoc_Penalty",
-      "Adhoc_Rebate",
-      "Total_Amount"
-    ],
-    "pathDataTypeMapping": [
-      {
-        "TL_Tax": "amount"
-      },
-      {
-        "Adhoc_Penalty": "amount"
-      },
-      {
-        "Adhoc_Rebate": "amount"
-      },
-      {
-        "Total_Amount": "amount"
-      }
-    ],
-    
-
-    "insight": {
-    },
-    "_comment": ""
-  },
-
   "wsSLACompliance": {
     "chartName": "DSS_WS_SLA_COMPLIANCE",
     "queries": [
@@ -14290,64 +14605,6 @@
       "insightInterval" : "year"
       },
       "_comment": "WS SLA Compliance"
-    },
-
-    "tlTopPerformingUlbsCompletionRate": {
-      "chartName": "DSS_TL_TOP_3_PERFORMING_ULBS",
-      "queries": [
-        
-        {
-          "module": "COMMON",
-          "requestQueryMap": "{\"state\" : \"state.keyword\",\"tenantId\" : \"ulb.keyword\"}",
-          "dateRefField": "date",
-          "indexName": "tl-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Licenses Within SLA\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"applications\":{\"avg\":{\"field\":\"todaysLicenseIssuedWithinSLA\"}}}},\"wardapplications\":{\"sum_bucket\":{\"buckets_path\":\"days.applications\"}}}},\"ulbApplications\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardapplications\"}}}},\"Licenses Within SLA\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulbApplications\"}}}},\"Total Licenses\":{\"terms\":{\"field\":\"state.keyword\"},\"aggs\":{\"intermediateAggrULB\":{\"terms\":{\"field\":\"ulb.keyword\"},\"aggs\":{\"intermediateAggrWard\":{\"terms\":{\"field\":\"ward.keyword\"},\"aggs\":{\"days\":{\"terms\":{\"field\":\"date\"},\"aggs\":{\"licenses\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}},\"wardlicenses\":{\"sum_bucket\":{\"buckets_path\":\"days.licenses\"}}}},\"ulblicenses\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrWard.wardlicenses\"}}}},\"totalLicenses\":{\"sum_bucket\":{\"buckets_path\":\"intermediateAggrULB.ulblicenses\"}}}}}}}}"
-        }
-      ],
-      "chartType": "perform",
-      "valueType": "percentage",
-      "drillChart": "none",
-      "documentType": "_doc",
-      "action": "percentage",
-      "plotLabel": "DSS_COMPLETION_RATE",
-      "order": "desc",
-      "limit": 3,
-      "aggregationPaths": [
-        "Licenses Within SLA",
-        "Total Licenses"
-      ],
-      "insight": {
-      },
-      "_comment": " Top Performing Ulbs for Completion rate"
-    },
-
-    "tlBottomPerformingUlbsCompletionRate": {
-      "chartName": "DSS_PT_BOTTOM_3_PERFORMING_ULBS",
-      "queries": [
-        
-        {
-          "module": "COMMON",
-          "requestQueryMap": "{\"state\" : \"state.keyword\",\"tenantId\" : \"ulb.keyword\"}",
-          "dateRefField": "date",
-          "indexName": "tl-national-dashboard",
-          "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Licenses Within SLA\":{\"terms\":{\"field\":\"state.keyword\",\"order\":{\"Sum\":\"asc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysLicenseIssuedWithinSLA\"}}}}, \"Total Licenses\":{\"terms\":{\"field\":\"state.keyword\",\"order\":{\"Sum\":\"asc\"}},\"aggs\":{\"Sum\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}} }}}}"
-        }
-      ],
-      "chartType": "perform",
-      "valueType": "percentage",
-      "drillChart": "none",
-      "documentType": "_doc",
-      "action": "percentage",
-      "plotLabel": "DSS_COMPLETION_RATE",
-      "order": "asc",
-      "limit": 3,
-      "aggregationPaths": [
-        "Licenses Within SLA",
-        "Total Licenses"
-      ],
-      "insight": {
-      },
-      "_comment": " Top Performing Ulbs for Completion rate"
     },
 
     "pgrTotalComplaintsBySource": {
@@ -15301,40 +15558,7 @@
     "_comment": " "
   },
    
-  "cumulativeLicenseIssuedv2": {
-    "chartName": "DSS_TL_CUMULATIVE_LICENSE_ISSUED",
-    "queries": [
-      {
-        "module": "COMMON",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Trade Licence Issued\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}}}",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"tenantId\" : \"ulb.keyword\"}",
-        "dateRefField": "date"
-      },
-      {
-        "module": "COMMON",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[]}},\"aggs\":{\"Total Application\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"todaysApplications\"}}}}}}}}",
-        "requestQueryMap": "{\"state\" : \"state.keyword\",\"tenantId\" : \"ulb.keyword\"}",
-        "dateRefField": "date"
-      }
-    ],
-    "chartType": "line",
-    "valueType": "number",
-    "action": "",
-    "documentType": "_doc",
-    "drillChart": "none",
-    "aggregationPaths": [
-      "Trade Licence Issued",
-      "Total Application"
-    ],
-    "isCumulative": true,
-    "interval": "month",
-    "insight": {
-    },
-    "_comment": " Total Number of License having issued"
-  },
-  
+    
   "_comment": "NSS-NURT",
        
   "nurtOnboardedStates":{
@@ -16471,205 +16695,5 @@
     "insight": {
     },
     "_comment": " "
-  },
-  "tlStatusByState": {
-    "chartName": "DSS_TL_STATUS_BY_STATE",
-    "queries": [
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"state\" : \"state.keyword\"} ",
-        "dateRefField": "date",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"State\":{\"terms\":{\"field\":\"state.keyword\",\"size\":1000},\"aggs\":{\"Status\":{\"terms\":{\"field\":\"status.keyword\",\"size\":1000,\"min_doc_count\":0},\"aggs\":{\"License Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}}}}}"
-        
-      }
-    ],
-    "filterKeys": [
-      {"key": "state", "column": "State"}
-    ],
-    "chartType": "xtable",
-    "valueType": "number",
-    "drillChart": "tlStatusByUlb",
-    "drillFields": [
-      ""
-    ],
-    "pathDataTypeMapping": [
-      
-      {
-        "INITIATED": "number"
-      },
-      {
-        "FIELDINSPECTION": "number"
-      },
-      {
-        "REJECTED": "number"
-      },
-      {
-        "APPROVED": "number"
-      },
-      {
-        "APPLIED": "number"
-      },
-      {
-        "PENDINGAPPROVAL": "number"
-      },
-      {
-        "CANCELLED": "number"
-      },
-      {
-        "PENDINGPAYMENT": "number"
-      },
-      {
-        "PAID": "number"
-      },
-      {
-        "EXPIRED": "number"
-      }
-    ],
-
-    "documentType": "_doc",
-    "action": "",
-    "plotLabel": "State",
-    
-    
-
-
-    "insight": {
-    },
-    "_comment": ""
-  },
-
-  "tlStatusByUlb": {
-    "chartName": "DSS_TL_STATUS_BY_WARD",
-    "queries": [
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"state\" : \"state.keyword\" , \"ulb\" : \"ulb.keyword\" } ",
-        "dateRefField": "date",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ULB\":{\"terms\":{\"field\":\"ulb.keyword\",\"size\":1000},\"aggs\":{\"Status\":{\"terms\":{\"field\":\"status.keyword\",\"size\":1000,\"min_doc_count\":0},\"aggs\":{\"License Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}}}}}"
-        
-      }
-    ],
-    "filterKeys": [
-      {"key": "ulb", "column": "ULB"}
-    ],
-    "chartType": "xtable",
-    "valueType": "number",
-    "drillChart": "tlStatusByWard",
-    "drillFields": [
-      ""
-    ],
-    "pathDataTypeMapping": [
-      
-      {
-        "INITIATED": "number"
-      },
-      {
-        "FIELDINSPECTION": "number"
-      },
-      {
-        "REJECTED": "number"
-      },
-      {
-        "APPROVED": "number"
-      },
-      {
-        "APPLIED": "number"
-      },
-      {
-        "PENDINGAPPROVAL": "number"
-      },
-      {
-        "CANCELLED": "number"
-      },
-      {
-        "PENDINGPAYMENT": "number"
-      },
-      {
-        "PAID": "number"
-      },
-      {
-        "EXPIRED": "number"
-      }
-    ],
-
-    "documentType": "_doc",
-    "action": "",
-    "plotLabel": "ULB",
-    
-    
-
-
-    "insight": {
-    },
-    "_comment": ""
-  },
-
-  "tlStatusByWard": {
-    "chartName": "DSS_TL_STATUS_BY_WARD",
-    "queries": [
-      {
-        "module": "COMMON",
-        "requestQueryMap": "{\"state\" : \"state.keyword\" , \"ulb\" : \"ulb.keyword\" , \"ward\" : \"ward.keyword\" } ",
-        "dateRefField": "date",
-        "indexName": "tl-national-dashboard",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"ulb.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"ward.keyword\",\"size\":1000},\"aggs\":{\"Status\":{\"terms\":{\"field\":\"status.keyword\",\"size\":1000,\"min_doc_count\":0},\"aggs\":{\"License Issued\":{\"sum\":{\"field\":\"todaysTradeLicensesForStatus\"}}}}}}}}}}"
-        
-      }
-    ],
-    "filterKeys": [
-      {"key": "ward", "column": "Ward"}
-    ],
-    "chartType": "xtable",
-    "valueType": "number",
-    "drillChart": "none",
-    "drillFields": [
-      ""
-    ],
-    "pathDataTypeMapping": [
-      
-      {
-        "INITIATED": "number"
-      },
-      {
-        "FIELDINSPECTION": "number"
-      },
-      {
-        "REJECTED": "number"
-      },
-      {
-        "APPROVED": "number"
-      },
-      {
-        "APPLIED": "number"
-      },
-      {
-        "PENDINGAPPROVAL": "number"
-      },
-      {
-        "CANCELLED": "number"
-      },
-      {
-        "PENDINGPAYMENT": "number"
-      },
-      {
-        "PAID": "number"
-      },
-      {
-        "EXPIRED": "number"
-      }
-    ],
-
-    "documentType": "_doc",
-    "action": "",
-    "plotLabel": "Ward",
-    
-    
-
-
-    "insight": {
-    },
-    "_comment": ""
   }
-}
+  }
