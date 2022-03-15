@@ -2132,7 +2132,7 @@ ReportDefinitions:
       SUM (CASE WHEN applicationstatus in ('CLOSEDAFTERRESOLUTION', 'RESOLVED') and (resolvedtime - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
       SUM (CASE WHEN applicationstatus in ('PENDINGFORASSIGNMENT') and (extract(epoch from now()) * 1000 - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END)  as opencomplaintswithinsla,
       SUM (CASE WHEN applicationstatus in ('PENDINGFORASSIGNMENT') and (extract(epoch from now()) * 1000 - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as opencomplaintsoutsidesla
-      from {schema}.pgr_data
+      from pgr_data
       INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
       INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
       WHERE 1=1
@@ -2269,7 +2269,7 @@ ReportDefinitions:
       SUM (CASE WHEN applicationstatus in ('PENDINGFORASSIGNMENT') THEN 1 ELSE 0 END) as open,
       SUM (CASE WHEN action in ('REOPEN') THEN 1 ELSE 0 END) as reopen,
       rating    
-      from {schema}.pgr_data
+      from pgr_data
       INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
       INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
       WHERE 1=1
@@ -2353,7 +2353,7 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND deptmap_def.code = $deptname
   query: |
-    with {schema}.pgr_data as (select  
+    with pgr_data as (select  
       (select pa.createdby from {schema}.eg_wf_processinstance_v2 pa where
       pa.businessId = ps.servicerequestid
       and pa."action" in ('ASSIGN', 'REASSIGN')
@@ -2378,7 +2378,7 @@ ReportDefinitions:
         (select designation from {schema}.eg_hrms_assignment where employeeid = assignee)) as designation,
         SUM (CASE WHEN applicationstatus in ('PENDINGATLME', 'PENDINGFORREASSIGNMENT') THEN 1 ELSE 0 END) as assigned,
         SUM (CASE WHEN action in ('REOPEN') THEN 1 ELSE 0 END) as reopen
-        from {schema}.pgr_data
+        from pgr_data
         INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
         INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
          WHERE 1=1
