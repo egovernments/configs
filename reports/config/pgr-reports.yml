@@ -2133,8 +2133,8 @@ ReportDefinitions:
       SUM (CASE WHEN applicationstatus in ('PENDINGFORASSIGNMENT') and (extract(epoch from now()) * 1000 - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END)  as opencomplaintswithinsla,
       SUM (CASE WHEN applicationstatus in ('PENDINGFORASSIGNMENT') and (extract(epoch from now()) * 1000 - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as opencomplaintsoutsidesla
       from {schema}.pgr_data
-      INNER JOIN (VALUES {schema}.tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
-      INNER JOIN (VALUES {schema}.tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
+      INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
+      INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
       WHERE 1=1
   groupby: GROUP BY tenantid,deptmap_def.name,rating
   orderby: ORDER BY tenantid,deptmap_def.name,rating
@@ -2241,7 +2241,7 @@ ReportDefinitions:
       (select wf.createdby from {schema}.eg_wf_processinstance_v2 wf where
       wf.businessid = ps.servicerequestid
       and wf."action" in ('RESOLVE', 'REASSIGN')
-      and wf.createdby NOT IN (SELECT eu.uuid from eg_user eu LEFT JOIN {schema}.eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES {schema}.tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE er.name IS NOT NULL AND er.name LIKE '%Grievance Routing Officer')
+      and wf.createdby NOT IN (SELECT eu.uuid from eg_user eu LEFT JOIN {schema}.eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE er.name IS NOT NULL AND er.name LIKE '%Grievance Routing Officer')
       order by wf.createdtime desc
       fetch first 1 rows only
       ) as assignee,
@@ -2261,7 +2261,7 @@ ReportDefinitions:
     select 
       (select name from eg_user where uuid = assignee) as employee,
       deptmap_def.name as department,    
-      (SELECT desigmap_def.name FROM (VALUES {schema}.tbl_def_desig) AS desigmap_def(name,code) where code in 
+      (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in 
       (select designation from {schema}.eg_hrms_assignment where employeeid = assignee)) as designation,
       SUM (CASE WHEN applicationstatus in ('CLOSEDAFTERRESOLUTION', 'RESOLVED') and (resolvedtime - opentime) < 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedwithinsla,
       SUM (CASE WHEN applicationstatus in ('CLOSEDAFTERRESOLUTION', 'RESOLVED') and (resolvedtime - opentime) >= 14 * 86400 * 1000 THEN 1 ELSE 0 END) as resolvedoutsidesla,
@@ -2270,8 +2270,8 @@ ReportDefinitions:
       SUM (CASE WHEN action in ('REOPEN') THEN 1 ELSE 0 END) as reopen,
       rating    
       from {schema}.pgr_data
-      INNER JOIN (VALUES {schema}.tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
-      INNER JOIN (VALUES {schema}.tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
+      INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
+      INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
       WHERE 1=1
   orderby: ORDER BY assignee NULLS LAST,deptmap_def.name,rating
   groupby: GROUP BY assignee,deptmap_def.name,rating
@@ -2357,7 +2357,7 @@ ReportDefinitions:
       (select pa.createdby from {schema}.eg_wf_processinstance_v2 pa where
       pa.businessId = ps.servicerequestid
       and pa."action" in ('ASSIGN', 'REASSIGN')
-      and pa.createdby IN (SELECT eu.uuid from eg_user eu LEFT JOIN {schema}.eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES {schema}.tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE er.name IS NOT NULL AND er.name LIKE '%Grievance Routing Officer')
+      and pa.createdby IN (SELECT eu.uuid from eg_user eu LEFT JOIN {schema}.eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE er.name IS NOT NULL AND er.name LIKE '%Grievance Routing Officer')
       order by pa.createdtime desc
       fetch first 1 rows only
       ) as assignee,
@@ -2374,13 +2374,13 @@ ReportDefinitions:
       select
         (select name from eg_user where uuid = assignee) as employee,
         deptmap_def.name as department,
-       (SELECT desigmap_def.name FROM (VALUES {schema}.tbl_def_desig) AS desigmap_def(name,code) where code in
+       (SELECT desigmap_def.name FROM (VALUES tbl_def_desig) AS desigmap_def(name,code) where code in
         (select designation from {schema}.eg_hrms_assignment where employeeid = assignee)) as designation,
         SUM (CASE WHEN applicationstatus in ('PENDINGATLME', 'PENDINGFORREASSIGNMENT') THEN 1 ELSE 0 END) as assigned,
         SUM (CASE WHEN action in ('REOPEN') THEN 1 ELSE 0 END) as reopen
         from {schema}.pgr_data
-        INNER JOIN (VALUES {schema}.tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
-        INNER JOIN (VALUES {schema}.tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
+        INNER JOIN (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) ON deptmap.serviceCode = pgr_data.servicecode
+        INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON deptmap.department = deptmap_def.code
          WHERE 1=1
   orderby: ORDER BY assignee NULLS LAST,deptmap_def.name
   groupby: GROUP BY assignee,deptmap_def.name
@@ -2496,23 +2496,23 @@ ReportDefinitions:
     to_char(to_timestamp(TRUNC(CAST(eg_pgr_service_v2.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofcomplaint,
     to_char(to_timestamp(TRUNC(CAST(epa.createdtime AS bigint) / 1000)), 'DD/MM/YY') AS dateofassignment,
     Initcap(eg_pgr_service_v2.applicationstatus) as status,
-    (SELECT boundary_def.name FROM (VALUES {schema}.tbl_boundary) AS boundary_def(name,code) WHERE boundary_def.code=eg_pgr_address_v2.locality) as ward,
+    (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) WHERE boundary_def.code=eg_pgr_address_v2.locality) as ward,
     eg_user.name,
     eg_user.id,
     eg_user.tenantid,
     eg_pgr_address_v2.landmark,
-    (with address_data as(select string_agg(value, ', ') from (select (json_each_text(row_to_json(x1))).value from (SELECT epa.landmark, (SELECT boundary_def.name FROM (VALUES {schema}.tbl_boundary) AS boundary_def(name,code) WHERE boundary_def.code=epa.locality), epa.city, epa.pincode FROM {schema}.eg_pgr_address_v2 epa WHERE epa.parentid=eg_pgr_service_v2.id) x1) as x2)SELECT address_data.string_agg AS address FROM {schema}.address_data),
+    (with address_data as(select string_agg(value, ', ') from (select (json_each_text(row_to_json(x1))).value from (SELECT epa.landmark, (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) WHERE boundary_def.code=epa.locality), epa.city, epa.pincode FROM {schema}.eg_pgr_address_v2 epa WHERE epa.parentid=eg_pgr_service_v2.id) x1) as x2)SELECT address_data.string_agg AS address FROM {schema}.address_data),
     description,
     deptmap_def.name as department,
-    (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES {schema}.tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES {schema}.tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES {schema}.tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000), ' days remaining') END) as slaHours)
+    (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service_v2.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service_v2.createdtime)::bigint/86400000), ' days remaining') END) as slaHours)
     FROM eg_pgr_service_v2
     left outer join {schema}.eg_pgr_address_v2 on eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
     left outer join eg_user on eg_user.uuid = eg_pgr_service_v2.accountid
     left outer join e{schema}.g_wf_processinstance_v2 as epa on epa.businessId = eg_pgr_service_v2.servicerequestid and epa.action in ('ASSIGN','REASSIGN')
     left outer join {schema}.eg_wf_assignee_v2 as asg on asg.processinstanceid =  epa.id
     left outer join eg_user as ua on ua.uuid = asg.assignee
-    INNER JOIN (VALUES {schema}.tbl_dept) AS departmap(serviceCode, department) USING (servicecode)
-    INNER JOIN (VALUES {schema}.tbl_def_dept) AS deptmap_def(name,code) ON departmap.department = deptmap_def.code
+    INNER JOIN (VALUES tbl_dept) AS departmap(serviceCode, department) USING (servicecode)
+    INNER JOIN (VALUES tbl_def_dept) AS deptmap_def(name,code) ON departmap.department = deptmap_def.code
     WHERE
     eg_pgr_address_v2.parentid = eg_pgr_service_v2.id
     AND eg_pgr_service_v2.applicationstatus IN ('PENDINGFORASSIGNMENT','PENDINGATLME','PENDINGFORREASSIGNMENT','REJECTED')
