@@ -779,3 +779,100 @@ ReportDefinitions:
     searchClause: AND tl.tenantId = $ulb
   query: SELECT tl.tenantId as tenantId,licensenumber,to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as formattedIssuedDate,tl.tradeName,tradeTypeName,acc, name,mobilenumber,amount as totalamount,To_char(To_timestamp(receipt.manualreceiptdate / 1000), 'DD/MM/YYYY') AS g8issuedate,receipt.manualreceiptnumber as g8receiptno FROM eg_tl_tradelicense tl INNER JOIN eg_tl_tradelicensedetail tld ON tld.tradelicenseid = tl.id INNER JOIN eg_tl_owner tlowner ON tlowner.tradelicensedetailid = tld.id INNER JOIN (SELECT tradelicensedetailid,message.message as tradeTypeName FROM eg_tl_tradeunit INNER JOIN message ON split_part(message.code,'_',2) = tradeType) tlunit ON tlunit.tradelicensedetailid = tld.id INNER JOIN eg_user tluser ON tluser.uuid = tlowner.id LEFT OUTER JOIN egcl_receiptheader_v1 receipt ON receipt.consumercode = tl.applicationnumber LEFT JOIN egcl_receiptinstrument_v1 as ri ON ri.receiptheader = receipt.id LEFT JOIN egcl_instrumentheader_v1 as ih ON ih.id = ri.instrumentheader LEFT OUTER JOIN (SELECT tradelicensedetailid,array_to_string(array_agg(message.message),',') AS acc FROM eg_tl_accessory LEFT OUTER JOIN message ON split_part(message.code,'_',2) = accessorycategory AND message.locale = 'en_IN' GROUP BY 1 ) tlacc ON tlacc.tradelicensedetailid = tld.id WHERE tl.Status = 'APPROVED'
   orderby: ORDER BY tl.tenantId asc
+
+- reportName: TradeLicenseDailyCollectionReport
+  summary: TL Daily Collection Report
+  version: 1.0.0
+  moduleName: rainmaker-tl
+  sourceColumns:
+  - name: receiptdate
+    label: report.tl.receiptdate
+    type: string
+    source: tl
+    total: false
+  - name: receiptnumber
+    label: report.tl.receiptnumber
+    type: string
+    source: tl
+    total: false
+  - name: applicationnumber
+    label: report.tl.applicationnumber
+    type: string
+    source: tl
+    total: false
+  - name: licensenumber
+    label: report.tl.licensenumber
+    type: string
+    source: tl
+    total: false
+  - name: applicantname
+    label: report.tl.applicantname
+    type: string
+    source: tl
+    total: false
+  - name: instrumenttype
+    label: report.tl.instrumenttype
+    type: string
+    source: tl
+    total: false
+  - name: chequedate
+    label: report.tl.chequedate
+    type: string
+    source: tl
+    total: false
+  - name: chequeno
+    label: report.tl.chequeno
+    type: string
+    source: tl
+    total: false
+  - name: bankname
+    label: report.tl.bankname
+    type: string
+    source: tl
+    total: false
+  - name: transactionid
+    label: report.tl.transactionid
+    type: string
+    source: tl
+    total: false
+  - name: lastfourdigits
+    label: report.tl.lastfourdigits
+    type: string
+    source: tl
+    total: false
+  - name: totalamountpaid
+    label: report.tl.totalamountpaid
+    type: string
+    source: tl
+    total: false
+  - name: instrumentstatus
+    label: report.tl.instrumentstatus
+    type: string
+    source: tl
+    total: false
+  searchParams:
+  - name: fromDate
+    label: reports.tl.receiptdate
+    type: epoch
+    source: tl
+    isMandatory: true
+    searchClause: AND receiptdate >= $fromDate
+  - name: toDate
+    label: reports.tl.receiptdate
+    type: epoch
+    source: tl
+    isMandatory: true
+    searchClause: AND receiptdate  <= $toDate 
+  - name: instrumenttype
+    label: reports.tl.instrumenttype
+    type: epoch
+    source: tl
+    isMandatory: false
+    searchClause: AND instrumenttype = $instrumentType
+  - name: instrumentstatus
+    label: reports.tl.instrumentstatus
+    type: epoch
+    source: tl
+    isMandatory: false
+    searchClause: AND instrumenttype = $instrumentStatus
+  query: select to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, receiptnumber,applicationnumber,licensenumber, eg_user.name as applicantname, paymentmode as instrumenttype, CASE WHEN paymentmode='CHEQUE' THEN  to_char(To_timestamp(instrumentdate/ 1000), 'DD/MM/YYYY') ELSE null END as chequedate, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno, egcl_payment.additionaldetails->'bankDetails'->'BANK' as bankname,  CASE WHEN paymentmode='ONLINE' THEN transactionnumber ELSE null END as transactionid ,CASE WHEN paymentmode='CARD' THEN substring(instrumentnumber,1,4) ELSE null END as lastfourdigits, totalamountpaid, instrumentstatus from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_tl_tradelicense tl on consumercode=tl.applicationnumber inner join eg_tl_tradelicensedetail on tl.id = eg_tl_tradelicensedetail.tradelicenseid inner join eg_tl_owner  on eg_tl_owner.tradelicensedetailid=eg_tl_tradelicensedetail.id inner join eg_user on eg_user.uuid=eg_tl_owner.id  where egcl_paymentdetail.businessservice='TL' and tl.tenantid= $tenantId;
