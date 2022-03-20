@@ -852,13 +852,13 @@ ReportDefinitions:
     total: false
   searchParams:
   - name: fromDate
-    label: reports.tl.receiptdate
+    label: FromDate
     type: epoch
     source: tl
     isMandatory: true
     searchClause: AND tl.createdtime >= $fromDate
   - name: toDate
-    label: reports.tl.receiptdate
+    label: ToDate
     type: epoch
     source: tl
     isMandatory: true
@@ -875,4 +875,10 @@ ReportDefinitions:
     source: tl
     isMandatory: false
     searchClause: AND instrumentstatus = $instrumentStatus
+  - name: collectionOperator
+    label: CollectionOperator
+    type: string
+    source: tl
+    isMandatory: false
+    searchClause: AND egcl_payment.createdby = $collectionOperator
   query: select to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, receiptnumber,applicationnumber,licensenumber, eg_user.name as applicantname, paymentmode as instrumenttype, CASE WHEN paymentmode='CHEQUE' THEN  to_char(To_timestamp(instrumentdate/ 1000), 'DD/MM/YYYY') ELSE null END as chequedate, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno, egcl_payment.additionaldetails->'bankDetails'->'BANK' as bankname,  CASE WHEN paymentmode='ONLINE' THEN transactionnumber ELSE null END as transactionid ,CASE WHEN paymentmode='CARD' THEN substring(instrumentnumber,1,4) ELSE null END as lastfourdigits, totalamountpaid, instrumentstatus from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_tl_tradelicense tl on consumercode=tl.applicationnumber inner join eg_tl_tradelicensedetail on tl.id = eg_tl_tradelicensedetail.tradelicenseid inner join eg_tl_owner  on eg_tl_owner.tradelicensedetailid=eg_tl_tradelicensedetail.id inner join eg_user on eg_user.uuid=eg_tl_owner.id  where egcl_paymentdetail.businessservice='TL' and tl.tenantid= $tenantid
