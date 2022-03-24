@@ -883,3 +883,91 @@ ReportDefinitions:
     searchClause: AND egcl_payment.createdby = $collectionOperator
   query: select to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, receiptnumber,applicationnumber,licensenumber, eg_user.name as applicantname, paymentmode as instrumenttype, CASE WHEN paymentmode='CHEQUE' THEN  to_char(To_timestamp(instrumentdate/ 1000), 'DD/MM/YYYY') ELSE null END as chequedate, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno, egcl_payment.additionaldetails->'bankDetails'->'BANK' as bankname,  CASE WHEN paymentmode='ONLINE' THEN transactionnumber ELSE null END as transactionid ,CASE WHEN paymentmode='CARD' THEN substring(instrumentnumber,1,4) ELSE null END as lastfourdigits, totalamountpaid, instrumentstatus from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_tl_tradelicense tl on consumercode=tl.applicationnumber inner join eg_tl_tradelicensedetail on tl.id = eg_tl_tradelicensedetail.tradelicenseid inner join eg_tl_owner  on eg_tl_owner.tradelicensedetailid=eg_tl_tradelicensedetail.id inner join eg_user on eg_user.uuid=eg_tl_owner.id  where egcl_paymentdetail.businessservice='TL' and tl.tenantid= $tenantid
 
+- reportName: TLApplicationStatusReport
+  summary: TL Application Status Report
+  version: 1.0.0
+  moduleName: rainmaker-tl
+  sourceColumns:
+  - name: applicationnumber
+    label: report.tl.applicationnumber
+    type: string
+    source: tl
+    total: false
+  - name: applicationdate
+    label: report.tl.applicationdate
+    type: string
+    source: tl
+    total: false
+  - name: applicationchannel
+    label: report.tl.applicationchannel
+    type: string
+    source: tl
+    total: false
+  - name: applicationtype
+    label: report.tl.applicationtype
+    type: string
+    source: tl
+    total: false
+  - name: applicantname
+    label: report.tl.applicantname
+    type: string
+    source: tl
+    total: false
+  - name: tradetype
+    label: report.tl.tradetype
+    type: string
+    source: tl
+    total: false
+  - name: tradename
+    label: report.tl.tradename
+    type: string
+    source: tl
+    total: false
+  - name: status
+    label: report.tl.status
+    type: string
+    source: tl
+    total: false
+  - name: currentowner
+    label: report.tl.currentowner
+    type: string
+    source: tl
+    total: false
+  - name: licensenumber
+    label: report.tl.licensenumber
+    type: string
+    source: tl
+    total: false
+  searchParams:
+  - name: fromDate
+    label: FromDate
+    type: epoch
+    source: tl
+    isMandatory: false
+    searchClause: AND applicationdate >= $fromDate
+  - name: toDate
+    label: ToDate
+    type: epoch
+    source: tl
+    isMandatory: false
+    searchClause: AND applicationdate  <= $toDate 
+  - name: applicationChannel
+    label: reports.tl.applicationchannel
+    type: string
+    source: tl
+    isMandatory: false
+    searchClause: AND tld.channel in $applicationChannel
+  - name: applicationType
+    label: reports.tl.applicationtype
+    type: string
+    source: tl
+    isMandatory: false
+    searchClause: AND applicationtype in $applicationType
+  - name: applicationStatus
+    label: reports.tl.applicationstatus
+    type: string
+    source: tl
+    isMandatory: false
+    searchClause: AND tl.status in $applicationStatus
+  query: select applicationnumber,to_char(To_timestamp(applicationdate / 1000), 'DD/MM/YYYY') as applicationdate , tld.channel as applicationchannel, applicationtype, eg_user.name as applicantname, tlunit.tradetype as tradetype, tradename, tl.status as applicationstatus,  case when isterminatestate=true then null else assigner end as currentowner,licensenumber from eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_tl_tradelicense tl on pi.businessid=tl.applicationnumber  inner join eg_tl_tradelicensedetail tld on tl.id=tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id 
+  orderby: ORDER BY applicationdate asc
