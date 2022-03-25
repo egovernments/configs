@@ -806,8 +806,8 @@ ReportDefinitions:
     type: string
     source: tl
     total: false
-  - name: applicantname
-    label: report.tl.applicantname
+  - name: name
+    label: report.tl.name
     type: string
     source: tl
     total: false
@@ -882,7 +882,7 @@ ReportDefinitions:
     source: tl
     isMandatory: false
     searchClause: AND egcl_payment.createdby = $collectionOperator
-  query: select to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, receiptnumber,applicationnumber,licensenumber, eg_user.name as applicantname, paymentmode as instrumenttype, CASE WHEN paymentmode='CHEQUE' THEN  to_char(To_timestamp(instrumentdate/ 1000), 'DD/MM/YYYY') ELSE null END as chequedate, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno, egcl_payment.additionaldetails->'bankDetails'->'BANK' as bankname,  CASE WHEN paymentmode='ONLINE' THEN transactionnumber ELSE null END as transactionid ,CASE WHEN paymentmode='CARD' THEN substring(instrumentnumber,1,4) ELSE null END as lastfourdigits, totalamountpaid, instrumentstatus from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_tl_tradelicense tl on consumercode=tl.applicationnumber inner join eg_tl_tradelicensedetail on tl.id = eg_tl_tradelicensedetail.tradelicenseid inner join eg_tl_owner  on eg_tl_owner.tradelicensedetailid=eg_tl_tradelicensedetail.id inner join eg_user on eg_user.uuid=eg_tl_owner.id  where egcl_paymentdetail.businessservice='TL' and tl.tenantid= $tenantid
+  query: select to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, receiptnumber,applicationnumber,licensenumber, eg_user.name as name, paymentmode as instrumenttype, CASE WHEN paymentmode='CHEQUE' THEN  to_char(To_timestamp(instrumentdate/ 1000), 'DD/MM/YYYY') ELSE null END as chequedate, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno, egcl_payment.additionaldetails->'bankDetails'->'BANK' as bankname,  CASE WHEN paymentmode='ONLINE' THEN transactionnumber ELSE null END as transactionid ,CASE WHEN paymentmode='CARD' THEN substring(instrumentnumber,1,4) ELSE null END as lastfourdigits, totalamountpaid, instrumentstatus from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_tl_tradelicense tl on consumercode=tl.applicationnumber inner join eg_tl_tradelicensedetail on tl.id = eg_tl_tradelicensedetail.tradelicenseid inner join eg_tl_owner  on eg_tl_owner.tradelicensedetailid=eg_tl_tradelicensedetail.id inner join eg_user on eg_user.uuid=eg_tl_owner.id  where egcl_paymentdetail.businessservice='TL' and tl.tenantid= $tenantid
 
 - reportName: TradeLicensApplicationStatusReport
   decryptionPathId: TradeLicensApplicationStatusReport
@@ -910,8 +910,8 @@ ReportDefinitions:
     type: string
     source: tl
     total: false
-  - name: applicantname
-    label: report.tl.applicantname
+  - name: name
+    label: report.tl.name
     type: string
     source: tl
     total: false
@@ -971,7 +971,7 @@ ReportDefinitions:
     source: tl
     isMandatory: false
     searchClause: AND tl.status in $applicationStatus
-  query: select applicationnumber,to_char(To_timestamp(applicationdate / 1000), 'DD/MM/YYYY') as applicationdate , tld.channel as applicationchannel, applicationtype, eg_user.name as applicantname, tlunit.tradetype as tradetype, tradename, tl.status as applicationstatus,  case when isterminatestate=true then null else assigner end as currentowner,licensenumber from eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_tl_tradelicense tl on pi.businessid=tl.applicationnumber  inner join eg_tl_tradelicensedetail tld on tl.id=tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id 
+  query: select applicationnumber,to_char(To_timestamp(applicationdate / 1000), 'DD/MM/YYYY') as applicationdate , tld.channel as applicationchannel, applicationtype, eg_user.name as name, tlunit.tradetype as tradetype, tradename, tl.status as applicationstatus,  case when isterminatestate=true then null else assigner end as currentowner,licensenumber from eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_tl_tradelicense tl on pi.businessid=tl.applicationnumber  inner join eg_tl_tradelicensedetail tld on tl.id=tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id 
   orderby: ORDER BY applicationdate asc
 
 - reportName: TLRegistryReport
@@ -1010,8 +1010,8 @@ ReportDefinitions:
     type: string
     source: tl
     total: false
-  - name: tradeownername
-    label: report.tl.tradeownername
+  - name: name
+    label: report.tl.name
     type: string
     source: tl
     total: false
@@ -1069,4 +1069,4 @@ ReportDefinitions:
     source: tl
     isMandatory: false
     searchClause: AND locality in ( $locality )
-  query: select licensenumber, to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as issueddate , financialyear, tradename, to_char(To_timestamp(commencementdate / 1000), 'DD/MM/YYYY') as commencementdate , eg_user.name as tradeownername, split_part(unt.tradetype,'.',2) as tradetype,  deptmap_def.type as tradesubtype, split_part(tld.structuretype,'.',1) as structuretype, concat(buildingname,' ', street,' ', city,' ', pincode) as tradeaddress, locality, tl.status as currentstatus, to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY') as licenseexpirydate  from eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id= tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit unt on unt.tradelicensedetailid=tld.id inner join eg_tl_address addr on addr.tradelicensedetailid=tld.id  inner join (VALUES tbl_def_dept) AS deptmap_def(code,type) ON deptmap_def.code=unt.tradetype where tl.businessservice='TL' and financialyear=(select max(financialyear) from eg_tl_tradelicense where licensenumber=tl.licensenumber) and tl.tenantid= $tenantid 
+  query: select licensenumber, to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as issueddate , financialyear, tradename, to_char(To_timestamp(commencementdate / 1000), 'DD/MM/YYYY') as commencementdate , eg_user.name as name, split_part(unt.tradetype,'.',2) as tradetype,  deptmap_def.type as tradesubtype, split_part(tld.structuretype,'.',1) as structuretype, concat(buildingname,' ', street,' ', city,' ', pincode) as tradeaddress, locality, tl.status as currentstatus, to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY') as licenseexpirydate  from eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id= tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit unt on unt.tradelicensedetailid=tld.id inner join eg_tl_address addr on addr.tradelicensedetailid=tld.id  inner join (VALUES tbl_def_dept) AS deptmap_def(code,type) ON deptmap_def.code=unt.tradetype where tl.businessservice='TL' and financialyear=(select max(financialyear) from eg_tl_tradelicense where licensenumber=tl.licensenumber) and tl.tenantid= $tenantid 
