@@ -313,7 +313,7 @@
         "dateRefField": "dataObject.paymentDetails.receiptDate",
         "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\",\r\n  \"module\" : \"dataObject.paymentDetails.businessService.keyword\", \n\"tenantId\" : \"dataObject.tenantId\"}",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{ \"aggs\": { \"AGGR\": { \"filter\": { \"bool\": { \"must\": [ { \"terms\": { \"dataObject.paymentStatus.keyword\": [ \"DEPOSITED\", \"NEW\" ] } }, { \"terms\": { \"dataObject.paymentDetails.businessService.keyword\": [ \"BPA.LOW_RISK_PERMIT_FEE\",\"BPA.NC_APP_FEE\",\"BPA.NC_SAN_FEE\",\"BPA.NC_OC_APP_FEE\" ] } } ], \"must_not\": [ { \"term\": { \"dataObject.tenantId.keyword\": \"pb.testing\" } }, { \"terms\": { \"dataObject.bill.status.keyword\": [ \"Cancelled\" ] } } ] } }, \"aggs\": { \"Collections\": { \"date_histogram\": { \"field\": \"dataObject.paymentDetails.receiptDate\", \"interval\": \"intervalvalue\" }, \"aggs\": { \"Sum\": { \"sum\": { \"field\": \"dataObject.paymentDetails.totalAmountPaid\" } } } } } } } }"      
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"BPA.LOW_RISK_PERMIT_FEE\",\"BPA.NC_APP_FEE\",\"BPA.NC_SAN_FEE\",\"BPA.NC_OC_APP_FEE\"]}}],\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"term\":{\"dataObject.paymentStatus.keyword\":\"Cancelled\"}}]}},\"aggs\":{\"Collections\":{\"date_histogram\":{\"field\":\"dataObject.paymentDetails.receiptDate\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"      
       },
       {
         "module": "FIRENOC",
@@ -327,7 +327,7 @@
         "dateRefField": "dataObject.paymentDetails.receiptDate",
         "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\",\r\n  \"module\" : \"dataObject.paymentDetails.businessService.keyword\", \n\"tenantId\" : \"dataObject.tenantId\"}",
         "indexName": "dss-collection_v2",
-        "aggrQuery": "{\"aggs\":{\"Collections\":{\"date_histogram\":{\"field\":\"dataObject.paymentDetails.receiptDate\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Water\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.paymentStatus.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentStatus.keyword\":[\"DEPOSITED\",\"NEW\"]}},{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}]}},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}]}},\"aggs\":{\"Collections\":{\"date_histogram\":{\"field\":\"dataObject.paymentDetails.receiptDate\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.totalAmountPaid\"}}}}}}}}"
       },
       {
         "module": "MCOLLECT",
@@ -756,7 +756,7 @@
         "module": "PGR",
         "indexName": "pgr-services",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \r\n  \"module\" : \"businessService.keyword\", \n\"tenantId\" : \"Data.service.tenantId\"}",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.service.tenantId.keyword\":[\"pb.testing\",\"pb\"]}}]}},\"aggs\":{\"Total Applications\":{\"filter\":{\"bool\":{}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}},\"Closed With In Sla\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"range\":{\"script\":{\"lang\":\"painless\",\"source\":\"doc['Data.slaHours'].value<360\"},\"ranges\":[{\"key\":\"Within SLA\",\"from\":0,\"to\":360}]},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}}}}}}",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.service.tenantId.keyword\":[\"pb.testing\",\"pb\"]}}]}},\"aggs\":{\"Closed With In Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.service.applicationStatus.keyword\":[\"REJECTED\",\"CLOSEDAFTERRESOLUTION\",\"RESOLVED\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.service.auditDetails.lastModifiedTime'].value- doc['Data.service.auditDetails.createdTime'].value > params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":0}}}}]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}},\"Total Applications\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}}}}",
         "dateRefField": "Data.@timestamp"
       },
       {
@@ -937,7 +937,7 @@
         "module": "PGR",
         "indexName": "pgr-services",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \r\n  \"module\" : \"businessService.keyword\", \n\"tenantId\" : \"Data.service.tenantId\"}",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.service.tenantId.keyword\":[\"pb.testing\",\"pb\"]}}]}},\"aggs\":{\"Total Applications\":{\"filter\":{\"bool\":{}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}},\"Closed With In Sla\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"range\":{\"script\":{\"lang\":\"painless\",\"source\":\"doc['Data.slaHours'].value<360\"},\"ranges\":[{\"key\":\"Within SLA\",\"from\":0,\"to\":360}]},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}}}}}}",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.service.tenantId.keyword\":[\"pb.testing\",\"pb\"]}}]}},\"aggs\":{\"Closed With In Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.service.applicationStatus.keyword\":[\"REJECTED\",\"CLOSEDAFTERRESOLUTION\",\"RESOLVED\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.service.auditDetails.lastModifiedTime'].value- doc['Data.service.auditDetails.createdTime'].value > params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":0}}}}]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}},\"Total Applications\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}}}}",
         "dateRefField": "Data.@timestamp"
       },
       {
@@ -1014,7 +1014,7 @@
         "module": "PGR",
         "indexName": "pgr-services",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \r\n  \"module\" : \"businessService.keyword\", \n\"tenantId\" : \"Data.service.tenantId\"}",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.service.tenantId.keyword\":[\"pb.testing\",\"pb\"]}}]}},\"aggs\":{\"Total Applications\":{\"filter\":{\"bool\":{}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}},\"Closed With In Sla\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"range\":{\"script\":{\"lang\":\"painless\",\"source\":\"doc['Data.slaHours'].value<360\"},\"ranges\":[{\"key\":\"Within SLA\",\"from\":0,\"to\":360}]},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}}}}}}",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.service.tenantId.keyword\":[\"pb.testing\",\"pb\"]}}]}},\"aggs\":{\"Closed With In Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.service.applicationStatus.keyword\":[\"REJECTED\",\"CLOSEDAFTERRESOLUTION\",\"RESOLVED\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.service.auditDetails.lastModifiedTime'].value- doc['Data.service.auditDetails.createdTime'].value > params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":0}}}}]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}},\"Total Applications\":{\"terms\":{\"field\":\"Data.service.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.service.tenantId.keyword\"}}}}}}}}",
         "dateRefField": "Data.@timestamp"
       },
       {
@@ -1196,7 +1196,7 @@
       {
         "module": "PT",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"module\" : \"Data.businessService.keyword\", \"tenantId\" : \"Data.tenantId\", \"district\" : \"Data.tenantData.city.districtCode\"}",
-        "dateRefField": "Data.@timestamp",
+        "dateRefField": "Data.auditDetails.lastModifiedTime",
         "indexName": "property-services",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Usage Type\":{\"terms\":{\"field\":\"Data.usageCategory.keyword\"}}}}}}"
       }
@@ -16116,9 +16116,9 @@
       {
         "module": "PT",
         "indexName": "property-services",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Total Application\":{\"cardinality\":{\"field\":\"Data.propertyId.keyword\"}}}}}}",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Total Application\":{\"value_count\":{\"field\":\"Data.propertyId.keyword\"}}}}}}",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \r\n  \"district\" : \"Data.tenantData.city.districtCode\", \r\n\"tenantId\" : \"Data.tenantId\" \r\n}",
-        "dateRefField": ""
+        "dateRefField": "Data.auditDetails.lastModifiedTime"
       }
     ],
     "chartType": "metric",
