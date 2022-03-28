@@ -1182,7 +1182,7 @@
       {
         "module": "PT",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"module\" : \"Data.businessService.keyword\", \"tenantId\" : \"Data.tenantId\", \"district\" : \"Data.tenantData.city.districtCode\"}",
-        "dateRefField": "Data.@timestamp",
+        "dateRefField": "Data.auditDetails.lastModifiedTime",
         "indexName": "property-services",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"Usage Type\":{\"terms\":{\"field\":\"Data.usageCategory.keyword\"}}}}}}"
       }
@@ -16095,5 +16095,56 @@
       "insightInterval" : "year"
     },
     "_comment": "FIRE NOC total nocs issued "
+  },
+  "totalProperties": {
+    "chartName": "DSS_PT_TOTAL_PROPERTIES",
+    "queries": [
+      {
+        "module": "PT",
+        "indexName": "property-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Total Application\":{\"value_count\":{\"field\":\"Data.propertyId.keyword\"}}}}}}",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \r\n  \"district\" : \"Data.tenantData.city.districtCode\", \r\n\"tenantId\" : \"Data.tenantId\" \r\n}",
+        "dateRefField": "Data.auditDetails.lastModifiedTime"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Total Application"
+    ],
+    "_comment": " total properties count"
+  },
+  "propertiesPaid": {
+    "chartName": "DSS_PT_TOTAL_PROPERTIES_PAID",
+    "queries": [
+      {
+        "module": "PT",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"term\":{\"dataObject.paymentDetails.businessService.keyword\":\"PT\"}},{\"term\":{\"dataObject.paymentDetails.totalDue\":{\"value\":0}} } ]}},\"aggs\":{\"Paid Properties\":{\"cardinality\":{\"field\":\"dataObject.id.keyword\"}}}}}}",
+        "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\",\"tenantId\" : \"dataObject.tenantId\" ,\"district\" : \"dataObject.tenantData.city.districtCode\"}",
+        "dateRefField": "dataObject.paymentDetails.receiptDate"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Paid Properties"
+    ],
+    "insight": {
+      "chartResponseMap" : "propertiesPaid",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year"
+    },
+    "_comment": " total paid properties "
   }
 }
