@@ -16597,9 +16597,36 @@
     },
     "_comment": " "
   },
+  "fsmMonthlyRequestStatus": {
+    "chartName": "DSS_FSM_MONTHLY_WASTE_CAL",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.vehicleTrip.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "vehicletrip",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.vehicleTrip.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Septage Dumped At Plant\":{\"date_histogram\":{\"field\":\"Data.vehicleTrip.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}}}},\"Septage Collected\":{\"date_histogram\":{\"field\":\"Data.vehicleTrip.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.tripDetails.volume'].value)/1000.0\"}}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "isRoundOff": true,
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Septage Collected",
+      "Septage Dumped At Plant"
+    ],
+    "isCumulative": false,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": " "
+  },
 
   "fsmMonthlyWasteCal": {
-    "chartName": "DSS_FSM_MONTHLY_WASTE_CAL",
+    "chartName": "DSS_FSM_MONTHLY_REQUEST_STATUS",
     "queries": [
       {
         "module": "FSM",
@@ -16803,6 +16830,29 @@
     "drillChart": "none",
     "aggregationPaths": [
       "Gender"
+    ],
+    "insight": {
+    },
+    "_comment": " "
+  },
+  "fsmCollectionByPaymentPreference": {
+    "chartName": "DSS_FSM_RESQUEST_BY_PAYMENT_PREFERENCE",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.fsm.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "fsm",
+        "aggrQuery": "{ \"aggs\": {\"AGGR\": {\"filter\": {\"bool\": {\"must_not\": [{\"term\": {\"Data.fsm.tenantId.keyword\": \"pb.testing\"}}]}}, \"aggs\": {\"paymentPreference\": {\"terms\": {\"field\": \"Data.fsm.paymentPreference.keyword\"},\"aggs\": {\"Assessed Properties\": {\"sum\": {\"field\": \"Data.payments.paymentDetails.bill.billDetails.amountPaid\"}}}}}}}}"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "amount",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "paymentPreference"
     ],
     "insight": {
     },
