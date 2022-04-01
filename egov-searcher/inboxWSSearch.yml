@@ -9,7 +9,7 @@ SearchDefinitions:
           (
           select DISTINCT(ws.applicationno),pi.createdtime from eg_ws_connection as ws
           INNER JOIN eg_pt_property property ON ws.property_id = property.propertyid 
-          INNER JOIN eg_pt_owner owner ON property.propertyid = owner.propertyid 
+          INNER JOIN eg_pt_owner owner ON owner.propertyid =  property.id 
           INNER JOIN eg_ws_connectionholder connectionHolder ON owner.userid = connectionHolder.userid 
           INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = ws.applicationno
           LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
@@ -52,9 +52,6 @@ SearchDefinitions:
           - name: pi.status
             isMandatory: false
             jsonPath: $.searchCriteria.status
-          - name: property.userid
-            isMandatory: false
-            jsonPath: $.searchCriteria.userid
           - name: pi.businessservice
             isMandatory: false
             jsonPath: $.searchCriteria.businessservice
@@ -72,15 +69,15 @@ SearchDefinitions:
       query:
         baseQuery: Select row_to_json(result) from
           (
-          select DISTINCT(ws.applicationNo),pi.createdtime from eg_ws_connection as ws
-          INNER JOIN eg_pt_property property ON ws.property_id = property.propertyid
-          INNER JOIN eg_pt_owner owner ON property.propertyid = owner.propertyid 
+          select DISTINCT(ws.applicationno),pi.createdtime from eg_ws_connection as ws
+          INNER JOIN eg_pt_property property ON ws.property_id = property.propertyid 
+          INNER JOIN eg_pt_owner owner ON owner.propertyid =  property.id 
           INNER JOIN eg_ws_connectionholder connectionHolder ON owner.userid = connectionHolder.userid 
           INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = ws.applicationno
           LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
           $where
           AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = ws.applicationno GROUP BY wf.businessid)
-          order by pi.createdtime desc $pagination
+          order by pi.createdtime asc $pagination
           ) result
         groupBy:
         orderBy:
@@ -117,9 +114,6 @@ SearchDefinitions:
           - name: pi.status
             isMandatory: false
             jsonPath: $.searchCriteria.status
-          - name: property.userid
-            isMandatory: false
-            jsonPath: $.searchCriteria.userid
           - name: pi.businessservice
             isMandatory: false
             jsonPath: $.searchCriteria.businessservice
@@ -138,15 +132,15 @@ SearchDefinitions:
         baseQuery: SELECT row_to_json(TotalCount) from (SELECT COUNT(result) from
           (
           select DISTINCT(ws.applicationno),pi.createdtime from eg_ws_connection as ws
-          INNER JOIN eg_pt_property property ON ws.property_id = property.propertyid
-          INNER JOIN eg_pt_owner owner ON property.propertyid = owner.propertyid 
+          INNER JOIN eg_pt_property property ON ws.property_id = property.propertyid 
+          INNER JOIN eg_pt_owner owner ON owner.propertyid =  property.id 
           INNER JOIN eg_ws_connectionholder connectionHolder ON owner.userid = connectionHolder.userid 
           INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = ws.applicationno
           LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
           $where
           AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = ws.applicationno GROUP BY wf.businessid)
-          order by pi.createdtime asc
-          ) result) TotalCount
+          order by pi.createdtime asc $pagination
+          ) result
         groupBy:
         orderBy:
       searchParams:
@@ -182,9 +176,6 @@ SearchDefinitions:
           - name: pi.status
             isMandatory: false
             jsonPath: $.searchCriteria.status
-          - name: property.userid
-            isMandatory: false
-            jsonPath: $.searchCriteria.userid
           - name: pi.businessservice
             isMandatory: false
             jsonPath: $.searchCriteria.businessservice
