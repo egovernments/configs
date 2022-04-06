@@ -706,7 +706,7 @@
         "indexName": "sewerage-services",
         "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"Data.ward.name.keyword\"}",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"REJECTED\",\"CONNECTION_ACTIVATED\",\"CANCELED\"]}}]}},\"aggs\":{\"Applications Closed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}",
-        "dateRefField": "Data.@timestamp"
+        "dateRefField": "Data.connectionExecutionDate"
       },
       {
         "module": "FIRENOC",
@@ -832,6 +832,55 @@
         "indexName": "pgr-services",
         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Citizen Registered\":{\"cardinality\":{\"field\":\"Data.service.citizen.uuid.keyword\"}}}}}}",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"district\" : \"Data.tenantData.city.districtCode\", \"tenantId\" : \"Data.service.tenantId.keyword\", \"status\" : \"Data.service.applicationStatus\"}",
+        "dateRefField": "Data.@timestamp"
+      },
+      {
+        "module": "PT",
+        "indexName": "property-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Citizen Registered\":{\"cardinality\":{\"field\":\"Data.owners.keyword\"}}}}}}",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \r\n  \"district\" : \"Data.tenantData.city.districtCode\", \r\n\"tenantId\" : \"Data.tenantId\" \r\n}",
+        "dateRefField": "Data.@timestamp"
+      },
+      {
+        "module": "OBPS",
+        "indexName": "bpa-index",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Citizen Registered\":{\"cardinality\":{\"field\":\"Data.landInfo.owners.mobileNumber.keyword\"}}}}}}",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\" \r\n}",
+        "dateRefField": "Data.@timestamp"
+      },
+      {
+        "module": "WS",
+        "indexName": "water-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Citizen Registered\":{\"cardinality\":{\"field\":\"Data.propertyId.keyword\"}}}}}}",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId.keyword\" \r\n}",
+        "dateRefField": "Data.connectionExecutionDate"
+      },
+      {
+        "module": "SW",
+        "indexName": "sewerage-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Citizen Registered\":{\"cardinality\":{\"field\":\"Data.propertyId.keyword\"}}}}}}",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"district\" : \"Data.tenantData.city.districtCode\", \"tenantId\" : \"Data.service.tenantId.keyword\", \"status\" : \"Data.service.applicationStatus\"}",
+        "dateRefField": "Data.@timestamp"
+      },
+      {
+        "module": "MCOLLECT",
+        "indexName": "echallan-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Citizen Registered\":{\"cardinality\":{\"field\":\"Data.accountId.keyword\"}}}}}}",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId.keyword\" \r\n}",
+        "dateRefField": "Data.@timestamp"
+      },
+      {
+        "module": "TL",
+        "indexName": "tlindex-v1",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tradelicense.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Citizen Registered\":{\"cardinality\":{\"field\":\"Data.tradelicense.tradeLicenseDetail.owners.mobileNumber.keyword\"}}}}}}",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \r\n  \"district\" : \"Data.tenantData.city.districtCode\", \r\n\"tenantId\" : \"Data.tradelicense.tenantId.keyword\" \r\n}",
+        "dateRefField": "Data.tradelicense.@timestamp"
+      },
+      {
+        "module": "FNOC",
+        "indexName": "firenoc-services",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"term\":{\"Data.fireNOCDetails.applicantDetails.owners.type.keyword\":\"CITIZEN\"}}]}},\"aggs\":{\"Citizen Registered\":{\"cardinality\":{\"field\":\"Data.fireNOCDetails.applicantDetails.owners.uuid.keyword\"}}}}}}",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\", \"district\" : \"Data.tenantData.city.districtCode\"}",
         "dateRefField": "Data.@timestamp"
       }
     ],
@@ -2315,9 +2364,6 @@
     "chartType": "xtable",
     "valueType": "number",
     "drillChart": "tlStatusByTenant",
-    "drillFields": [
-      ""
-    ],
     "documentType": "_doc",
     "action": "",
     "plotLabel": "DDRs",
@@ -2383,9 +2429,6 @@
     "chartType": "xtable",
     "valueType": "number",
     "drillChart": "tlStatusByTenantDrillDown",
-    "drillFields": [
-      ""
-    ],
     "documentType": "_doc",
     "action": "",
     "plotLabel": "ULBs",
@@ -2416,9 +2459,6 @@
     "chartType": "xtable",
     "valueType": "number",
     "drillChart": "",
-    "drillFields": [
-      ""
-    ],
     "documentType": "_doc",
     "action": "",
     "plotLabel": "Ward",
@@ -16175,5 +16215,36 @@
       "insightInterval" : "year"
     },
     "_comment": " total paid properties "
+  },
+  "bpaCitizenRegistered": {
+    "chartName": "DSS_BPA_CITIZEN_REGISTERED",
+    "queries": [
+      {
+        "module": "OBPS",
+        "indexName": "bpa-index",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\",\"tenantId\" : \"Data.tenantId\" \r\n}",
+        "aggrQuery":"{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Citizens Registered\":{\"cardinality\":{\"field\":\"Data.landInfo.owners.mobileNumber.keyword\"}}}}}}",
+        "dateRefField": "Data.@timestamp"
+      }
+    ],
+    "translateTenantCode": false,
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Citizens Registered"
+    ],
+    "insight": {
+      "chartResponseMap" : "bpaCitizenRegistered",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": "Citizens Registered"
   }
 }
