@@ -52,29 +52,29 @@ ReportDefinitions:
     type: epoch
     source: wns
     isMandatory: true
-    searchClause: AND u.date >= $fromDate
+    searchClause: AND egcl_paymentdetail.receiptdate >= $fromDate
   - name: toDate
     label: ToDate
     type: epoch
     source: wns
     isMandatory: true
-    searchClause: AND u.date  <= $toDate 
+    searchClause: AND egcl_paymentdetail.receiptdate  <= $toDate 
   - name: receiptStatus
     label: reports.wns.receiptStatus
     type: string
     source: wns
     isMandatory: false
-    searchClause: AND u.status = $receiptStatus
+    searchClause: AND egcl_bill.status = $receiptStatus
   - name: serviceName
     label: reports.wns.serviceName
     type: string
     source: wns
     isMandatory: false
-    searchClause: AND u.service = $serviceName
+    searchClause: AND egcl_bill.businessservice = $serviceName
   - name: collectionOperator
     label: CollectionOperator
     type: string
     source: wns
     isMandatory: false
-    searchClause: AND u.createdby = $collectionOperator
-  query: select * from ((select egcl_payment.createdby,eg_sw_connection.tenantid,receiptdate as date,receiptnumber, egcl_bill.status, to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, CASE WHEN egcl_bill.businessservice='SW' THEN 'Sewerage' ELSE NULL END as service,eg_user.name, totalamountpaid,payername, transactionnumber, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_sw_connection on egcl_bill.consumercode=connectionno inner join eg_sw_connectionholder on eg_sw_connection.id=eg_sw_connectionholder.connectionid inner join eg_user on eg_sw_connectionholder.userid=eg_user.uuid)  UNION ALL (select egcl_payment.createdby,eg_ws_connection.tenantid,receiptdate as date,receiptnumber, egcl_bill.status,to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, CASE WHEN egcl_bill.businessservice='WS' THEN 'Water' ELSE NULL END as service,eg_user.name, totalamountpaid, payername, transactionnumber , CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_ws_connection on egcl_bill.consumercode=connectionno inner join eg_ws_connectionholder on eg_ws_connection.id=eg_ws_connectionholder.connectionid inner join eg_user on eg_ws_connectionholder.userid=eg_user.uuid)) as u where u.tenantid=$tenantid 
+    searchClause: AND egcl_payment.createdby = $collectionOperator
+  query: (select receiptnumber, to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, CASE WHEN egcl_bill.businessservice='SW' THEN 'Sewerage' ELSE NULL END as service,eg_user.name, totalamountpaid,payername, transactionnumber, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_sw_connection on egcl_bill.consumercode=connectionno inner join eg_sw_connectionholder on eg_sw_connection.id=eg_sw_connectionholder.connectionid inner join eg_user on eg_sw_connectionholder.userid=eg_user.uuid where eg_sw_connection.tenantid=$tenantid)  UNION ALL (select receiptnumber, to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, CASE WHEN egcl_bill.businessservice='WS' THEN 'Water' ELSE NULL END as service,eg_user.name, totalamountpaid, payername, transactionnumber , CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_ws_connection on egcl_bill.consumercode=connectionno inner join eg_ws_connectionholder on eg_ws_connection.id=eg_ws_connectionholder.connectionid inner join eg_user on eg_ws_connectionholder.userid=eg_user.uuid where eg_ws_connection.tenantid=$tenantid)
