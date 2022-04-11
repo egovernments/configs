@@ -16991,8 +16991,60 @@
     },
     "_comment": "Birth By Gender"
   },
-  "xBirthDownloadStatusByUlb": {
-    "chartName": "DSS_BND_CERT_DOWNLOAD_BY_TENANT",
+  "xBirthDownloadStatusByBoundary": {
+    "chartName": "DSS_BND_CERT_DOWNLOAD_BY_BOUNDARY",
+    "queries": [
+      {
+        "module": "BIRTH",
+        "requestQueryMap": "{\"ward\" : \"Data.ward.keyword\", \"ulb\" : \"Data.tenantId.keyword\", \"state\" : \"Data.state.keyword\"}",
+        "dateRefField": "Data.dateofissue",
+        "indexName": "birth-cert-v1",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"State \":{\"terms\":{\"field\":\"Data.state.keyword\",\"size\":1000,\"order\":{\"_term\":\"asc\"}},\"aggs\":{\"Total Downloads (Mobile App)\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.source.keyword\":[\"mobileapp\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}},\"Total Downloads (Web)\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.source.keyword\":[\"web\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}},\"Total Downloads\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}},\"Delayed Registrations\":{\"filter\":{\"bool\":{\"must\":[{\"script\":{\"script\":{\"source\":\"doc['Data.dateofreport'].value-doc['Data.dateofbirth'].value>params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":31556952000}}}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "ulb", "column": "ULBs"}
+    ],
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "xBirthDownloadByUlb",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "State",
+    "excludedColumns": [],
+    "removedFields":[  
+       ],
+    "computedFields": [
+    ],
+    "isRoundOff":true,
+    "aggregationPaths": [
+      "Total Downloads (Mobile App)",
+      "Total Downloads (Web)",
+      "Total Downloads",
+      "Delayed Registrations"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Downloads (Mobile App)": "number"
+      },
+      {
+        "Total Downloads (Web)": "number"
+      },
+      {
+        "Total Downloads": "number"
+      },
+      {
+        "Delayed Registrations": "number"
+      }
+    ],
+    "insight": {
+   },
+    "_comment": ""
+  },
+  "xBirthDownloadByUlb": {
+    "chartName": "DSS_BND_CERT_DOWNLOAD_BY_ULB",
     "queries": [
       {
         "module": "BIRTH",
@@ -17012,7 +17064,7 @@
     "drillChart": "xBirthDownloadByWard",
     "documentType": "_doc",
     "action": "",
-    "plotLabel": "Ulb",
+    "plotLabel": "ULBs",
     "excludedColumns": [],
     "removedFields":[  
        ],
