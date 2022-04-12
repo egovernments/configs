@@ -114,5 +114,36 @@ ReportDefinitions:
     type: number
     source: wns
     total: false
-  query: select locality, CASE WHEN egcl_bill.businessservice='WS' THEN 'Water' ELSE NULL END as service,eg_user.name, paymentmode, count(receiptnumber) as totaltransactions,sum(totalamountpaid) as totalamountpaid from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_ws_connection on egcl_bill.consumercode=connectionno inner join eg_user on CAST(egcl_payment.createdby AS INT) = eg_user.id group by locality, service, name,paymentmode  UNION ALL select locality, CASE WHEN egcl_bill.businessservice='SW' THEN 'Sewerage' ELSE NULL END as service,eg_user.name, paymentmode, count(receiptnumber) as totaltransactions, sum(totalamountpaid) as totalamountpaid from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_sw_connection on egcl_bill.consumercode=connectionno inner join eg_user on CAST(egcl_payment.createdby AS INT) = eg_user.id group by locality, service, name,paymentmode 
+  searchParams:
+  - name: fromDate
+    label: FromDate
+    type: epoch
+    source: wns
+    isMandatory: true
+    searchClause: AND egcl_paymentdetail.receiptdate >= $fromDate
+  - name: toDate
+    label: ToDate
+    type: epoch
+    source: wns
+    isMandatory: true
+    searchClause: AND egcl_paymentdetail.receiptdate  <= $toDate 
+  - name: locality
+    label: reports.wns.locality
+    type: string
+    source: wns
+    isMandatory: false
+    searchClause: AND locality = $locality
+  - name: serviceName
+    label: reports.wns.serviceName
+    type: string
+    source: wns
+    isMandatory: false
+    searchClause: AND egcl_bill.businessservice = $serviceName
+  - name: paymentInstrument
+    label: reports.wns.paymentmode
+    type: string
+    source: wns
+    isMandatory: false
+    searchClause: AND paymentmode = $paymentInstrument
+  query: select locality, CASE WHEN egcl_bill.businessservice='WS' THEN 'Water' ELSE NULL END as service,eg_user.name, paymentmode, count(receiptnumber) as totaltransactions,sum(totalamountpaid) as totalamountpaid from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_ws_connection on egcl_bill.consumercode=connectionno inner join eg_user on CAST(egcl_payment.createdby AS INT) = eg_user.id where eg_ws_connection.tenantid=$tenantid UNION ALL select locality, CASE WHEN egcl_bill.businessservice='SW' THEN 'Sewerage' ELSE NULL END as service,eg_user.name, paymentmode, count(receiptnumber) as totaltransactions, sum(totalamountpaid) as totalamountpaid from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_sw_connection on egcl_bill.consumercode=connectionno inner join eg_user on CAST(egcl_payment.createdby AS INT) = eg_user.id where eg_sw_connection.tenantid=$tenantid 
   groupby: GROUP BY locality, service, name,paymentmode
