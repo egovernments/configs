@@ -1,0 +1,441 @@
+SearchDefinitions:
+ moduleName: bpa-services
+ summary: Building Plan Approval Services Inbox API
+ version: 1.0.0
+ definitions:
+ - name: inboxbpacitizensearch
+   query:
+    baseQuery: Select row_to_json(result) from
+          (
+          select DISTINCT(bpa.applicationno) as applicationno,bpa.createdtime as createdtime from eg_bpa_buildingplan as bpa
+          INNER JOIN eg_land_landInfo landinfo ON bpa.landId = landinfo.id
+          INNER JOIN eg_land_Address landaddress ON landinfo.id = landaddress.landInfoId
+          INNER JOIN eg_land_ownerInfo ownerinfo ON landinfo.id = ownerinfo.landInfoId
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bpa.applicationno
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bpa.applicationno GROUP BY wf.businessid)
+          order by bpa.createdtime asc $pagination
+          ) result
+    groupBy:
+    orderBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: bpa.tenantId
+      isMandatory: true
+      operator: ILIKE
+      jsonPath: $.searchCriteria.tenantId
+    - name: bpa.applicationNo
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationNo
+    - name: bpa.edcrNumber
+      isMandatory: false
+      jsonPath: $.searchCriteria.edcrNumber
+    - name: bpa.approvalNo
+      isMandatory: false
+      jsonPath: $.searchCriteria.approvalNo
+    - name: landaddress.locality
+      isMandatory: false
+      jsonPath: $.searchCriteria.locality
+    - name: assg.assignee
+      isMandatory: false
+      jsonPath: $.searchCriteria.assignee
+    - name: pi.status
+      isMandatory: false
+      jsonPath: $.searchCriteria.status
+    - name: ownerinfo.uuid
+      isMandatory: false
+      jsonPath: $.searchCriteria.userid
+    - name: pi.businessservice
+      isMandatory: false
+      jsonPath: $.searchCriteria.businessservice
+    - name: bpa.additionaldetails->>'applicationType'
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationType
+    - name: bpa.additionaldetails->>'serviceType'
+      isMandatory: false
+      jsonPath: $.searchCriteria.serviceType
+    pagination:
+      noOfRecords: $.searchCriteria.noOfRecords
+      offset: $.searchCriteria.offset
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"BPAs": []}
+    outJsonPath: $.BPAs
+    responseInfoPath: $.ResponseInfo
+    
+ - name: inboxbpastakeholdersearch
+   query:
+    baseQuery: Select row_to_json(result) from
+          (
+          select DISTINCT(bpa.applicationno) as applicationno,bpa.createdtime as createdtime from eg_bpa_buildingplan as bpa
+          INNER JOIN eg_land_landInfo landinfo ON bpa.landId = landinfo.id
+          INNER JOIN eg_land_Address landaddress ON landinfo.id = landaddress.landInfoId
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bpa.applicationno
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bpa.applicationno GROUP BY wf.businessid)
+          order by bpa.createdtime asc $pagination
+          ) result
+    groupBy:
+    orderBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: bpa.tenantId
+      isMandatory: true
+      operator: ILIKE
+      jsonPath: $.searchCriteria.tenantId
+    - name: bpa.applicationNo
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationNo
+    - name: bpa.edcrNumber
+      isMandatory: false
+      jsonPath: $.searchCriteria.edcrNumber
+    - name: bpa.approvalNo
+      isMandatory: false
+      jsonPath: $.searchCriteria.approvalNo
+    - name: landaddress.locality
+      isMandatory: false
+      jsonPath: $.searchCriteria.locality
+    - name: assg.assignee
+      isMandatory: false
+      jsonPath: $.searchCriteria.assignee
+    - name: pi.status
+      isMandatory: false
+      jsonPath: $.searchCriteria.status
+    - name: bpa.accountId
+      isMandatory: false
+      jsonPath: $.searchCriteria.userid
+    - name: pi.businessservice
+      isMandatory: false
+      jsonPath: $.searchCriteria.businessservice
+    - name: bpa.additionaldetails->>'applicationType'
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationType
+    - name: bpa.additionaldetails->>'serviceType'
+      isMandatory: false
+      jsonPath: $.searchCriteria.serviceType
+    pagination:
+      noOfRecords: $.searchCriteria.noOfRecords
+      offset: $.searchCriteria.offset
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"BPAs": []}
+    outJsonPath: $.BPAs
+    responseInfoPath: $.ResponseInfo  
+
+ - name: inboxbpacitizensearchcount
+   query:
+    baseQuery: SELECT row_to_json(TotalCount) from (SELECT COUNT(result) from
+          (
+          select DISTINCT(bpa.applicationno) as applicationno,bpa.createdtime as createdtime from eg_bpa_buildingplan as bpa
+          INNER JOIN eg_land_landInfo landinfo ON bpa.landId = landinfo.id
+          INNER JOIN eg_land_Address landaddress ON landinfo.id = landaddress.landInfoId
+          INNER JOIN eg_land_ownerInfo ownerinfo ON landinfo.id = ownerinfo.landInfoId
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bpa.applicationno
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bpa.applicationno GROUP BY wf.businessid)
+          order by bpa.createdtime asc
+          ) result) TotalCount
+    groupBy:
+    orderBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: bpa.tenantId
+      isMandatory: true
+      operator: ILIKE
+      jsonPath: $.searchCriteria.tenantId
+    - name: bpa.applicationNo
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationNo
+    - name: bpa.edcrNumber
+      isMandatory: false
+      jsonPath: $.searchCriteria.edcrNumber
+    - name: bpa.approvalNo
+      isMandatory: false
+      jsonPath: $.searchCriteria.approvalNo
+    - name: landaddress.locality
+      isMandatory: false
+      jsonPath: $.searchCriteria.locality
+    - name: assg.assignee
+      isMandatory: false
+      jsonPath: $.searchCriteria.assignee
+    - name: pi.status
+      isMandatory: false
+      jsonPath: $.searchCriteria.status
+    - name: ownerinfo.uuid
+      isMandatory: false
+      jsonPath: $.searchCriteria.userid
+    - name: pi.businessservice
+      isMandatory: false
+      jsonPath: $.searchCriteria.businessservice
+    - name: bpa.additionaldetails->>'applicationType'
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationType
+    - name: bpa.additionaldetails->>'serviceType'
+      isMandatory: false
+      jsonPath: $.searchCriteria.serviceType
+    pagination:
+      noOfRecords: $.searchCriteria.noOfRecords
+      offset: $.searchCriteria.offset
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"TotalCount": {}}
+    outJsonPath: $.TotalCount
+    responseInfoPath: $.ResponseInfo
+
+ - name: inboxbpastakeholdersearchcount
+   query:
+    baseQuery: SELECT row_to_json(TotalCount) from (SELECT COUNT(result) from
+          (
+          select DISTINCT(bpa.applicationno) as applicationno,bpa.createdtime as createdtime from eg_bpa_buildingplan as bpa
+          INNER JOIN eg_land_landInfo landinfo ON bpa.landId = landinfo.id
+          INNER JOIN eg_land_Address landaddress ON landinfo.id = landaddress.landInfoId
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bpa.applicationno
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bpa.applicationno GROUP BY wf.businessid)
+          order by bpa.createdtime asc
+          ) result) TotalCount
+    groupBy:
+    orderBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: bpa.tenantId
+      isMandatory: true
+      operator: ILIKE
+      jsonPath: $.searchCriteria.tenantId
+    - name: bpa.applicationNo
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationNo
+    - name: bpa.edcrNumber
+      isMandatory: false
+      jsonPath: $.searchCriteria.edcrNumber
+    - name: bpa.approvalNo
+      isMandatory: false
+      jsonPath: $.searchCriteria.approvalNo
+    - name: landaddress.locality
+      isMandatory: false
+      jsonPath: $.searchCriteria.locality
+    - name: assg.assignee
+      isMandatory: false
+      jsonPath: $.searchCriteria.assignee
+    - name: pi.status
+      isMandatory: false
+      jsonPath: $.searchCriteria.status
+    - name: bpa.accountId
+      isMandatory: false
+      jsonPath: $.searchCriteria.userid
+    - name: pi.businessservice
+      isMandatory: false
+      jsonPath: $.searchCriteria.businessservice
+    - name: bpa.additionaldetails->>'applicationType'
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationType
+    - name: bpa.additionaldetails->>'serviceType'
+      isMandatory: false
+      jsonPath: $.searchCriteria.serviceType
+    pagination:
+      noOfRecords: $.searchCriteria.noOfRecords
+      offset: $.searchCriteria.offset
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"TotalCount": {}}
+    outJsonPath: $.TotalCount
+    responseInfoPath: $.ResponseInfo
+    
+ - name: inboxbpacitizensearchdesc
+   query:
+    baseQuery: Select row_to_json(result) from
+          (
+          select DISTINCT(bpa.applicationno) as applicationno,bpa.createdtime as createdtime from eg_bpa_buildingplan as bpa
+          INNER JOIN eg_land_landInfo landinfo ON bpa.landId = landinfo.id
+          INNER JOIN eg_land_Address landaddress ON landinfo.id = landaddress.landInfoId
+          INNER JOIN eg_land_ownerInfo ownerinfo ON landinfo.id = ownerinfo.landInfoId
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bpa.applicationno
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bpa.applicationno GROUP BY wf.businessid)
+          order by bpa.createdtime desc $pagination
+          ) result
+    groupBy:
+    orderBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: bpa.tenantId
+      isMandatory: true
+      operator: ILIKE
+      jsonPath: $.searchCriteria.tenantId
+    - name: bpa.applicationNo
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationNo
+    - name: bpa.edcrNumber
+      isMandatory: false
+      jsonPath: $.searchCriteria.edcrNumber
+    - name: bpa.approvalNo
+      isMandatory: false
+      jsonPath: $.searchCriteria.approvalNo
+    - name: landaddress.locality
+      isMandatory: false
+      jsonPath: $.searchCriteria.locality
+    - name: assg.assignee
+      isMandatory: false
+      jsonPath: $.searchCriteria.assignee
+    - name: pi.status
+      isMandatory: false
+      jsonPath: $.searchCriteria.status
+    - name: ownerinfo.uuid
+      isMandatory: false
+      jsonPath: $.searchCriteria.userid
+    - name: pi.businessservice
+      isMandatory: false
+      jsonPath: $.searchCriteria.businessservice
+    - name: bpa.additionaldetails->>'applicationType'
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationType
+    - name: bpa.additionaldetails->>'serviceType'
+      isMandatory: false
+      jsonPath: $.searchCriteria.serviceType
+    pagination:
+      noOfRecords: $.searchCriteria.noOfRecords
+      offset: $.searchCriteria.offset
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"BPAs": []}
+    outJsonPath: $.BPAs
+    responseInfoPath: $.ResponseInfo
+    
+ - name: inboxbpastakeholdersearchdesc
+   query:
+    baseQuery: Select row_to_json(result) from
+          (
+          select DISTINCT(bpa.applicationno) as applicationno,bpa.createdtime as createdtime from eg_bpa_buildingplan as bpa
+          INNER JOIN eg_land_landInfo landinfo ON bpa.landId = landinfo.id
+          INNER JOIN eg_land_Address landaddress ON landinfo.id = landaddress.landInfoId
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bpa.applicationno
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bpa.applicationno GROUP BY wf.businessid)
+          order by bpa.createdtime desc $pagination
+          ) result
+    groupBy:
+    orderBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: bpa.tenantId
+      isMandatory: true
+      operator: ILIKE
+      jsonPath: $.searchCriteria.tenantId
+    - name: bpa.applicationNo
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationNo
+    - name: bpa.edcrNumber
+      isMandatory: false
+      jsonPath: $.searchCriteria.edcrNumber
+    - name: bpa.approvalNo
+      isMandatory: false
+      jsonPath: $.searchCriteria.approvalNo
+    - name: landaddress.locality
+      isMandatory: false
+      jsonPath: $.searchCriteria.locality
+    - name: assg.assignee
+      isMandatory: false
+      jsonPath: $.searchCriteria.assignee
+    - name: pi.status
+      isMandatory: false
+      jsonPath: $.searchCriteria.status
+    - name: bpa.accountId
+      isMandatory: false
+      jsonPath: $.searchCriteria.userid
+    - name: pi.businessservice
+      isMandatory: false
+      jsonPath: $.searchCriteria.businessservice
+    - name: bpa.additionaldetails->>'applicationType'
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationType
+    - name: bpa.additionaldetails->>'serviceType'
+      isMandatory: false
+      jsonPath: $.searchCriteria.serviceType
+    pagination:
+      noOfRecords: $.searchCriteria.noOfRecords
+      offset: $.searchCriteria.offset
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"BPAs": []}
+    outJsonPath: $.BPAs
+    responseInfoPath: $.ResponseInfo
+    
+ - name: inboxbpastakeholdertenantwiseapplnsearch
+   query:
+    baseQuery: Select row_to_json(result) from
+          (
+          select bpa.tenantId, bpa.applicationno from eg_bpa_buildingplan as bpa
+          INNER JOIN eg_land_landInfo landinfo ON bpa.landId = landinfo.id
+          INNER JOIN eg_land_Address landaddress ON landinfo.id = landaddress.landInfoId
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bpa.applicationno
+          $where GROUP BY bpa.tenantId, bpa.applicationno
+          ) result
+    groupBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: bpa.tenantId
+      isMandatory: true
+      operator: ILIKE
+      jsonPath: $.searchCriteria.tenantId
+    - name: bpa.accountId
+      isMandatory: false
+      jsonPath: $.searchCriteria.userid
+    - name: pi.businessservice
+      isMandatory: false
+      jsonPath: $.searchCriteria.businessservice
+    - name: pi.status
+      isMandatory: false
+      jsonPath: $.searchCriteria.status
+
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"BPA": []}
+    outJsonPath: $.BPA
+    responseInfoPath: $.ResponseInfo
+    
+ - name: inboxbpacitizentenantwiseapplnsearch
+   query:
+    baseQuery: Select row_to_json(result) from
+          (
+          select bpa.tenantId, bpa.applicationno from eg_bpa_buildingplan as bpa
+          INNER JOIN eg_land_landInfo landinfo ON bpa.landId = landinfo.id
+          INNER JOIN eg_land_ownerInfo ownerinfo ON landinfo.id = ownerinfo.landInfoId
+          INNER JOIN eg_land_Address landaddress ON landinfo.id = landaddress.landInfoId
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bpa.applicationno
+          $where GROUP BY bpa.tenantId, bpa.applicationno
+          ) result
+    groupBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: bpa.tenantId
+      isMandatory: true
+      operator: ILIKE
+      jsonPath: $.searchCriteria.tenantId
+    - name: ownerinfo.uuid
+      isMandatory: false
+      jsonPath: $.searchCriteria.userid
+    - name: pi.businessservice
+      isMandatory: false
+      jsonPath: $.searchCriteria.businessservice
+    - name: pi.status
+      isMandatory: false
+      jsonPath: $.searchCriteria.status 
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"BPA": {}}
+    outJsonPath: $.BPA
+    responseInfoPath: $.ResponseInfo
