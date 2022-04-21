@@ -237,11 +237,6 @@ ReportDefinitions:
     label: BND_TRANSACTION_ID
     type: string
     source: bnd
-    total: false   
-  - name: bank_transaction_no
-    label: BND_BANK_TRANSACTION_NO
-    type: string
-    source: bnd
     total: false      
   searchParams:
   - name: fromDate
@@ -256,5 +251,5 @@ ReportDefinitions:
     source: bnd
     isMandatory: false
     searchClause: AND pay.createdtime <= $toDate       
-  query: select case when paydtl.businessservice = 'BIRTH_CERT' THEN 'Birth' when paydtl.businessservice = 'DEATH_CERT' THEN 'Death' END as servicetype ,paydtl.receiptnumber, To_char((To_timestamp(pay.transactiondate / 1000) at time Zone 'Asia/Kolkata'), 'DD/MM/YYYY') as paymentdate, txn.consumer_code, pay.paidby, pay.payername, pay.mobilenumber, pay.paymentmode, CAST(txn.txn_amount as text) txn_amount, pay.transactionnumber, txn.bank_transaction_no from egcl_payment pay left join egcl_paymentdetail paydtl ON paydtl.paymentid = pay.id left join eg_pg_transactions txn on txn.txn_id = pay.transactionnumber where paydtl.businessservice in ('BIRTH_CERT','DEATH_CERT') and pay.tenantid = $tenantid
+  query: select case when paydtl.businessservice = 'BIRTH_CERT' THEN 'Birth' when paydtl.businessservice = 'DEATH_CERT' THEN 'Death' END as servicetype ,paydtl.receiptnumber, To_char((To_timestamp(pay.transactiondate / 1000) at time Zone 'Asia/Kolkata'), 'DD/MM/YYYY') as paymentdate, txn.consumer_code, pay.paidby, pay.payername, pay.mobilenumber, pay.paymentmode, CAST(txn.txn_amount as text) txn_amount, pay.transactionnumber from egcl_payment pay left join egcl_paymentdetail paydtl ON paydtl.paymentid = pay.id left join eg_pg_transactions txn on txn.txn_id = pay.transactionnumber where paydtl.businessservice in ('BIRTH_CERT','DEATH_CERT') and pay.tenantid = $tenantid
   orderby: order by pay.createdtime desc
