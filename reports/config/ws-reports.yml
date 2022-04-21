@@ -1340,3 +1340,61 @@ ReportDefinitions:
   query: |
       select * from eg_ws_legacypaymenthistory pd where 1=1
   orderby: ORDER BY pd.receipt_date DESC
+
+- reportName: ConsumerWiseDemandHistory
+  summary: Consumer Wise Demand History Report
+  version: 1.0.0
+  moduleName: rainmaker-ws
+  sourceColumns:
+  - name: ulb
+    label: ULB
+    type: string
+    source: pt
+    total: false
+  - name: consumercode
+    label: Consumer Code
+    type: string
+    source: pt
+    total: false
+  - name: periodfrom
+    label: Period From
+    type: string
+    source: pt
+    total: false
+  - name: periodto
+    label: Period To
+    type: string
+    source: pt
+    total: false
+  - name: paymentcompleted
+    label: Payment Completed
+    type: string
+    source: pt
+    total: false
+  - name: totaltax
+    label: Tax Amount
+    type: string
+    source: pt
+    total: true
+  - name: totalcollected
+    label: Collected Amount
+    type: string
+    source: pt
+    total: true
+  - name: due
+    label: Due Amount
+    type: string
+    source: pt
+    total: true
+  searchParams:
+  - name: connectionNo
+    label: Connection No
+    type: string
+    source: ws
+    isMandatory: true
+    searchClause: AND d.consumercode = $connectionNo
+  query: |
+    select INITCAP(SPLIT_PART(d.tenantid,'.',2)) as ULB,d.consumercode, to_char(to_timestamp(d.taxperiodfrom/1000), 'DD-MM-YYYY') as periodfrom, to_char(to_timestamp(d.taxperiodto /1000), 'DD-MM-YYYY') as periodto, case when d.ispaymentcompleted then 'YES' else 'NO' end as paymentcompleted, sum(dd.taxamount) as totalTax,sum(dd.collectionamount) as totalCollected, (sum(dd.taxamount) - sum(dd.collectionamount)) as due from egbs_demand_v1 d inner join egbs_demanddetail_v1 dd on d.id = dd.demandid where d.businessservice ='WS'  
+  groupby: group by d.tenantid,d.consumercode,d.taxperiodfrom,d.taxperiodto,d.ispaymentcompleted 
+  orderby: ORDER BY d.taxperiodto 
+    
