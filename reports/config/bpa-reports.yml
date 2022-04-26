@@ -113,10 +113,10 @@ ReportDefinitions:
     pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
     source: bpa
     wrapper: true
-    isMandatory: true
+    isMandatory: false
     searchClause: AND ett.tenantid = $tenant
   query: |
-      select INITCAP(SPLIT_PART(ett.tenantid,'.',2)) as ULB,eu.name as name,eu.mobilenumber as mobilenumber,eu.emailid as emailid,case when INITCAP(SPLIT_PART(ettu.tradetype,'.',1))='Architect' then 'Architect' when INITCAP(SPLIT_PART(ettu.tradetype,'.',1))='Technicalperson' then 'Technical Person' end as licensetype,ett.licensenumber as registrationnumber from eg_tl_tradelicense ett inner join eg_user eu on ett.accountid=eu.uuid inner join eg_tl_TradeLicenseDetail ettd on ett.id=ettd.tradelicenseId inner join eg_tl_TradeUnit ettu on ettd.id=ettu.tradeLicenseDetailId where ett.businessservice='BPAREG'
+      select ett.tenantid as ULB,eu.name as name,eu.mobilenumber as mobilenumber,eu.emailid as emailid,case when INITCAP(SPLIT_PART(ettu.tradetype,'.',1))='Architect' then 'Architect' when INITCAP(SPLIT_PART(ettu.tradetype,'.',1))='Technicalperson' then 'Technical Person' end as licensetype,ett.licensenumber as registrationnumber from eg_tl_tradelicense ett inner join eg_user eu on ett.accountid=eu.uuid inner join eg_tl_TradeLicenseDetail ettd on ett.id=ettd.tradelicenseId inner join eg_tl_TradeUnit ettu on ettd.id=ettu.tradeLicenseDetailId where ett.businessservice='BPAREG'
 
 - reportName: BPAHighLevelSummaryReport
   summary: BPAHighLevelSummaryReport
@@ -149,3 +149,149 @@ ReportDefinitions:
     searchClause: and ebb.tenantid = $tenant
   query: |
       select INITCAP(SPLIT_PART(ebb.tenantid,'.',2)) as ulb,case when ebb.status='DOC_VERIFICATION_INPROGRESS' then 'Pending at Document Verification' when ebb.status='FIELDINSPECTION_INPROGRESS' then 'Pending at Field Inspection' when ebb.status='REJECTED' then 'Rejected' when ebb.status='APPROVED' then 'Approved' when ebb.status='APP_L1_VERIFICATION_INPROGRESS' then 'Pending at Planning Assistant' when ebb.status='APP_L2_VERIFICATION_INPROGRESS' then 'Pending at Planning Officer' when ebb.status='APP_L3_VERIFICATION_INPROGRESS' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' then 'Pending at Planning Assistant' end as status,count(ebb.applicationno) from eg_bpa_buildingplan ebb group by ebb.status,ebb.tenantid having ebb.status in ('DOC_VERIFICATION_INPROGRESS','FIELDINSPECTION_INPROGRESS','REJECTED','APPROVED','APP_L1_VERIFICATION_INPROGRESS','APP_L2_VERIFICATION_INPROGRESS','APP_L3_VERIFICATION_INPROGRESS','APPROVAL_INPROGRESS')
+
+- reportName: BPAPaymentReport
+  summary: BPAPaymentReport
+  decryptionPathId: Architect&TechnicalPersonDetailsReport
+  version: 1.0.0
+  moduleName: rainmaker-bpa
+  sourceColumns:
+  - name: ulb
+    label: ULB
+    type: string
+    source: bpa
+    total: false
+  - name: applicationno
+    label: Application Number
+    type: string
+    source: bpa
+    total: false
+  - name: name
+    label: Applicant Name
+    type: string
+    source: bpa
+    total: false
+  - name: mobilenumber
+    label: Mobile Number
+    type: string
+    source: bpa
+    total: false
+  - name: currentstatus
+    label: Current Status
+    type: string
+    source: bpa
+    total: false
+  - name: feetype
+    label: Fee Type
+    type: string
+    source: bpa
+    total: false
+  - name: amount
+    label: Amount
+    type: string
+    source: bpa
+    total: false
+  - name: paymentdate
+    label: Payment Date
+    type: string
+    source: bpa
+    total: false
+  - name: receiptno
+    label: Receipt Number
+    type: string
+    source: bpa
+    total: false
+  searchParams:
+  - name: tenant
+    label: ULB
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8094/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
+    source: bpa
+    wrapper: true
+    isMandatory: true
+    searchClause: where ebb.tenantid = $tenant
+  query: |
+      select INITCAP(SPLIT_PART(ebb.tenantid,'.',2)) as ulb,ebb.applicationno as applicationno,eu.name as name,eu.mobilenumber as mobilenumber,ebb.status as currentstatus,case when eb.businessservice in ('BPA.NC_OC_SAN_FEE','BPA.NC_SAN_FEE') then 'Permit Fee' when eb.businessservice in ('BPA.NC_OC_APP_FEE','BPA.NC_APP_FEE') then 'Application Fee' end as feetype,ep.totalamountpaid as amount,to_char(to_timestamp(ep.instrumentdate / 1000), 'DD-Mon-YYYY') as paymentdate,ep.transactionnumber as receiptno from egcl_payment ep inner join egcl_paymentdetail epd on ep.id=epd.paymentid inner join egcl_bill eb on epd.billid=eb.id left outer join eg_bpa_buildingplan ebb on eb.consumercode=ebb.applicationno inner join eg_land_ownerinfo elo on ebb.landid=elo.landinfoid inner join eg_user eu on elo.uuid=eu.uuid
+
+- reportName: BPAApplicationDetailsReport
+  summary: BPAApplicationDetailsReport
+  decryptionPathId: BPAApplicationDetailsReport
+  version: 1.0.0
+  moduleName: rainmaker-bpa
+  sourceColumns:
+  - name: ulb
+    label: ULB
+    type: string
+    source: bpa
+    total: false
+  - name: applicationno
+    label: Application Number
+    type: string
+    source: bpa
+    total: false
+  - name: applicantname
+    label: Applicant Name
+    type: string
+    source: bpa
+    total: false
+  - name: applicantmobilenumber
+    label: Applicant Mobile Number
+    type: string
+    source: bpa
+    total: false
+  - name: village
+    label: Village Name
+    type: string
+    source: bpa
+    total: false
+  - name: architectname
+    label: Architect/Tech Person Name
+    type: string
+    source: bpa
+    total: false
+  - name: architectmobilenumber
+    label: Architect/Tech Person Mobile Number
+    type: string
+    source: bpa
+    total: false
+  - name: status
+    label: Current Status
+    type: string
+    source: bpa
+    total: false
+  - name: pendingdayssincecurrentstatus
+    label: Pending Days since Current Status
+    type: string
+    source: bpa
+    total: false
+  - name: officernameatpending
+    label: Officer/Assignee Name at Pending Status
+    type: string
+    source: bpa
+    total: false
+  - name: submissiondate
+    label: Submission Date
+    type: string
+    source: bpa
+    total: false
+  - name: pendingdayssincesubmission
+    label: Pending Days since Submission
+    type: string
+    source: bpa
+    total: false
+  - name: approvaldate
+    label: Approval Date if Approved
+    type: string
+    source: bpa
+    total: false
+  searchParams:
+  - name: tenant
+    label: ULB
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8094/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
+    source: bpa
+    wrapper: true
+    isMandatory: true
+    searchClause: where ebb.tenantid = $tenant
+  query: |
+      select INITCAP(SPLIT_PART(ebb.tenantid,'.',2)) as ULB,ebb.applicationno as applicationno, case when ebb.status='DOC_VERIFICATION_INPROGRESS' then 'Pending at Document Verification' when ebb.status='FIELDINSPECTION_INPROGRESS' then 'Pending at Field Inspection' when ebb.status='REJECTED' then 'Rejected' when ebb.status='APPROVED' then 'Approved' when ebb.status='APP_L1_VERIFICATION_INPROGRESS' then 'Pending at Planning Assistant' when ebb.status='APP_L2_VERIFICATION_INPROGRESS' then 'Pending at Planning Officer' when ebb.status='APP_L3_VERIFICATION_INPROGRESS' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA4' then 'Pending at DPBP committee' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA3' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA2' then 'Pending at Planning Officer' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA1' then 'Pending at Planning Assistant' when ebb.status='CITIZEN_APPROVAL_INPROCESS' then 'Pending for citizen approval' when ebb.status='INPROGRESS' then 'Pending for architect submission' when ebb.status='PENDING_APPL_FEE' then 'Pending for application fee payment' when ebb.status='PENDING_SANC_FEE_PAYMENT' then 'Pending for Permit fee payment' end as status,eu.name as applicantname,eu.mobilenumber as applicantmobilenumber,ela.locality as village,euarchitect.name as architectname,euarchitect.mobilenumber as architectmobilenumber,ebb.status as currentstatus,floor(((EXTRACT(EPOCH FROM (SELECT NOW())) * 1000)-ewpcs.createdtime)/86400000) as pendingdayssincecurrentstatus,eu1.name as officernameatpending,to_char(to_timestamp(ebb.createdtime / 1000), 'DD-Mon-YYYY') as submissiondate,floor(((EXTRACT(EPOCH FROM (SELECT NOW())) * 1000)-ebb.createdtime)/86400000) as pendingdayssincesubmission ,case when ebb.status='APPROVED' then to_char(to_timestamp(ebb.lastmodifiedtime / 1000), 'DD-Mon-YYYY') else null end as approvaldate from  eg_bpa_buildingplan ebb inner join eg_land_ownerinfo elo on ebb.landid=elo.landinfoid inner join eg_user eu on elo.uuid=eu.uuid inner join eg_land_landinfo ell on ebb.landid=ell.id inner join eg_land_address ela on ell.id=ela.landinfoid inner join eg_user euarchitect on ebb.accountid=euarchitect.uuid inner join (select distinct on(businessid) * from eg_wf_processinstance_v2 order by businessid,createdtime desc) as ewpcs on ewpcs.businessid=ebb.applicationno left outer join eg_wf_assignee_v2 ewa1 on ewpcs.id=ewa1.processinstanceid left outer join eg_user eu1 on ewa1.assignee=eu1.uuid
