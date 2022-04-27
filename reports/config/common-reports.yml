@@ -1,0 +1,87 @@
+---
+ReportDefinitions:
+- reportName: TransactionStatusReport
+  summary: Transaction Status Report
+  version: 1.0.0
+  moduleName: rainmaker-common
+  sourceColumns:
+  - name: tenant_id
+    label: ULB
+    type: string
+    source: pt
+    total: false
+  - name: gateway
+    label: Gateway
+    type: string
+    source: pt
+    total: false
+  - name: txn_status
+    label: Transaction Status
+    type: string
+    source: pt
+    total: false
+  - name: txn_status_msg
+    label: Transaction Status Message
+    type: string
+    source: pt
+    total: false
+  - name: txn_amount
+    label: Transaction Amount
+    type: string
+    source: pt
+    total: false
+  - name: gateway_txn_id
+    label: Gateway Transaction Id
+    type: string
+    source: pt
+    total: false
+  - name: gateway_status_code
+    label: Gateway Status Code
+    type: string
+    source: pt
+    total: false
+  - name: gateway_status_msg
+    label: Gateway Status Message
+    type: string
+    source: pt
+    total: false
+  - name: gateway_payment_mode
+    label: Gateway Payment Mode
+    type: string
+    source: pt
+    total: false
+  - name: consumer_code
+    label: Consumer Code
+    type: string
+    source: pt
+    total: false
+  - name: module
+    label: Module
+    type: string
+    source: pt
+    total: false
+  - name: txn_initiate_time
+    label: Transaction Initiation Time
+    type: string
+    source: pt
+    total: false
+  - name: txn_last_updated_time
+    label: Transaction Last Updated Time
+    type: string
+    source: pt
+    total: false
+  searchParams:
+  - name: fromDate
+    label: From Date
+    type: epoch
+    source: pt
+    isMandatory: false
+    searchClause: and date(to_timestamp(created_time/1000)) >= date(to_timestamp($fromDate/1000))
+  - name: toDate
+    label: To Date
+    type: epoch
+    source: pt
+    isMandatory: false
+    searchClause: and date(to_timestamp(created_time/1000)) <= date(to_timestamp($toDate/1000))
+  query: |
+      select tenant_id,gateway,txn_status, txn_status_msg,txn_amount,gateway_txn_id, gateway_status_code, gateway_status_msg, gateway_payment_mode,consumer_code,"module",to_timestamp(created_time/1000) txn_initiate_time,to_timestamp(last_modified_time /1000) txn_last_updated_time from eg_pg_transactions ept where txn_status <>'SUCCESS'
