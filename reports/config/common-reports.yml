@@ -83,5 +83,19 @@ ReportDefinitions:
     source: pt
     isMandatory: false
     searchClause: and date(to_timestamp(created_time/1000)) <= date(to_timestamp($toDate/1000))
+  - name: transactionStatusInput
+    label: Transaction Status
+    type: singlevaluelist
+    pattern: 'list://FAILURE:Failure,SUCCESS:Success,PENDING:Pending'
+    source: pt
+    isMandatory: false
+    searchClause: AND ept.txn_status = $transactionStatusInput
+  - name: moduleInput
+    label: Module
+    type: singlevaluelist
+    pattern: 'list://BPA%:BPA,PT%:PT,WS%:WS,TL%:TL,FSM%:FSM,MR%:MR'
+    source: pt
+    isMandatory: false
+    searchClause: AND ept.module like $moduleInput
   query: |
       select tenant_id,gateway,txn_status, txn_status_msg,txn_amount,gateway_txn_id, gateway_status_code, gateway_status_msg, gateway_payment_mode,consumer_code,"module",to_char(to_timestamp(created_time/1000), 'YYYY-MM-DD') txn_initiate_time,to_char(to_timestamp(last_modified_time /1000), 'YYYY-MM-DD') txn_last_updated_time from eg_pg_transactions ept where txn_status <>'SUCCESS'
