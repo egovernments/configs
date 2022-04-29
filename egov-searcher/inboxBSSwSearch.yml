@@ -1,46 +1,39 @@
 SearchDefinitions:
-  moduleName: ws-services
-  summary: Water Services Inbox API
+  moduleName: bsSw-service
+  summary: Billing Amendment Services Inbox API
   version: 1.0.0
   definitions:
-    - name: inboxwssearch
+    - name: inboxbssearch
       query:
-        baseQuery: Select row_to_json(result) from
+        baseQuery: Select row_to_json(result) from 
           (
-          select DISTINCT(ws.applicationno),pi.createdtime from eg_ws_connection as ws 
-          LEFT OUTER JOIN eg_pt_property property ON ws.property_id = property.propertyid 
-          LEFT OUTER JOIN eg_pt_owner owner ON owner.propertyid =  property.id 
-          LEFT OUTER JOIN eg_ws_connectionholder connectionHolder ON ws.id = connectionHolder.connectionid 
-          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = ws.applicationno 
+          select DISTINCT(bs.amendmentid),pi.createdtime from egbs_amendment as bs 
+          INNER JOIN eg_sw_connection conn ON bs.consumercode = conn.connectionno
+          INNER JOIN egbs_demand_v1 dmd ON bs.consumercode = dmd.consumercode 
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bs.amendmentid 
           LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid 
           $where
-          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = ws.applicationno GROUP BY wf.businessid)
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bs.amendmentid GROUP BY wf.businessid)
           order by pi.createdtime asc $pagination
-          ) result
+          ) result;
         groupBy:
         orderBy:
       searchParams:
         condition: AND
         params:
-          - name: ws.tenantid
+          - name: bs.tenantid
             isMandatory: true
             jsonPath: $.searchCriteria.tenantId
-          - name: ws.property_id
-            isMandatory: false
-            jsonPath: $.searchCriteria.propertyId
-          - name: ws.applicationType
-            isMandatory: false
-            jsonPath: $.searchCriteria.applicationType
-          - name: ws.applicationno
+          - name: bs.amendmentid
             isMandatory: false
             jsonPath: $.searchCriteria.applicationNumber
-          - name: ws.locality
+          - name: conn.locality
             isMandatory: false
             jsonPath: $.searchCriteria.locality
-          - name: ws.connectionNo
+          - name: bs.consumercode
             isMandatory: false
             jsonPath: $.searchCriteria.consumerNo
-          - name: ws.applicationStatus
+          - name: bs.status
             isMandatory: false
             jsonPath: $.searchCriteria.applicationStatus
           - name: assg.assignee
@@ -49,10 +42,10 @@ SearchDefinitions:
           - name: pi.status
             isMandatory: false
             jsonPath: $.searchCriteria.status
-          - name: pi.businessservice
+          - name: bs.businessservice
             isMandatory: false
             jsonPath: $.searchCriteria.businessservice
-          - name: owner.userid
+          - name: demand.payer
             isMandatory: false
             jsonPath: $.searchCriteria.userIds
         pagination:
@@ -60,23 +53,22 @@ SearchDefinitions:
           offset: $.searchCriteria.offset
         
       output:
-        jsonFormat: {"ResponseInfo": {},"WaterConnections": []}
-        outJsonPath: $.WaterConnections
+        jsonFormat: {"ResponseInfo": {},"BillAmendments": []}
+        outJsonPath: $.BillAmendments
         responseInfoPath: $.ResponseInfo
    
    
-    - name: inboxwssearchdesc
+    - name: inboxbssearchdesc
       query:
         baseQuery: Select row_to_json(result) from
           (
-          select DISTINCT(ws.applicationno),pi.createdtime from eg_ws_connection as ws 
-          LEFT OUTER JOIN eg_pt_property property ON ws.property_id = property.propertyid 
-          LEFT OUTER JOIN eg_pt_owner owner ON owner.propertyid =  property.id 
-          LEFT OUTER JOIN eg_ws_connectionholder connectionHolder ON ws.id = connectionHolder.connectionid 
-          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = ws.applicationno 
+          select DISTINCT(bs.amendmentid),pi.createdtime from egbs_amendment as bs 
+          INNER JOIN eg_sw_connection conn ON bs.consumercode = conn.connectionno 
+          INNER JOIN egbs_demand_v1 dmd ON bs.consumercode = dmd.consumercode
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bs.amendmentid 
           LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid 
           $where
-          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = ws.applicationno GROUP BY wf.businessid)
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bs.amendmentid GROUP BY wf.businessid)
           order by pi.createdtime desc $pagination
           ) result
         groupBy:
@@ -84,25 +76,19 @@ SearchDefinitions:
       searchParams:
         condition: AND
         params:
-          - name: ws.tenantid
+          - name: bs.tenantid
             isMandatory: true
             jsonPath: $.searchCriteria.tenantId
-          - name: ws.property_id
-            isMandatory: false
-            jsonPath: $.searchCriteria.propertyId
-          - name: ws.applicationType
-            isMandatory: false
-            jsonPath: $.searchCriteria.applicationType
-          - name: ws.applicationno
+          - name: bs.amendmentid
             isMandatory: false
             jsonPath: $.searchCriteria.applicationNumber
-          - name: ws.locality
+          - name: conn.locality
             isMandatory: false
             jsonPath: $.searchCriteria.locality
-          - name: ws.connectionNo
+          - name: bs.consumercode
             isMandatory: false
             jsonPath: $.searchCriteria.consumerNo
-          - name: ws.applicationStatus
+          - name: bs.status
             isMandatory: false
             jsonPath: $.searchCriteria.applicationStatus
           - name: assg.assignee
@@ -111,10 +97,10 @@ SearchDefinitions:
           - name: pi.status
             isMandatory: false
             jsonPath: $.searchCriteria.status
-          - name: pi.businessservice
+          - name: bs.businessservice
             isMandatory: false
             jsonPath: $.searchCriteria.businessservice
-          - name: owner.userid
+          - name: demand.payer
             isMandatory: false
             jsonPath: $.searchCriteria.userIds
         pagination:
@@ -122,49 +108,42 @@ SearchDefinitions:
           offset: $.searchCriteria.offset
 
       output:
-        jsonFormat: {"ResponseInfo": {},"WaterConnections": []}
-        outJsonPath: $.WaterConnections
+        jsonFormat: {"ResponseInfo": {},"BillAmendments": []}
+        outJsonPath: $.BillAmendments
         responseInfoPath: $.ResponseInfo
     
     
-    - name: inboxwssearchcount
+    - name: inboxbssearchcount
       query:
         baseQuery: SELECT row_to_json(TotalCount) from (SELECT COUNT(result) from
           (
-          select DISTINCT(ws.applicationno),pi.createdtime from eg_ws_connection as ws 
-          LEFT OUTER JOIN eg_pt_property property ON ws.property_id = property.propertyid 
-          LEFT OUTER JOIN eg_pt_owner owner ON owner.propertyid =  property.id 
-          LEFT OUTER JOIN eg_ws_connectionholder connectionHolder ON ws.id = connectionHolder.connectionid 
-          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = ws.applicationno 
+          select DISTINCT(bs.amendmentid),pi.createdtime from egbs_amendment as bs 
+          INNER JOIN eg_sw_connection conn ON bs.consumercode = conn.connectionno 
+          INNER JOIN egbs_demand_v1 dmd ON bs.consumercode = dmd.consumercode
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bs.amendmentid 
           LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid 
           $where
-          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = ws.applicationno GROUP BY wf.businessid)
-          order by pi.createdtime asc
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bs.amendmentid GROUP BY wf.businessid)
+          order by pi.createdtime asc $pagination
           ) result) TotalCount
         groupBy:
         orderBy:
       searchParams:
         condition: AND
         params:
-          - name: ws.tenantid
+          - name: bs.tenantid
             isMandatory: true
             jsonPath: $.searchCriteria.tenantId
-          - name: ws.property_id
-            isMandatory: false
-            jsonPath: $.searchCriteria.propertyId
-          - name: ws.applicationType
-            isMandatory: false
-            jsonPath: $.searchCriteria.applicationType
-          - name: ws.applicationno
+          - name: bs.amendmentid
             isMandatory: false
             jsonPath: $.searchCriteria.applicationNumber
-          - name: ws.locality
+          - name: conn.locality
             isMandatory: false
             jsonPath: $.searchCriteria.locality
-          - name: ws.connectionNo
+          - name: bs.consumercode
             isMandatory: false
             jsonPath: $.searchCriteria.consumerNo
-          - name: ws.applicationStatus
+          - name: bs.status
             isMandatory: false
             jsonPath: $.searchCriteria.applicationStatus
           - name: assg.assignee
@@ -173,12 +152,12 @@ SearchDefinitions:
           - name: pi.status
             isMandatory: false
             jsonPath: $.searchCriteria.status
-          - name: pi.businessservice
+          - name: bs.businessservice
             isMandatory: false
             jsonPath: $.searchCriteria.businessservice
-          - name: owner.userid
+          - name: demand.payer
             isMandatory: false
-            jsonPath: $.searchCriteria.userIds       
+            jsonPath: $.searchCriteria.userIds
         pagination:
           noOfRecords: $.searchCriteria.noOfRecords
           offset: $.searchCriteria.offset
