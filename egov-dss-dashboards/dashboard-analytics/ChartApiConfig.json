@@ -17227,5 +17227,581 @@
     ],
     "insight": {},
     "_comment": ""
+  },
+  "nssBirthCertificateDownloadTrend": {
+    "chartName": "NSS_BIRTH_CERTIFICATE_DOWNLOAD_TREND",
+    "queries": [
+      {
+        "module": "BIRTH",
+        "dateRefField": "Data.dateofissue",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.keyword\", \"district\" : \"Data.district.keyword\", \"tenantId\" : \"Data.tenantId.keyword\"}",
+        "indexName": "birth-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\": [{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"downloads\":{\"date_histogram\":{\"field\": \"Data.dateofissue\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Applications Total\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"Count\": {\"value_count\": {\"field\":\"Data.birthCertificateNo.keyword\"}}}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "downloads"
+    ],
+    "isCumulative": false,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": " "
+  },
+  "nssNumberOfBirthsTodayByGender": {
+    "chartName": "NSS_NUMBER_OF_BIRTHS_TODAY_BY_GENDER",
+    "queries": [
+      {
+        "module": "BIRTH",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.keyword\", \"district\" : \"Data.district.keyword\", \"tenantId\" : \"Data.tenantId.keyword\"}",
+        "dateRefField": "Data.dateofissue",
+        "indexName": "birth-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"Number of Births Today By Gender\":{\"terms\":{\"field\":\"Data.gender.keyword\"},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Number of Births Today By Gender"
+    ],
+    "insight": {
+    },
+    "_comment": "Number of Births Today By Gender"
+  },
+  "nssNumberOfBirthCertificateDownloadByChannel": {
+    "chartName": "NSS_NUMBER_OF_BIRTH_CERTIFICATE_DOWNLOAD_BY_CHANNEL",
+    "queries": [
+      {
+        "module": "BIRTH",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.keyword\", \"district\" : \"Data.district.keyword\", \"tenantId\" : \"Data.tenantId.keyword\"}",
+        "dateRefField": "Data.dateofissue",
+        "indexName": "birth-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"Number Of Birth Certificate Download By Channel\":{\"terms\":{\"field\":\"Data.source.keyword\"},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Number Of Birth Certificate Download By Channel"
+    ],
+    "insight": {
+    },
+    "_comment": "Number Of Birth Certificate Download By Channel"
+  },
+  "nssBirthTotalCertificateDownload": {
+    "chartName": "NSS_BIRTH_TOTAL_CERTIFICATE_DOWNLOAD",
+    "queries": [
+      {
+        "module": "BIRTH",
+        "indexName": "birth-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"Birth total Certificate Download\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}}}}",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.keyword\", \"district\" : \"Data.district.keyword\", \"tenantId\" : \"Data.tenantId.keyword\"}",
+        "dateRefField": "Data.dateofissue"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Birth total Certificate Download"
+    ],
+    "insight": {
+      "chartResponseMap" : "totalApplication",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " totalApplication is the chartId"
+  },
+  "nssBirthTodaysCollection": {
+    "chartName": "NSS_BIRTH_TODAYS_COLLECTION",
+    "queries": [
+      {
+        "module": "BIRTH",
+        "dateRefField": "dataObject.paymentDetails.receiptDate",
+        "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\", \"tenantId\" : \"dataObject.tenantId.keyword\"}",
+        "indexName": "birth-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"BIRTH_CERT\"]}}]}},\"aggs\":{\"Birth todays Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.amountPaid\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "amount",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "Birth todays Collection"
+    ],
+    "insight": {
+      "chartResponseMap" : "netCollectionv2",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " "
+  },
+  "nssNumberOfBirthCertificateDownloadByBoundary": {
+    "chartName": "NSS_BND_CERT_DOWNLOAD_BY_BOUNDARY",
+    "queries": [
+      {
+        "module": "BIRTH",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.keyword\", \"district\" : \"Data.district.keyword\", \"tenantId\" : \"Data.tenantId.keyword\"}",
+        "dateRefField": "Data.dateofissue",
+        "indexName": "birth-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"Total Downloads (Mobile App)\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.source.keyword\":[\"mobileapp\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}},\"Total Downloads (Web)\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.source.keyword\":[\"web\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}},\"Total Downloads\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}},\"Delayed Registrations\":{\"filter\":{\"bool\":{\"must\":[{\"script\":{\"script\":{\"source\":\"doc['Data.dateofreport'].value-doc['Data.dateofbirth'].value>params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":31556952000}}}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": true,
+    "filterKeys": [
+      {"key": "tenantId", "column": "DDRs"}
+    ],
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "xNssBirthDownloadByUlb",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "DDRs",
+    "excludedColumns": [],
+    "removedFields":[
+    ],
+    "computedFields": [
+    ],
+    "isRoundOff":true,
+    "aggregationPaths": [
+      "Total Downloads (Mobile App)",
+      "Total Downloads (Web)",
+      "Total Downloads",
+      "Delayed Registrations"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Downloads (Mobile App)": "number"
+      },
+      {
+        "Total Downloads (Web)": "number"
+      },
+      {
+        "Total Downloads": "number"
+      },
+      {
+        "Delayed Registrations": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  "xNssBirthDownloadByUlb": {
+    "chartName": "NSS_BND_CERT_DOWNLOAD_BY_ULB",
+    "queries": [
+      {
+        "module": "BIRTH",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.keyword\", \"district\" : \"Data.district.keyword\", \"tenantId\" : \"Data.tenantId.keyword\"}",
+        "dateRefField": "Data.dateofissue",
+        "indexName": "birth-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"ULB \":{\"terms\":{\"field\":\"Data.tenantId.keyword\",\"size\":1000,\"order\":{\"_term\":\"asc\"}},\"aggs\":{\"Total Downloads (Mobile App)\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.source.keyword\":[\"mobileapp\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}},\"Total Downloads (Web)\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.source.keyword\":[\"web\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}},\"Total Downloads\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}},\"Delayed Registrations\":{\"filter\":{\"bool\":{\"must\":[{\"script\":{\"script\":{\"source\":\"doc['Data.dateofreport'].value-doc['Data.dateofbirth'].value>params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":31556952000}}}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "tenantId", "column": "ULB"}
+    ],
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "xNssBirthDownloadByWard",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "ULB",
+    "excludedColumns": [],
+    "removedFields":[
+    ],
+    "computedFields": [
+    ],
+    "isRoundOff":true,
+    "aggregationPaths": [
+      "Total Downloads (Mobile App)",
+      "Total Downloads (Web)",
+      "Total Downloads",
+      "Delayed Registrations"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Downloads (Mobile App)": "number"
+      },
+      {
+        "Total Downloads (Web)": "number"
+      },
+      {
+        "Total Downloads": "number"
+      },
+      {
+        "Delayed Registrations": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  "xNssBirthDownloadByWard": {
+    "chartName": "NSS_BND_CERT_DOWNLOAD_BY_WARD",
+    "queries": [
+      {
+        "module": "BIRTH",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.keyword\", \"district\" : \"Data.district.keyword\", \"tenantId\" : \"Data.tenantId.keyword\"}",
+        "dateRefField": "Data.dateofissue",
+        "indexName": "birth-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"Ward \":{\"terms\":{\"field\":\"Data.ward.keyword\",\"size\":1000,\"order\":{\"_term\":\"asc\"}},\"aggs\":{\"Total Downloads (Mobile App)\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.source.keyword\":[\"mobileapp\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}},\"Total Downloads (Web)\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.source.keyword\":[\"web\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}},\"Total Downloads\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}},\"Delayed Registrations\":{\"filter\":{\"bool\":{\"must\":[{\"script\":{\"script\":{\"source\":\"doc['Data.dateofreport'].value-doc['Data.dateofbirth'].value>params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":31556952000}}}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "ward", "column": "Ward"}
+    ],
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Ward",
+    "excludedColumns": [],
+    "removedFields":[
+    ],
+    "computedFields": [
+    ],
+    "isRoundOff":true,
+    "aggregationPaths": [
+      "Total Downloads (Mobile App)",
+      "Total Downloads (Web)",
+      "Total Downloads",
+      "Delayed Registrations"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Downloads (Mobile App)": "number"
+      },
+      {
+        "Total Downloads (Web)": "number"
+      },
+      {
+        "Total Downloads": "number"
+      },
+      {
+        "Delayed Registrations": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  "nssDeathCertificateDownloadTrend": {
+    "chartName": "NSS_DEATH_CERTIFICATE_DOWNLOAD_TREND",
+    "queries": [
+      {
+        "module": "DEATH",
+        "dateRefField": "Data.dateofissue",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.keyword\", \"district\" : \"Data.district.keyword\", \"tenantId\" : \"Data.tenantId.keyword\"}",
+        "indexName": "death-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\": [{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"downloads\":{\"date_histogram\":{\"field\": \"Data.dateofissue\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Applications Total\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"Count\": {\"value_count\": {\"field\":\"Data.birthCertificateNo.keyword\"}}}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "downloads"
+    ],
+    "isCumulative": false,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": " "
+  },
+  "nssNumberOfDeathsTodayByGender": {
+    "chartName": "NSS_NUMBER_OF_DEATHS_TODAY_BY_GENDER",
+    "queries": [
+      {
+        "module": "DEATH",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.keyword\", \"district\" : \"Data.district.keyword\", \"tenantId\" : \"Data.tenantId.keyword\"}",
+        "dateRefField": "Data.dateofissue",
+        "indexName": "death-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"Number of Deaths Today By Gender\":{\"terms\":{\"field\":\"Data.gender.keyword\"},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Number of Deaths Today By Gender"
+    ],
+    "insight": {
+    },
+    "_comment": "Number of Deaths Today By Gender"
+  },
+  "nssNumberOfDeathCertificateDownloadByChannel": {
+    "chartName": "NSS_NUMBER_OF_DEATH_CERTIFICATE_DOWNLOAD_BY_CHANNEL",
+    "queries": [
+      {
+        "module": "DEATH",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.keyword\", \"district\" : \"Data.district.keyword\", \"tenantId\" : \"Data.tenantId.keyword\"}",
+        "dateRefField": "Data.dateofissue",
+        "indexName": "death-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"Number Of Death Certificate Download By Channel\":{\"terms\":{\"field\":\"Data.source.keyword\"},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Number Of Death Certificate Download By Channel"
+    ],
+    "insight": {
+    },
+    "_comment": "Number Of Death Certificate Download By Channel"
+  },
+  "nssDeathTotalCertificateDownload": {
+    "chartName": "NSS_DEATH_TOTAL_CERTIFICATE_DOWNLOAD",
+    "queries": [
+      {
+        "module": "DEATH",
+        "indexName": "death-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"Death total Certificate Download\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}}}}",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.keyword\", \"district\" : \"Data.district.keyword\", \"tenantId\" : \"Data.tenantId.keyword\"}",
+        "dateRefField": "Data.dateofissue"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Death total Certificate Download"
+    ],
+    "insight": {
+      "chartResponseMap" : "totalApplication",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " totalApplication is the chartId"
+  },
+  "nssDeathTodaysCollection": {
+    "chartName": "NSS_DEATH_TODAYS_COLLECTION",
+    "queries": [
+      {
+        "module": "DEATH",
+        "dateRefField": "dataObject.paymentDetails.receiptDate",
+        "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\",\"module\" : \"dataObject.paymentDetails.businessService.keyword\", \"tenantId\" : \"dataObject.tenantId.keyword\"}",
+        "indexName": "death-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"dataObject.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"dataObject.paymentDetails.bill.status.keyword\":[\"Cancelled\"]}}],\"must\":[{\"terms\":{\"dataObject.paymentDetails.businessService.keyword\":[\"BIRTH_CERT\"]}}]}},\"aggs\":{\"Death todays Collection\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.amountPaid\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "amount",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "Death todays Collection"
+    ],
+    "insight": {
+      "chartResponseMap" : "netCollectionv2",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "month"
+    },
+    "_comment": " "
+  },
+  "nssNumberOfDeathCertificateDownloadByBoundary": {
+    "chartName": "NSS_DEATH_CERT_DOWNLOAD_BY_BOUNDARY",
+    "queries": [
+      {
+        "module": "DEATH",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.keyword\", \"district\" : \"Data.district.keyword\", \"tenantId\" : \"Data.tenantId.keyword\"}",
+        "dateRefField": "Data.dateofissue",
+        "indexName": "death-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"Total Downloads (Mobile App)\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.source.keyword\":[\"mobileapp\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}},\"Total Downloads (Web)\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.source.keyword\":[\"web\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}},\"Total Downloads\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}},\"Delayed Registrations\":{\"filter\":{\"bool\":{\"must\":[{\"script\":{\"script\":{\"source\":\"doc['Data.dateofreport'].value-doc['Data.dateofbirth'].value>params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":31556952000}}}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": true,
+    "filterKeys": [
+      {"key": "tenantId", "column": "DDRs"}
+    ],
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "xNssDeathDownloadByUlb",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "DDRs",
+    "excludedColumns": [],
+    "removedFields":[
+    ],
+    "computedFields": [
+    ],
+    "isRoundOff":true,
+    "aggregationPaths": [
+      "Total Downloads (Mobile App)",
+      "Total Downloads (Web)",
+      "Total Downloads",
+      "Delayed Registrations"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Downloads (Mobile App)": "number"
+      },
+      {
+        "Total Downloads (Web)": "number"
+      },
+      {
+        "Total Downloads": "number"
+      },
+      {
+        "Delayed Registrations": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  "xNssDeathDownloadByUlb": {
+    "chartName": "NSS_DEATH_CERT_DOWNLOAD_BY_ULB",
+    "queries": [
+      {
+        "module": "DEATH",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.keyword\", \"district\" : \"Data.district.keyword\", \"tenantId\" : \"Data.tenantId.keyword\"}",
+        "dateRefField": "Data.dateofissue",
+        "indexName": "death-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"ULB \":{\"terms\":{\"field\":\"Data.tenantId.keyword\",\"size\":1000,\"order\":{\"_term\":\"asc\"}},\"aggs\":{\"Total Downloads (Mobile App)\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.source.keyword\":[\"mobileapp\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}},\"Total Downloads (Web)\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.source.keyword\":[\"web\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}},\"Total Downloads\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}},\"Delayed Registrations\":{\"filter\":{\"bool\":{\"must\":[{\"script\":{\"script\":{\"source\":\"doc['Data.dateofreport'].value-doc['Data.dateofbirth'].value>params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":31556952000}}}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "tenantId", "column": "ULB"}
+    ],
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "xNssDeathDownloadByWard",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "ULB",
+    "excludedColumns": [],
+    "removedFields":[
+    ],
+    "computedFields": [
+    ],
+    "isRoundOff":true,
+    "aggregationPaths": [
+      "Total Downloads (Mobile App)",
+      "Total Downloads (Web)",
+      "Total Downloads",
+      "Delayed Registrations"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Downloads (Mobile App)": "number"
+      },
+      {
+        "Total Downloads (Web)": "number"
+      },
+      {
+        "Total Downloads": "number"
+      },
+      {
+        "Delayed Registrations": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
+  "xNssDeathDownloadByWard": {
+    "chartName": "NSS_DEATH_CERT_DOWNLOAD_BY_WARD",
+    "queries": [
+      {
+        "module": "DEATH",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.keyword\", \"district\" : \"Data.district.keyword\", \"tenantId\" : \"Data.tenantId.keyword\"}",
+        "dateRefField": "Data.dateofissue",
+        "indexName": "death-cert-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"terms\":{\"Data.applicationStatus.keyword\":[\"ACTIVE\"]}}]}},\"aggs\":{\"Ward \":{\"terms\":{\"field\":\"Data.ward.keyword\",\"size\":1000,\"order\":{\"_term\":\"asc\"}},\"aggs\":{\"Total Downloads (Mobile App)\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.source.keyword\":[\"mobileapp\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}},\"Total Downloads (Web)\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.source.keyword\":[\"web\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}},\"Total Downloads\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}},\"Delayed Registrations\":{\"filter\":{\"bool\":{\"must\":[{\"script\":{\"script\":{\"source\":\"doc['Data.dateofreport'].value-doc['Data.dateofbirth'].value>params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":31556952000}}}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.birthCertificateNo.keyword\"}}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+      {"key": "ward", "column": "Ward"}
+    ],
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Ward",
+    "excludedColumns": [],
+    "removedFields":[
+    ],
+    "computedFields": [
+    ],
+    "isRoundOff":true,
+    "aggregationPaths": [
+      "Total Downloads (Mobile App)",
+      "Total Downloads (Web)",
+      "Total Downloads",
+      "Delayed Registrations"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Total Downloads (Mobile App)": "number"
+      },
+      {
+        "Total Downloads (Web)": "number"
+      },
+      {
+        "Total Downloads": "number"
+      },
+      {
+        "Delayed Registrations": "number"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
   }
 }
