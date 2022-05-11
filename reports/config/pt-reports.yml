@@ -982,7 +982,7 @@ ReportDefinitions:
     pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=Ward&masterName=Ward&tenantId=od.cuttack|MdmsRes.Ward.Ward[*].code|MdmsRes.Ward.Ward[*].code
     source: pt
     wrapper: true
-    isMandatory: true
+    isMandatory: false
     searchClause: and case when LOWER($ward)='nil'  OR $ward=null then epa.ward is null else epa.ward =$ward end
   query: |
       select INITCAP(SPLIT_PART(EPP.TENANTID,'.',2)) as ULB,epa.ward as ward,epp.propertyid, epp.oldpropertyid,EU.NAME AS NAME,EU.MOBILENUMBER MOBILENUMBER, concat(COALESCE(epa.doorno,'') ,COALESCE(', '||epa.buildingname,''),COALESCE(', '||epa.street,''),COALESCE(', '||epa.city,''),COALESCE(', PIN-'||epa.pincode,'')) as address, to_char(to_timestamp(edv.taxperiodfrom/1000),'Mon-YYYY') as taxperiodfrom, to_char(to_timestamp(edv.taxperiodto / 1000),'Mon-YYYY') as taxperiodto,coalesce(edv2.taxamount, 0) taxamount,coalesce(edv2.collectionamount,0) collectionamount,edv2.taxamount- edv2.collectionamount as dueAmount from eg_pt_property epp inner join egbs_demand_v1 edv on epp.tenantid=$tenant and edv.tenantid=$tenant and edv.consumercode=epp.propertyid left outer join (select demandid,sum(taxamount) as taxamount,sum(collectionamount) as collectionamount from egbs_demanddetail_v1 edv3 where edv3.tenantid=$tenant group by demandid) edv2 on edv.tenantid=$tenant and edv2.demandid=edv.id inner join eg_pt_address epa on epa.tenantid=$tenant and epp.id=epa.propertyid LEFT OUTER JOIN eg_pt_owner epo on EPO.TENANTID = $tenant AND EPO.STATUS='ACTIVE' AND EPO.PROPERTYID = EPP.ID LEFT OUTER JOIN eg_user eu on EU.UUID = EPO.USERID WHERE epp.status != 'INACTIVE'
