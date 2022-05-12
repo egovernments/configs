@@ -1,6 +1,6 @@
 ---
 ReportDefinitions:
-- reportName: BpaStatusReport
+- reportName: BPAStatusReport
   summary: BPA Status Report
   version: 1.0.0
   moduleName: rainmaker-bpa
@@ -67,7 +67,7 @@ ReportDefinitions:
     isMandatory: true
     searchClause: AND tenantid = $tenant
   query: |
-      SELECT INITCAP(SPLIT_PART(TENANTID,'.',2)) AS ULB,APPLICATIONNO, case when BUSINESSSERVICE like '%BPA_OC%' then 'Permit Order'  else 'Occupancy Certificate' end as BUSINESSSERVICE , TO_CHAR(TO_TIMESTAMP(CREATEDTIME / 1000),'DD-MM-YYYY') AS CREATEDTIME, TO_CHAR(TO_TIMESTAMP(APPLICATIONDATE / 1000),'DD-MM-YYYY') AS APPLICATIONDATE, case when status ='INPROGRESS' then 'In-Progress' when status ='PENDING_APPL_FEE_PAYMENT' then 'Pending Application Fee' when status='DOC_VERIFICATION_INPROGRESS' then 'Dcoument Verification Pending' when status='FIELDINSPECTION_INPROGRESS' then 'Field Inspection In Progress' when status='APPROVAL_INPROGRESS' then 'Approval In Progress' when status='PENDING_SANC_FEE_PAYMENT' then 'Pending Sanction Fee Payment' when status='CONSTRUCT_START_INTIMATED' then 'Construction Start Intimated' when status='PLINTH_VERIFICATION_INPROGRESS' then 'Plinth Verification In Progress' when status='GROUNDFLR_VERIFICATION_INPROGRESS' then 'Ground Floor Verification In Progress' when status='TOPFLR_VERIFICATION_INPROGRESS' then 'Top Floor Verification In Progress' when status='TOPFLR_VERIFICATION_COMPLETED' then 'Top Floor Verification Completed' when status='CITIZEN_ACTION_PENDING_AT_DOC_VERIF' then 'Citizen Action Pending at Document Verification' when status='CITIZEN_ACTION_PENDING_AT_APPROVAL' then 'Citizen Action Pending At Approval' when status='APPROVED' then 'Approved' when status='PENDING_APPL_FEE' then 'Pending Application Fee Payment' when status='APP_L1_VERIFICATION_PENDING' then 'Application Level 1 Verification Pending' end as status ,APPROVALNO, CASE WHEN APPROVALDATE > 0 THEN TO_CHAR(TO_TIMESTAMP(APPROVALDATE / 1000),'DD-MM-YYYY') END AS APPROVALDATE FROM EG_BPA_BUILDINGPLAN bpa where status not in ('INITIATED','CITIZEN_APPROVAL_INPROCESS')
+      SELECT INITCAP(SPLIT_PART(TENANTID,'.',2)) AS ULB,APPLICATIONNO, case when BUSINESSSERVICE like '%BPA_OC%' then 'Occupancy Certificate' else 'Permit Order' end as BUSINESSSERVICE , TO_CHAR(TO_TIMESTAMP(CREATEDTIME / 1000),'DD-MM-YYYY') AS CREATEDTIME, TO_CHAR(TO_TIMESTAMP(APPLICATIONDATE / 1000),'DD-MM-YYYY') AS APPLICATIONDATE, case when status ='INPROGRESS' then 'In-Progress' when status ='PENDING_APPL_FEE_PAYMENT' then 'Pending Application Fee' when status='DOC_VERIFICATION_INPROGRESS' then 'Dcoument Verification Pending' when status='FIELDINSPECTION_INPROGRESS' then 'Field Inspection In Progress' when status='APPROVAL_INPROGRESS' then 'Approval In Progress' when status='PENDING_SANC_FEE_PAYMENT' then 'Pending Sanction Fee Payment' when status='CONSTRUCT_START_INTIMATED' then 'Construction Start Intimated' when status='PLINTH_VERIFICATION_INPROGRESS' then 'Plinth Verification In Progress' when status='GROUNDFLR_VERIFICATION_INPROGRESS' then 'Ground Floor Verification In Progress' when status='TOPFLR_VERIFICATION_INPROGRESS' then 'Top Floor Verification In Progress' when status='TOPFLR_VERIFICATION_COMPLETED' then 'Top Floor Verification Completed' when status='CITIZEN_ACTION_PENDING_AT_DOC_VERIF' then 'Citizen Action Pending at Document Verification' when status='CITIZEN_ACTION_PENDING_AT_APPROVAL' then 'Citizen Action Pending At Approval' when status='APPROVED' then 'Approved' when status='PENDING_APPL_FEE' then 'Pending Application Fee Payment' when status='APP_L1_VERIFICATION_PENDING' then 'Application Level 1 Verification Pending' end as status ,APPROVALNO, CASE WHEN APPROVALDATE > 0 THEN TO_CHAR(TO_TIMESTAMP(APPROVALDATE / 1000),'DD-MM-YYYY') END AS APPROVALDATE FROM EG_BPA_BUILDINGPLAN bpa where status not in ('INITIATED','CITIZEN_APPROVAL_INPROCESS')
   orderby: ORDER BY bpa.createdtime desc
 
 - reportName: Architect&TechnicalPersonDetailsReport
@@ -96,13 +96,41 @@ ReportDefinitions:
     type: string
     source: bpa
     total: false
-  - name: registrationnumber
+  - name: coadtpnumber
     label: COA/DTP Registration Number
     type: string
     source: bpa
     total: false
+  - name: licensenumber
+    label: Sujog Registration Number
+    type: string
+    source: bpa
+    total: false
+  - name: validfrom
+    label: Valid From
+    type: string
+    source: bpa
+    total: false
+  - name: validto
+    label: Valid To
+    type: string
+    source: bpa
+    total: false
+  - name: status
+    label: Status
+    type: string
+    source: bpa
+    total: false
+  searchParams:
+  - name: statusinput
+    label: Status
+    type: singlevaluelist
+    pattern: 'list://PENDINGAPPROVAL:Pending Approval,REJECTED:Rejected,APPROVED:Approved,INITIATED:Initiated'
+    source: bpa
+    isMandatory: false
+    searchClause: AND ett.status=$statusinput
   query: |
-      select ett.tenantid as ULB,eu.name as name,eu.mobilenumber as mobilenumber,eu.emailid as emailid,case when INITCAP(SPLIT_PART(ettu.tradetype,'.',1))='Architect' then 'Architect' when INITCAP(SPLIT_PART(ettu.tradetype,'.',1))='Technicalperson' then 'Technical Person' end as licensetype,ett.licensenumber as registrationnumber from eg_tl_tradelicense ett inner join eg_user eu on ett.accountid=eu.uuid inner join eg_tl_TradeLicenseDetail ettd on ett.id=ettd.tradelicenseId inner join eg_tl_TradeUnit ettu on ettd.id=ettu.tradeLicenseDetailId where ett.businessservice='BPAREG'
+      select ett.tenantid as ULB,eu.name as name,eu.mobilenumber as mobilenumber,eu.emailid as emailid,case when INITCAP(SPLIT_PART(ettu.tradetype,'.',1))='Architect' then 'Architect' when INITCAP(SPLIT_PART(ettu.tradetype,'.',1))='Technicalperson' then 'Technical Person' end as licensetype,ett.licensenumber as licensenumber, case when ettd.additionaldetail ->>'counsilForArchNo' is not null then ettd.additionaldetail ->>'counsilForArchNo' when ettd.additionaldetail ->>'DirectorateForTpNo' is not null then ettd.additionaldetail ->>'DirectorateForTpNo' end as coadtpnumber ,to_char(to_timestamp(ett.validfrom / 1000), 'DD-Mon-YYYY') as validfrom,to_char(to_timestamp(ett.validto / 1000), 'DD-Mon-YYYY') as validto,case when ett.status='PENDINGAPPROVAL' then 'Pending Approval' when ett.status='REJECTED' then 'Rejected' when ett.status='APPROVED' then 'Approved' when ett.status='INITIATED' then 'Initiated' end as status from eg_tl_tradelicense ett inner join eg_user eu on ett.accountid=eu.uuid inner join eg_tl_TradeLicenseDetail ettd on ett.id=ettd.tradelicenseId inner join eg_tl_TradeUnit ettu on ettd.id=ettu.tradeLicenseDetailId where ett.businessservice='BPAREG'
 
 - reportName: BPAHighLevelSummaryReport
   summary: BPAHighLevelSummaryReport
@@ -119,11 +147,11 @@ ReportDefinitions:
     type: string
     source: bpa
     total: false
-  - name: count
+  - name: ultimatecount
     label: Number of Applications
     type: string
     source: bpa
-    total: false
+    total: true
   searchParams:
   - name: tenant
     label: ULB
@@ -132,9 +160,9 @@ ReportDefinitions:
     source: bpa
     wrapper: true
     isMandatory: true
-    searchClause: and ebb.tenantid = $tenant
+    searchClause: having internal.tenantid=$tenant
   query: |
-      select INITCAP(SPLIT_PART(ebb.tenantid,'.',2)) as ulb,case when ebb.status='DOC_VERIFICATION_INPROGRESS' then 'Pending at Document Verification' when ebb.status='FIELDINSPECTION_INPROGRESS' then 'Pending at Field Inspection' when ebb.status='REJECTED' then 'Rejected' when ebb.status='APPROVED' then 'Approved' when ebb.status='APP_L1_VERIFICATION_INPROGRESS' then 'Pending at Planning Assistant' when ebb.status='APP_L2_VERIFICATION_INPROGRESS' then 'Pending at Planning Officer' when ebb.status='APP_L3_VERIFICATION_INPROGRESS' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' then 'Pending at Planning Assistant' end as status,count(ebb.applicationno) from eg_bpa_buildingplan ebb group by ebb.status,ebb.tenantid having ebb.status in ('DOC_VERIFICATION_INPROGRESS','FIELDINSPECTION_INPROGRESS','REJECTED','APPROVED','APP_L1_VERIFICATION_INPROGRESS','APP_L2_VERIFICATION_INPROGRESS','APP_L3_VERIFICATION_INPROGRESS','APPROVAL_INPROGRESS')
+      select INITCAP(SPLIT_PART(internal.tenantid,'.',2)) as ulb,internal.status,sum(internal.internalcount) as ultimatecount from (select ebb.tenantid as tenantid,case when ebb.status='DOC_VERIFICATION_INPROGRESS' then 'Pending at Document Verification' when ebb.status='FIELDINSPECTION_INPROGRESS' then 'Pending at Field Inspection' when ebb.status='REJECTED' then 'Rejected' when ebb.status='APPROVED' then 'Approved' when ebb.status='APP_L1_VERIFICATION_INPROGRESS' then 'Pending at Planning Assistant' when ebb.status='APP_L2_VERIFICATION_INPROGRESS' then 'Pending at Planning Officer' when ebb.status='APP_L3_VERIFICATION_INPROGRESS' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA1' then 'Pending at Planning Assistant' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA2' then 'Pending at Planning Officer' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA3' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA4' then 'Pending at DPBP Committee' when ebb.status in ('CITIZEN_APPROVAL_INPROCESS','CITIZEN_ACTION_PENDING_AT_DOC_VERIF','CITIZEN_ACTION_PENDING_AT_APP_L1_VERIF','CITIZEN_ACTION_PENDING_AT_APP_L2_VERIF','CITIZEN_ACTION_PENDING_AT_APP_L3_VERIF','CITIZEN_ACTION_PENDING_AT_APPROVAL') then 'Pending for Citizen Action' when ebb.status in ('INITIATED','INPROGRESS') then 'Pending for Architect Action' when ebb.status='PENDING_APPL_FEE' then 'Pending for Application Fee Payment' when ebb.status='PENDING_SANC_FEE_PAYMENT' then 'Pending for Sanction Fee Payment' else ebb.status end as status,count(ebb.applicationno) as internalcount from eg_bpa_buildingplan ebb group by ebb.status,ebb.tenantid ,ebb.businessservice having ebb.businessservice in ('BPA1','BPA2','BPA3','BPA4')) internal group by internal.tenantid,internal.status
 
 - reportName: BPAPaymentReport
   summary: BPAPaymentReport
@@ -225,11 +253,6 @@ ReportDefinitions:
     type: string
     source: bpa
     total: false
-  - name: village
-    label: Village Name
-    type: string
-    source: bpa
-    total: false
   - name: architectname
     label: Architect/Tech Person Name
     type: string
@@ -280,7 +303,7 @@ ReportDefinitions:
     isMandatory: true
     searchClause: where ebb.tenantid = $tenant
   query: |
-      select INITCAP(SPLIT_PART(ebb.tenantid,'.',2)) as ULB,ebb.applicationno as applicationno, case when ebb.status='DOC_VERIFICATION_INPROGRESS' then 'Pending at Document Verification' when ebb.status='FIELDINSPECTION_INPROGRESS' then 'Pending at Field Inspection' when ebb.status='REJECTED' then 'Rejected' when ebb.status='APPROVED' then 'Approved' when ebb.status='APP_L1_VERIFICATION_INPROGRESS' then 'Pending at Planning Assistant' when ebb.status='APP_L2_VERIFICATION_INPROGRESS' then 'Pending at Planning Officer' when ebb.status='APP_L3_VERIFICATION_INPROGRESS' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA4' then 'Pending at DPBP committee' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA3' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA2' then 'Pending at Planning Officer' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA1' then 'Pending at Planning Assistant' when ebb.status='CITIZEN_APPROVAL_INPROCESS' then 'Pending for citizen approval' when ebb.status='INPROGRESS' then 'Pending for architect submission' when ebb.status='PENDING_APPL_FEE' then 'Pending for application fee payment' when ebb.status='PENDING_SANC_FEE_PAYMENT' then 'Pending for Permit fee payment' end as status,eu.name as applicantname,eu.mobilenumber as applicantmobilenumber,ela.locality as village,euarchitect.name as architectname,euarchitect.mobilenumber as architectmobilenumber,ebb.status as currentstatus,floor(((EXTRACT(EPOCH FROM (SELECT NOW())) * 1000)-ewpcs.createdtime)/86400000) as pendingdayssincecurrentstatus,eu1.name as officernameatpending,to_char(to_timestamp(ebb.createdtime / 1000), 'DD-Mon-YYYY') as submissiondate,floor(((EXTRACT(EPOCH FROM (SELECT NOW())) * 1000)-ebb.createdtime)/86400000) as pendingdayssincesubmission ,case when ebb.status='APPROVED' then to_char(to_timestamp(ebb.lastmodifiedtime / 1000), 'DD-Mon-YYYY') else null end as approvaldate from  eg_bpa_buildingplan ebb inner join eg_land_ownerinfo elo on ebb.landid=elo.landinfoid inner join eg_user eu on elo.uuid=eu.uuid inner join eg_land_landinfo ell on ebb.landid=ell.id inner join eg_land_address ela on ell.id=ela.landinfoid inner join eg_user euarchitect on ebb.accountid=euarchitect.uuid inner join (select distinct on(businessid) * from eg_wf_processinstance_v2 order by businessid,createdtime desc) as ewpcs on ewpcs.businessid=ebb.applicationno left outer join eg_wf_assignee_v2 ewa1 on ewpcs.id=ewa1.processinstanceid left outer join eg_user eu1 on ewa1.assignee=eu1.uuid
+      select INITCAP(SPLIT_PART(ebb.tenantid,'.',2)) as ULB,ebb.applicationno as applicationno, case when ebb.status='DOC_VERIFICATION_INPROGRESS' then 'Pending at Document Verification' when ebb.status='FIELDINSPECTION_INPROGRESS' then 'Pending at Field Inspection' when ebb.status='REJECTED' then 'Rejected' when ebb.status='APPROVED' then 'Approved' when ebb.status='APP_L1_VERIFICATION_INPROGRESS' then 'Pending at Planning Assistant' when ebb.status='APP_L2_VERIFICATION_INPROGRESS' then 'Pending at Planning Officer' when ebb.status='APP_L3_VERIFICATION_INPROGRESS' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA4' then 'Pending at DPBP committee' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA3' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA2' then 'Pending at Planning Officer' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA1' then 'Pending at Planning Assistant' when ebb.status='CITIZEN_APPROVAL_INPROCESS' then 'Pending for citizen approval' when ebb.status='INPROGRESS' then 'Pending for architect submission' when ebb.status='PENDING_APPL_FEE' then 'Pending for application fee payment' when ebb.status='PENDING_SANC_FEE_PAYMENT' then 'Pending for Permit fee payment' end as status,eu.name as applicantname,eu.mobilenumber as applicantmobilenumber,ela.locality as village,euarchitect.name as architectname,euarchitect.mobilenumber as architectmobilenumber,ebb.status as currentstatus,floor(((EXTRACT(EPOCH FROM (SELECT NOW())) * 1000)-ewpcs.createdtime)/86400000) as pendingdayssincecurrentstatus,eu1.name as officernameatpending,to_char(to_timestamp(ewp2.createdtime / 1000), 'DD-Mon-YYYY') as submissiondate,floor(((EXTRACT(EPOCH FROM (SELECT NOW())) * 1000)-ewp2.createdtime)/86400000) as pendingdayssincesubmission ,case when ebb.status='APPROVED' then to_char(to_timestamp(ebb.lastmodifiedtime / 1000), 'DD-Mon-YYYY') else null end as approvaldate from  eg_bpa_buildingplan ebb inner join eg_land_ownerinfo elo on ebb.landid=elo.landinfoid inner join eg_user eu on elo.uuid=eu.uuid inner join eg_land_landinfo ell on ebb.landid=ell.id inner join eg_land_address ela on ell.id=ela.landinfoid inner join eg_user euarchitect on ebb.accountid=euarchitect.uuid inner join (select distinct on(businessid) * from eg_wf_processinstance_v2 order by businessid,createdtime desc) as ewpcs on ewpcs.businessid=ebb.applicationno left outer join eg_wf_processinstance_v2 ewp2 on ewp2.businessid=ebb.applicationno and ewp2."action"='APPLY' left outer join eg_wf_assignee_v2 ewa1 on ewpcs.id=ewa1.processinstanceid left outer join eg_user eu1 on ewa1.assignee=eu1.uuid
 
 - reportName: PaymentDetailReport
   summary: PaymentDetailReport
