@@ -5215,11 +5215,11 @@
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "indexName": "fsm",
-        "aggrQuery": "{ \"aggs\": {\"AGGR\": {\"filter\": {\"bool\": {\"must_not\": [{\"term\": {\"Data.fsm.tenantId.keyword\": \"pb.testing\"}}]}}, \"aggs\": {\"Gender\": {\"terms\": {\"field\": \"Data.fsm.citizen.gender.keyword\"},\"aggs\": {\"Assessed Properties\": {\"sum\": {\"field\": \"Data.payments.paymentDetails.bill.billDetails.amountPaid\"}}}}}}}}"
+        "aggrQuery": "{ \"aggs\": {\"AGGR\": {\"filter\": {\"bool\": {\"must_not\": [{\"term\": {\"Data.fsm.tenantId.keyword\": \"pb.testing\"}}]}}, \"aggs\": {\"Gender\": {\"terms\": {\"field\": \"Data.fsm.citizen.gender.keyword\"}}}}}}"
       }
     ],
     "chartType": "pie",
-    "valueType": "amount",
+    "valueType": "number",
     "action": "",
     "documentType": "_doc",
     "drillChart": "none",
@@ -5230,6 +5230,57 @@
     },
     "_comment": " "
   },
+   "fsmRequestByPaymentPreference": {
+    "chartName": "DSS_FSM_RESQUEST_BY_PAYMENT_PREFERENCE",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.fsm.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "fsm",
+        "aggrQuery": "{ \"aggs\": {\"AGGR\": {\"filter\": {\"bool\": {\"must_not\": [{\"term\": {\"Data.fsm.tenantId.keyword\": \"pb.testing\"}}]}}, \"aggs\": {\"Payment Preference\": {\"terms\": {\"field\": \"Data.fsm.paymentPreference.keyword\"}}}}}}"
+      }
+    ],
+    "chartType": "pie",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Payment Preference"
+    ],
+    "insight": {
+    },
+    "_comment": " "
+  },
+
+  "fsmTotalRequestsbyStatus": {
+    "chartName": "DSS_FSM_TOTAL_REQUESTS_BY_STATUS",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.fsm.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Received\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"created\":{\"filter\":{\"terms\":{\"status.keyword\":[\"CREATED\"]}},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"totalRequests\"}}}}}},\"Completed\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"intervalvalue\"},\"aggs\":{\"completed\":{\"filter\":{\"terms\":{\"status.keyword\":[\"CITIZEN_FEEDBACK_PENDING\"]}},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"totalRequests\"}}}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "Received",
+      "Completed" 
+    ],
+    "isCumulative": false,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": " "
+  },
+
   "fsmTotalCumulativeCollection": {
     "chartName": "DSS_FSM_TOTAL_CUMULATIVE_COLLECTION",
     "queries": [
@@ -5485,6 +5536,33 @@
       "Septage Dumped At Plant"
     ],
     "isCumulative": false,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": " "
+  },
+  
+   "fsmCustomerRatings": {
+    "chartName": "DSS_FSM_CUSTOMER_RATINGS",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.fsm.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\"]}},{\"term\":{\"Data.history.action.keyword\":\"RATE\"}},{\"exists\":{\"field\":\"Data.history\"}},{\"range\":{\"Data.history.rating\":{\"gte\":1}}}]}},\"aggs\":{\"Customer Rating\":{\"date_histogram\":{\"field\":\"Data.fsm.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"avg\":{\"script\":\"int sum = 0;int count =0;if(params['_source']['Data']['history']!=null){ for (item in params['_source']['Data']['history']) {if(item.rating!=null){ sum += item.rating;} }} return sum;\"}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "isRoundOff": true,
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Customer Rating"
+    ],
+    "isCumulative": true,
     "interval": "month",
     "insight": {
     },
