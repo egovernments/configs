@@ -5,9 +5,10 @@ SearchDefinitions:
   definitions:
     - name: inboxbsswsearch
       query:
-        baseQuery: Select row_to_json(result) from 
+        baseQuery: Select row_to_json(final_result) from 
           (
-          select DISTINCT(bs.consumerCode),pi.createdtime from egbs_amendment as bs 
+          select DISTINCT(amendmentid),consumercode from
+          ( select bs.amendmentid, bs.consumerCode, pi.createdtime from egbs_amendment as bs 
           INNER JOIN eg_sw_connection conn ON bs.consumercode = conn.connectionno
           INNER JOIN egbs_demand_v1 demand ON bs.consumercode = demand.consumercode 
           INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bs.amendmentid 
@@ -15,7 +16,7 @@ SearchDefinitions:
           $where
           AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bs.amendmentid GROUP BY wf.businessid)
           order by pi.createdtime asc $pagination
-          ) result
+          ) result) final_result
         groupBy:
         orderBy:
       searchParams:
@@ -60,9 +61,10 @@ SearchDefinitions:
    
     - name: inboxbsswsearchdesc
       query:
-        baseQuery: Select row_to_json(result) from
+        baseQuery: Select row_to_json(final_result) from
           (
-          select DISTINCT(bs.consumerCode),pi.createdtime from egbs_amendment as bs 
+          select DISTINCT(amendmentid),consumercode from
+          ( select bs.amendmentid, bs.consumerCode, pi.createdtime from egbs_amendment as bs 
           INNER JOIN eg_sw_connection conn ON bs.consumercode = conn.connectionno 
           INNER JOIN egbs_demand_v1 demand ON bs.consumercode = demand.consumercode
           INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bs.amendmentid 
@@ -70,7 +72,7 @@ SearchDefinitions:
           $where
           AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bs.amendmentid GROUP BY wf.businessid)
           order by pi.createdtime desc $pagination
-          ) result
+          ) result) final_result
         groupBy:
         orderBy:
       searchParams:
@@ -115,9 +117,10 @@ SearchDefinitions:
     
     - name: inboxbsswsearchcount
       query:
-        baseQuery: SELECT row_to_json(TotalCount) from (SELECT COUNT(result) from
+        baseQuery: SELECT row_to_json(TotalCount) from (SELECT COUNT(final_result) from
           (
-          select DISTINCT(bs.amendmentid),pi.createdtime from egbs_amendment as bs 
+          select DISTINCT(amendmentid),consumercode from
+          ( select bs.amendmentid, bs.consumerCode, pi.createdtime from egbs_amendment as bs 
           INNER JOIN eg_sw_connection conn ON bs.consumercode = conn.connectionno 
           INNER JOIN egbs_demand_v1 demand ON bs.consumercode = demand.consumercode
           INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bs.amendmentid 
@@ -125,7 +128,7 @@ SearchDefinitions:
           $where
           AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bs.amendmentid GROUP BY wf.businessid)
           order by pi.createdtime asc $pagination
-          ) result) TotalCount
+          ) result) final_result) TotalCount
         groupBy:
         orderBy:
       searchParams:
@@ -165,59 +168,4 @@ SearchDefinitions:
       output:
         jsonFormat: {"ResponseInfo": {},"TotalCount": {}}
         outJsonPath: $.TotalCount
-        responseInfoPath: $.ResponseInfo
-
-
-    - name: inboxbsswamendmentsearch
-      query:
-        baseQuery: Select row_to_json(result) from 
-          (
-          select DISTINCT(bs.amendmentid),pi.createdtime from egbs_amendment as bs 
-          INNER JOIN eg_sw_connection conn ON bs.consumercode = conn.connectionno
-          INNER JOIN egbs_demand_v1 demand ON bs.consumercode = demand.consumercode 
-          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bs.amendmentid 
-          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid 
-          $where
-          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bs.amendmentid GROUP BY wf.businessid)
-          order by pi.createdtime asc $pagination
-          ) result
-        groupBy:
-        orderBy:
-      searchParams:
-        condition: AND
-        params:
-          - name: bs.tenantid
-            isMandatory: true
-            jsonPath: $.searchCriteria.tenantId
-          - name: bs.amendmentid
-            isMandatory: false
-            jsonPath: $.searchCriteria.applicationNumber
-          - name: conn.locality
-            isMandatory: false
-            jsonPath: $.searchCriteria.locality
-          - name: bs.consumercode
-            isMandatory: false
-            jsonPath: $.searchCriteria.consumerNo
-          - name: bs.status
-            isMandatory: false
-            jsonPath: $.searchCriteria.applicationStatus
-          - name: assg.assignee
-            isMandatory: false
-            jsonPath: $.searchCriteria.assignee
-          - name: pi.status
-            isMandatory: false
-            jsonPath: $.searchCriteria.status
-          - name: pi.businessservice
-            isMandatory: false
-            jsonPath: $.searchCriteria.businessservice
-          - name: demand.payer
-            isMandatory: false
-            jsonPath: $.searchCriteria.userIds
-        pagination:
-          noOfRecords: $.searchCriteria.noOfRecords
-          offset: $.searchCriteria.offset
-        
-      output:
-        jsonFormat: {"ResponseInfo": {},"BillAmendments": []}
-        outJsonPath: $.BillAmendments
         responseInfoPath: $.ResponseInfo
