@@ -45,7 +45,7 @@ ReportDefinitions:
     wrapper: true
     isMandatory: false
     searchClause: AND tenantid = $ulb      
-  query: SELECT initcap(split_part(tenantid, '.', 2)) as tenantid, COUNT(CASE WHEN createdby='import-user' THEN createdby ELSE NULL END) AS LegacyRecords, COUNT(CASE WHEN createdby!='import-user' THEN createdby ELSE NULL END) AS NonLegacyRecords, count(*) as TotalRecords FROM eg_birth_dtls where tenantid != 'pb.testing'
+  query: SELECT CASE WHEN tenantid = 'punjab' THEN tenantid ELSE split_part(tenantid,'.',2) END AS tenantid, COUNT(CASE WHEN createdby='import-user' THEN createdby ELSE NULL END) AS LegacyRecords, COUNT(CASE WHEN createdby!='import-user' THEN createdby ELSE NULL END) AS NonLegacyRecords, count(*) as TotalRecords FROM eg_birth_dtls where tenantid != 'pb.testing'
   groupby: GROUP BY tenantid 
   orderby: order by tenantid
   
@@ -95,7 +95,7 @@ ReportDefinitions:
     wrapper: true
     isMandatory: false
     searchClause: AND tenantid = $ulb      
-  query: SELECT initcap(split_part(tenantid, '.', 2)) as tenantid, COUNT(CASE WHEN createdby='import-user' THEN createdby ELSE NULL END) AS LegacyRecords, COUNT(CASE WHEN createdby!='import-user' THEN createdby ELSE NULL END) AS NonLegacyRecords, count(*) as TotalRecords FROM eg_death_dtls where tenantid != 'pb.testing'
+  query: SELECT CASE WHEN tenantid = 'punjab' THEN tenantid ELSE split_part(tenantid,'.',2) END AS tenantid, COUNT(CASE WHEN createdby='import-user' THEN createdby ELSE NULL END) AS LegacyRecords, COUNT(CASE WHEN createdby!='import-user' THEN createdby ELSE NULL END) AS NonLegacyRecords, count(*) as TotalRecords FROM eg_death_dtls where tenantid != 'pb.testing'
   groupby: GROUP BY tenantid 
   orderby: order by tenantid
     
@@ -137,7 +137,7 @@ ReportDefinitions:
     source: bnd
     isMandatory: false
     searchClause: AND createdtime <= $toDate       
-  query: SELECT initcap(split_part(tenantid, '.', 2)) as tenantid, COUNT(CASE WHEN createdby='import-user' THEN createdby ELSE NULL END) AS LegacyRecords, COUNT(CASE WHEN createdby!='import-user' THEN createdby ELSE NULL END) AS NonLegacyRecords, count(*) as TotalRecords FROM eg_birth_dtls where tenantid = $tenantid
+  query: SELECT CASE WHEN tenantid = 'punjab' THEN tenantid ELSE split_part(tenantid,'.',2) END AS tenantid, COUNT(CASE WHEN createdby='import-user' THEN createdby ELSE NULL END) AS LegacyRecords, COUNT(CASE WHEN createdby!='import-user' THEN createdby ELSE NULL END) AS NonLegacyRecords, count(*) as TotalRecords FROM eg_birth_dtls where tenantid = $tenantid
   groupby: GROUP BY tenantid 
   orderby: order by tenantid
   
@@ -179,7 +179,7 @@ ReportDefinitions:
     source: bnd
     isMandatory: false
     searchClause: AND createdtime <= $toDate       
-  query: SELECT initcap(split_part(tenantid, '.', 2)) as tenantid, COUNT(CASE WHEN createdby='import-user' THEN createdby ELSE NULL END) AS LegacyRecords, COUNT(CASE WHEN createdby!='import-user' THEN createdby ELSE NULL END) AS NonLegacyRecords, count(*) as TotalRecords FROM eg_death_dtls where tenantid = $tenantid
+  query: SELECT CASE WHEN tenantid = 'punjab' THEN tenantid ELSE split_part(tenantid,'.',2) END AS tenantid, COUNT(CASE WHEN createdby='import-user' THEN createdby ELSE NULL END) AS LegacyRecords, COUNT(CASE WHEN createdby!='import-user' THEN createdby ELSE NULL END) AS NonLegacyRecords, count(*) as TotalRecords FROM eg_death_dtls where tenantid = $tenantid
   groupby: GROUP BY tenantid 
   orderby: order by tenantid
   
@@ -237,7 +237,7 @@ ReportDefinitions:
     label: BND_TRANSACTION_ID
     type: string
     source: bnd
-    total: false     
+    total: false      
   searchParams:
   - name: fromDate
     label: BND_FROM_DATE
@@ -252,4 +252,4 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND pay.createdtime <= $toDate       
   query: select case when paydtl.businessservice = 'BIRTH_CERT' THEN 'Birth' when paydtl.businessservice = 'DEATH_CERT' THEN 'Death' END as servicetype ,paydtl.receiptnumber, To_char((To_timestamp(pay.transactiondate / 1000) at time Zone 'Asia/Kolkata'), 'DD/MM/YYYY') as paymentdate, txn.consumer_code, pay.paidby, pay.payername, pay.mobilenumber, pay.paymentmode, CAST(txn.txn_amount as text) txn_amount, pay.transactionnumber from egcl_payment pay left join egcl_paymentdetail paydtl ON paydtl.paymentid = pay.id left join eg_pg_transactions txn on txn.txn_id = pay.transactionnumber where paydtl.businessservice in ('BIRTH_CERT','DEATH_CERT') and pay.tenantid = $tenantid
-  orderby: order by pay.createdtime desc    
+  orderby: order by pay.createdtime desc
