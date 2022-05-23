@@ -341,21 +341,66 @@ ReportDefinitions:
     type: string
     source: bpa
     total: false
-  - name: taxheadcode
-    label: Tax Head
+  - name: SanctionFee
+    label: Sanction Fee
     type: string
     source: bpa
-    total: false
-  - name: demandamount
+    total: true
+  - name: EIDPFee
+    label: EIDP Fee
+    type: string
+    source: bpa
+    total: true
+  - name: TemporaryRetentionFee
+    label: Temporary Retention Fee
+    type: string
+    source: bpa
+    total: true
+  - name: PurchasableFarFee
+    label: Purchasable Far Fee
+    type: string
+    source: bpa
+    total: true
+  - name: LandDevelopmentFee
+    label: Land Development Fee
+    type: string
+    source: bpa
+    total: true
+  - name: ShelterFee
+    label: Shelter Fee
+    type: string
+    source: bpa
+    total: true
+  - name: BuildingOperationFee
+    label: Building Operation Fee
+    type: string
+    source: bpa
+    total: true
+  - name: SecurityDeposit
+    label: Security Deposit
+    type: string
+    source: bpa
+    total: true
+  - name: WorkerWelfareCess
+    label: Worker Welfare Cess
+    type: string
+    source: bpa
+    total: true
+  - name: AdjustmentAmount
+    label: Other Fee
+    type: string
+    source: bpa
+    total: true
+  - name: totalDemandAmount
     label: Demand Amount
     type: string
     source: bpa
-    total: false
-  - name: paidamount
+    total: true
+  - name: totalAdjustedAmount
     label: Paid Amount
     type: string
     source: bpa
-    total: false
+    total: true
   - name: paymentdate
     label: Payment Date
     type: string
@@ -381,5 +426,17 @@ ReportDefinitions:
     source: bpa
     isMandatory: false
     searchClause: AND ebb.applicationno=$applicationno
+  - name: fromDate
+    label: From Date
+    type: epoch
+    source: tl
+    isMandatory: false
+    searchClause: AND ep.transactiondate >= $fromDate
+  - name: toDate
+    label: To Date
+    type: epoch
+    source: tl
+    isMandatory: false
+    searchClause: AND ep.transactiondate <= $toDate
   query: |
-      select INITCAP(SPLIT_PART(ebb.tenantid,'.',2)) as ulb,ebb.applicationno as applicationno,eu.name as name,eu.mobilenumber as mobilenumber,ebb.status as currentstatus,case when eb.businessservice in ('BPA.NC_OC_SAN_FEE','BPA.NC_SAN_FEE') then 'Permit Fee' when eb.businessservice in ('BPA.NC_OC_APP_FEE','BPA.NC_APP_FEE') then 'Application Fee' end as feetype,to_char(to_timestamp(ep.instrumentdate / 1000), 'DD-Mon-YYYY') as paymentdate,ep.transactionnumber as receiptno,case when ebad.taxheadcode='BPA_SANC_FEES' then 'Sanction Fee' when ebad.taxheadcode='BPA_SANC_EIDP_FEE' then 'EIDP Fee' when ebad.taxheadcode='BPA_SANC_TEMP_RETENTION_FEE' then 'Temporary Retention Fee' when ebad.taxheadcode='BPA_SANC_FEES.PUR_FAR_FEE' then 'Purchasable Far Fee' when ebad.taxheadcode='BPA_LAND_DEV_FEE' then 'Land Development Fee' when ebad.taxheadcode='BPA_SANC_SANC_FEE' then 'Sanction Fee' when ebad.taxheadcode='BPAREG_FEES' then 'Registration Fee' when ebad.taxheadcode='BPA_SANC_FEES.SHELTER_FEE' then 'Shelter Fee' when ebad.taxheadcode='BPA_APPL_FEES.BLDNG_OPRN_FEE' then 'Building Operation Fee' when ebad.taxheadcode='BPA_APPL_FEES.LAND_DEV_FEE' then 'Land Development Fee' when ebad.taxheadcode='BPA_SANC_FEES.RETENTION_FEE' then 'Retention Fee' when ebad.taxheadcode='BPA_SANC_SHELTER_FEE' then 'Shelter Fee' when ebad.taxheadcode='BPA_SANC_FEES.SECURITY_DEPOSIT' then 'Security Deposit' when ebad.taxheadcode='BPA_APPL_FEES' then 'Application Fee' when ebad.taxheadcode='BPA_APPL_FEES' then 'Application Fee' when ebad.taxheadcode='BPA_SANC_PUR_FAR' then 'Purchasable Far Fee' when ebad.taxheadcode='BPA_SANC_ADJUSTMENT_AMOUNT' then 'Adjustment Amount' when ebad.taxheadcode='BPA_SANC_FEES.SANC_FEE' then 'Sanction Fee' when ebad.taxheadcode='BPA_BLDNG_OPRN_FEE' then 'Building Operation Fee' when ebad.taxheadcode='BPA_SANC_WORKER_WELFARE_CESS' then 'Worker Welfare Cess' when ebad.taxheadcode='BPA_SANC_FEES.WELFARE_CESS' then 'Worker Welfare Cess' when ebad.taxheadcode='BPA_SANC_SECURITY_DEPOSIT' then 'Security Deposit' end as taxheadcode,ebad.amount as demandamount,ebad.adjustedamount as paidamount from egcl_payment ep inner join egcl_paymentdetail epd on ep.id=epd.paymentid inner join egcl_bill eb on epd.billid=eb.id inner join egcl_billdetial ebd on ebd.billid=eb.id inner join egcl_billaccountdetail ebad on ebad.billdetailid=ebd.id left outer join eg_bpa_buildingplan ebb on eb.consumercode=ebb.applicationno inner join eg_land_ownerinfo elo on ebb.landid=elo.landinfoid inner join eg_user eu on elo.uuid=eu.uuid
+      select INITCAP(SPLIT_PART(ebb.tenantid,'.',2)) as ulb,ebb.applicationno as applicationno,eu.name as name,eu.mobilenumber as mobilenumber,ebb.status as currentstatus,case when billtables.businessservice in ('BPA.NC_OC_SAN_FEE','BPA.NC_SAN_FEE') then 'Permit Fee' when billtables.businessservice in ('BPA.NC_OC_APP_FEE','BPA.NC_APP_FEE') then 'Application Fee' end as feetype,to_char(to_timestamp(ep.instrumentdate / 1000), 'DD-Mon-YYYY') as paymentdate,ep.transactionnumber as receiptno,billtables.SanctionFee,billtables.EIDPFee,billtables.TemporaryRetentionFee,billtables.PurchasableFarFee,billtables.LandDevelopmentFee,billtables.RegistrationFee,billtables.ShelterFee,billtables.BuildingOperationFee,billtables.SecurityDeposit,billtables.ApplicationFee,billtables.WorkerWelfareCess,billtables.AdjustmentAmount,billtables.totalDemandAmount,billtables.totalAdjustedAmount from egcl_payment ep inner join egcl_paymentdetail epd on ep.id=epd.paymentid inner join (select eb.id,eb.consumercode,eb.businessservice,sum(case when ebad.taxheadcode in ('BPA_SANC_FEES','BPA_SANC_SANC_FEE','BPA_SANC_FEES.SANC_FEE') then ebad.amount else 0 end) SanctionFee,sum(case when ebad.taxheadcode='BPA_SANC_EIDP_FEE' then ebad.amount else 0 end) EIDPFee,sum(case when ebad.taxheadcode in ('BPA_SANC_TEMP_RETENTION_FEE','BPA_SANC_FEES.RETENTION_FEE') then ebad.amount else 0 end) TemporaryRetentionFee,sum(case when ebad.taxheadcode in ('BPA_SANC_FEES.PUR_FAR_FEE','BPA_SANC_PUR_FAR') then ebad.amount else 0 end) PurchasableFarFee,sum(case when ebad.taxheadcode in ('BPA_APPL_FEES.LAND_DEV_FEE','BPA_LAND_DEV_FEE') then ebad.amount else 0 end) LandDevelopmentFee,sum(case when ebad.taxheadcode='BPAREG_FEES' then ebad.amount else 0 end) RegistrationFee,sum(case when ebad.taxheadcode in ('BPA_SANC_FEES.SHELTER_FEE','BPA_SANC_SHELTER_FEE') then ebad.amount else 0 end) ShelterFee,sum(case when ebad.taxheadcode in ('BPA_APPL_FEES.BLDNG_OPRN_FEE','BPA_BLDNG_OPRN_FEE') then ebad.amount else 0 end) BuildingOperationFee,sum(case when ebad.taxheadcode in ('BPA_SANC_FEES.SECURITY_DEPOSIT','BPA_SANC_SECURITY_DEPOSIT') then ebad.amount else 0 end) SecurityDeposit,sum(case when ebad.taxheadcode='BPA_APPL_FEES' then ebad.amount else 0 end) ApplicationFee,sum(case when ebad.taxheadcode in ('BPA_SANC_WORKER_WELFARE_CESS','BPA_SANC_FEES.WELFARE_CESS') then ebad.amount else 0 end) WorkerWelfareCess,sum(case when ebad.taxheadcode='BPA_SANC_ADJUSTMENT_AMOUNT' then ebad.amount else 0 end) AdjustmentAmount,sum(ebad.amount) as totalDemandAmount,sum(ebad.adjustedamount) as totalAdjustedAmount from egcl_billaccountdetail ebad inner join egcl_billdetial ebd on ebd.id = ebad.billdetailid inner join egcl_bill eb on ebd.billid=eb.id where eb.tenantid =$tenant and eb.businessservice in ('BPA.NC_APP_FEE','BPA.NC_SAN_FEE') group by eb.id,eb.consumercode,eb.businessservice) billtables on epd.billid=billtables.id left outer join eg_bpa_buildingplan ebb on billtables.consumercode=ebb.applicationno inner join eg_land_ownerinfo elo on ebb.landid=elo.landinfoid inner join eg_user eu on elo.uuid=eu.uuid
