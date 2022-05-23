@@ -88,22 +88,19 @@ serviceMaps:
           
           
           
-       - query: INSERT INTO eg_vendor_driver(  vendor_id, driver_id) VALUES ( ?, ?);
+       - query: INSERT INTO eg_vendor_driver(  vendor_id, driver_id, vendordriverstatus) VALUES ( ?, ?, ?);
          basePath: vendor.drivers.*
          jsonMaps:
-
-
           - jsonPath: $.vendor.id
-
           - jsonPath: $.vendor.drivers.*.uuid
+          - jsonPath: $.vendor.drivers.*.vendorDriverStatus
           
-       - query: INSERT INTO eg_vendor_vehicle(  vendor_id,vechile_id) VALUES ( ?, ?); 
+       - query: INSERT INTO eg_vendor_vehicle(  vendor_id,vechile_id, vendorVehicleStatus) VALUES ( ?, ?, ?); 
          basePath: vendor.vehicles.*
          jsonMaps:
-          
           - jsonPath: $.vendor.id
-
           - jsonPath: $.vendor.vehicles.*.id
+          - jsonPath: $.vendor.vehicles.*.vendorVehicleStatus
  
  - version: 1.0
    description: Update Vendor details
@@ -157,14 +154,15 @@ serviceMaps:
           - jsonPath: $.vendor.address.auditDetails.lastModifiedTime
           - jsonPath: $.vendor.address.id
           
-       - query: INSERT INTO eg_vendor_driver(vendor_id, driver_id) VALUES ( ?, ?) ON CONFLICT (vendor_id) DO UPDATE SET driver_id=EXCLUDED.driver_id;
+       - query: UPDATE EG_VENDOR_DRIVER SET vendorDriverStatus= ? WHERE VENDOR_ID= ? ;
          basePath: vendor.drivers.*
          jsonMaps:
+          - jsonPath: $.vendor.drivers.*.vendorDriverStatus
           - jsonPath: $.vendor.id
-          - jsonPath: $.vendor.drivers.*.uuid
-          
-       - query: INSERT INTO eg_vendor_vehicle(  vendor_id,vechile_id) VALUES ( ?, ?) ON CONFLICT (vendor_id) DO UPDATE SET vechile_id=EXCLUDED.vechile_id;
+                    
+       - query: UPDATE eg_vendor_vehicle SET vendorVehicleStatus= ? WHERE VENDOR_ID= ? ;
          basePath: vendor.vehicles.*
          jsonMaps:
+          - jsonPath: $.vendor.vehicles.*.vendorVehicleStatus
           - jsonPath: $.vendor.id
-          - jsonPath: $.vendor.vehicles.*.id
+          
