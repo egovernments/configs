@@ -29,12 +29,18 @@ serviceMaps:
             - jsonPath: $.vehicle.auditDetails.lastModifiedBy
             - jsonPath: $.vehicle.auditDetails.createdTime
             - jsonPath: $.vehicle.auditDetails.lastModifiedTime
-            
+             
     - version: 1.0
       description: Persists Vehicle Application details in eg_vehicle table
       fromTopic: update-vehicle-application
       isTransaction: true
       queryMaps:
+        
+        - query : INSERT INTO eg_vehicle_auditlog SELECT * FROM eg_vehicle WHERE id=?
+          basePath: vehicle
+          jsonMaps:
+            - jsonPath: $.vehicle.id
+            
         - query : UPDATE eg_vehicle SET tenantId=?, registrationNumber=?, model=?, type=?, tankCapicity=?, suctionType=?, pollutionCertiValidTill=?, InsuranceCertValidTill=?, fitnessValidTill=?, roadTaxPaidTill=?, gpsEnabled=?, source=?, status=?, additionalDetails=?, owner_id =?, createdBy=?, lastModifiedBy=?, createdTime=?, lastModifiedTime=? WHERE id=?
           basePath: vehicle
           jsonMaps:
