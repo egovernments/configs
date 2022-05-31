@@ -366,7 +366,7 @@ ReportDefinitions:
         isMandatory: false
         searchClause: AND app.dso_id = $dsoId
     query: |
-      SELECT app.applicationno, to_char(to_timestamp(app.createdtime/1000),'DD/MM/YYYY') as applicationDate, app.status as currentStatus, vendor.name as dsoname, coalesce(payment.amountpaid) as amount, CASE WHEN app.completed_on <= 0 THEN 'NA' ELSE to_char(to_timestamp(app.completed_on/1000),'DD/MM/YYYY')  END as dateOfCompletion from eg_fsm_application app join eg_vendor vendor ON  (app.dso_id =vendor.id) LEFT  JOIN egcl_bill bill ON ( bill.consumercode = app.applicationno) LEFT  JOIN egcl_paymentdetail payment ON ( payment.billid = bill.id ) where app.tenantid=$tenantid 
+      SELECT app.applicationno, to_char(to_timestamp(app.createdtime/1000),'DD/MM/YYYY') as applicationDate, CASE WHEN (app.status='' or app.status is NULL) THEN 'NA' ELSE app.status END  as currentStatus, vendor.name as dsoname, coalesce(payment.amountpaid) as amount, CASE WHEN (app.completed_on <= 0 or app.completed_on is NULL) THEN 'NA' ELSE to_char(to_timestamp(app.completed_on/1000),'DD/MM/YYYY')  END as dateOfCompletion from eg_fsm_application app join eg_vendor vendor ON  (app.dso_id =vendor.id) LEFT  JOIN egcl_bill bill ON ( bill.consumercode = app.applicationno) LEFT  JOIN egcl_paymentdetail payment ON ( payment.billid = bill.id ) where app.tenantid=$tenantid 
     orderby: order by app.createdtime  desc
   - reportName: FSMAreaWiseDailyCollectionReport
     decryptionPathId: FSMAreaWiseDailyCollectionReport
