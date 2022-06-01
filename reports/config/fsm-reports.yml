@@ -307,7 +307,6 @@ ReportDefinitions:
           select  app.applicationno as applicationno, vhtrip.applicationno as vehiclelogno, vendor.name as dsoname, vehicle.registrationnumber as vehicleno, to_char((to_timestamp(vhtrip.tripstarttime)::timestamp  at time zone 'utc' at time Zone 'Asia/Kolkata'), 'dd/mm/yyyy HH24:MI:SS') as vehicleentrytime, to_char((to_timestamp(vhtrip.tripendtime)::timestamp at time zone 'utc' at time Zone 'Asia/Kolkata'), 'dd/mm/yyyy HH24:MI:SS') as vehicleexittime, vhtrip.volumecarried as septagedumped from eg_fsm_application app join eg_vehicle_trip_detail vhtripdtl  on app.applicationno=vhtripdtl.referenceno join eg_vehicle_trip vhtrip on vhtripdtl.trip_id=vhtrip.id left join eg_vehicle vehicle on vhtrip.vehicle_id=vehicle.id left join eg_vendor vendor ON  app.dso_id =vendor.id where app.tenantid=$tenantid
     orderby: order by app.applicationno  desc
   - reportName: FSMDailyDesludingReport
-    decryptionPathId: FSMDailyDesludingReport
     summary: Report is used to  check FSM daily desludging request 
     version: 1.0.0
     moduleName: fsm
@@ -369,7 +368,6 @@ ReportDefinitions:
       SELECT app.applicationno, to_char(to_timestamp(app.createdtime/1000),'DD/MM/YYYY') as applicationDate, CASE WHEN (app.status='' or app.status is NULL) THEN 'NA' ELSE app.status END  as currentStatus, vendor.name as dsoname, coalesce(payment.amountpaid) as amount, CASE WHEN (app.completed_on <= 0 or app.completed_on is NULL) THEN 'NA' ELSE to_char(to_timestamp(app.completed_on/1000),'DD/MM/YYYY')  END as dateOfCompletion from eg_fsm_application app join eg_vendor vendor ON  (app.dso_id =vendor.id) LEFT  JOIN egcl_bill bill ON ( bill.consumercode = app.applicationno) LEFT  JOIN egcl_paymentdetail payment ON ( payment.billid = bill.id ) where app.tenantid=$tenantid 
     orderby: order by app.createdtime  desc
   - reportName: FSMAreaWiseDailyCollectionReport
-    decryptionPathId: FSMAreaWiseDailyCollectionReport
     summary: Report is used to  check area wise daily collection report 
     version: 1.0.0
     moduleName: fsm
@@ -449,7 +447,6 @@ ReportDefinitions:
       where app.tenantid=$tenantid
     orderby: order by app.createdtime  desc
   - reportName: FSTPPlantReportWithVehicleLog
-    decryptionPathId: FSTPPlantReportWithVehicleLog
     summary: Report is used to  check ftsp plant report along with vehicle log 
     version: 1.0.0
     moduleName: fsm
