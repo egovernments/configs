@@ -349,7 +349,7 @@ ReportDefinitions:
         source: fsm
         isMandatory: true
         searchClause: AND app.createdtime <= $toDate
-      - name: tenant
+      - name: tenantid
         label: REPORTS_FSM_PARAM_TENANT
         type: multivaluelist
         pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants| $.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
@@ -411,7 +411,7 @@ ReportDefinitions:
         source: fsm
         isMandatory: true
         searchClause: AND app.createdtime <= $toDate
-      - name: tenant
+      - name: tenantid
         label: REPORTS_FSM_PARAM_TENANT
         type: multivaluelist
         pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants| $.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
@@ -488,7 +488,7 @@ ReportDefinitions:
         source: fsm
         isMandatory: true
         searchClause: AND app.createdtime <= $toDate
-      - name: tenant
+      - name: tenantid
         label: REPORTS_FSM_PARAM_TENANT
         type: multivaluelist
         pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants| $.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
@@ -518,5 +518,5 @@ ReportDefinitions:
         isMandatory: false
         searchClause: AND vehicle.registrationnumber ilike '%'||$vehicleNo||'%'
     query: |
-      select  app.applicationno as applicationno, vendor.name as dsoname, vehicle.registrationnumber as vehicleno, to_char(to_timestamp(vhtrip.tripstarttime/1000),'DD/MM/YYYY') as vehicleentrydate, to_char((to_timestamp(vhtrip.tripstarttime)::timestamp  at time zone 'utc' at time Zone 'Asia/Kolkata'), 'HH12:MI:SS AM') as vehicleentrytime, to_char((to_timestamp(vhtrip.tripendtime)::timestamp at time zone 'utc' at time Zone 'Asia/Kolkata'), 'HH12:MI:SS AM') as vehicleexittime, vhtrip.volumecarried as septagedumped from eg_fsm_application app join eg_vehicle_trip_detail vhtripdtl  on app.applicationno=vhtripdtl.referenceno join eg_vehicle_trip vhtrip on vhtripdtl.trip_id=vhtrip.id left join eg_vehicle vehicle on vhtrip.vehicle_id=vehicle.id left join eg_vendor vendor ON  app.dso_id =vendor.id where app.tenantid=$tenantid
+      select  app.applicationno as applicationno, vendor.name as dsoname, vehicle.registrationnumber as vehicleno, to_char(to_timestamp(vhtrip.createdtime/1000),'DD/MM/YYYY') as vehicleentrydate, to_char((to_timestamp(vhtrip.tripstarttime)::timestamp  at time zone 'utc' at time Zone 'Asia/Kolkata'), 'HH12:MI:SS AM') as vehicleentrytime, to_char((to_timestamp(vhtrip.tripendtime)::timestamp at time zone 'utc' at time Zone 'Asia/Kolkata'), 'HH12:MI:SS AM') as vehicleexittime, vhtrip.volumecarried as septagedumped from eg_fsm_application app join eg_vehicle_trip_detail vhtripdtl  on app.applicationno=vhtripdtl.referenceno join eg_vehicle_trip vhtrip on vhtripdtl.trip_id=vhtrip.id left join eg_vehicle vehicle on vhtrip.vehicle_id=vehicle.id left join eg_vendor vendor ON  app.dso_id =vendor.id where app.tenantid=$tenantid
     orderby: order by app.createdtime  desc
