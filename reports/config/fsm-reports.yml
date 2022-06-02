@@ -412,13 +412,14 @@ ReportDefinitions:
         source: fsm
         isMandatory: true
         searchClause: AND app.createdtime <= $toDate
-      - name: tenantid
+      - name: ulb
         label: REPORTS_FSM_PARAM_TENANT
-        type: singlevaluelist
+        type: multivaluelist
         pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants| $.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
         source: fsm
         wrapper: true
         isMandatory: true
+        searchClause: AND app.tenantid in ($ulb)
       - name: locality
         label: REPORTS_FSM_PARAM_LOCALITY
         type: singlevaluelist
@@ -436,7 +437,7 @@ ReportDefinitions:
         isMandatory: false
         searchClause: AND app.dso_id = $dsoId
     query: |
-      SELECT app.applicationno, address.locality as locality, vendor.name as dsoname, app.status as currentStatus, CASE WHEN app.status = 'COMPLETED' THEN DATE_PART('day', AGE(to_timestamp(app.createdtime/1000), to_timestamp(app.completed_on/1000))) ELSE ((DATE_PART('day', AGE(to_timestamp(app.createdtime/1000), to_timestamp((EXTRACT(EPOCH FROM (SELECT NOW())))/1000))))) END as slaCompliance, vhtrip.volumecarried as wasteCollected from eg_fsm_application app JOIN eg_fsm_address address ON ( address.fsm_id = app.id) LEFT JOIN eg_vendor vendor ON  (app.dso_id =vendor.id) LEFT JOIN eg_wf_processinstance_v2 pi ON (pi.businessId=app.applicationno) LEFT JOIN eg_vehicle_trip_detail vhtripdtl  on (app.applicationno=vhtripdtl.referenceno) LEFT JOIN eg_vehicle_trip vhtrip on (vhtripdtl.trip_id=vhtrip.id) where app.tenantid=$tenantid
+      SELECT app.applicationno, address.locality as locality, vendor.name as dsoname, app.status as currentStatus, CASE WHEN app.status = 'COMPLETED' THEN DATE_PART('day', AGE(to_timestamp(app.createdtime/1000), to_timestamp(app.completed_on/1000))) ELSE ((DATE_PART('day', AGE(to_timestamp(app.createdtime/1000), to_timestamp((EXTRACT(EPOCH FROM (SELECT NOW())))/1000))))) END as slaCompliance, vhtrip.volumecarried as septagedumped from eg_fsm_application app JOIN eg_fsm_address address ON ( address.fsm_id = app.id) LEFT JOIN eg_vendor vendor ON  (app.dso_id =vendor.id) LEFT JOIN eg_wf_processinstance_v2 pi ON (pi.businessId=app.applicationno) LEFT JOIN eg_vehicle_trip_detail vhtripdtl  on (app.applicationno=vhtripdtl.referenceno) LEFT JOIN eg_vehicle_trip vhtrip on (vhtripdtl.trip_id=vhtrip.id) where app.tenantid=$tenantid
     orderby: order by app.createdtime  desc
   - reportName: FSMFSTPPlantWithVehicleLogReport
     summary: Report is used to  check ftsp plant report along with vehicle log
@@ -489,13 +490,14 @@ ReportDefinitions:
         source: fsm
         isMandatory: true
         searchClause: AND app.createdtime <= $toDate
-      - name: tenantid
+      - name: ulb
         label: REPORTS_FSM_PARAM_TENANT
-        type: singlevaluelist
+        type: multivaluelist
         pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants| $.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
         source: fsm
         wrapper: true
         isMandatory: true
+        searchClause: AND app.tenantid in ($ulb)
       - name: fstpcode
         label: REPORTS_FSM_PARAM_FSTPNAME
         type: multivaluelist
