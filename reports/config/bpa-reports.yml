@@ -132,13 +132,63 @@ ReportDefinitions:
     type: string
     source: bpa
     total: false
-  - name: status
-    label: ApplicationStatus
+  - name: approved
+    label: Approved
     type: string
     source: bpa
-    total: false
-  - name: ultimatecount
-    label: Number of Applications
+    total: true
+  - name: rejected
+    label: Rejected
+    type: string
+    source: bpa
+    total: true
+  - name: pendingDocVerif
+    label: Pending at Document Verification
+    type: string
+    source: bpa
+    total: true
+  - name: pendingFieldInspection
+    label: Pending at Field Inspection
+    type: string
+    source: bpa
+    total: true
+  - name: pendingAtPlanningAssistant
+    label: Pending at Planning Assistant
+    type: string
+    source: bpa
+    total: true
+  - name: pendingAtPlanningOfficer
+    label: Pending at Planning Officer
+    type: string
+    source: bpa
+    total: true
+  - name: pendingAtPlanningMember
+    label: Pending at Planning Member
+    type: string
+    source: bpa
+    total: true
+  - name: pendingAtDpbp
+    label: Pending at DPBP Committee
+    type: string
+    source: bpa
+    total: true
+  - name: pendingForCitizenAction
+    label: Pending for Citizen Action
+    type: string
+    source: bpa
+    total: true
+  - name: pendingForArchitectAction
+    label: Pending for Architect Action
+    type: string
+    source: bpa
+    total: true
+  - name: pendingApplFeePayment
+    label: Pending for Application Fee Payment
+    type: string
+    source: bpa
+    total: true
+  - name: pendingSancFeePayment
+    label: Pending for Permit Fee Payment
     type: string
     source: bpa
     total: true
@@ -149,10 +199,10 @@ ReportDefinitions:
     pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
     source: bpa
     wrapper: true
-    isMandatory: true
+    isMandatory: false
     searchClause: having internal.tenantid=$tenant
   query: |
-      select INITCAP(SPLIT_PART(internal.tenantid,'.',2)) as ulb,internal.status,sum(internal.internalcount) as ultimatecount from (select ebb.tenantid as tenantid,case when ebb.status='DOC_VERIFICATION_INPROGRESS' then 'Pending at Document Verification' when ebb.status='FIELDINSPECTION_INPROGRESS' then 'Pending at Field Inspection' when ebb.status='REJECTED' then 'Rejected' when ebb.status='APPROVED' then 'Approved' when ebb.status='APP_L1_VERIFICATION_INPROGRESS' then 'Pending at Planning Assistant' when ebb.status='APP_L2_VERIFICATION_INPROGRESS' then 'Pending at Planning Officer' when ebb.status='APP_L3_VERIFICATION_INPROGRESS' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA1' then 'Pending at Planning Assistant' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA2' then 'Pending at Planning Officer' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA3' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA4' then 'Pending at DPBP Committee' when ebb.status in ('CITIZEN_APPROVAL_INPROCESS','CITIZEN_ACTION_PENDING_AT_DOC_VERIF','CITIZEN_ACTION_PENDING_AT_APP_L1_VERIF','CITIZEN_ACTION_PENDING_AT_APP_L2_VERIF','CITIZEN_ACTION_PENDING_AT_APP_L3_VERIF','CITIZEN_ACTION_PENDING_AT_APPROVAL') then 'Pending for Citizen Action' when ebb.status in ('INITIATED','INPROGRESS') then 'Pending for Architect Action' when ebb.status='PENDING_APPL_FEE' then 'Pending for Application Fee Payment' when ebb.status='PENDING_SANC_FEE_PAYMENT' then 'Pending for Sanction Fee Payment' else ebb.status end as status,count(ebb.applicationno) as internalcount from eg_bpa_buildingplan ebb group by ebb.status,ebb.tenantid ,ebb.businessservice having ebb.businessservice in ('BPA1','BPA2','BPA3','BPA4')) internal group by internal.tenantid,internal.status
+      select INITCAP(SPLIT_PART(internal.tenantid,'.',2)) as ulb,sum(case when internal.status='Pending at Document Verification' then internal.internalcount else 0 end) pendingDocVerif,sum(case when internal.status='Pending at Field Inspection' then internal.internalcount else 0 end) pendingFieldInspection,sum(case when internal.status='Rejected' then internal.internalcount else 0 end) rejected,sum(case when internal.status='Approved' then internal.internalcount else 0 end) approved,sum(case when internal.status='Pending at Planning Assistant' then internal.internalcount else 0 end) pendingAtPlanningAssistant,sum(case when internal.status='Pending at Planning Officer' then internal.internalcount else 0 end) pendingAtPlanningOfficer,sum(case when internal.status='Pending at Planning Member' then internal.internalcount else 0 end) pendingAtPlanningMember,sum(case when internal.status='Pending at DPBP Committee' then internal.internalcount else 0 end) pendingAtDpbp,sum(case when internal.status='Pending for Citizen Action' then internal.internalcount else 0 end) pendingForCitizenAction,sum(case when internal.status='Pending for Architect Action' then internal.internalcount else 0 end) pendingForArchitectAction,sum(case when internal.status='Pending for Application Fee Payment' then internal.internalcount else 0 end) pendingApplFeePayment,sum(case when internal.status='Pending for Sanction Fee Payment' then internal.internalcount else 0 end) pendingSancFeePayment from (select ebb.tenantid as tenantid,case when ebb.status='DOC_VERIFICATION_INPROGRESS' then 'Pending at Document Verification' when ebb.status='FIELDINSPECTION_INPROGRESS' then 'Pending at Field Inspection' when ebb.status='REJECTED' then 'Rejected' when ebb.status='APPROVED' then 'Approved' when ebb.status='APP_L1_VERIFICATION_INPROGRESS' then 'Pending at Planning Assistant' when ebb.status='APP_L2_VERIFICATION_INPROGRESS' then 'Pending at Planning Officer' when ebb.status='APP_L3_VERIFICATION_INPROGRESS' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA1' then 'Pending at Planning Assistant' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA2' then 'Pending at Planning Officer' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA3' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA4' then 'Pending at DPBP Committee' when ebb.status in ('CITIZEN_APPROVAL_INPROCESS','CITIZEN_ACTION_PENDING_AT_DOC_VERIF','CITIZEN_ACTION_PENDING_AT_APP_L1_VERIF','CITIZEN_ACTION_PENDING_AT_APP_L2_VERIF','CITIZEN_ACTION_PENDING_AT_APP_L3_VERIF','CITIZEN_ACTION_PENDING_AT_APPROVAL') then 'Pending for Citizen Action' when ebb.status in ('INITIATED','INPROGRESS') then 'Pending for Architect Action' when ebb.status='PENDING_APPL_FEE' then 'Pending for Application Fee Payment' when ebb.status='PENDING_SANC_FEE_PAYMENT' then 'Pending for Sanction Fee Payment' else ebb.status end as status,count(ebb.applicationno) as internalcount from eg_bpa_buildingplan ebb group by ebb.status,ebb.tenantid ,ebb.businessservice having ebb.businessservice in ('BPA1','BPA2','BPA3','BPA4')) internal group by internal.tenantid
 
 - reportName: BPAPaymentReport
   summary: BPAPaymentReport
@@ -243,6 +293,11 @@ ReportDefinitions:
     type: string
     source: bpa
     total: false
+  - name: servicetype
+    label: Service Type
+    type: string
+    source: bpa
+    total: false
   - name: architectname
     label: Architect/Tech Person Name
     type: string
@@ -293,7 +348,7 @@ ReportDefinitions:
     isMandatory: true
     searchClause: where ebb.tenantid = $tenant
   query: |
-      select INITCAP(SPLIT_PART(ebb.tenantid,'.',2)) as ULB,ebb.applicationno as applicationno, case when ebb.status='DOC_VERIFICATION_INPROGRESS' then 'Pending at Document Verification' when ebb.status='FIELDINSPECTION_INPROGRESS' then 'Pending at Field Inspection' when ebb.status='REJECTED' then 'Rejected' when ebb.status='APPROVED' then 'Approved' when ebb.status='APP_L1_VERIFICATION_INPROGRESS' then 'Pending at Planning Assistant' when ebb.status='APP_L2_VERIFICATION_INPROGRESS' then 'Pending at Planning Officer' when ebb.status='APP_L3_VERIFICATION_INPROGRESS' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA4' then 'Pending at DPBP committee' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA3' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA2' then 'Pending at Planning Officer' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA1' then 'Pending at Planning Assistant' when ebb.status='CITIZEN_APPROVAL_INPROCESS' then 'Pending for citizen approval' when ebb.status='INPROGRESS' then 'Pending for architect submission' when ebb.status='PENDING_APPL_FEE' then 'Pending for application fee payment' when ebb.status='PENDING_SANC_FEE_PAYMENT' then 'Pending for Permit fee payment' end as status,eu.name as applicantname,eu.mobilenumber as applicantmobilenumber,ela.locality as village,euarchitect.name as architectname,euarchitect.mobilenumber as architectmobilenumber,ebb.status as currentstatus,floor(((EXTRACT(EPOCH FROM (SELECT NOW())) * 1000)-ewpcs.createdtime)/86400000) as pendingdayssincecurrentstatus,eu1.name as officernameatpending,to_char(to_timestamp(ewp2.createdtime / 1000), 'DD-Mon-YYYY') as submissiondate,floor(((EXTRACT(EPOCH FROM (SELECT NOW())) * 1000)-ewp2.createdtime)/86400000) as pendingdayssincesubmission ,case when ebb.status='APPROVED' then to_char(to_timestamp(ebb.lastmodifiedtime / 1000), 'DD-Mon-YYYY') else null end as approvaldate from  eg_bpa_buildingplan ebb inner join eg_land_ownerinfo elo on ebb.landid=elo.landinfoid inner join eg_user eu on elo.uuid=eu.uuid inner join eg_land_landinfo ell on ebb.landid=ell.id inner join eg_land_address ela on ell.id=ela.landinfoid inner join eg_user euarchitect on ebb.accountid=euarchitect.uuid inner join (select distinct on(businessid) * from eg_wf_processinstance_v2 order by businessid,createdtime desc) as ewpcs on ewpcs.businessid=ebb.applicationno left outer join eg_wf_processinstance_v2 ewp2 on ewp2.businessid=ebb.applicationno and ewp2."action"='APPLY' left outer join eg_wf_assignee_v2 ewa1 on ewpcs.id=ewa1.processinstanceid left outer join eg_user eu1 on ewa1.assignee=eu1.uuid
+      select INITCAP(SPLIT_PART(ebb.tenantid,'.',2)) as ULB,ebb.businessservice as servicetype,ebb.applicationno as applicationno, case when ebb.status='DOC_VERIFICATION_INPROGRESS' then 'Pending at Document Verification' when ebb.status='FIELDINSPECTION_INPROGRESS' then 'Pending at Field Inspection' when ebb.status='REJECTED' then 'Rejected' when ebb.status='APPROVED' then 'Approved' when ebb.status='APP_L1_VERIFICATION_INPROGRESS' then 'Pending at Planning Assistant' when ebb.status='APP_L2_VERIFICATION_INPROGRESS' then 'Pending at Planning Officer' when ebb.status='APP_L3_VERIFICATION_INPROGRESS' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA4' then 'Pending at DPBP committee' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA3' then 'Pending at Planning Member' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA2' then 'Pending at Planning Officer' when ebb.status='APPROVAL_INPROGRESS' and ebb.businessservice='BPA1' then 'Pending at Planning Assistant' when ebb.status='CITIZEN_APPROVAL_INPROCESS' then 'Pending for citizen approval' when ebb.status='INPROGRESS' then 'Pending for architect submission' when ebb.status='PENDING_APPL_FEE' then 'Pending for application fee payment' when ebb.status='PENDING_SANC_FEE_PAYMENT' then 'Pending for Permit fee payment' end as status,eu.name as applicantname,eu.mobilenumber as applicantmobilenumber,ela.locality as village,euarchitect.name as architectname,euarchitect.mobilenumber as architectmobilenumber,ebb.status as currentstatus,floor(((EXTRACT(EPOCH FROM (SELECT NOW())) * 1000)-ewpcs.createdtime)/86400000) as pendingdayssincecurrentstatus,eu1.name as officernameatpending,to_char(to_timestamp(ewp2.createdtime / 1000), 'DD-Mon-YYYY') as submissiondate,floor(((EXTRACT(EPOCH FROM (SELECT NOW())) * 1000)-ewp2.createdtime)/86400000) as pendingdayssincesubmission ,case when ebb.status='APPROVED' then to_char(to_timestamp(ebb.lastmodifiedtime / 1000), 'DD-Mon-YYYY') else null end as approvaldate from  eg_bpa_buildingplan ebb inner join eg_land_ownerinfo elo on ebb.landid=elo.landinfoid inner join eg_user eu on elo.uuid=eu.uuid inner join eg_land_landinfo ell on ebb.landid=ell.id inner join eg_land_address ela on ell.id=ela.landinfoid inner join eg_user euarchitect on ebb.accountid=euarchitect.uuid inner join (select distinct on(businessid) * from eg_wf_processinstance_v2 order by businessid,createdtime desc) as ewpcs on ewpcs.businessid=ebb.applicationno left outer join eg_wf_processinstance_v2 ewp2 on ewp2.businessid=ebb.applicationno and ewp2."action"='APPLY' left outer join eg_wf_assignee_v2 ewa1 on ewpcs.id=ewa1.processinstanceid left outer join eg_user eu1 on ewa1.assignee=eu1.uuid
 
 - reportName: PaymentDetailReport
   summary: PaymentDetailReport
