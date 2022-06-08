@@ -1,0 +1,255 @@
+ReportDefinitions:
+- reportName: BirthRecordsCountReport
+  summary: Count of Birth Records
+  version: 1.0.0
+  moduleName: rainmaker-bnd
+  sourceColumns:
+  - name: tenantid
+    label: BND_APPL_CANT
+    type: string
+    source: bnd
+    total: false
+  - name: legacyRecords
+    label: EMP_BND_LEGACYRECORDS
+    type: string
+    source: bnd
+    total: true
+  - name: nonLegacyRecords
+    label: EMP_BND_NONLEGACYRECORDS
+    type: string
+    source: bnd
+    total: true
+  - name: totalRecords
+    label: EMP_BND_TOTALRECORDS
+    type: string
+    source: bnd
+    total: true
+  searchParams:
+  - name: fromDate
+    label: BND_FROM_DATE
+    type: epoch
+    source: bnd
+    isMandatory: false
+    searchClause: AND createdtime >= $fromDate
+  - name: toDate
+    label: BND_TO_DATE
+    type: epoch
+    source: bnd
+    isMandatory: false
+    searchClause: AND createdtime <= $toDate  
+  - name: ulb
+    label: BND_APPL_CANT 
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+    source: bnd
+    wrapper: true
+    isMandatory: false
+    searchClause: AND tenantid = $ulb      
+  query: SELECT initcap(split_part(tenantid, '.', 2)) as tenantid, COUNT(CASE WHEN createdby='import-user' THEN createdby ELSE NULL END) AS LegacyRecords, COUNT(CASE WHEN createdby!='import-user' THEN createdby ELSE NULL END) AS NonLegacyRecords, count(*) as TotalRecords FROM eg_birth_dtls where tenantid != 'pg.testing'
+  groupby: GROUP BY tenantid 
+  orderby: order by tenantid
+  
+- reportName: DeathRecordsCountReport
+  summary: Count of Death Records
+  version: 1.0.0
+  moduleName: rainmaker-bnd
+  sourceColumns:
+  - name: tenantid
+    label: BND_APPL_CANT
+    type: string
+    source: bnd
+    total: false
+  - name: legacyRecords
+    label: EMP_BND_LEGACYRECORDS
+    type: string
+    source: bnd
+    total: true
+  - name: nonLegacyRecords
+    label: EMP_BND_NONLEGACYRECORDS
+    type: string
+    source: bnd
+    total: true
+  - name: totalRecords
+    label: EMP_BND_TOTALRECORDS
+    type: string
+    source: bnd
+    total: true
+  searchParams:
+  - name: fromDate
+    label: BND_FROM_DATE
+    type: epoch
+    source: bnd
+    isMandatory: false
+    searchClause: AND createdtime >= $fromDate
+  - name: toDate
+    label: BND_TO_DATE
+    type: epoch
+    source: bnd
+    isMandatory: false
+    searchClause: AND createdtime <= $toDate  
+  - name: ulb
+    label: BND_APPL_CANT 
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+    source: bnd
+    wrapper: true
+    isMandatory: false
+    searchClause: AND tenantid = $ulb      
+  query: SELECT initcap(split_part(tenantid, '.', 2)) as tenantid, COUNT(CASE WHEN createdby='import-user' THEN createdby ELSE NULL END) AS LegacyRecords, COUNT(CASE WHEN createdby!='import-user' THEN createdby ELSE NULL END) AS NonLegacyRecords, count(*) as TotalRecords FROM eg_death_dtls where tenantid != 'pg.testing'
+  groupby: GROUP BY tenantid 
+  orderby: order by tenantid
+    
+- reportName: BirthRecordsCountReportCBLevel
+  summary: Count of Birth Records
+  version: 1.0.0
+  moduleName: rainmaker-bnd
+  sourceColumns:
+  - name: tenantid
+    label: BND_APPL_CANT
+    type: string
+    source: bnd
+    total: false
+  - name: legacyRecords
+    label: EMP_BND_LEGACYRECORDS
+    type: string
+    source: bnd
+    total: true
+  - name: nonLegacyRecords
+    label: EMP_BND_NONLEGACYRECORDS
+    type: string
+    source: bnd
+    total: true
+  - name: totalRecords
+    label: EMP_BND_TOTALRECORDS
+    type: string
+    source: bnd
+    total: true
+  searchParams:
+  - name: fromDate
+    label: BND_FROM_DATE
+    type: epoch
+    source: bnd
+    isMandatory: false
+    searchClause: AND createdtime >= $fromDate
+  - name: toDate
+    label: BND_TO_DATE
+    type: epoch
+    source: bnd
+    isMandatory: false
+    searchClause: AND createdtime <= $toDate       
+  query: SELECT initcap(split_part(tenantid, '.', 2)) as tenantid, COUNT(CASE WHEN createdby='import-user' THEN createdby ELSE NULL END) AS LegacyRecords, COUNT(CASE WHEN createdby!='import-user' THEN createdby ELSE NULL END) AS NonLegacyRecords, count(*) as TotalRecords FROM eg_birth_dtls where tenantid = $tenantid
+  groupby: GROUP BY tenantid 
+  orderby: order by tenantid
+  
+- reportName: DeathRecordsCountReportCBLevel
+  summary: Count of Death Records
+  version: 1.0.0
+  moduleName: rainmaker-bnd
+  sourceColumns:
+  - name: tenantid
+    label: BND_APPL_CANT
+    type: string
+    source: bnd
+    total: false
+  - name: legacyRecords
+    label: EMP_BND_LEGACYRECORDS
+    type: string
+    source: bnd
+    total: true
+  - name: nonLegacyRecords
+    label: EMP_BND_NONLEGACYRECORDS
+    type: string
+    source: bnd
+    total: true
+  - name: totalRecords
+    label: EMP_BND_TOTALRECORDS
+    type: string
+    source: bnd
+    total: true
+  searchParams:
+  - name: fromDate
+    label: BND_FROM_DATE
+    type: epoch
+    source: bnd
+    isMandatory: false
+    searchClause: AND createdtime >= $fromDate
+  - name: toDate
+    label: BND_TO_DATE
+    type: epoch
+    source: bnd
+    isMandatory: false
+    searchClause: AND createdtime <= $toDate       
+  query: SELECT initcap(split_part(tenantid, '.', 2)) as tenantid, COUNT(CASE WHEN createdby='import-user' THEN createdby ELSE NULL END) AS LegacyRecords, COUNT(CASE WHEN createdby!='import-user' THEN createdby ELSE NULL END) AS NonLegacyRecords, count(*) as TotalRecords FROM eg_death_dtls where tenantid = $tenantid
+  groupby: GROUP BY tenantid 
+  orderby: order by tenantid
+  
+- reportName: BirthAndDeathCertificatePayment
+  summary: Birth and Death Certificate Paid and Downloaded Records
+  version: 1.0.0
+  moduleName: rainmaker-bnd
+  sourceColumns:
+  - name: servicetype
+    label: BND_SERVICE_TYPE
+    type: string
+    source: bnd
+    total: false
+  - name: receiptnumber
+    label: BND_RECEIPT_NO
+    type: string
+    source: bnd
+    total: false
+  - name: paymentdate
+    label: BND_PAYMENT_DATE
+    type: string
+    source: bnd
+    total: false
+  - name: consumer_code
+    label: BND_APPL_NO
+    type: string
+    source: bnd
+    total: false
+  - name: paidby
+    label: BND_CONSUMER_NAME
+    type: string
+    source: bnd
+    total: false
+  - name: payername
+    label: BND_PAYER_NAME
+    type: string
+    source: bnd
+    total: false      
+  - name: mobilenumber
+    label: BND_PAYER_CONTACT
+    type: string
+    source: bnd
+    total: false
+  - name: paymentmode
+    label: BND_PAYMENT_MODE
+    type: string
+    source: bnd
+    total: false
+  - name: txn_amount
+    label: BND_PAID_AMOUNT
+    type: string
+    source: bnd
+    total: true
+  - name: transactionnumber
+    label: BND_TRANSACTION_ID
+    type: string
+    source: bnd
+    total: false      
+  searchParams:
+  - name: fromDate
+    label: BND_FROM_DATE
+    type: epoch
+    source: bnd
+    isMandatory: false
+    searchClause: AND pay.createdtime >= $fromDate
+  - name: toDate
+    label: BND_TO_DATE
+    type: epoch
+    source: bnd
+    isMandatory: false
+    searchClause: AND pay.createdtime <= $toDate       
+  query: select case when paydtl.businessservice = 'BIRTH_CERT' THEN 'Birth' when paydtl.businessservice = 'DEATH_CERT' THEN 'Death' END as servicetype ,paydtl.receiptnumber, To_char((To_timestamp(pay.transactiondate / 1000) at time Zone 'Asia/Kolkata'), 'DD/MM/YYYY') as paymentdate, txn.consumer_code, pay.paidby, pay.payername, pay.mobilenumber, pay.paymentmode, CAST(txn.txn_amount as text) txn_amount, pay.transactionnumber from egcl_payment pay left join egcl_paymentdetail paydtl ON paydtl.paymentid = pay.id left join eg_pg_transactions txn on txn.txn_id = pay.transactionnumber where paydtl.businessservice in ('BIRTH_CERT','DEATH_CERT') and pay.tenantid = $tenantid
+  orderby: order by pay.createdtime desc
