@@ -1284,3 +1284,126 @@ ReportDefinitions:
   query: |
     select ulbname, legacyholdingid, oldpropertyid, sujogpropertyid, taxwardno, nameoftheowner from eg_pt_property_legacy_details eppld where 
   orderby: ORDER BY eppld.oldpropertyid DESC
+  
+- reportName: GetLegacyPropertyTransactionDetails
+  summary: Get Legacy Property Transaction Details
+  version: 1.0.0
+  moduleName: rainmaker-pt
+  sourceColumns:
+  - name: ulbname
+    label: ULB / City
+    type: string
+    source: pt
+    total: false
+  - name: legacyholdingid
+    label: Legacy ID
+    type: string
+    source: pt
+    total: false
+  - name: oldpropertyid
+    label: E-Municipality ID
+    type: string
+    source: pt
+    total: false
+  - name: holdername
+    label: Holder Name
+    type: string
+    source: pt
+    total: false   
+  - name: taxwardno
+    label: Tax Ward
+    type: string
+    source: pt
+    total: false
+  - name: wardno
+    label: Ward No
+    type: string
+    source: pt
+    total: false
+  - name: fromperiod
+    label: From Date
+    type: string
+    source: pt
+    total: false
+  - name: toperiod
+    label: To Date
+    type: string
+    source: pt
+    total: false
+  - name: legacyid
+    label: Legacy Id
+    type: string
+    source: pt
+    total: false
+  - name: collectionamount
+    label: Collection Amount
+    type: string
+    source: pt
+    total: false
+  - name: paymentmode
+    label: Payment Mode
+    type: string
+    source: pt
+    total: false
+  - name: paymentdate
+    label: Payment Date
+    type: string
+    source: pt
+    total: false    
+  - name: paymentreferenceno
+    label: Payment Reference No
+    type: string
+    source: pt
+    total: false
+  - name: currentdemand
+    label: Current Demand
+    type: string
+    source: pt
+    total: false    
+  - name: rebateamount
+    label: Rebate Amount
+    type: string
+    source: pt
+    total: false 
+  - name: arrearamount
+    label: Arrear Amount
+    type: string
+    source: pt
+    total: false   
+  - name: arreardemand
+    label: Arrear Demand
+    type: string
+    source: pt
+    total: false    
+  searchParams:
+  - name: tenant
+    label: PT_SEARCH_ULB_CITY
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=od|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
+    source: pt
+    wrapper: true
+    isMandatory: true
+    searchClause: eppltd.tenantid = $tenant
+  - name: oldpropertyid
+    label: Existing Property Id
+    type: string
+    source: pt
+    isMandatory: false
+    searchClause: AND trim(eppltd.oldpropertyid) = $oldpropertyid
+  - name: ward
+    label: Tax Ward
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8094/egov-mdms-service/v1/_get?moduleName=Ward&masterName=Ward&tenantId=od.cuttack|MdmsRes.Ward.Ward[*].code|MdmsRes.Ward.Ward[*].code
+    source: pt
+    wrapper: true
+    isMandatory: false
+    searchClause: AND trim(eppltd.taxwardno) = $ward
+  - name: paymentreferenceno
+    label: Payment Reference No
+    type: string
+    source: pt
+    isMandatory: false
+    searchClause: AND trim(eppltd.paymentreferenceno) = $paymentreferenceno
+  query: |
+    SELECT tenantid,ulbname, oldpropertyid,sujogpropertyid, trim(holdername), legacyid, taxwardno,wardno,fromperiod ,toperiod, collectionamount ,paymentmode, paymentdate, trim(paymentreferenceno), currentdemand, rebateamount, arrearamount, arreardemand ,legacyholdingid  FROM eg_pt_property_legacy_transaction_details eppltd where 
+  orderby: ORDER BY eppltd.oldpropertyid DESC
