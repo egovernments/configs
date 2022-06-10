@@ -306,3 +306,220 @@ ReportDefinitions:
     query: |
           select  app.applicationno as applicationno, vhtrip.applicationno as vehiclelogno, vendor.name as dsoname, vehicle.registrationnumber as vehicleno, to_char((to_timestamp(vhtrip.tripstarttime)::timestamp  at time zone 'utc' at time Zone 'Asia/Kolkata'), 'dd/mm/yyyy HH24:MI:SS') as vehicleentrytime, to_char((to_timestamp(vhtrip.tripendtime)::timestamp at time zone 'utc' at time Zone 'Asia/Kolkata'), 'dd/mm/yyyy HH24:MI:SS') as vehicleexittime, vhtrip.volumecarried as septagedumped from eg_fsm_application app join eg_vehicle_trip_detail vhtripdtl  on app.applicationno=vhtripdtl.referenceno join eg_vehicle_trip vhtrip on vhtripdtl.trip_id=vhtrip.id left join eg_vehicle vehicle on vhtrip.vehicle_id=vehicle.id left join eg_vendor vendor ON  app.dso_id =vendor.id where app.tenantid=$tenantid
     orderby: order by app.applicationno  desc
+- reportName: FSMDailyDesludingReport
+    summary: Report is used to  check FSM daily desludging request 
+    version: 1.0.0
+    moduleName: fsm
+    sourceColumns:
+      - name: applicationno
+        label: REPORT_FSM_RESULT_APPLICATIONNO
+        type: string
+        source: fsm
+      - name: applicationDate
+        label: REPORT_FSM_RESULT_APPLICATIONDATE
+        type: string
+        source: fsm
+      - name: currentStatus
+        label: REPORT_FSM_RESULT_CURRENT_STATUS
+        type: string
+        source: fsm
+      - name: dsoName
+        label: REPORT_FSM_RESULT_DSO_NAME
+        type: string
+        source: fsm
+      - name: amountpaid
+        label: REPORT_FSM_RESULT_AMOUNT_PAID
+        type: currency
+        source: fsm
+        total: true
+      - name: dateOfCompletion
+        label: REPORT_FSM_RESULT_DATE_OF_COMPLETION
+        type: string
+        source: fsm
+    searchParams:
+      - name: fromDate
+        label: REPORTS_FSM_PARAM_FROMDATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND app.createdtime >= $fromDate
+      - name: toDate
+        label: REPORTS_FSM_PARAM_TODATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND app.createdtime <= $toDate
+      - name: ulb
+        label: REPORTS_FSM_PARAM_TENANT
+        type: multivaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants| $.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND app.tenantid in ($ulb)
+      - name: dsoId
+        label: REPORTS_FSM_PARAM_DSONAME
+        type: singlevaluelist
+        pattern: http://vendor.egov:8080/vendor/v1/_search?tenantId=$tenantid|$.vendor.*.id|$.vendor.*.name
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND app.dso_id = $dsoId
+    query: |
+      SELECT app.applicationno, to_char(to_timestamp(app.createdtime/1000),'DD/MM/YYYY') as applicationDate, CASE WHEN (app.status='' or app.status is NULL) THEN 'NA' ELSE app.status END  as currentStatus, vendor.name as dsoname, coalesce(payment.amountpaid) as amountpaid, CASE WHEN (app.completed_on <= 0 or app.completed_on is NULL) THEN 'NA' ELSE to_char(to_timestamp(app.completed_on/1000),'DD/MM/YYYY')  END as dateOfCompletion from eg_fsm_application app join eg_vendor vendor ON  (app.dso_id =vendor.id) LEFT  JOIN egcl_bill bill ON ( bill.consumercode = app.applicationno) LEFT  JOIN egcl_paymentdetail payment ON ( payment.billid = bill.id ) where app.tenantid=$tenantid 
+    orderby: order by app.createdtime  desc
+  - reportName: FSMAreaWiseDailyCollectionReport
+    summary: Report is used to  check area wise daily collection report 
+    version: 1.0.0
+    moduleName: fsm
+    sourceColumns:
+      - name: applicationno
+        label: REPORT_FSM_RESULT_APPLICATIONNO
+        type: string
+        source: fsm
+      - name: locality
+        label: REPORT_FSM_RESULT_LOCALITY
+        type: string
+        source: fsm
+      - name: dsoName
+        label: REPORT_FSM_RESULT_DSO_NAME
+        type: string
+        source: fsm
+      - name: currentStatus
+        label: REPORT_FSM_RESULT_CURRENT_STATUS
+        type: string
+        source: fsm
+      - name: slaCompliance
+        label: REPORT_FSM_RESULT_SLA_COMPLIANCE
+        type: string
+        source: fsm
+        total: true
+      - name: septagedumped
+        label: REPORT_FSM_RESULT_SEPTAGEDUMPED
+        type: string
+        source: fsm
+        total: true
+    searchParams:
+      - name: fromDate
+        label: REPORTS_FSM_PARAM_FROMDATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND app.createdtime >= $fromDate
+      - name: toDate
+        label: REPORTS_FSM_PARAM_TODATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND app.createdtime <= $toDate
+      - name: ulb
+        label: REPORTS_FSM_PARAM_TENANT
+        type: multivaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants| $.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+        source: fsm
+        wrapper: true
+        isMandatory: true
+        searchClause: AND app.tenantid in ($ulb)
+      - name: locality
+        label: REPORTS_FSM_PARAM_LOCALITY
+        type: singlevaluelist
+        pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.name
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND address.locality = $locality
+      - name: dsoId
+        label: REPORTS_FSM_PARAM_DSONAME
+        type: singlevaluelist
+        pattern: http://vendor.egov:8080/vendor/v1/_search?tenantId=$tenantid|$.vendor.*.id|$.vendor.*.name
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND app.dso_id = $dsoId
+    query: |
+      SELECT app.applicationno, address.locality as locality, vendor.name as dsoname, app.status as currentStatus, CASE WHEN app.status = 'COMPLETED' THEN DATE_PART('day', AGE(to_timestamp(app.createdtime/1000), to_timestamp(app.completed_on/1000))) ELSE ((DATE_PART('day', AGE(to_timestamp(app.createdtime/1000), to_timestamp((EXTRACT(EPOCH FROM (SELECT NOW())))/1000))))) END as slaCompliance, vhtrip.volumecarried as septagedumped from eg_fsm_application app JOIN eg_fsm_address address ON ( address.fsm_id = app.id) LEFT JOIN eg_vendor vendor ON  (app.dso_id =vendor.id) LEFT JOIN eg_wf_processinstance_v2 pi ON (pi.businessId=app.applicationno) LEFT JOIN eg_vehicle_trip_detail vhtripdtl  on (app.applicationno=vhtripdtl.referenceno) LEFT JOIN eg_vehicle_trip vhtrip on (vhtripdtl.trip_id=vhtrip.id) where app.tenantid=$tenantid
+    orderby: order by app.createdtime  desc
+  - reportName: FSMFSTPPlantWithVehicleLogReport
+    summary: Report is used to  check ftsp plant report along with vehicle log
+    version: 1.0.0
+    moduleName: fsm
+    sourceColumns:
+      - name: applicationno
+        label: REPORT_FSM_RESULT_APPLICATIONNO
+        type: string
+        source: fsm
+      - name: vehicleno
+        label: REPORT_FSM_RESULT_VEHICLENO
+        type: string
+        source: fsm
+        total: false
+      - name: vehicleentrydate
+        label: REPORT_FSM_RESULT_VEHICLEENTRYDATE
+        type: string
+        source: fsm
+        total: false
+      - name: dsoName
+        label: REPORT_FSM_RESULT_DSO_NAME
+        type: string
+        source: fsm
+      - name: vehicleentrytime
+        label: REPORT_FSM_RESULT_VEHICLEENTRYTIME
+        type: string
+        source: fsm
+        total: false
+      - name: vehicleexittime
+        label: REPORT_FSM_RESULT_VEHICLEEXITTIME
+        type: string
+        source: fsm
+        total: false
+      - name: septagedumped
+        label: REPORT_FSM_RESULT_SEPTAGEDUMPED
+        type: string
+        source: fsm
+        total: true
+    searchParams:
+      - name: fromDate
+        label: REPORTS_FSM_PARAM_FROMDATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND app.createdtime >= $fromDate
+      - name: toDate
+        label: REPORTS_FSM_PARAM_TODATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND app.createdtime <= $toDate
+      - name: ulb
+        label: REPORTS_FSM_PARAM_TENANT
+        type: multivaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants| $.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+        source: fsm
+        wrapper: true
+        isMandatory: true
+        searchClause: AND app.tenantid in ($ulb)
+      - name: fstpcode
+        label: REPORTS_FSM_PARAM_FSTPNAME
+        type: multivaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=FSM&masterName=FSTPPlantInfo| $.MdmsRes.FSM.FSTPPlantInfo.*.PlantCode|$.MdmsRes.FSM.FSTPPlantInfo.*.PlantName
+        source: fsm
+        wrapper: true
+        isMandatory: true
+        searchClause: AND vhtrip.additionaldetails ::json ->>'plantCode' in ($fstpcode)
+      - name: dsoId
+        label: REPORTS_FSM_PARAM_DSONAME
+        type: singlevaluelist
+        pattern: http://vendor.egov:8080/vendor/v1/_search?tenantId=$tenantid|$.vendor.*.id|$.vendor.*.name
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND app.dso_id = $dsoId
+      - name: vehicleNo
+        label: REPORTS_FSM_PARAM_VEHICLENUMBER
+        type: string
+        source: fsm
+        isMandatory: false
+        searchClause: AND vehicle.registrationnumber ilike '%'||$vehicleNo||'%'
+    query: |
+      select  app.applicationno as applicationno, vendor.name as dsoname, vehicle.registrationnumber as vehicleno, to_char(to_timestamp(vhtrip.createdtime/1000),'DD/MM/YYYY') as vehicleentrydate, to_char((to_timestamp(vhtrip.tripstarttime)::timestamp  at time zone 'utc' at time Zone 'Asia/Kolkata'), 'HH12:MI:SS AM') as vehicleentrytime, to_char((to_timestamp(vhtrip.tripendtime)::timestamp at time zone 'utc' at time Zone 'Asia/Kolkata'), 'HH12:MI:SS AM') as vehicleexittime, vhtrip.volumecarried as septagedumped from eg_fsm_application app join eg_vehicle_trip_detail vhtripdtl  on app.applicationno=vhtripdtl.referenceno join eg_vehicle_trip vhtrip on vhtripdtl.trip_id=vhtrip.id left join eg_vehicle vehicle on vhtrip.vehicle_id=vehicle.id left join eg_vendor vendor ON  app.dso_id =vendor.id where app.tenantid=$tenantid
+    orderby: order by app.createdtime  desc
