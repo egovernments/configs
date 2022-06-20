@@ -54,9 +54,11 @@ serviceMaps:
          type: JSON
          dbType: JSONB
 
-       - jsonPath: $.WaterConnection.processInstance.*.assignes.*.uuid
+       - jsonPath: $.WaterConnection.processInstance.assignes.*.uuid
 
        - jsonPath: $.WaterConnection.isDisconnectionTemporary
+       
+
        
     - query: INSERT INTO eg_ws_service(connection_id,connectionCategory,connectionType,waterSource,meterId,meterInstallationDate,pipeSize,noOfTaps,connectionexecutiondate,proposedPipeSize,proposedTaps, appCreatedDate, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
       basePath: $.WaterConnection
@@ -170,7 +172,7 @@ serviceMaps:
       jsonMaps:
       - jsonPath: $.WaterConnection.id
       
-    - query: UPDATE eg_ws_connection SET applicationstatus=?, status=?, connectionno=?, oldconnectionno=?, action=?, roadCuttingArea=?, roadType=?, adhocpenalty=?, adhocrebate=?, adhocpenaltyreason=?, adhocpenaltycomment=?, adhocrebatereason=?, adhocrebatecomment=?, lastModifiedBy=?, lastModifiedTime=?, dateEffectiveFrom=?, locality=?, isoldapplication=?, property_id=?, additionaldetails=?, assignee=?, isDisconnectionTemporary=? WHERE id=?;
+    - query: UPDATE eg_ws_connection SET applicationstatus=?, status=?, connectionno=?, oldconnectionno=?, action=?, roadCuttingArea=?, roadType=?, adhocpenalty=?, adhocrebate=?, adhocpenaltyreason=?, adhocpenaltycomment=?, adhocrebatereason=?, adhocrebatecomment=?, lastModifiedBy=?, lastModifiedTime=?, dateEffectiveFrom=?, locality=?, isoldapplication=?, property_id=?, additionaldetails=?, isDisconnectionTemporary=? WHERE id=?;
       basePath: $.WaterConnection
       jsonMaps:
 
@@ -215,13 +217,19 @@ serviceMaps:
        - jsonPath: $.WaterConnection.additionalDetails
          type: JSON
          dbType: JSONB
-
-       - jsonPath: $.WaterConnection.processInstance.*.assignes.*.uuid
        
        - jsonPath: $.WaterConnection.isDisconnectionTemporary
      
        - jsonPath: $.WaterConnection.id 
        
+    - query: UPDATE eg_ws_connection SET assignee=? WHERE id=?;
+      basePath: $.WaterConnection.processInstance.assignes.*
+      jsonMaps:
+
+       - jsonPath: $.WaterConnection.processInstance.assignes.*.uuid
+
+       - jsonPath: $.WaterConnection.id 
+
     - query: INSERT INTO eg_ws_service_audit SELECT * FROM eg_ws_service WHERE connection_id = ?;
       basePath: $.WaterConnection
       jsonMaps:
