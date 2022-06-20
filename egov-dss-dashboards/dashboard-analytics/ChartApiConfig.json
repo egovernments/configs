@@ -5269,7 +5269,8 @@
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.service.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Received\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"created\":{\"filter\":{\"terms\":{\"status.keyword\":[\"CREATED\"]}},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"totalRequests\"}}}}}},\"Completed\":{\"date_histogram\":{\"field\":\"date\",\"interval\":\"month\"},\"aggs\":{\"completed\":{\"filter\":{\"terms\":{\"status.keyword\":[\"CITIZEN_FEEDBACK_PENDING\"]}},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"totalRequests\"}}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Completed_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"CITIZEN_FEEDBACK_PENDING\",\"COMPLETED\"]}}]}},\"aggs\":{\"completed\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Received_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"CREATED\"]}}]}},\"aggs\":{\"received\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Pending_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"PENDING_APPL_FEE_PAYMENT\",\"DSO_INPROGRESS\",\"PENDING_DSO_APPROVAL\",\"ASSING_DSO\"]}}]}},\"aggs\":{\"pending\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Rejected_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"REJECTED\"]}}]}},\"aggs\":{\"rejected\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}}}}"
+      }
       }
     ],
     "chartType": "line",
@@ -5503,7 +5504,7 @@
         "dateRefField": "Data.vehicleTrip.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "indexName": "vehicletrip",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.vehicleTrip.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Capacity Utilization\":{\"date_histogram\":{\"field\":\"Data.vehicleTrip.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}}}}}}}}"
+        "aggrQuery":  "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.vehicleTrip.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"CapacityUtilization\":{\"date_histogram\":{\"field\":\"Data.vehicleTrip.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}}}}}}}}"
       }
     ],
     "chartType": "line",
@@ -5557,7 +5558,8 @@
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\"]}},{\"term\":{\"Data.history.action.keyword\":\"RATE\"}},{\"exists\":{\"field\":\"Data.history\"}},{\"range\":{\"Data.history.rating\":{\"gte\":1}}}]}},\"aggs\":{\"Customer Rating\":{\"date_histogram\":{\"field\":\"Data.fsm.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"avg\":{\"script\":\"int sum = 0;int count =0;if(params['_source']['Data']['history']!=null){ for (item in params['_source']['Data']['history']) {if(item.rating!=null){ sum += item.rating;} }} return sum;\"}}}}}}}"
+         "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\"]}},{\"term\":{\"Data.history.action.keyword\":\"RATE\"}},{\"exists\":{\"field\":\"Data.history\"}},{\"range\":{\"Data.history.rating\":{\"gte\":1}}}]}},\"aggs\":{\"CustomerRating\":{\"date_histogram\":{\"field\":\"Data.fsm.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"avg_rating\":{\"avg\":{\"field\":\"Data.history.rating\"}}}}}}}}"
+      }
       }
     ],
     "chartType": "line",
@@ -5891,7 +5893,7 @@
         "dateRefField": "Data.vehicleTrip.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtName\"}",
         "indexName": "vehicletrip",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"data.vehicleTrip.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"NoOfTrips\":{\"value_count\":{\"field\":\"Data.vehicleTrip.@timestamp\"}},\"TotalSeptageCollected\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.tripDetails.volume'].value)/1000.0\"}}},\"TotalSeptageDumped\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}},\"CapacityUtilization\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"data.vehicleTrip.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"No_Of_Trips\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.vehicleTrip.keyword\":\"@timestamp\"}}]}},\"aggs\":{\"NoOfTrips\":{\"value_count\":{\"field\":\"Data.vehicleTrip.keyword\"}}}},\"Total_Septage_Collected\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.vehicleTrip.tripDetails.keyword\":\"volume\"}}]}},\"aggs\":{\"TotalSeptageCollected\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.tripDetails.keyword'].value)/1000.0\"}}}}},\"Total_Septage_Dumped\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.vehicleTrip.keyword\":\"volumeCarried\"}}]}},\"aggs\":{\"TotalSeptageDumped\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.keyword'].value)/1000.0\"}}}}},\"Capacity_Utilization\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.vehicleTrip.keyword\":\"volumeCarried\"}}]}},\"aggs\":{\"CapacityUtilization\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.keyword'].value)/1000.0\"}}}}}}}}}"
       }
     ],
     "isMdmsEnabled": true,
