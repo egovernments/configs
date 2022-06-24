@@ -4011,23 +4011,22 @@
     "queries": [
       {
         "module": "W&S",
-        "indexName": "receipts-consumers",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"status\":\"Cancelled\"}}]}},\"aggs\":{\"Total Collection\":{\"sum\":{\"field\":\"totalamount\"}}}}}}",
-        "requestQueryMap": "{\"tenantId\" : \"cityname.keyword\", \"wardId\" : \"block.keyword\"}",
-        "dateRefField": "receiptdate"
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.paymentDetails.billDate.keyword\":{\"gte\":\"now-24h\",\"lte\":\"now\"}}},{\"terms\":{\"Data.paymentDetails.businessService.keyword\":[\"WS\",\"WS.ONE_TIME_FEE\",\"SW.ONE_TIME_FEE\",\"SW\"]}}],\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}},{\"term\":{\"Data.paymentStatus.keyword\":\"Cancelled\"}}]}},\"aggs\":{\"Today's collection\":{\"sum\":{\"field\":\"Data.paymentDetails.totalAmountPaid\"}}}}}}",
+        "requestQueryMap": "{\"tenantId\" : \"Data.tenantId.keyword\", \"wardId\" : \"block.keyword\"}",
+        "dateRefField": "Data.@timestamp"
       }
     ],
-    "translateTenantCode": true,
     "chartType": "metric",
-    "valueType": "amount",
+    "valueType": "number",
     "action": "",
     "drillChart": "none",
     "aggregationPaths": [
-      "Total Collection"
+      "Today's collection"
     ],
     "insight": {
     },
-    "_comment": "W&S total collections "
+    "_comment": "W&S today's collections"
   },
   "wstargetCollection": {
     "chartName": "DSS_W&S_TARGET_COLLECTION",
