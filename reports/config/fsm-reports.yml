@@ -25,6 +25,11 @@ ReportDefinitions:
         type: string
         source: fsm
         total: false
+      - name: user_uuid
+        label: REPORT_FSM_RESULT_USER_UUID
+        type: string
+        source: fsm
+        showColumn: false
       - name: instrumenttype
         label: REPORT_FSM_RESULT_PAYMENTMODE
         type: string
@@ -127,7 +132,7 @@ ReportDefinitions:
         keyOrder: name,code
         tableName: fsm_property_type
       - entity: $.messages
-        apiURL: http://egov-localization.egov:8080/localization/messages/v1/_search?locale=en_IN&tenantId=pb&module=rainmaker-fsm&codes=CS_COMMON_FSM_PENDING_DSO_APPROVAL,CS_COMMON_FSM_CREATED,CS_COMMON_FSM_PENDING_APPL_FEE_PAYMENT,CS_COMMON_FSM_ASSING_DSO,CS_COMMON_FSM_DSO_REJECTED,CS_COMMON_FSM_DSO_INPROGRESS,CS_COMMON_FSM_PENDING_DSO_APPROVAL,CS_COMMON_FSM_COMPLETED,CS_COMMON_FSM_REJECTED,CS_COMMON_FSM_CANCELED,CS_COMMON_FSM_CITIZEN_FEEDBACK_PENDING
+        apiURL: http://egov-localization.egov:8080/localization/messages/v1/_search?locale=en_IN&tenantId=pb&module=rainmaker-fsm&codes=CS_COMMON_FSM_PENDING_DSO_APPROVAL,CS_COMMON_FSM_CREATED,CS_COMMON_FSM_PENDING_APPL_FEE_PAYMENT,CS_COMMON_FSM_ASSING_DSO,CS_COMMON_FSM_DSO_REJECTED,CS_COMMON_FSM_DSO_INPROGRESS,CS_COMMON_FSM_PENDING_DSO_APPROVAL,CS_COMMON_FSM_COMPLETED,CS_COMMON_FSM_REJECTED,CS_COMMON_FSM_CANCELED,CS_COMMON_FSM_CITIZEN_FEEDBACK_PENDING,REPORTS_FSM_PARAM_TENANT,ACTION_TEST_FSM_DAILY_DESLUDING_REPORT,ACTION_TEST_FSM_AREA_WISE_COLLECTION_REPORT,ACTION_TEST_FSM_FSTP_PLANT_WITH_VEHICLE_LOG_REPORT,REPORT_FSM_RESULT_VEHICLEENTRYDATE,REPORT_FSM_RESULT_SLA_COMPLIANCE
         keyOrder: message,code
         tableName: fsm_status_keys
     sourceColumns:
@@ -212,7 +217,7 @@ ReportDefinitions:
       statuskeys.message as currentStatus,propertytype.name as proprtyTypeSubType,vendor.name dsoName, 
       CASE WHEN pidso.lastmodifiedtime <= 0  THEN 'NA' ELSE to_char(to_timestamp(pidso.lastmodifiedtime/1000),'DD/MM/YYYY') END  as assignedToDSoOn, 
       CASE WHEN picomplete.lastmodifiedtime <= 0  THEN 'NA' ELSE to_char(to_timestamp(picomplete.lastmodifiedtime/1000),'DD/MM/YYYY')  END as dateOfCompletion,
-      coalesce(payment.amountpaid) as amountpaid 
+      coalesce(payment.amountpaid) as amountpaid
       FROM eg_fsm_application fsm 
       JOIN eg_fsm_address address ON ( address.fsm_id = fsm.id) 
       LEFT  JOIN eg_vendor vendor ON ( vendor.id = fsm.dso_id) 
@@ -306,7 +311,7 @@ ReportDefinitions:
     query: |
           select  app.applicationno as applicationno, vhtrip.applicationno as vehiclelogno, vendor.name as dsoname, vehicle.registrationnumber as vehicleno, to_char((to_timestamp(vhtrip.tripstarttime)::timestamp  at time zone 'utc' at time Zone 'Asia/Kolkata'), 'dd/mm/yyyy HH24:MI:SS') as vehicleentrytime, to_char((to_timestamp(vhtrip.tripendtime)::timestamp at time zone 'utc' at time Zone 'Asia/Kolkata'), 'dd/mm/yyyy HH24:MI:SS') as vehicleexittime, vhtrip.volumecarried as septagedumped from eg_fsm_application app join eg_vehicle_trip_detail vhtripdtl  on app.applicationno=vhtripdtl.referenceno join eg_vehicle_trip vhtrip on vhtripdtl.trip_id=vhtrip.id left join eg_vehicle vehicle on vhtrip.vehicle_id=vehicle.id left join eg_vendor vendor ON  app.dso_id =vendor.id where app.tenantid=$tenantid
     orderby: order by app.applicationno  desc
-- reportName: FSMDailyDesludingReport
+  - reportName: FSMDailyDesludingReport
     summary: Report is used to  check FSM daily desludging request 
     version: 1.0.0
     moduleName: fsm
