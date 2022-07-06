@@ -1,0 +1,33 @@
+serviceMaps:
+ serviceName: enc-client
+ mappings:
+ - version: 1.0
+   name: privacyAuditData
+   description: save audit details of user info access
+   fromTopic: enc-user-audit-data
+   isTransaction: true
+   queryMaps:
+    - query: INSERT INTO eg_privacy_userinfo_access_audit (id, userid, accesstime, purpose, model, entityids, plainaccessrequest, additionalinfo) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+      basePath: $
+      jsonMaps:
+       - jsonPath: $.meterReadings.id
+       
+       - jsonPath: $.meterReadings.userId
+       
+       - jsonPath: $.meterReadings.timestamp
+
+       - jsonPath: $.meterReadings.purpose
+       
+       - jsonPath: $.meterReadings.model
+
+       - jsonPath: $.meterReadings.entityIds
+         type: ARRAY
+         dbType: STRING
+       
+       - jsonPath: $.meterReadings.plainAccessRequest
+         type: JSON
+         dbType: JSONB
+
+       - jsonPath: $.meterReadings.additionalInfo
+         type: JSON
+         dbType: JSONB
