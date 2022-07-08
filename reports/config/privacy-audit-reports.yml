@@ -61,4 +61,4 @@ ReportDefinitions:
   query: select to_char(To_timestamp(accesstime / 1000), 'DD/MM/YYYY') as date, to_char(To_timestamp(accesstime / 1000), 'HH12:MM AM') as time, 
    translate(plainaccessrequest->>'plainRequestFields'::TEXT,'["]','') as dataviewed, eu.name as dataviewedby, eu.uuid as uuid, 
    ARRAY_TO_STRING((SELECT ARRAY(SELECT DISTINCT er.code from eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE eu.uuid=entityids->>0 AND er.code IS NOT NULL)), ',') as rolecodes 
-   from eg_privacy_userinfo_access_audit as privacy inner join eg_user as eu on eu.uuid = entityids->>0 and model = 'User' and privacy.dataviewed is not null
+   from eg_privacy_userinfo_access_audit as privacy inner join eg_user as eu on eu.uuid = entityids->>0 and model = 'User' and translate(plainaccessrequest->>'plainRequestFields'::TEXT,'["]','') is not null
