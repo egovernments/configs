@@ -109,4 +109,103 @@ ReportDefinitions:
     searchClause: AND egcl_payment.createdby = $collectionOperator
   query: select to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, receiptnumber,bpa.applicationno as applicationnumber,bpa.additionaldetails->>'applicationType' as applicationtype, eg_user.name as name, paymentmode as instrumenttype, CASE WHEN paymentmode='CHEQUE' THEN  to_char(To_timestamp(instrumentdate/ 1000), 'DD/MM/YYYY') ELSE null END as chequedate, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno, egcl_payment.additionaldetails->'bankDetails'->'BANK' as bankname,  CASE WHEN paymentmode='ONLINE' THEN transactionnumber ELSE null END as transactionid ,CASE WHEN paymentmode='CARD' THEN substring(instrumentnumber,1,4) ELSE null END as lastfourdigits, totalamountpaid, instrumentstatus from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_bpa_buildingplan bpa on consumercode=bpa.applicationno LEFT OUTER JOIN eg_land_unit land ON land.landinfoid = bpa.landid INNER JOIN eg_land_landinfo landinfo ON land.landinfoid = landinfo.id INNER JOIN eg_land_ownerinfo owner ON owner.landinfoid = landinfo.id LEFT OUTER JOIN eg_user  ON eg_user.uuid =owner.uuid where egcl_paymentdetail.businessservice IN ('BPA.NC_OC_APP_FEE','BPA.NC_SAN_FEE','BPA.LOW_RISK_PERMIT_FEE','BPAREG','BPA.NC_OC_SAN_FEE','BPA.NC_APP_FEE') and bpa.tenantid= $tenantid
 
+- reportName: ObpsApplicationStatusReport
+  summary: Obps Application Status Report
+  version: 1.0.0
+  moduleName: rainmaker-obps
+  sourceColumns:
+    - name: applicationno
+      label: report.obps.applicationno
+      type: string
+      source: obps
+      total: false
+    - name: applicationdate
+      label: report.obps.applicationdate
+      type: string
+      source: obps
+      total: false
+    - name: applicationchannel
+      label: report.obps.applicationchannel
+      type: string
+      source: obps
+      total: false
+    - name: applicantname
+      label: report.obps.applicantname
+      type: string
+      source: obps
+      total: false
+    - name: applicationtype
+      label: report.obps.applicationtype
+      type: string
+      source: obps
+      total: false
+    - name: servicetype
+      label: report.obps.servicetype
+      type: string
+      source: obps
+      total: false
+    - name: risktype
+      label: report.obps.risktype
+      type: string
+      source: obps
+      total: false
+    - name: occupancytype
+      label: report.obps.occupancytype
+      type: string
+      source: obps
+      total: false
+    - name: status
+      label: report.obps.status
+      type: string
+      source: obps
+      total: false
+    - name: currentowner
+      label: report.obps.currentowner
+      type: string
+      source: obps
+      total: false
+    - name: permitno
+      label: report.obps.permitno
+      type: string
+      source: obps
+      total: false
+  searchParams:
+    - name: fromDate
+      label: FromDate
+      type: epoch
+      source: obps
+      isMandatory: false
+      searchClause: AND applicationdate >= $fromDate
+    - name: toDate
+      label: ToDate
+      type: epoch
+      source: obps
+      isMandatory: false
+      searchClause: AND applicationdate  <= $toDate
+    - name: applicationChannel
+      label: reports.obps.applicationchannel
+      type: string
+      source: obps
+      isMandatory: false
+      searchClause: AND landinfo.channel in $applicationChannel
+    - name: applicationType
+      label: reports.obps.applicationtype
+      type: string
+      source: obps
+      isMandatory: false
+      searchClause: AND bp.additionaldetails->>'applicationType' in $applicationType
+    - name: serviceType
+      label: reports.obps.servicetype
+      type: string
+      source: obps
+      isMandatory: false
+      searchClause: AND bp.additionaldetails->> 'serviceType' in serviceType
+    - name: status
+      label: reports.obps.status
+      type: string
+      source: obps
+      isMandatory: false
+      searchClause: AND bp.status in $status
 
+  query: select applicationno,to_char(To_timestamp(bp.applicationdate / 1000), 'DD/MM/YYYY') as applicationdate, landinfo.channel as applicationchannel, usr.name as applicantname, bp.additionaldetails->>'applicationType' as applicationtype, bp.additionaldetails->> 'serviceType' as servicetype,bp.businessservice as risktype, land.occupancytype, bp.status, case when isterminatestate=true then null else assigner end as currentowner, bp.approvalno as permitno FROM eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_bpa_buildingplan bp on pi.businessid=bp.applicationno inner join eg_user usr ON bp.createdby = usr.uuid  inner join eg_land_unit land ON land.landinfoid = bp.landid inner join eg_land_landinfo landinfo ON land.landinfoid = landinfo.id inner join eg_land_address adr ON adr.landinfoid = landinfo.id
+  orderby: ORDER BY applicationdate asc
