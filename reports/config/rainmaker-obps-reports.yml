@@ -189,23 +189,27 @@ ReportDefinitions:
       source: obps
       isMandatory: false
       searchClause: AND landinfo.channel in ( $applicationChannel )
+      pattern: 'list://SYSTEM:System'
     - name: applicationType
       label: reports.obps.applicationtype
       type: multivaluelist
       source: obps
       isMandatory: false
+      pattern: 'list://BUILDING_OC_PLAN_SCRUTINY:Building OC Plan Scrutiny,BUILDING_PLAN_SCRUTINY:Building Plan Scrutiny'
       searchClause: AND bp.additionaldetails->>'applicationType' in ( $applicationType )
     - name: serviceType
       label: reports.obps.servicetype
       type: multivaluelist
       source: obps
       isMandatory: false
-      searchClause: AND bp.additionaldetails->> 'serviceType' in ( serviceType )
+      pattern: 'list://NEW_CONSTRUCTION:New Construction'
+      searchClause: AND bp.additionaldetails->> 'serviceType' in ( $serviceType )
     - name: status
       label: reports.obps.status
       type: multivaluelist
       source: obps
       isMandatory: false
+      pattern: 'list://CITIZEN_ACTION_PENDING_AT_DOC_VERIF:Citizen Action Pending at Doc Verifier,INPROGRESS:Inprogress,PENDING_APPL_FEE:Pending Application Fee,PENDING_SANC_FEE_PAYMENT:Pending Sanction fee Payment,DOC_VERIFICATION_INPROGRESS:Document Verification Inprogress,CITIZEN_ACTION_PENDING_AT_NOC_VERIF:Citizen Action Pending at NOC Verifier,PERMIT REVOCATION:Permit Revocation,FIELDINSPECTION_INPROGRESS:Field Inspection Inprogress,PENDING_FEE:Pending Fee,NOC_VERIFICATION_INPROGRESS:NOC Inspection Inprogress,INITIATED:Initiated,CITIZEN_APPROVAL_INPROCESS:Citizen Approval Inprogress,REJECTED:Rejected,APPROVED:Approved,CITIZEN_ACTION_PENDING_AT_FI_VERIF:Citizen action pending at FI Verifier,APPROVAL_INPROGRESS:Approval Inprogress'
       searchClause: AND bp.status in ( $status )
 
   query: select applicationno,to_char(To_timestamp(bp.applicationdate / 1000), 'DD/MM/YYYY') as applicationdate, landinfo.channel as applicationchannel, usr.name as applicantname, bp.additionaldetails->>'applicationType' as applicationtype, bp.additionaldetails->> 'serviceType' as servicetype,bp.businessservice as risktype, land.occupancytype, bp.status, case when isterminatestate=true then null else assigner end as currentowner, bp.approvalno as permitno FROM eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_bpa_buildingplan bp on pi.businessid=bp.applicationno inner join eg_user usr ON bp.createdby = usr.uuid  inner join eg_land_unit land ON land.landinfoid = bp.landid inner join eg_land_landinfo landinfo ON land.landinfoid = landinfo.id inner join eg_land_address adr ON adr.landinfoid = landinfo.id
