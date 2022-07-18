@@ -144,11 +144,6 @@ ReportDefinitions:
       type: string
       source: obps
       total: false
-    - name: risktype
-      label: report.obps.risktype
-      type: string
-      source: obps
-      total: false
     - name: occupancytype
       label: report.obps.occupancytype
       type: string
@@ -211,5 +206,5 @@ ReportDefinitions:
       pattern: 'list://CITIZEN_ACTION_PENDING_AT_DOC_VERIF:Citizen Action Pending at Doc Verifier,INPROGRESS:Inprogress,PENDING_APPL_FEE:Pending Application Fee,PENDING_SANC_FEE_PAYMENT:Pending Sanction fee Payment,DOC_VERIFICATION_INPROGRESS:Document Verification Inprogress,CITIZEN_ACTION_PENDING_AT_NOC_VERIF:Citizen Action Pending at NOC Verifier,PERMIT REVOCATION:Permit Revocation,FIELDINSPECTION_INPROGRESS:Field Inspection Inprogress,PENDING_FEE:Pending Fee,NOC_VERIFICATION_INPROGRESS:NOC Inspection Inprogress,INITIATED:Initiated,CITIZEN_APPROVAL_INPROCESS:Citizen Approval Inprogress,REJECTED:Rejected,APPROVED:Approved,CITIZEN_ACTION_PENDING_AT_FI_VERIF:Citizen action pending at FI Verifier,APPROVAL_INPROGRESS:Approval Inprogress'
       searchClause: AND bp.status in ( $status )
 
-  query: select applicationno,to_char(To_timestamp(bp.applicationdate / 1000), 'DD/MM/YYYY') as applicationdate, landinfo.channel as applicationchannel, usr.name as name, bp.additionaldetails->>'applicationType' as applicationtype, bp.additionaldetails->> 'serviceType' as servicetype,bp.businessservice as risktype, land.occupancytype, bp.status, case when isterminatestate=true then null else assigner end as currentowner, bp.approvalno as permitno FROM eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_bpa_buildingplan bp on pi.businessid=bp.applicationno inner join eg_user usr ON bp.createdby = usr.uuid  inner join eg_land_unit land ON land.landinfoid = bp.landid inner join eg_land_landinfo landinfo ON land.landinfoid = landinfo.id inner join eg_land_address adr ON adr.landinfoid = landinfo.id WHERE 1=1
+  query: select applicationno,to_char(To_timestamp(bp.applicationdate / 1000), 'DD/MM/YYYY') as applicationdate, landinfo.channel as applicationchannel, usr.name as name, bp.additionaldetails->>'applicationType' as applicationtype, bp.additionaldetails->> 'serviceType' as servicetype, land.occupancytype, bp.status, case when isterminatestate=true then null else userassignee.name end as currentowner, bp.approvalno as permitno FROM eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_bpa_buildingplan bp on pi.businessid=bp.applicationno inner join eg_user usr ON bp.createdby = usr.uuid  inner join eg_land_unit land ON land.landinfoid = bp.landid inner join eg_land_landinfo landinfo ON land.landinfoid = landinfo.id inner join eg_land_address adr ON adr.landinfoid = landinfo.id inner join eg_user userassignee ON assigner = userassignee.uuid WHERE 1=1
   orderby: ORDER BY applicationdate asc
