@@ -3,12 +3,19 @@ serviceMaps:
   mappings:
   - version: 1.0
     description: Persists pgr service request in tables
-    fromTopic: save-pgr-request
+    fromTopic: save-pgr-request-audit
     isTransaction: true
+    isAuditEnabled: true
+    module: PGR
+    objecIdJsonPath: $.id
+    tenantIdJsonPath: $.tenantId
+    transactionCodeJsonPath: $.transactionCode
+    auditAttributeBasePath: $.service
+
     queryMaps:
 
     - query: INSERT INTO eg_pgr_service_v2(id, tenantid, servicecode, servicerequestid, description, accountid, additionaldetails, applicationstatus, source, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-      basePath: service
+      basePath: $.service
       jsonMaps:
       - jsonPath: $.service.id
 
@@ -39,7 +46,7 @@ serviceMaps:
       - jsonPath: $.service.auditDetails.lastModifiedTime
 
     - query: INSERT INTO eg_pgr_address_v2(id, tenantid, parentid, doorno, plotno, buildingname, street, landmark, city, pincode, locality, district, region, state, country, latitude, longitude, additionaldetails, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-      basePath: service.address
+      basePath: $.service.address
       jsonMaps:
       - jsonPath: $.service.address.id
 

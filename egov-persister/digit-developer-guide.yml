@@ -5,10 +5,17 @@ serviceMaps:
       description: Persists voter details in tables
       fromTopic: save-vt-application
       isTransaction: true
+      isAuditEnabled: true
+      module: VTR
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      transactionCodeJsonPath: $.transactionCode
+      auditAttributeBasePath: $.VoterRegistrationApplications.*
       queryMaps:
 
         - query: INSERT INTO eg_vt_registration(id,tenantid,assemblyconstituency,applicationnumber,applicantid,datesinceresidence,createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-          basePath: VoterRegistrationApplications.*
+          isParentEntity: true
+          basePath: $.VoterRegistrationApplications.*
           jsonMaps:
             - jsonPath: $.VoterRegistrationApplications.*.id
 
@@ -31,7 +38,7 @@ serviceMaps:
             - jsonPath: $.VoterRegistrationApplications.*.auditDetails.lastModifiedTime
 
         - query: INSERT INTO eg_vt_address(id, tenantid, doorno, latitude, longitude, buildingname, addressid, addressnumber, type, addressline1, addressline2, landmark, street, city, locality, pincode, detail, registrationid, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-          basePath: VoterRegistrationApplications.*
+          basePath: $.VoterRegistrationApplications.*.address
           jsonMaps:
             - jsonPath: $.VoterRegistrationApplications.*.address.id
 
@@ -83,7 +90,7 @@ serviceMaps:
       isTransaction: true
       queryMaps:
         - query: UPDATE eg_vt_registration SET tenantid = ?,assemblyconstituency = ?, datesinceresidence = ? WHERE id=?;
-          basePath: VoterRegistrationApplications.*
+          basePath: $.VoterRegistrationApplications.*
           jsonMaps:
             - jsonPath: $.VoterRegistrationApplications.*.tenantId
 
