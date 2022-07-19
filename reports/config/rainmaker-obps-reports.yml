@@ -189,28 +189,36 @@ ReportDefinitions:
       source: obps
       isMandatory: false
       searchClause: AND landinfo.channel in ( $applicationChannel )
-      pattern: 'list://SYSTEM:System'
+      pattern: 'list://SYSTEM:SYSTEM'
+      isLocalisationRequired: true
+      localisationPrefix: REPORT_OBPS_
     - name: applicationType
       label: reports.obps.applicationtype
       type: multivaluelist
       source: obps
       isMandatory: false
-      pattern: 'list://BUILDING_OC_PLAN_SCRUTINY:Building OC Plan Scrutiny,BUILDING_PLAN_SCRUTINY:Building Plan Scrutiny'
+      pattern: 'list://BUILDING_OC_PLAN_SCRUTINY:BUILDING_OC_PLAN_SCRUTINY,BUILDING_PLAN_SCRUTINY:BUILDING_PLAN_SCRUTINY'
       searchClause: AND bp.additionaldetails->>'applicationType' in ( $applicationType )
+      isLocalisationRequired: true
+      localisationPrefix: REPORT_OBPS_
     - name: serviceType
       label: reports.obps.servicetype
       type: multivaluelist
       source: obps
       isMandatory: false
-      pattern: 'list://NEW_CONSTRUCTION:New Construction'
+      pattern: 'list://NEW_CONSTRUCTION:NEW_CONSTRUCTION'
       searchClause: AND bp.additionaldetails->> 'serviceType' in ( $serviceType )
+      isLocalisationRequired: true
+      localisationPrefix: REPORT_OBPS_
     - name: status
       label: reports.obps.status
       type: multivaluelist
       source: obps
       isMandatory: false
-      pattern: 'list://CITIZEN_ACTION_PENDING_AT_DOC_VERIF:Citizen Action Pending at Doc Verifier,INPROGRESS:Inprogress,PENDING_APPL_FEE:Pending Application Fee,PENDING_SANC_FEE_PAYMENT:Pending Sanction fee Payment,DOC_VERIFICATION_INPROGRESS:Document Verification Inprogress,CITIZEN_ACTION_PENDING_AT_NOC_VERIF:Citizen Action Pending at NOC Verifier,PERMIT REVOCATION:Permit Revocation,FIELDINSPECTION_INPROGRESS:Field Inspection Inprogress,PENDING_FEE:Pending Fee,NOC_VERIFICATION_INPROGRESS:NOC Inspection Inprogress,INITIATED:Initiated,CITIZEN_APPROVAL_INPROCESS:Citizen Approval Inprogress,REJECTED:Rejected,APPROVED:Approved,CITIZEN_ACTION_PENDING_AT_FI_VERIF:Citizen action pending at FI Verifier,APPROVAL_INPROGRESS:Approval Inprogress'
+      pattern: 'list://CITIZEN_ACTION_PENDING_AT_DOC_VERIF:CITIZEN_ACTION_PENDING_AT_DOC_VERIF,INPROGRESS:INPROGRESS,PENDING_APPL_FEE:PENDING_APPL_FEE,PENDING_SANC_FEE_PAYMENT:PENDING_SANC_FEE_PAYMENT,DOC_VERIFICATION_INPROGRESS:DOC_VERIFICATION_INPROGRESS,CITIZEN_ACTION_PENDING_AT_NOC_VERIF:CITIZEN_ACTION_PENDING_AT_NOC_VERIF,PERMIT REVOCATION:PERMIT REVOCATION,FIELDINSPECTION_INPROGRESS:FIELDINSPECTION_INPROGRESS,PENDING_FEE:PENDING_FEE,NOC_VERIFICATION_INPROGRESS:NOC_VERIFICATION_INPROGRESS,INITIATED:INITIATED,CITIZEN_APPROVAL_INPROCESS:CITIZEN_APPROVAL_INPROCESS,REJECTED:REJECTED,APPROVED:APPROVED,CITIZEN_ACTION_PENDING_AT_FI_VERIF:CITIZEN_ACTION_PENDING_AT_FI_VERIF,APPROVAL_INPROGRESS:APPROVAL_INPROGRESS'
       searchClause: AND bp.status in ( $status )
+      isLocalisationRequired: true
+      localisationPrefix: REPORT_OBPS_
 
   query: select applicationno,to_char(To_timestamp(bp.applicationdate / 1000), 'DD/MM/YYYY') as applicationdate, landinfo.channel as applicationchannel, usr.name as name,  usr.uuid as uuid, bp.additionaldetails->>'applicationType' as applicationtype, bp.additionaldetails->> 'serviceType' as servicetype, land.occupancytype, bp.status, case when isterminatestate=true then null else userassignee.name end as currentowner, bp.approvalno as permitno FROM eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_bpa_buildingplan bp on pi.businessid=bp.applicationno inner join eg_user usr ON bp.createdby = usr.uuid  inner join eg_land_unit land ON land.landinfoid = bp.landid inner join eg_land_landinfo landinfo ON land.landinfoid = landinfo.id inner join eg_land_address adr ON adr.landinfoid = landinfo.id inner join eg_user userassignee ON assigner = userassignee.uuid WHERE 1=1
   orderby: ORDER BY applicationdate asc
