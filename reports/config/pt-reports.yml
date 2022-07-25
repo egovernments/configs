@@ -1146,13 +1146,13 @@ ReportDefinitions:
     type: epoch
     source: pt
     isMandatory: true
-    searchClause: AND (date(to_timestamp(ep.createdtime / 1000)) >= date($startdate)
+    searchClause: AND (date(to_timestamp(ep.createdtime / 1000)) >= date($startdate)+1)
   - name: enddate
     label: End Date
     type: epoch
     source: pt
     isMandatory: true
-    searchClause: AND date(to_timestamp(ep.createdtime / 1000)) <= date($enddate))
+    searchClause: AND (date(to_timestamp(ep.createdtime / 1000)) <= date($enddate)+1)
   query: |
       select distinct ep.tenantid, eu.type,EDV.CONSUMERCODE,EPP.OLDPROPERTYID,eu.username as employeeid, eu.name, eu.mobilenumber, to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as "Payment Date", ep.paymentmode as "Payment Mode", ep.paymentstatus as "Payment Status", ep.paidby as "Paid by" , date(to_timestamp(ep.createdtime / 1000)) as createdtime, epd.receiptnumber as "Receipt Number", epd.amountpaid "Amount paid" from egcl_payment ep inner join egcl_paymentdetail epd on ep.id=epd.paymentid INNER JOIN EGCL_BILL EB ON EPD.BILLID = EB.ID INNER JOIN EGCL_BILLDETIAL EB2 ON EB.ID = EB2.BILLID INNER JOIN EGBS_DEMAND_V1 EDV ON EB2.DEMANDID = EDV.ID INNER JOIN EG_PT_PROPERTY EPP ON EPP.STATUS!='INACTIVE' AND EDV.CONSUMERCODE like 'PT-%' AND EDV.CONSUMERCODE=EPP.PROPERTYID left outer join eg_user eu on cast(ep.createdby as INTEGER)=eu.id where eu.type='EMPLOYEE'
 
