@@ -130,19 +130,28 @@ ReportDefinitions:
     searchClause: AND egcl_paymentdetail.receiptdate  <= $toDate 
   - name: locality
     label: reports.wns.locality
-    type: string
+    type: singlevaluelist
     source: wns
+    pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.name
     isMandatory: false
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
     searchClause: AND locality = $locality
   - name: serviceName
     label: reports.wns.serviceName
-    type: string
+    type: singlevaluelist
     source: wns
     isMandatory: false
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pb&moduleName=BillingService&masterName=BusinessService&filter=%5B?(@.type=='Adhoc')%5D|$.MdmsRes.BillingService.BusinessService.*.code|$.MdmsRes.BillingService.BusinessService.*.code
     searchClause: AND egcl_bill.businessservice = $serviceName
+    isLocalisationRequired: true
+    localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
   - name: paymentInstrument
     label: reports.wns.paymentmode
-    type: string
+    type: singlevaluelist
+    pattern: 'list://CASH:CASH,ONLINE:ONLINE,CARD:CARD,DD:DD,CHEQUE:CHEQUE'
+    isLocalisationRequired: true
+    localisationPrefix: COMMON_MASTERS_PAYMENTMODE_
     source: wns
     isMandatory: false
     searchClause: AND paymentmode = $paymentInstrument
