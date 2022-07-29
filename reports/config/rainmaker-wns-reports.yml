@@ -61,19 +61,26 @@ ReportDefinitions:
     searchClause: AND egcl_paymentdetail.receiptdate  <= $toDate 
   - name: receiptStatus
     label: reports.wns.receiptStatus
-    type: string
+    type: singlevaluelist
+    pattern: 'list://NEW:New,DEPOSITED:Deposited,DISHONOURED:Dishonoured'
     source: wns
     isMandatory: false
     searchClause: AND egcl_bill.status = $receiptStatus
   - name: serviceName
     label: reports.wns.serviceName
-    type: string
+    type: singlevaluelist
     source: wns
     isMandatory: false
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pb&moduleName=BillingService&masterName=BusinessService&filter=%5B?(@.type=='Adhoc')%5D|$.MdmsRes.BillingService.BusinessService.*.code|$.MdmsRes.BillingService.BusinessService.*.code
+    wrapper: true
+    isLocalisationRequired: true
+    localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
     searchClause: AND egcl_bill.businessservice = $serviceName
   - name: collectionOperator
     label: CollectionOperator
-    type: string
+    type: singlevaluelist
+    pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=FSM_COLLECTOR|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.username
+    wrapper: true
     source: wns
     isMandatory: false
     searchClause: AND egcl_payment.createdby = $collectionOperator
@@ -130,19 +137,30 @@ ReportDefinitions:
     searchClause: AND egcl_paymentdetail.receiptdate  <= $toDate 
   - name: locality
     label: reports.wns.locality
-    type: string
+    type: singlevaluelist
     source: wns
+    pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.code
     isMandatory: false
+    wrapper: true
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
     searchClause: AND locality = $locality
   - name: serviceName
     label: reports.wns.serviceName
-    type: string
+    type: singlevaluelist
     source: wns
     isMandatory: false
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pb&moduleName=BillingService&masterName=BusinessService&filter=%5B?(@.type=='Adhoc')%5D|$.MdmsRes.BillingService.BusinessService.*.code|$.MdmsRes.BillingService.BusinessService.*.code
+    wrapper: true
+    isLocalisationRequired: true
+    localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
     searchClause: AND egcl_bill.businessservice = $serviceName
   - name: paymentInstrument
     label: reports.wns.paymentmode
-    type: string
+    type: singlevaluelist
+    pattern: 'list://CASH:CASH,ONLINE:ONLINE,CARD:CARD,DD:DD,CHEQUE:CHEQUE'
+    isLocalisationRequired: true
+    localisationPrefix: COMMON_MASTERS_PAYMENTMODE_
     source: wns
     isMandatory: false
     searchClause: AND paymentmode = $paymentInstrument
@@ -183,25 +201,43 @@ ReportDefinitions:
   searchParams:
   - name: locality
     label: reports.wns.locality
-    type: string
+    type: singlevaluelist
     source: wns
+    pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.code
+    isMandatory: false
+    wrapper: true
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
     isMandatory: false
     searchClause: AND locality = $locality
   - name: serviceName
     label: reports.wns.serviceName
-    type: string
+    type: singlevaluelist
     source: wns
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pb&moduleName=BillingService&masterName=BusinessService&filter=%5B?(@.type=='Adhoc')%5D|$.MdmsRes.BillingService.BusinessService.*.code|$.MdmsRes.BillingService.BusinessService.*.code
+    wrapper: true
+    isLocalisationRequired: true
+    localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
     isMandatory: false
     searchClause: AND egcl_bill.businessservice = $serviceName
   - name: usageType
     label: reports.wns.usageType
-    type: string
     source: wns
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=ws-services-calculation&masterName=PropertyUsageType&filter=%24.%2A%5B%3F%28%40.code%20%3D~%20%2F%5BA-Z%5D%2A%5C.%5BA-Z%5D%2A%5C.%5BA-Z%5D%2A%5C.%5BA-z%5D%2A%2F%29%5D|$.MdmsRes.ws-services-calculation.PropertyUsageType.*|$.MdmsRes.ws-services-calculation.PropertyUsageType.*.name
+    wrapper: true
+    isMandatory: false
+    localisationPrefix: WATERSERVICE_USAGE_TYPE_
     isMandatory: false
     searchClause: AND eg_pt_property.usagecategory = $usageType
   - name: connectionType
     label: reports.wns.connectionType
-    type: string
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=ws-services-masters&masterName=connectionType&filter=%24.%2A%5B%3F%28%40.code%20%3D~%20%2F%5BA-Z%5D%2A%5C.%5BA-Z%5D%2A%5C.%5BA-Z%5D%2A%5C.%5BA-z%5D%2A%2F%29%5D|$.MdmsRes.ws-services-masters.connectionType.*.code|$.MdmsRes.ws-services-masters.connectionType.*.name
+    wrapper: true
+    isMandatory: false
+    localisationPrefix: WATERSEREVICE_CONNECTION_TYPE_
+    isLocalisationRequired: false
     source: wns
     isMandatory: false
     searchClause: AND connectiontype = $connectionType
