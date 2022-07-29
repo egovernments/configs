@@ -7,7 +7,7 @@ serviceMaps:
    isTransaction: true
    queryMaps:
 
-       - query: INSERT INTO eg_bpa_buildingplan(id, applicationNo, landId, accountId, edcrNumber, tenantId, status, approvalDate, businessService, additionalDetails, createdBy, lastmodifiedBy, createdTime, lastmodifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); 
+       - query: INSERT INTO eg_bpa_buildingplan(id, applicationNo, landId, accountId, edcrNumber, tenantId, status, approvalDate, businessService, additionalDetails, createdBy, lastmodifiedBy, createdTime, lastmodifiedTime, isRevisionApplication) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); 
          basePath: BPA
          jsonMaps:
           - jsonPath: $.BPA.id
@@ -39,6 +39,8 @@ serviceMaps:
           - jsonPath: $.BPA.auditDetails.createdTime
 
           - jsonPath: $.BPA.auditDetails.lastModifiedTime
+
+          - jsonPath: $.BPA.isRevisionApplication
 
 
        - query: INSERT INTO eg_bpa_document( id, documenttype, fileStoreId, buildingplanid, documentuid, additionalDetails, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
@@ -171,6 +173,70 @@ serviceMaps:
           - jsonPath: $.preapprovedPlan.auditDetails.lastModifiedTime
 
  - version: 1.0
+   description: Persists revision details in EG_BPA_buildingplan_revision  table
+   fromTopic: save-revision
+   isTransaction: true
+   queryMaps:
+
+       - query: INSERT INTO eg_bpa_buildingplan_revision(id, tenantid, isSujogExistingApplication, bpaApplicationNo, bpaApplicationId, refBpaApplicationNo,  refPermitNo, refPermitDate, refPermitExpiryDate, refApplicationDetails, createdBy, lastmodifiedBy, createdTime, lastmodifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); 
+         basePath: revision
+         jsonMaps:
+          - jsonPath: $.revision.id
+
+          - jsonPath: $.revision.tenantId
+          
+          - jsonPath: $.revision.isSujogExistingApplication
+          
+          - jsonPath: $.revision.bpaApplicationNo
+
+          - jsonPath: $.revision.bpaApplicationId
+
+          - jsonPath: $.revision.refBpaApplicationNo
+          
+          - jsonPath: $.revision.refPermitNo
+
+          - jsonPath: $.revision.refPermitDate
+
+          - jsonPath: $.revision.refPermitExpiryDate
+          
+          - jsonPath: $.revision.refApplicationDetails
+            type: JSON
+            dbType: JSONB
+
+          - jsonPath: $.revision.auditDetails.createdBy
+
+          - jsonPath: $.revision.auditDetails.lastModifiedBy
+
+          - jsonPath: $.revision.auditDetails.createdTime
+
+          - jsonPath: $.revision.auditDetails.lastModifiedTime
+
+       - query: INSERT INTO eg_bpa_revision_documents( id, documenttype, fileStoreId, revisionId, documentuid, additionalDetails, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+         basePath: revision.documents.*
+         jsonMaps:
+          - jsonPath: $.revision.documents.*.id
+
+          - jsonPath: $.revision.documents.*.documentType
+
+          - jsonPath: $.revision.documents.*.fileStoreId
+
+          - jsonPath: $.revision.id
+
+          - jsonPath: $.revision.documents.*.documentUid
+
+          - jsonPath: $.revision.documents.*.additionalDetails
+            type: JSON
+            dbType: JSONB
+
+          - jsonPath: $.revision.auditDetails.createdBy
+
+          - jsonPath: $.revision.auditDetails.lastModifiedBy
+
+          - jsonPath: $.revision.auditDetails.createdTime
+
+          - jsonPath: $.revision.auditDetails.lastModifiedTime
+
+ - version: 1.0
    description: Persists bpa calculations as installments in EG_BPA_installment  table
    fromTopic: save-bpa-installment
    isTransaction: true
@@ -210,6 +276,29 @@ serviceMaps:
           - jsonPath: $.installments.*.auditDetails.lastModifiedTime
 
  - version: 1.0
+   description: Updates installments in EG_BPA_installment table for demadnId or payment done
+   fromTopic: update-bpa-installment
+   isTransaction: true
+   queryMaps:
+
+       - query: UPDATE eg_bpa_installment SET demandid=?,ispaymentcompletedindemand=?, additional_details=?, lastmodifiedBy=?, lastmodifiedTime=?  WHERE id=?; 
+         basePath: installments.*
+         jsonMaps:
+          - jsonPath: $.installments.*.demandId
+
+          - jsonPath: $.installments.*.isPaymentCompletedInDemand
+
+          - jsonPath: $.installments.*.additionalDetails
+            type: JSON
+            dbType: JSONB
+
+          - jsonPath: $.installments.*.auditDetails.lastModifiedBy
+
+          - jsonPath: $.installments.*.auditDetails.lastModifiedTime
+
+          - jsonPath: $.installments.*.id
+
+ - version: 1.0
    description: update preapproved plan details in EG_BPA_PreapprovedPlan  table
    fromTopic: update-preapproved-plan
    isTransaction: true
@@ -222,6 +311,41 @@ serviceMaps:
           
           - jsonPath: $.preapprovedPlan.id
 
+ - version: 1.0
+   description: update revision details in EG_BPA_buildingplan_revision  table
+   fromTopic: update-revision
+   isTransaction: true
+   queryMaps:
+
+       - query: UPDATE eg_bpa_buildingplan_revision SET tenantId=?,isSujogExistingApplication=?,bpaApplicationNo=?,bpaApplicationId=?,refBpaApplicationNo=?,refPermitNo=?,refPermitDate=?,refPermitExpiryDate=?,refApplicationDetails=?,lastModifiedBy=?,lastModifiedTime=? WHERE id=?;
+         basePath: revision
+         jsonMaps:
+          - jsonPath: $.revision.tenantId
+          
+          - jsonPath: $.revision.isSujogExistingApplication
+          
+          - jsonPath: $.revision.bpaApplicationNo
+
+          - jsonPath: $.revision.bpaApplicationId
+
+          - jsonPath: $.revision.refBpaApplicationNo
+          
+          - jsonPath: $.revision.refPermitNo
+
+          - jsonPath: $.revision.refPermitDate
+
+          - jsonPath: $.revision.refPermitExpiryDate
+          
+          - jsonPath: $.revision.refApplicationDetails
+            type: JSON
+            dbType: JSONB
+
+          - jsonPath: $.revision.auditDetails.lastModifiedBy
+
+          - jsonPath: $.revision.auditDetails.lastModifiedTime
+          
+          - jsonPath: $.revision.id
+
 
  - version: 1.0
    description: update buildingplan details in EG_BPA_BuildingPlan  table
@@ -229,7 +353,7 @@ serviceMaps:
    isTransaction: true
    queryMaps:
 
-       - query: UPDATE eg_bpa_buildingplan SET applicationno=?, approvalNo=?, applicationDate=?, edcrNumber=?, status=?, additionaldetails=?, lastmodifiedby=?, lastmodifiedtime=?, approvalDate=?, reWorkHistory=? WHERE id=?;
+       - query: UPDATE eg_bpa_buildingplan SET applicationno=?, approvalNo=?, applicationDate=?, edcrNumber=?, status=?, additionaldetails=?, lastmodifiedby=?, lastmodifiedtime=?, approvalDate=?, reWorkHistory=?, isRevisionApplication=? WHERE id=?;
          basePath: BPA
          jsonMaps:
           - jsonPath: $.BPA.applicationNo
@@ -255,6 +379,8 @@ serviceMaps:
           - jsonPath: $.BPA.reWorkHistory
             type: JSON
             dbType: JSONB
+
+          - jsonPath: $.BPA.isRevisionApplication
 
           - jsonPath: $.BPA.id
 
@@ -357,7 +483,7 @@ serviceMaps:
            - jsonPath: $.BPA.id
 
 
-       - query: UPDATE eg_bpa_buildingplan SET applicationno=?, approvalNo=?, applicationDate=?, edcrNumber=?, status=?, additionaldetails=?, lastmodifiedby=?, lastmodifiedtime=?, approvalDate=?, reWorkHistory=? WHERE id=?;
+       - query: UPDATE eg_bpa_buildingplan SET applicationno=?, approvalNo=?, applicationDate=?, edcrNumber=?, status=?, additionaldetails=?, lastmodifiedby=?, lastmodifiedtime=?, approvalDate=?, reWorkHistory=?, isRevisionApplication=? WHERE id=?;
          basePath: BPA
          jsonMaps:
           - jsonPath: $.BPA.applicationNo
@@ -383,6 +509,8 @@ serviceMaps:
           - jsonPath: $.BPA.reWorkHistory
             type: JSON
             dbType: JSONB
+
+          - jsonPath: $.BPA.isRevisionApplication
 
           - jsonPath: $.BPA.id
 

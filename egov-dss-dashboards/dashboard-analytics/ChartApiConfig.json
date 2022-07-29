@@ -4559,11 +4559,10 @@
         "dateRefField": "Data.vehicleTrip.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "indexName": "vehicletrip",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.vehicleTrip.tenantId.keyword\":\"od.testing\"}}]}},\"aggs\":{\"Capacity Utilization\":{\"date_histogram\":{\"field\":\"Data.vehicleTrip.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}}}}}}}}"
-      }
+         "aggrQuery":  "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.vehicleTrip.tenantId.keyword\":\"od.testing\"}}]}},\"aggs\":{\"Capacity Utilization\":{\"date_histogram\":{\"field\":\"Data.vehicleTrip.@timestamp\",\"interval\":\"intervalvalue\"},\"aggs\":{\"avg_rating\":{\"avg\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}}}"}
     ],
     "chartType": "line",
-    "valueType": "amount",
+    "valueType": "number",
     "action": "",
     "isRoundOff": true,
     "documentType": "_doc",
@@ -4585,7 +4584,7 @@
         "dateRefField": "Data.vehicleTrip.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "indexName": "vehicletrip",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.vehicleTrip.tenantId.keyword\":\"od.testing\"}}]}},\"aggs\":{\"Septage Dumped At Plant\":{\"date_histogram\":{\"field\":\"Data.vehicleTrip.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}}}},\"Septage Collected\":{\"date_histogram\":{\"field\":\"Data.vehicleTrip.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.tripDetails.volume'].value)/1000.0\"}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.vehicleTrip.tenantId.keyword\":\"od.testing\"}}]}},\"aggs\":{\"Septage Dumped At Plant\":{\"date_histogram\":{\"field\":\"Data.vehicleTrip.@timestamp\",\"interval\":\"month\"},\"aggs\":{\"Count\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}}}},\"Septage Collected\":{\"date_histogram\":{\"field\":\"Data.vehicleTrip.@timestamp\",\"interval\":\"intervalvalue\"},\"aggs\":{\"Count\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.tripDetails.volume'].value)/1000.0\"}}}}}}}}}"
       }
     ],
     "chartType": "line",
@@ -4920,7 +4919,7 @@
         "dateRefField": "Data.vehicleTrip.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtName\"}",
         "indexName": "vehicletrip",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"data.fsm.tenantId.keyword\":\"od.testing\"}}]}},\"aggs\":{\"NoOfTrips\":{\"value_count\":{\"field\":\"Data.vehicleTrip.@timestamp\"}},\"TotalSeptageCollected\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.tripDetails.volume'].value)/1000.0\"}}},\"TotalSeptageDumped\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}},\"CapacityUtilization\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"data.vehicleTrip.tenantId.keyword\":\"od.testing\"}}]}},\"aggs\":{\"No_Of_Trips\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.vehicleTrip.businessService.keyword\":\"FSM_VEHICLE_TRIP\"}}]}},\"aggs\":{\"NoOfTrips\":{\"value_count\":{\"field\":\"Data.vehicleTrip.tripDetails.volume\"}}}},\"Total_Septage_Collected\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.vehicleTrip.businessService.keyword\":\"FSM_VEHICLE_TRIP\"}}]}},\"aggs\":{\"TotalSeptageCollected\":{\"sum\":{\"field\":\"Data.vehicleTrip.tripDetails.volume\"}}}},\"Total_Septage_Dumped\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.vehicleTrip.businessService.keyword\":\"FSM_VEHICLE_TRIP\"}}]}},\"aggs\":{\"TotalSeptageDumped\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}},\"Capacity_Utilization\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.vehicleTrip.businessService.keyword\":\"FSM_VEHICLE_TRIP\"}}]}},\"aggs\":{\"CapacityUtilization\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}}}"
       }
     ],
     "isMdmsEnabled": true,
@@ -4957,58 +4956,21 @@
     ],
     "isCumulative": true,
     "interval": "month",
+  "chartSpecificProperty": {
+     "XtableColumnOrder":[
+     "S.N.",
+     "District",
+     "NoOfTrips",
+     "TotalSeptageCollected",
+     "TotalSeptageDumped",
+     "CapacityUtilization"
+     ]
+     },
     "insight": {
     },
     "_comment": " "
   },
-  "fsmVehicleLogReportByTenant": {
-    "chartName": "DSS_FSM_VECHILE_LOG_REPORT",
-    "queries": [
-      {
-        "module": "FSM",
-        "dateRefField": "Data.vehicleTrip.@timestamp",
-        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtName\"}",
-        "indexName": "vehicletrip",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"data.vehicleTrip.tenantId.keyword\":\"od.testing\"}}]}},\"aggs\":{\"ULBs \":{\"terms\":{\"field\":\"Data.vehicleTrip.tenantId.keyword\",\"size\":1000},\"aggs\":{\"NoOfTrips\":{\"value_count\":{\"field\":\"Data.vehicleTrip.@timestamp\"}},\"TotalSeptageCollected\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.tripDetails.volume'].value)/1000.0\"}}},\"TotalSeptageDumped\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}},\"CapacityUtilization\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}}}}}}}}"
-      }
-    ],
-    "filterKeys": [
-      {"key": "tenantId", "column": "Boundary"}
-    ],
-    "isPostResponseHandler": true,
-    "chartType": "xtable",
-    "valueType": "number",
-    "action": "",
-    "isRoundOff": true,
-    "documentType": "_doc",
-    "drillChart": "fsmVehicleLogReportByVehicleNo",
-    "plotLabel":"Boundary",
-    "aggregationPaths": [
-      "NoOfTrips",
-      "TotalSeptageCollected",
-      "TotalSeptageDumped",
-      "CapacityUtilization"
-    ],
-    "pathDataTypeMapping": [
-      {
-        "NoOfTrips" : "number"
-      },
-      {
-        "TotalSeptageCollected" : "number"
-      },
-      {
-        "TotalSeptageDumped" : "number"
-      },
-      {
-        "CapacityUtilization" : "number"
-      }
-    ],
-    "isCumulative": true,
-    "interval": "month",
-    "insight": {
-    },
-    "_comment": " "
-  },
+ 
    "fsmCollectionByGender": {
     "chartName": "DSS_FSM_RESQUEST_BY_GENDER",
     "queries": [
@@ -5032,59 +4994,6 @@
     },
     "_comment": " "
   },
-  "fsmVehicleLogReportByVehicleNo": {
-    "chartName": "DSS_FSM_VECHILE_LOG_REPORT",
-    "queries": [
-      {
-        "module": "FSM",
-        "dateRefField": "Data.vehicleTrip.@timestamp",
-        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
-        "indexName": "vehicletrip",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"data.vehicleTrip.tenantId.keyword\":\"od.testing\"}}]}},\"aggs\":{\"Vehicle Reg No\":{\"terms\":{\"field\":\"Data.vehicleTrip.vehicle.registrationNumber.keyword\",\"size\":1000},\"aggs\":{\"NoOfTrips\":{\"value_count\":{\"field\":\"Data.vehicleTrip.@timestamp\"}},\"TotalSeptageCollected\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.tripDetails.volume'].value)/1000.0\"}}},\"TotalSeptageDumped\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}},\"CapacityUtilization\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}},\"TankCapacity\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.vehicle.tankCapacity'].value)/1000.0\"}}}}}}}}}"
-      }
-    ],
-    "filterKeys": [
-      {"key": "registrationNumber", "column": "Vehicle_No"},
-      {"key": "wardId", "column": "Ward"},
-      {"key": "ulbId", "column": "ULB"}
-    ],
-    "isPostResponseHandler": true,
-    "chartType": "xtable",
-    "valueType": "number",
-    "action": "",
-    "isRoundOff": true,
-    "documentType": "_doc",
-    "drillChart": "none",
-    "plotLabel":"Vehicle_No",
-    "aggregationPaths": [
-      "NoOfTrips",
-      "TotalSeptageCollected",
-      "TotalSeptageDumped",
-      "CapacityUtilization",
-      "TankCapacity"
-    ],
-    "pathDataTypeMapping": [
-      {
-        "NoOfTrips" : "number"
-      },
-      {
-        "TotalSeptageCollected" : "number"
-      },
-      {
-        "TotalSeptageDumped" : "number"
-      },
-      {
-        "CapacityUtilization" : "number"
-      },
-      {
-        "TankCapacity" : "number"
-      }
-    ],
-    "isCumulative": true,
-    "interval": "month",
-    "insight": {
-    },
-    "_comment": " "
-  }
+ 
 
 }
