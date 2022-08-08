@@ -1198,3 +1198,70 @@ ReportDefinitions:
     searchClause: AND pay.paymentstatus = $status		
   query: select initcap(split_part(b.tenantid, '.', 2)) as ulb,To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY')  as receiptdate, paydl.receiptnumber as receiptnumber,b.consumercode AS applicationno,(select name from eg_user where uuid=app.accountid ) as name,  pay.paymentmode as instrumenttype, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then To_char(To_timestamp(pay.instrumentdate / 1000), 'DD/MM/YYYY')  else  'NA' end)  as chequedate, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.instrumentnumber else  'NA' end) as chequeno, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.additionaldetails::json#>>'{bankDetails,BANK}'  else  'NA' end) as bankname, (case when pay.paymentmode='ONLINE' then pay.transactionnumber else  'NA' end) as transactionid, (case when pay.paymentmode='CARD' then pay.instrumentnumber else  '' end) as carddigit, bd.amount as amount,pay.paymentstatus as status from egcl_bill b inner join egcl_billdetial bd ON b.id = bd.billid AND b.tenantid = bd.tenantid INNER JOIN eg_tl_tradelicense app on b.consumercode =app.applicationnumber and b.tenantid =app.tenantid inner join egcl_paymentdetail paydl   ON b.id = paydl.billid    AND b.tenantid = paydl.tenantid inner join egcl_payment pay  ON paydl.paymentid = pay.id and paydl.tenantid =pay.tenantid where b.businessservice ='TL' and b.tenantid != 'od.testing'
   orderby: order by paydl.receiptdate  desc
+
+- reportName: PlatformUsageReport
+  summary: Platform Usage Report
+  decryptionPathId: PlatformUsageReport
+  version: 1.0.0
+  moduleName: rainmaker-tl
+  sourceColumns:
+  - name: service_availed
+    label: Service Availed
+    type: string
+    source: tl
+    total: false
+  - name: firm_name
+    label: Name of the Firm
+    type: string
+    source: tl
+    total: false
+  - name: person_name
+    label: Name of the Person
+    type: string
+    source: tl
+    total: false
+  - name: contact_no
+    label: Contact No.
+    type: string
+    source: tl
+    total: false
+  - name: contact_email
+    label: Contact Email
+    type: string
+    source: tl
+    total: false
+  - name: address
+    label: Address
+    type: string
+    source: tl
+    total: false
+  - name: service_availed_date
+    label: Date of Service Availed/Approved
+    type: string
+    source: tl
+    total: false
+  - name: application_no
+    label: Application No.
+    type: string
+    source: tl
+    total: false
+  - name: permit_no
+    label: Consumer/Permit No.
+    type: string
+    source: tl
+    total: false
+  searchParams:
+  - name: fromDate
+    label: From Date
+    type: epoch
+    source: tl
+    isMandatory: true
+    searchClause: and tl.issueddate >= $fromDate
+  - name: toDate
+    label: To Date
+    type: epoch
+    source: tl
+    isMandatory: true
+    searchClause: and tl.issueddate <= $toDate
+  query: |
+      select tl.tradename as firm_name,inst.designation as person_designation,usr.name as person_name,usr.mobilenumber as contact_no,usr.emailid as contact_email,concat(addr.doorno,', ', addr.buildingname, ', ', addr.street, ', PIN-', addr.pincode) as address,TO_CHAR(to_timestamp(tl.issueddate/1000),'DD-MM-YYYY') as service_availed_date,tl.applicationnumber as application_no,tl.licensenumber from eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tldtl on tldtl.tradelicenseid = tl.id inner join eg_tl_institution inst on inst.tradelicensedetailid = tldtl.id inner join eg_tl_address addr on addr.tradelicensedetailid = tldtl.id inner join eg_user usr on usr.uuid = tl.accountid  where tl.applicationtype ='NEW' and tl.status ='APPROVED'

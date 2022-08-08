@@ -746,3 +746,64 @@ ReportDefinitions:
     searchClause: AND pay.paymentstatus = $status		
   query: select initcap(split_part(b.tenantid, '.', 2)) as ulb, To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY')  as receiptdate, paydl.receiptnumber as receiptnumber,b.consumercode AS applicationno,(select name from eg_user where uuid=app.accountid ) as name,  pay.paymentmode as instrumenttype, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then To_char(To_timestamp(pay.instrumentdate / 1000), 'DD/MM/YYYY')  else  'NA' end)  as chequedate, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.instrumentnumber else  'NA' end) as chequeno, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.additionaldetails::json#>>'{bankDetails,BANK}'  else  'NA' end) as bankname, (case when pay.paymentmode='ONLINE' then pay.transactionnumber else  'NA' end) as transactionid, (case when pay.paymentmode='CARD' then pay.instrumentnumber else  '' end) as carddigit, bd.amount as amount,pay.paymentstatus as status from egcl_bill b inner join egcl_billdetial bd ON b.id = bd.billid AND b.tenantid = bd.tenantid INNER JOIN eg_mr_application app on b.consumercode =app.applicationnumber and b.tenantid =app.tenantid inner join egcl_paymentdetail paydl   ON b.id = paydl.billid    AND b.tenantid = paydl.tenantid inner join egcl_payment pay  ON paydl.paymentid = pay.id and   paydl.tenantid =pay.tenantid where b.businessservice ='MR' and b.tenantid != 'od.testing'
   orderby: order by paydl.receiptdate  desc
+
+- reportName: PlatformUsageReport
+  summary: Platform Usage Report
+  version: 1.0.0
+  moduleName: rainmaker-mr
+  sourceColumns:
+  - name: service_availed
+    label: Service Availed
+    type: string
+    source: mr
+    total: false
+  - name: person
+    label: Name of the Person
+    type: string
+    source: mr
+    total: false
+  - name: contact_no
+    label: Contact No.
+    type: string
+    source: mr
+    total: false
+  - name: contact_email
+    label: Contact Email
+    type: string
+    source: mr
+    total: false
+  - name: address
+    label: Address
+    type: string
+    source: mr
+    total: false
+  - name: service_availed_date
+    label: Date of Service Availed/Approved
+    type: string
+    source: mr
+    total: false
+  - name: application_number
+    label: Application No.
+    type: string
+    source: mr
+    total: false
+  - name: mr_reg_no
+    label: Marriage Registration No.
+    type: string
+    source: mr
+    total: false
+  searchParams:
+  - name: fromDate
+    label: From Date
+    type: epoch
+    source: mr
+    isMandatory: true
+    searchClause: and mr.issueddate >= $fromDate
+  - name: toDate
+    label: To Date
+    type: epoch
+    source: mr
+    isMandatory: true
+    searchClause: and mr.issueddate <= $toDate
+  query: |
+      select 'MR' as service_availed,case when couple.isgroom=true then 'Groom' when couple.isgroom=false then 'Bride'end as groom,concat(couple.title,' ',couple.firstname) as person,addr.contact as contact_no,addr.emailaddress as contact_email,concat(addr.addressline1,', ',addr.district,', ',addr.state, ', PIN-',addr.pincode, ', ', addr.country) as address,mr.applicationnumber as application_number,TO_CHAR(to_timestamp(mr.issueddate/1000),'DD-MM-YYYY') as service_availed_date,mr.mrnumber as mr_reg_no from eg_mr_application mr inner join eg_mr_couple couple on couple.mr_id=mr.id inner join eg_mr_address addr on addr.mr_couple_id = couple.id inner join eg_mr_gaurdiandetails gaurd on gaurd.mr_couple_id = couple.id  where mr.applicationtype ='NEW' and mr.status='APPROVED'

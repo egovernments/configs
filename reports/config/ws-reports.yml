@@ -1422,3 +1422,65 @@ ReportDefinitions:
     searchClause: AND 1=1
   query: |
     select INITCAP(SPLIT_PART(conn.tenantid,'.',2)) as ULB, conn.connectionno FROM eg_ws_connection conn inner join eg_ws_service wc ON wc.connection_id = conn.id where conn.applicationstatus = 'CONNECTION_ACTIVATED' and conn.isoldapplication = false and conn.connectionno is not null and wc.connectiontype = 'Non Metered' and date(to_timestamp(wc.connectionexecutiondate/1000)) <= (date_trunc('month', date(to_timestamp($fromDate/1000))) + interval '1 month' - interval '1 day')::date and conn.connectionno NOT IN (select distinct(consumercode) from egbs_demand_v1 dmd where to_char(to_timestamp(taxperiodfrom/1000), 'YYYY-MM') = to_char(date(to_timestamp($fromDate/1000)), 'YYYY-MM') and businessservice = 'WS' )
+
+- reportName: PlatformUsageReport
+  summary: Platform Usage Report
+  decryptionPathId: PlatformUsageReport
+  version: 1.0.0
+  moduleName: rainmaker-ws
+  sourceColumns:
+  - name: service_availed
+    label: Service Availed
+    type: string
+    source: ws
+    total: false
+  - name: person_name
+    label: Name of the Person
+    type: string
+    source: ws
+    total: false
+  - name: contact_no
+    label: Contact No.
+    type: string
+    source: ws
+    total: false
+  - name: contact_email
+    label: Contact Email
+    type: string
+    source: ws
+    total: false
+  - name: address
+    label: Address
+    type: string
+    source: ws
+    total: false
+  - name: service_availed_date
+    label: Date of Service Availed/Approved
+    type: string
+    source: ws
+    total: false
+  - name: application_number
+    label: Application No.
+    type: string
+    source: ws
+    total: false
+  - name: connction_no
+    label: Consumer/Permit No.
+    type: string
+    source: ws
+    total: false
+  searchParams:
+  - name: fromDate
+    label: From Date
+    type: epoch
+    source: ws
+    isMandatory: true
+    searchClause: and ws.connectionexecutiondate >= $fromDate
+  - name: toDate
+    label: To Date
+    type: epoch
+    source: ws
+    isMandatory: true
+    searchClause: and ws.connectionexecutiondate <= $toDate
+  query: |
+      select 'W&S' as service_availed,usr."name" as person_name,usr.mobilenumber as contact_no,usr.emailid as contact_email,addr.address as address,TO_CHAR(to_timestamp(ws.connectionexecutiondate/1000),'DD-MM-YYYY') as service_availed_date,conn.applicationno as application_number,conn.connectionno as connction_no from eg_ws_connection conn inner join eg_ws_service ws on ws.connection_id = conn.id inner join eg_ws_connectionholder holder on holder.connectionid = conn.id inner join eg_user usr on usr.uuid = holder.userid inner join eg_user_address addr on addr.userid = usr.id where conn.applicationtype in ('NEW_WATER_CONNECTION','NEW_CONNECTION') and conn.applicationstatus ='CONNECTION_ACTIVATED' and addr."type" ='CORRESPONDENCE' and conn.connectionno is not null
