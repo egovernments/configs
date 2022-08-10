@@ -495,3 +495,65 @@ ReportDefinitions:
     searchClause: AND ep.transactiondate <= $toDate
   query: |
       select INITCAP(SPLIT_PART(ebb.tenantid,'.',2)) as ulb,ebb.applicationno as applicationno,eu.name as name,eu.mobilenumber as mobilenumber,ebb.status as currentstatus,case when billtables.businessservice in ('BPA.NC_OC_SAN_FEE','BPA.NC_SAN_FEE') then 'Permit Fee' when billtables.businessservice in ('BPA.NC_OC_APP_FEE','BPA.NC_APP_FEE') then 'Application Fee' end as feetype,to_char(to_timestamp(ep.instrumentdate / 1000), 'DD-Mon-YYYY') as paymentdate,ep.transactionnumber as receiptno,billtables.SanctionFee,billtables.EIDPFee,billtables.TemporaryRetentionFee,billtables.PurchasableFarFee,billtables.LandDevelopmentFee,billtables.RegistrationFee,billtables.ShelterFee,billtables.BuildingOperationFee,billtables.SecurityDeposit,billtables.ApplicationFee,billtables.WorkerWelfareCess,billtables.AdjustmentAmount,billtables.totalDemandAmount,billtables.totalAdjustedAmount from egcl_payment ep inner join egcl_paymentdetail epd on ep.id=epd.paymentid inner join (select eb.id,eb.consumercode,eb.businessservice,sum(case when ebad.taxheadcode in ('BPA_SANC_FEES','BPA_SANC_SANC_FEE','BPA_SANC_FEES.SANC_FEE') then ebad.amount else 0 end) SanctionFee,sum(case when ebad.taxheadcode='BPA_SANC_EIDP_FEE' then ebad.amount else 0 end) EIDPFee,sum(case when ebad.taxheadcode in ('BPA_SANC_TEMP_RETENTION_FEE','BPA_SANC_FEES.RETENTION_FEE') then ebad.amount else 0 end) TemporaryRetentionFee,sum(case when ebad.taxheadcode in ('BPA_SANC_FEES.PUR_FAR_FEE','BPA_SANC_PUR_FAR') then ebad.amount else 0 end) PurchasableFarFee,sum(case when ebad.taxheadcode in ('BPA_APPL_FEES.LAND_DEV_FEE','BPA_LAND_DEV_FEE') then ebad.amount else 0 end) LandDevelopmentFee,sum(case when ebad.taxheadcode='BPAREG_FEES' then ebad.amount else 0 end) RegistrationFee,sum(case when ebad.taxheadcode in ('BPA_SANC_FEES.SHELTER_FEE','BPA_SANC_SHELTER_FEE') then ebad.amount else 0 end) ShelterFee,sum(case when ebad.taxheadcode in ('BPA_APPL_FEES.BLDNG_OPRN_FEE','BPA_BLDNG_OPRN_FEE') then ebad.amount else 0 end) BuildingOperationFee,sum(case when ebad.taxheadcode in ('BPA_SANC_FEES.SECURITY_DEPOSIT','BPA_SANC_SECURITY_DEPOSIT') then ebad.amount else 0 end) SecurityDeposit,sum(case when ebad.taxheadcode='BPA_APPL_FEES' then ebad.amount else 0 end) ApplicationFee,sum(case when ebad.taxheadcode in ('BPA_SANC_WORKER_WELFARE_CESS','BPA_SANC_FEES.WELFARE_CESS') then ebad.amount else 0 end) WorkerWelfareCess,sum(case when ebad.taxheadcode='BPA_SANC_ADJUSTMENT_AMOUNT' then ebad.amount else 0 end) AdjustmentAmount,sum(ebad.amount) as totalDemandAmount,sum(ebad.adjustedamount) as totalAdjustedAmount from egcl_billaccountdetail ebad inner join egcl_billdetial ebd on ebd.id = ebad.billdetailid inner join egcl_bill eb on ebd.billid=eb.id where eb.tenantid =$tenant and eb.businessservice in ('BPA.NC_APP_FEE','BPA.NC_SAN_FEE') group by eb.id,eb.consumercode,eb.businessservice) billtables on epd.billid=billtables.id left outer join eg_bpa_buildingplan ebb on billtables.consumercode=ebb.applicationno inner join eg_land_ownerinfo elo on ebb.landid=elo.landinfoid inner join eg_user eu on elo.uuid=eu.uuid
+
+- reportName: PlatformUsageReport
+  summary: Platform Usage Report
+  decryptionPathId: PlatformUsageReport
+  version: 1.0.0
+  moduleName: rainmaker-bpa
+  sourceColumns:
+  - name: service_availed
+    label: Service Availed
+    type: string
+    source: bpa
+    total: false
+  - name: person_name
+    label: Name of the Person
+    type: string
+    source: bpa
+    total: false
+  - name: contact_no
+    label: Contact No.
+    type: string
+    source: bpa
+    total: false
+  - name: contact_email
+    label: Contact Email
+    type: string
+    source: bpa
+    total: false
+  - name: address
+    label: Address
+    type: string
+    source: bpa
+    total: false
+  - name: service_availed_date
+    label: Date of Service Availed/Approved
+    type: string
+    source: bpa
+    total: false
+  - name: application_no
+    label: Application No.
+    type: string
+    source: bpa
+    total: false
+  - name: permit_no
+    label: Consumer/Permit No.
+    type: string
+    source: bpa
+    total: false
+  searchParams:
+  - name: fromDate
+    label: From Date
+    type: epoch
+    source: bpa
+    isMandatory: true
+    searchClause: and bpa.approvaldate >= $fromDate
+  - name: toDate
+    label: To Date
+    type: epoch
+    source: bpa
+    isMandatory: true
+    searchClause: and bpa.approvaldate <= $toDate
+  query: |
+      select 'OBPAS' as service_availed,usr."name" as person_name,usr.mobilenumber as contact_no,usr.emailid as contact_email,addr.address as address,TO_CHAR(to_timestamp(bpa.approvaldate/1000),'DD-MM-YYYY') as service_availed_date,bpa.applicationno as application_no,bpa.approvalno as permit_no from eg_bpa_buildingplan bpa inner join eg_land_landinfo land on land.id =bpa.landid inner join eg_land_ownerinfo ownr on ownr.landinfoid = land.id inner join eg_user usr on usr.uuid = ownr.uuid inner join eg_user_address addr on addr.userid = usr.id left outer join eg_land_institution inst on inst.id = ownr.institutionid where bpa.approvalno is not null and bpa.status ='APPROVED' and addr."type" ='CORRESPONDENCE'
