@@ -642,7 +642,7 @@ ReportDefinitions:
     isMandatory: true
     searchClause: AND date(to_timestamp(ep.transactiondate/1000)) <= date(to_timestamp($toDate/1000))
   query: |
-      select INITCAP(SPLIT_PART(ep.tenantid,'.',2)) as ULB,	ce.username empuserid, ce."name" empname, 'Water' as head, to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as paymentdate, ep.paymentmode,	ep2.receiptnumber, ep2.amountpaid, ewc.connectionno, ewc.oldconnectionno, ch."name" holdername, EWC.ADDITIONALDETAILS->>'ward' as ward from egcl_payment ep inner join egcl_paymentdetail ep2 on ep2.paymentid = ep.id inner join eg_user ce on ce.id = cast(ep.createdby as INTEGER) inner join egcl_bill ebv on ep2.billid = ebv.id inner join eg_ws_connection ewc on ebv.consumercode = ewc.connectionno inner join eg_ws_connectionholder esc on esc.connectionid = ewc.id inner join eg_user ch on ch.uuid = esc.userid where ep2.businessservice like 'WS' and ce."type" ='EMPLOYEE' and ewc.isoldapplication = false
+      select INITCAP(SPLIT_PART(ep.tenantid,'.',2)) as ULB,	ce.username empuserid, ce."name" empname, 'Water' as head, to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as paymentdate, ep.paymentmode,	ep2.receiptnumber, ep2.amountpaid, ewc.connectionno, ewc.oldconnectionno, ch."name" holdername, EWC.ADDITIONALDETAILS->>'ward' as ward from egcl_payment ep inner join egcl_paymentdetail ep2 on ep2.paymentid = ep.id inner join eg_user ce on ce.id = cast(ep.createdby as INTEGER) inner join egcl_bill ebv on ep2.billid = ebv.id inner join eg_ws_connection ewc on ebv.consumercode = ewc.connectionno inner join eg_ws_connectionholder esc on esc.connectionid = ewc.id inner join eg_user ch on ch.uuid = esc.userid where ep2.businessservice like 'WS' and ce."type" ='EMPLOYEE' and ewc.isoldapplication = false and ep.paymentstatus not in ('CANCELLED', 'DISHONOURED') 
 
 - reportName: EmployeeDateWiseWSCollection
   decryptionPathId: WaterEmployeeWiseCollection
@@ -718,7 +718,7 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND ep.paymentmode = $paymentMode
   query: |
-      select INITCAP(SPLIT_PART(ep.tenantid,'.',2)) as ULB,	ce.username empuserid, ce."name" empname, 'Water' as head,to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as paymentdate, ep.paymentmode,ep2.receiptnumber, ep2.amountpaid,ep2.businessservice as businessservice,ebv.consumercode as ApplicationOrConsumerNo from egcl_payment ep inner join egcl_paymentdetail ep2 on ep2.paymentid = ep.id inner join eg_user ce on ce.id = cast(ep.createdby as INTEGER) inner join egcl_bill ebv on ep2.billid = ebv.id where ep2.businessservice like 'WS%' and ce."type" ='EMPLOYEE'
+      select INITCAP(SPLIT_PART(ep.tenantid,'.',2)) as ULB,	ce.username empuserid, ce."name" empname, 'Water' as head,to_char(to_timestamp(ep.transactiondate / 1000), 'DD-Mon-YYYY HH:mm:SS') as paymentdate, ep.paymentmode,ep2.receiptnumber, ep2.amountpaid,ep2.businessservice as businessservice,ebv.consumercode as ApplicationOrConsumerNo from egcl_payment ep inner join egcl_paymentdetail ep2 on ep2.paymentid = ep.id inner join eg_user ce on ce.id = cast(ep.createdby as INTEGER) inner join egcl_bill ebv on ep2.billid = ebv.id where ep2.businessservice like 'WS%' and ce."type" ='EMPLOYEE' and ep.paymentstatus not in ('CANCELLED', 'DISHONOURED') 
 
 - reportName: W&SConsumerMasterReport
   decryptionPathId: WaterMonthlyDemandsReport
