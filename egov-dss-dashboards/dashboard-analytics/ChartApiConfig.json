@@ -7384,6 +7384,35 @@
     },
     "_comment": ""
   },
+  "dssIfixCollectionsAndExpenditureActual": {
+    "chartName": "DSS_IFIX_COLLECTIONS_AND_EXPENDITURE_ACTUAL",
+    "queries": [
+      {
+        "module": "IFIX",
+        "dateRefField": "Data.eventTime",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "ifix-fiscal-events",
+        "aggrQuery": "{\"aggs\":{\"Current Demand\":{\"date_histogram\":{\"field\":\"Data.eventTime\",\"interval\":\"month\"},\"aggs\":{\"currentDemandAmount\":{\"sum\":{\"script\":{\"lang\":\"painless\",\"source\":\"long currentDemandAmount=0;if(params['_source']['Data']['eventType']=='Demand' || params['_source']['Data']['eventType']=='Bill'){String currentEventTimeString=params['_source']['Data']['eventTime'];long currentEventTime=Long.parseLong(currentEventTimeString);for(int i=0;i<params['_source']['Data']['amountDetails'].length;++i){if(currentEventTime>=Long.parseLong(params['_source']['Data']['amountDetails'][i]['fromBillingPeriod'])&&currentEventTime<=Long.parseLong(params['_source']['Data']['amountDetails'][i]['toBillingPeriod'])){currentDemandAmount=currentDemandAmount+params['_source']['Data']['amountDetails'][i]['amount'];}}}return  currentDemandAmount;\"}}}}},\"Arrear Demand\":{\"date_histogram\":{\"field\":\"Data.eventTime\",\"interval\":\"month\"},\"aggs\":{\"arrearDemandAmount\":{\"sum\":{\"script\":{\"lang\":\"painless\",\"source\":\"long currentDemandAmount=0;if(params['_source']['Data']['eventType']=='Receipt'){String currentEventTimeString=params['_source']['Data']['eventTime'];long currentEventTime=Long.parseLong(currentEventTimeString);for(int i=0;i<params['_source']['Data']['amountDetails'].length;++i){if(currentEventTime>Long.parseLong(params['_source']['Data']['amountDetails'][i]['toBillingPeriod'])){currentDemandAmount=currentDemandAmount+params['_source']['Data']['amountDetails'][i]['amount'];}}}return currentDemandAmount;\"}}}}},\"Current Bill\":{\"date_histogram\":{\"field\":\"Data.eventTime\",\"interval\":\"month\"},\"aggs\":{\"currentBillAmount\":{\"sum\":{\"script\":{\"lang\":\"painless\",\"source\":\"long currentBillAmount=0;if(params['_source']['Data']['eventType']=='Payment'){String currentEventTimeString=params['_source']['Data']['eventTime'];long currentEventTime=Long.parseLong(currentEventTimeString);for(int i=0;i<params['_source']['Data']['amountDetails'].length;++i){if(currentEventTime<=Long.parseLong(params['_source']['Data']['amountDetails'][i]['toBillingPeriod']) && currentEventTime>=Long.parseLong(params['_source']['Data']['amountDetails'][i]['fromBillingPeriod'])){currentBillAmount=currentBillAmount+params['_source']['Data']['amountDetails'][i]['amount'];}}}return currentBillAmount;\"}}}}},\"Old Bill\":{\"date_histogram\":{\"field\":\"Data.eventTime\",\"interval\":\"month\"},\"aggs\":{\"oldBillAmount\":{\"sum\":{\"script\":{\"lang\":\"painless\",\"source\":\"long currentBillAmount=0;if(params['_source']['Data']['eventType']=='Payment'){String currentEventTimeString=params['_source']['Data']['eventTime'];long currentEventTime=Long.parseLong(currentEventTimeString);for(int i=0;i<params['_source']['Data']['amountDetails'].length;++i){if(currentEventTime>Long.parseLong(params['_source']['Data']['amountDetails'][i]['toBillingPeriod'])){currentBillAmount=currentBillAmount+params['_source']['Data']['amountDetails'][i]['amount'];}}}return currentBillAmount;\"}}}}}}}"
+
+      }
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "aggregationPaths": [
+      "Current Demand",
+      "Arrear Demand",
+      "Current Bill",
+      "Old Bill"
+    ],
+    "isCumulative": false,
+    "interval": "month",
+    "insight": {
+    },
+    "_comment": " "
+  },
 
 
   "nocTotalCollection": {
