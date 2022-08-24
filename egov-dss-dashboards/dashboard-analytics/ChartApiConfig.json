@@ -7482,6 +7482,50 @@
     },
     "_comment": ""
   },
+  "dssIfixUnderperformingGPWSCs": {
+    "chartName": "DSS_IFIX_UNDERPERFORMING_GPWSCS",
+    "queries": [
+      {
+        "module": "IFIX",
+        "requestQueryMap": "{\"ward\" : \"ward.keyword\",\"ulb\" : \"ulb.keyword\"}",
+        "dateRefField": "Data.eventTime",
+        "indexName": "ifix-fiscal-events",
+        "aggrQuery": "{\"aggs\":{\"Department\":{\"terms\":{\"field\":\"Data.hierarchyMap.zone.keyword\"},\"aggs\":{\"Demand\":{\"filter\":{\"terms\":{\"Data.eventType.keyword\":[\"Demand\"]}},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"Data.amountDetails.amount\"}}}},\"Billed\":{\"filter\":{\"terms\":{\"Data.eventType.keyword\":[\"Bill\"]}},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"Data.amountDetails.amount\"}}}},\"Collections\":{\"filter\":{\"terms\":{\"Data.eventType.keyword\":[\"Receipt\"]}},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"Data.amountDetails.amount\"}}}},\"Paid\":{\"filter\":{\"terms\":{\"Data.eventType.keyword\":[\"Payment\"]}},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"Data.amountDetails.amount\"}}}},\"comparator_script\":{\"bucket_script\":{\"buckets_path\":{\"bill\":\"Billed>Total\",\"paid\":\"Paid>Total\",\"demand\":\"Demand>Total\",\"collection\":\"Collections>Total\"},\"script\":\"Math.max(params.bill-params.paid,params.demand-params.collection)\"}},\"sales_bucket_sort\":{\"bucket_sort\":{\"sort\":[{\"comparator_script\":{\"order\":\"desc\"}}]}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": false,
+    "chartType": "table",
+    "valueType": "number",
+    "action": "",
+    "plotLabel": "Zone",
+    "isPostResponseHandler": true,
+    "postAggregationTheory" : "repsonseToDifferenceOfDates",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "Demand",
+      "Billed",
+      "Collections",
+      "Paid"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Demand": "amount"
+      },
+      {
+        "Billed": "amount"
+      },
+      {
+        "Collections": "amount"
+      },
+      {
+        "Paid": "amount"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
+  },
 
 
 
