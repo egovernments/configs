@@ -7273,7 +7273,7 @@
       {
         "module": "IFIX",
         "indexName": "ifix-fiscal-events",
-        "aggrQuery": "{\"aggs\":{\"totalOutstandingAmount\":{\"sum\":{\"script\":{\"lang\":\"painless\",\"source\":\"long totalAmountPaid=0;long totalBillAmount=0;if(params['_source']['Data']['eventType']=='Bill'){for(int i=0;i<params['_source']['Data']['amountDetails'].length;++i){totalBillAmount=totalBillAmount+params['_source']['Data']['amountDetails'][i]['amount'];}}else if(params['_source']['Data']['eventType']=='Receipt'){for(int i=0;i<params['_source']['Data']['amountDetails'].length;++i){totalAmountPaid=totalAmountPaid+params['_source']['Data']['amountDetails'][i]['amount'];}}return totalBillAmount-totalAmountPaid;\"}}}}}",
+        "aggrQuery": "{\"aggs\":{\"Department\":{\"terms\":{\"field\":\"Data.hierarchyMap.zone.keyword\"},\"aggs\":{\"Demand\":{\"filter\":{\"terms\":{\"Data.eventType.keyword\":[\"Demand\"]}},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"Data.amountDetails.amount\"}}}},\"Billed\":{\"filter\":{\"terms\":{\"Data.eventType.keyword\":[\"Bill\"]}},\"aggs\":{\"Total\":{\"sum\":{\"field\":\"Data.amountDetails.amount\"}}}},\"total-count-script\":{\"bucket_script\":{\"buckets_path\":{\"demand\":\"Demand>Total\",\"billed\":\"Billed>Total\"},\"script\":\"if(params.demand-params.billed<0){return 1;}\"}}}},\"count\":{\"sum_bucket\":{\"buckets_path\":\"Department>total-count-script\"}}}}",
         "requestQueryMap": "{\"wardId\" : \"domainObject.ward.name.keyword\",\r\n  \"module\" : \"dataObject.paymentDetails.businessService.keyword\", \n\"tenantId\" : \"dataObject.tenantId\"}",
         "dateRefField": "Data.eventTime"
       }
@@ -7283,7 +7283,7 @@
     "action": "",
     "drillChart": "none",
     "aggregationPaths": [
-      "totalOutstandingAmount"
+      "count"
     ],
     "insight": {
     },
