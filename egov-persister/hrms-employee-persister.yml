@@ -4,12 +4,18 @@ serviceMaps:
   - version: 1.0
     name: hrms
     description: Persists employee details in the table
-    fromTopic: save-hrms-employee
+    fromTopic: save-hrms-employee-audit
     isTransaction: true
+    isAuditEnabled: true
+    module: FSM
+    objecIdJsonPath: $.id
+    tenantIdJsonPath: $.tenantId
+    transactionCodeJsonPath: $.transactionCode
+    auditAttributeBasePath: $.Employees.*
     queryMaps:
     - query: INSERT INTO eg_hrms_employee(tenantid, id, uuid, code, dateOfAppointment, employeestatus, employeetype, active, createdby, createddate, lastmodifiedby, lastModifiedDate, reactivateemployee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*
+      basePath: $.Employees.*
       jsonMaps:
 
 
@@ -43,7 +49,7 @@ serviceMaps:
 
     - query: INSERT INTO eg_hrms_assignment(tenantid, uuid, position, department, designation, fromdate, todate, govtordernumber, reportingto, isHOD, iscurrentassignment, employeeid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*.assignments.*
+      basePath: $.Employees.*.assignments.*
       jsonMaps:
 
 
@@ -84,7 +90,7 @@ serviceMaps:
 
     - query: INSERT INTO eg_hrms_educationaldetails(tenantid, uuid, employeeid, qualification, stream, yearofpassing, university, remarks, isactive, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*.education.*
+      basePath: $.Employees.*.education.*
       jsonMaps:
 
 
@@ -117,7 +123,7 @@ serviceMaps:
 
     - query: INSERT INTO eg_hrms_departmentaltests(tenantid, uuid, employeeid, test, yearofpassing, remarks, isactive, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*.tests.*
+      basePath: $.Employees.*.tests.*
       jsonMaps:
 
 
@@ -146,7 +152,7 @@ serviceMaps:
 
     - query: INSERT INTO eg_hrms_empdocuments(tenantid, uuid, employeeid, documentid, documentname, referencetype, referenceid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*.documents.*
+      basePath: $.Employees.*.documents.*
       jsonMaps:
 
 
@@ -175,7 +181,7 @@ serviceMaps:
 
     - query: INSERT INTO eg_hrms_servicehistory(tenantid, uuid, employeeid, servicestatus, servicefrom, serviceto, ordernumber, isCurrentPosition, location, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*.serviceHistory.*
+      basePath: $.Employees.*.serviceHistory.*
       jsonMaps:
 
 
@@ -208,7 +214,7 @@ serviceMaps:
 
     - query: INSERT INTO eg_hrms_jurisdiction (uuid, employeeid, hierarchy, boundarytype, boundary, tenantid, isActive, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*.jurisdictions.*
+      basePath: $.Employees.*.jurisdictions.*
       jsonMaps:
 
       - jsonPath: $.Employees.*.jurisdictions.*.id
@@ -244,14 +250,14 @@ serviceMaps:
     queryMaps:
     - query: DELETE from eg_hrms_employee WHERE uuid=?
 
-      basePath: Employees.*
+      basePath: $.Employees.*
       jsonMaps:
 
       - jsonPath:  $.Employees.*.uuid
 
     - query: INSERT INTO eg_hrms_employee(tenantid, id, uuid, code, dateOfAppointment, employeestatus, employeetype, active, createdby, createddate, lastmodifiedby, lastModifiedDate, reactivateemployee) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*
+      basePath: $.Employees.*
       jsonMaps:
 
 
@@ -285,7 +291,7 @@ serviceMaps:
 
     - query: INSERT INTO eg_hrms_assignment(tenantid, uuid, position, department, designation, fromdate, todate, govtordernumber, reportingto, isHOD, iscurrentassignment, employeeid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*.assignments.*
+      basePath: $.Employees.*.assignments.*
       jsonMaps:
 
 
@@ -326,7 +332,7 @@ serviceMaps:
 
     - query: INSERT INTO eg_hrms_educationaldetails(tenantid, uuid, employeeid, qualification, stream, yearofpassing, university, remarks, isactive, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*.education.*
+      basePath: $.Employees.*.education.*
       jsonMaps:
 
 
@@ -359,7 +365,7 @@ serviceMaps:
 
     - query: INSERT INTO eg_hrms_departmentaltests(tenantid, uuid, employeeid, test, yearofpassing, remarks, isactive, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*.tests.*
+      basePath: $.Employees.*.tests.*
       jsonMaps:
 
 
@@ -388,7 +394,7 @@ serviceMaps:
 
     - query: INSERT INTO eg_hrms_empdocuments(tenantid, uuid, employeeid, documentid, documentname, referencetype, referenceid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*.documents.*
+      basePath: $.Employees.*.documents.*
       jsonMaps:
 
 
@@ -417,7 +423,7 @@ serviceMaps:
 
     - query: INSERT INTO eg_hrms_servicehistory(tenantid, uuid, employeeid, servicestatus, servicefrom, serviceto, ordernumber, isCurrentPosition, location, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*.serviceHistory.*
+      basePath: $.Employees.*.serviceHistory.*
       jsonMaps:
 
 
@@ -450,7 +456,7 @@ serviceMaps:
 
     - query: INSERT INTO eg_hrms_jurisdiction (uuid, employeeid, hierarchy, boundarytype, boundary, tenantid, isActive, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*.jurisdictions.*
+      basePath: $.Employees.*.jurisdictions.*
       jsonMaps:
 
       - jsonPath: $.Employees.*.jurisdictions.*.id
@@ -479,7 +485,7 @@ serviceMaps:
 
     - query: INSERT INTO eg_hrms_deactivationdetails(uuid, employeeid, reasonfordeactivation, effectivefrom, ordernumber, remarks, tenantid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*.deactivationDetails.*
+      basePath: $.Employees.*.deactivationDetails.*
       jsonMaps:
 
       - jsonPath: $.Employees.*.deactivationDetails.*.id
@@ -507,7 +513,7 @@ serviceMaps:
     
     - query: INSERT INTO eg_hrms_reactivationdetails(uuid, employeeid, reasonforreactivation, effectivefrom, ordernumber, remarks, tenantid, createdby, createddate, lastmodifiedby, lastModifiedDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
-      basePath: Employees.*.reactivationDetails.*
+      basePath: $.Employees.*.reactivationDetails.*
       jsonMaps:
 
       - jsonPath: $.Employees.*.reactivationDetails.*.id
