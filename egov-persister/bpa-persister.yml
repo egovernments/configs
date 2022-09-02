@@ -107,6 +107,40 @@ serviceMaps:
           - jsonPath: $.Notice.auditDetails.lastModifiedTime
 
 
+ - version: 1.0
+   description: Persists accredited person details in eg_bpa_accreditedperson table
+   fromTopic: save-accreditedperson
+   isTransaction: true
+   queryMaps:
+
+       - query: INSERT INTO eg_bpa_accredited_person(id, user_uuid, user_id, person_name, firm_name, accreditation_no, certificate_issue_date, valid_till, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+         basePath: accreditedPerson
+         jsonMaps:
+          - jsonPath: $.accreditedPerson.id
+
+          - jsonPath: $.accreditedPerson.userUUID
+          
+          - jsonPath: $.accreditedPerson.userId
+          
+          - jsonPath: $.accreditedPerson.personName
+
+          - jsonPath: $.accreditedPerson.firmName
+          
+          - jsonPath: $.accreditedPerson.accreditationNo
+
+          - jsonPath: $.accreditedPerson.certificateIssueDate
+
+          - jsonPath: $.accreditedPerson.validTill
+          
+          - jsonPath: $.accreditedPerson.auditDetails.createdBy
+          
+          - jsonPath: $.accreditedPerson.auditDetails.lastModifiedBy
+          
+          - jsonPath: $.accreditedPerson.auditDetails.createdTime
+          
+          - jsonPath: $.accreditedPerson.auditDetails.lastModifiedTime
+
+
 
  - version: 1.0
    description: Persists preapproved plan details in EG_BPA_preapprovedPlan  table
@@ -611,3 +645,21 @@ serviceMaps:
           - jsonPath: $.BPA.auditDetails.lastModifiedTime
 
           - jsonPath: $.BPA.dscDetails.*.id
+
+       - query: INSERT INTO eg_bpa_auditdetails SELECT * FROM eg_bpa_buildingplan WHERE id =?;
+         basePath: BPA
+         jsonMaps:
+
+           - jsonPath: $.BPA.id
+
+
+       - query: UPDATE eg_bpa_buildingplan SET approvalDate=?, additionaldetails=? WHERE id=?;
+         basePath: BPA
+         jsonMaps:
+          - jsonPath: $.BPA.approvalDate
+
+          - jsonPath: $.BPA.additionalDetails
+            type: JSON
+            dbType: JSONB
+
+          - jsonPath: $.BPA.id
