@@ -91,20 +91,26 @@ ReportDefinitions:
     searchClause: AND bpa.createdtime  <= $toDate 
   - name: instrumentType
     label: reports.obps.instrumenttype
-    type: string
+    type: singlevaluelist
+    pattern: 'list://CASH:CASH,ONLINE:ONLINE,CARD:CARD,DD:DD,CHEQUE:CHEQUE'
     source: obps
+    wrapper: true
     isMandatory: false
     searchClause: AND paymentmode = $instrumentType
   - name: instrumentStatus
     label: reports.obps.instrumentstatus
-    type: string
-    source: obps
+    type: singlevaluelist
+    pattern: 'list://NEW:NEW,DEPOSITED:DEPOSITED,CANCELLED:CANCELLED,DISHONOURED:DISHONOURED'
+    source: fsm
+    wrapper: true
     isMandatory: false
     searchClause: AND instrumentstatus = $instrumentStatus
   - name: collectionOperator
     label: CollectionOperator
-    type: string
-    source: obps
+    type: singlevaluelist
+    pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=FSM_COLLECTOR|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.username
+    source: fsm
+    wrapper: true
     isMandatory: false
     searchClause: AND egcl_payment.createdby = $collectionOperator
   query: select to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, receiptnumber,bpa.applicationno as applicationnumber,bpa.additionaldetails->>'applicationType' as applicationtype, eg_user.name as name, eg_user.uuid as uuid, paymentmode as instrumenttype, CASE WHEN paymentmode='CHEQUE' THEN  to_char(To_timestamp(instrumentdate/ 1000), 'DD/MM/YYYY') ELSE null END as chequedate, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno, egcl_payment.additionaldetails->'bankDetails'->'BANK' as bankname,  CASE WHEN paymentmode='ONLINE' THEN transactionnumber ELSE null END as transactionid ,CASE WHEN paymentmode='CARD' THEN substring(instrumentnumber,1,4) ELSE null END as lastfourdigits, totalamountpaid, instrumentstatus from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_bpa_buildingplan bpa on consumercode=bpa.applicationno LEFT OUTER JOIN eg_land_unit land ON land.landinfoid = bpa.landid INNER JOIN eg_land_landinfo landinfo ON land.landinfoid = landinfo.id INNER JOIN eg_land_ownerinfo owner ON owner.landinfoid = landinfo.id LEFT OUTER JOIN eg_user  ON eg_user.uuid =owner.uuid where egcl_paymentdetail.businessservice IN ('BPA.NC_OC_APP_FEE','BPA.NC_SAN_FEE','BPA.LOW_RISK_PERMIT_FEE','BPAREG','BPA.NC_OC_SAN_FEE','BPA.NC_APP_FEE') and bpa.tenantid= $tenantid
