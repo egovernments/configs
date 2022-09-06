@@ -1,0 +1,251 @@
+---
+ReportDefinitions:
+- reportName: WnsReceiptRegisterReport
+  decryptionPathId: WnsReceiptRegisterReport
+  summary: WnS Receipt Register Report
+  version: 1.0.0
+  moduleName: rainmaker-wns
+  sourceColumns:
+  - name: receiptnumber
+    label: report.wns.receiptnumber
+    type: string
+    source: wns
+    total: false
+  - name: receiptdate
+    label: report.wns.receiptdate
+    type: string
+    source: wns
+    total: false
+  - name: service
+    label: report.wns.service
+    type: string
+    source: wns
+    total: false
+  - name: name
+    label: report.wns.name
+    type: string
+    source: wns
+    total: false
+  - name: totalamountpaid
+    label: report.wns.totalamountpaid
+    type: number
+    source: wns
+    total: false
+  - name: payername
+    label: report.wns.payername
+    type: string
+    source: wns
+    total: false
+  - name: transactionnumber
+    label: report.wns.transactionnumber
+    type: string
+    source: wns
+    total: false
+  - name: chequeno
+    label: report.wns.chequeno
+    type: string
+    source: wns
+    total: false
+  - name: uuid
+    label: report.wns.uuid
+    type: string
+    source: wns
+    showColumn: false
+  searchParams:
+  - name: fromDate
+    label: FromDate
+    type: epoch
+    source: wns
+    isMandatory: true
+    searchClause: AND egcl_paymentdetail.receiptdate >= $fromDate
+  - name: toDate
+    label: ToDate
+    type: epoch
+    source: wns
+    isMandatory: true
+    searchClause: AND egcl_paymentdetail.receiptdate  <= $toDate 
+  - name: receiptStatus
+    label: reports.wns.receiptStatus
+    type: singlevaluelist
+    pattern: 'list://NEW:New,DEPOSITED:Deposited,DISHONOURED:Dishonoured'
+    source: wns
+    isMandatory: false
+    searchClause: AND egcl_bill.status = $receiptStatus
+  - name: serviceName
+    label: reports.wns.serviceName
+    type: singlevaluelist
+    source: wns
+    isMandatory: false
+    pattern: 'list://WS:Water,SW:Sewerage'
+    searchClause: AND egcl_bill.businessservice = $serviceName
+  - name: collectionOperator
+    label: CollectionOperator
+    type: singlevaluelist
+    pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=SW_CEMP,WS_CEMP|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.username
+    wrapper: true
+    source: wns
+    isMandatory: false
+    searchClause: AND egcl_payment.createdby = $collectionOperator
+  query: select receiptnumber, eg_user.uuid as uuid, to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, CASE WHEN egcl_bill.businessservice='SW' THEN 'Sewerage' ELSE NULL END as service,eg_user.name, totalamountpaid,payername, transactionnumber, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_sw_connection on egcl_bill.consumercode=connectionno inner join eg_sw_connectionholder on eg_sw_connection.id=eg_sw_connectionholder.connectionid inner join eg_user on eg_sw_connectionholder.userid=eg_user.uuid where eg_sw_connection.tenantid=$tenantid  UNION ALL select receiptnumber, eg_user.uuid as uuid, to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, CASE WHEN egcl_bill.businessservice='WS' THEN 'Water' ELSE NULL END as service,eg_user.name, totalamountpaid, payername, transactionnumber , CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_ws_connection on egcl_bill.consumercode=connectionno inner join eg_ws_connectionholder on eg_ws_connection.id=eg_ws_connectionholder.connectionid inner join eg_user on eg_ws_connectionholder.userid=eg_user.uuid where eg_ws_connection.tenantid=$tenantid
+
+- reportName: WnsCollectionRegisterReport
+  decryptionPathId: WnsCollectionRegisterReport
+  summary: WnS Collection Register Report
+  version: 1.0.0
+  moduleName: rainmaker-wns
+  sourceColumns:
+  - name: locality
+    label: report.wns.locality
+    type: string
+    source: wns
+    total: false
+  - name: service
+    label: report.wns.service
+    type: string
+    source: wns
+    total: false
+  - name: name
+    label: report.wns.name
+    type: string
+    source: wns
+    total: false
+  - name: paymentmode
+    label: report.wns.paymentmode
+    type: string
+    source: wns
+    total: false
+  - name: totaltransactions
+    label: report.wns.totaltransactions
+    type: number
+    source: wns
+    total: false
+  - name: totalamountpaid
+    label: report.wns.totalamountpaid
+    type: number
+    source: wns
+    total: false
+  - name: uuid
+    label: report.wns.uuid
+    type: string
+    source: wns
+    showColumn: false
+  searchParams:
+  - name: fromDate
+    label: FromDate
+    type: epoch
+    source: wns
+    isMandatory: true
+    searchClause: AND egcl_paymentdetail.receiptdate >= $fromDate
+  - name: toDate
+    label: ToDate
+    type: epoch
+    source: wns
+    isMandatory: true
+    searchClause: AND egcl_paymentdetail.receiptdate  <= $toDate 
+  - name: locality
+    label: reports.wns.locality
+    type: singlevaluelist
+    source: wns
+    pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.code
+    isMandatory: false
+    wrapper: true
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
+    searchClause: AND locality = $locality
+  - name: serviceName
+    label: reports.wns.serviceName
+    type: singlevaluelist
+    source: wns
+    isMandatory: false
+    pattern: 'list://WS:Water,SW:Sewerage'
+    searchClause: AND egcl_bill.businessservice = $serviceName
+  - name: paymentInstrument
+    label: reports.wns.paymentmode
+    type: singlevaluelist
+    pattern: 'list://CASH:CASH,ONLINE:ONLINE,CARD:CARD,DD:DD,CHEQUE:CHEQUE'
+    isLocalisationRequired: true
+    localisationPrefix: COMMON_MASTERS_PAYMENTMODE_
+    source: wns
+    isMandatory: false
+    searchClause: AND paymentmode = $paymentInstrument
+  query: select locality, eg_user.uuid, CASE WHEN egcl_bill.businessservice='WS' THEN 'Water' ELSE NULL END as service,eg_user.name, paymentmode, count(receiptnumber) as totaltransactions,sum(totalamountpaid) as totalamountpaid from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_ws_connection on egcl_bill.consumercode=connectionno inner join eg_user on CAST(egcl_payment.createdby AS INT) = eg_user.id where eg_ws_connection.tenantid=$tenantid UNION ALL select locality, eg_user.uuid, CASE WHEN egcl_bill.businessservice='SW' THEN 'Sewerage' ELSE NULL END as service,eg_user.name, paymentmode, count(receiptnumber) as totaltransactions, sum(totalamountpaid) as totalamountpaid from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_sw_connection on egcl_bill.consumercode=connectionno inner join eg_user on CAST(egcl_payment.createdby AS INT) = eg_user.id where eg_sw_connection.tenantid=$tenantid 
+  groupby: GROUP BY locality, service, name,paymentmode, eg_user.uuid
+
+- reportName: WnsDefaulterReport
+  decryptionPathId: WnsDefaulterReport
+  summary: WnS Defaulter Report
+  version: 1.0.0
+  moduleName: rainmaker-wns
+  sourceColumns:
+  - name: consumercode
+    label: report.wns.consumercode
+    type: string
+    source: wns
+    total: false
+  - name: name
+    label: report.wns.name
+    type: string
+    source: wns
+    total: false
+  - name: locality
+    label: report.wns.locality
+    type: string
+    source: wns
+    total: false
+  - name: service
+    label: report.wns.service
+    type: string
+    source: wns
+    total: false
+  - name: totaldue
+    label: report.wns.totaldue
+    type: number
+    source: wns
+    total: false
+  - name: uuid
+    label: report.wns.uuid
+    type: string
+    source: wns
+    showColumn: false
+  searchParams:
+  - name: locality
+    label: reports.wns.locality
+    type: singlevaluelist
+    source: wns
+    pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.code
+    isMandatory: false
+    wrapper: true
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
+    isMandatory: false
+    searchClause: AND locality = $locality
+  - name: serviceName
+    label: reports.wns.serviceName
+    type: singlevaluelist
+    source: wns
+    pattern: 'list://WS:Water,SW:Sewerage'
+    isMandatory: false
+    searchClause: AND egcl_bill.businessservice = $serviceName
+  - name: usageType
+    label: reports.wns.usageType
+    source: wns
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=ws-services-calculation&masterName=PropertyUsageType|$.MdmsRes.ws-services-calculation.PropertyUsageType.*.code|$.MdmsRes.ws-services-calculation.PropertyUsageType.*.name
+    wrapper: true
+    isMandatory: false
+    localisationPrefix: WATERSERVICE_USAGE_TYPE_
+    isMandatory: false
+    searchClause: AND eg_pt_property.usagecategory = $usageType
+  - name: connectionType
+    label: reports.wns.connectionType
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=ws-services-masters&masterName=connectionType|$.MdmsRes.ws-services-masters.connectionType.*.code|$.MdmsRes.ws-services-masters.connectionType.*.name
+    wrapper: true
+    isMandatory: false
+    localisationPrefix: WATERSEREVICE_CONNECTION_TYPE_
+    isLocalisationRequired: false
+    source: wns
+    isMandatory: false
+    searchClause: AND connectiontype = $connectionType
+  query: select consumercode, name, locality, eg_user.uuid, CASE WHEN egcl_bill.businessservice='WS' THEN 'Water' ELSE NULL END as service, sum(totaldue) as totaldue from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_ws_connection on egcl_bill.consumercode=connectionno inner join eg_ws_service on eg_ws_connection.id=eg_ws_service.connection_id inner join eg_ws_connectionholder on eg_ws_service.connection_id=eg_ws_connectionholder.connectionid inner join eg_user on eg_ws_connectionholder.userid=eg_user.uuid inner join eg_pt_property on eg_pt_property.propertyid = property_id where eg_ws_connection.tenantid=$tenantid UNION  ALL select consumercode, name, locality, eg_user.uuid as uuid, CASE WHEN egcl_bill.businessservice='SW' THEN 'Sewerage' ELSE NULL END as service, sum(totaldue) as totaldue from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_sw_connection on egcl_bill.consumercode=connectionno inner join eg_sw_service on eg_sw_connection.id=eg_sw_service.connection_id inner join eg_sw_connectionholder on eg_sw_service.connection_id=eg_sw_connectionholder.connectionid inner join eg_user on eg_sw_connectionholder.userid=eg_user.uuid inner join eg_pt_property on eg_pt_property.propertyid = property_id where eg_sw_connection.tenantid=$tenantid
+  groupby: GROUP BY consumercode, name, locality, service,  eg_user.uuid
