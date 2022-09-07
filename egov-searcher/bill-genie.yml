@@ -43,9 +43,11 @@ SearchDefinitions:
             LEFT OUTER JOIN eg_pt_property pt ON bd.consumercode = pt.propertyid 
             INNER JOIN eg_pt_address ptadd ON ptadd.propertyid = pt.id
             INNER JOIN eg_pt_asmt_assessment ptdet ON ptdet.propertyid = pt.propertyid 
-            INNER JOIN eg_pt_owner ptown ON pt.id = ptown.propertyid $where )
+            INNER JOIN eg_pt_owner ptown ON pt.id = ptown.propertyid $where order by b.createddate desc $pagination)
 
       select * from bill_data inner join (select max(b_createddate) as maxcreateddate, bd_consumercode from bill_data group by bd_consumercode) as max ON max.maxcreateddate=b_createddate
+    groupBy:
+    orderBy:
    searchParams: 
     condition: AND
     params:
@@ -83,7 +85,9 @@ SearchDefinitions:
     - name: b.status
       isMandatory: false
       jsonPath: $.searchCriteria.billActive
-
+    pagination:
+      noOfRecords: $.searchCriteria.limit
+      offset: $.searchCriteria.offset
    output:
     jsonFormat: {"ResponseInfo": {},"Bills": []}
     outJsonPath: $.Bills
@@ -129,9 +133,11 @@ SearchDefinitions:
             INNER JOIN eg_ws_connection conn ON bd.consumercode = conn.connectionno
             INNER JOIN eg_pt_property pt ON conn.property_id = pt.propertyid
             INNER JOIN eg_pt_address ptadd ON ptadd.propertyid = pt.id 
-            INNER JOIN eg_pt_owner ptown ON ptown.propertyid = pt.id $where )
+            INNER JOIN eg_pt_owner ptown ON ptown.propertyid = pt.id $where order by b.createddate desc $pagination)
 
       select * from bill_data inner join (select max(b_createddate) as maxcreateddate, bd_consumercode from bill_data group by bd_consumercode) as max ON max.maxcreateddate=b_createddate
+    groupBy:
+    orderBy:   
    searchParams: 
     condition: AND
     params:
@@ -169,7 +175,9 @@ SearchDefinitions:
     - name: conn.property_id
       isMandatory: false
       jsonPath: $.searchCriteria.propertyId
-
+    pagination:
+      noOfRecords: $.searchCriteria.limit
+      offset: $.searchCriteria.offset
    output:
     jsonFormat: {"ResponseInfo": {},"Bills": []}
     outJsonPath: $.Bills
@@ -217,9 +225,11 @@ SearchDefinitions:
             INNER JOIN eg_sw_connection conn ON bd.consumercode = conn.connectionno
             INNER JOIN eg_pt_property pt ON conn.property_id = pt.propertyid
             INNER JOIN eg_pt_address ptadd ON ptadd.propertyid = pt.id 
-            INNER JOIN eg_pt_owner ptown ON ptown.propertyid = pt.id $where)
+            INNER JOIN eg_pt_owner ptown ON ptown.propertyid = pt.id $where order by b.createddate desc $pagination)
 
       select * from bill_data inner join (select max(b_createddate) as maxcreateddate, bd_consumercode from bill_data group by bd_consumercode) as max ON max.maxcreateddate=b_createddate
+    groupBy:
+    orderBy:
    searchParams: 
     condition: AND
     params:
@@ -258,7 +268,7 @@ SearchDefinitions:
       isMandatory: false
       jsonPath: $.searchCriteria.propertyId
     pagination:
-      noOfRecords: $.searchCriteria.noOfRecords
+      noOfRecords: $.searchCriteria.limit
       offset: $.searchCriteria.offset
 
    output:
@@ -304,9 +314,11 @@ SearchDefinitions:
            FROM egbs_bill_v1 b INNER JOIN egbs_billdetail_v1 bd ON b.id = bd.billid AND b.tenantid = bd.tenantid and bd.totalamount > 0
             INNER JOIN egbs_billaccountdetail_v1 ad ON bd.id = ad.billdetail AND bd.tenantid = ad.tenantid
             INNER JOIN eg_echallan challan ON bd.consumercode = challan.challanno AND b.status!='CANCELLED'
-            INNER JOIN eg_challan_address challanadd ON challanadd.eChallanId = challan.id $where )
+            INNER JOIN eg_challan_address challanadd ON challanadd.eChallanId = challan.id $where order by b.createddate desc $pagination)
 
       select * from bill_data inner join (select max(b_createddate) as maxcreateddate, bd_consumercode from bill_data group by bd_consumercode) as max ON max.maxcreateddate=b_createddate
+    groupBy:
+    orderBy:
    searchParams: 
     condition: AND
     params:
@@ -342,7 +354,9 @@ SearchDefinitions:
     - name: b.status
       isMandatory: false
       jsonPath: $.searchCriteria.billActive
-
+    pagination:
+      noOfRecords: $.searchCriteria.limit
+      offset: $.searchCriteria.offset
    output:
     jsonFormat: {"ResponseInfo": {},"Bills": []}
     outJsonPath: $.Bills
