@@ -77,6 +77,14 @@ ReportDefinitions:
     source: obps
     total: false
   searchParams:
+  - name: ulb
+    label: reports.obps.ulb
+    type: multivaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+    source: obps
+    wrapper: true
+    isMandatory: false
+    searchClause: AND bpa.tenantId IN ($ulb)
   - name: fromDate
     label: FromDate
     type: epoch
@@ -101,15 +109,15 @@ ReportDefinitions:
     label: reports.obps.instrumentstatus
     type: singlevaluelist
     pattern: 'list://NEW:NEW,DEPOSITED:DEPOSITED,CANCELLED:CANCELLED,DISHONOURED:DISHONOURED'
-    source: fsm
+    source: obps
     wrapper: true
     isMandatory: false
     searchClause: AND instrumentstatus = $instrumentStatus
   - name: collectionOperator
     label: CollectionOperator
     type: singlevaluelist
-    pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=FSM_COLLECTOR|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.username
-    source: fsm
+    pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.username
+    source: obps
     wrapper: true
     isMandatory: false
     searchClause: AND egcl_payment.createdby = $collectionOperator
