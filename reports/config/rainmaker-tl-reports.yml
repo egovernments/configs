@@ -1071,10 +1071,11 @@ ReportDefinitions:
   - name: locality
     label: reports.tl.locality
     type: multivaluelist
+    pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.code
     source: tl
     isMandatory: false
     searchClause: AND locality in ( $locality )
-  query: select licensenumber, to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as issueddate , financialyear, tradename, to_char(To_timestamp(commencementdate / 1000), 'DD/MM/YYYY') as commencementdate , eg_user.name as name, split_part(unt.tradetype,'.',2) as tradetype,  deptmap_def.type as tradesubtype, concat(split_part(tld.structuretype,'.',1),' / ',split_part(tld.structuretype,'.',2)) as structuretype, concat(buildingname,' ', street,' ', city,' ', pincode) as tradeaddress, locality, tl.status as currentstatus, to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY') as licenseexpirydate  from eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id= tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit unt on unt.tradelicensedetailid=tld.id inner join eg_tl_address addr on addr.tradelicensedetailid=tld.id  inner join (VALUES tbl_def_dept) AS deptmap_def(code,type) ON deptmap_def.code=unt.tradetype where tl.businessservice='TL' and financialyear=(select max(financialyear) from eg_tl_tradelicense where licensenumber=tl.licensenumber) and tl.tenantid= $tenantid
+  query: select licensenumber, to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as issueddate , financialyear, tradename, to_char(To_timestamp(commencementdate / 1000), 'DD/MM/YYYY') as commencementdate , eg_user.name as name, split_part(unt.tradetype,'.',2) as tradetype,  deptmap_def.name as tradesubtype, concat(split_part(tld.structuretype,'.',1),' / ',split_part(tld.structuretype,'.',2)) as structuretype, concat(buildingname,' ', street,' ', city,' ', pincode) as tradeaddress, locality, tl.status as currentstatus, to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY') as licenseexpirydate  from eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id= tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit unt on unt.tradelicensedetailid=tld.id inner join eg_tl_address addr on addr.tradelicensedetailid=tld.id  inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=unt.tradetype where tl.businessservice='TL' and financialyear=(select max(financialyear) from eg_tl_tradelicense where licensenumber=tl.licensenumber) and tl.tenantid= $tenantid 
 
 - reportName: TLRenewalPendingReport
   decryptionPathId: TLRenewalPendingReport
@@ -1153,3 +1154,102 @@ ReportDefinitions:
     searchClause: AND tl.financialyear = $financialYear
   query: select licensenumber, to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as issueddate, to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY') as licenseexpirydate, tradename,concat(split_part(tlunit.tradetype,'.',2),' / ',deptmap_def.type) as tradetype, eg_user.name as name, eg_user.mobilenumber as mobilenumber, CASE WHEN(round( date_part( 'epoch', now() ) )*1000 - validto)/86400000>=0 THEN floor((round( date_part( 'epoch', now() ) )*1000 - validto)/86400000) else null end as elapsedtime, tl.status as status from eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id = tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id inner join (VALUES tbl_def_dept) AS deptmap_def(code,type) ON deptmap_def.code=tlunit.tradetype where tl.businessservice='TL' and licensenumber is not null and tl.tenantid = $tenantid 
   orderby: ORDER BY floor((round( date_part( 'epoch', now() ) )*1000 - validto)/86400000) desc 
+  
+  
+- reportName: TLApplicationStatusReport
+  decryptionPathId: TLApplicationStatusReport
+  summary: TL Application Status Report
+  version: 1.0.0
+  moduleName: rainmaker-tl
+  externalService:
+  - entity: $.MdmsRes.TradeLicense.TradeType
+    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=TradeLicense&masterName=TradeType&tenantId=$tenantId
+    keyOrder: code,name
+    tableName: tbl_def_dept
+  sourceColumns:
+  - name: applicationnumber
+    label: report.tl.applicationnumber
+    type: string
+    source: tl
+    total: false
+  - name: applicationdate
+    label: report.tl.applicationdate
+    type: string
+    source: tl
+    total: false
+  - name: applicationchannel
+    label: report.tl.applicationchannel
+    type: string
+    source: tl
+    total: false
+  - name: applicationtype
+    label: report.tl.applicationtype
+    type: string
+    source: tl
+    total: false
+  - name: name
+    label: report.tl.name
+    type: string
+    source: tl
+    total: false
+  - name: tradetype
+    label: report.tl.tradetype
+    type: string
+    source: tl
+    total: false
+  - name: tradename
+    label: report.tl.tradename
+    type: string
+    source: tl
+    total: false
+  - name: applicationstatus
+    label: report.tl.applicationstatus
+    type: string
+    source: tl
+    total: false
+  - name: currentowner
+    label: report.tl.currentowner
+    type: string
+    source: tl
+    total: false
+  - name: licensenumber
+    label: report.tl.licensenumber
+    type: string
+    source: tl
+    total: false
+  searchParams:
+  - name: fromDate
+    label: FromDate
+    type: epoch
+    source: tl
+    isMandatory: false
+    searchClause: AND applicationdate >= $fromDate
+  - name: toDate
+    label: ToDate
+    type: epoch
+    source: tl
+    isMandatory: false
+    searchClause: AND applicationdate  <= $toDate 
+  - name: applicationChannel
+    label: reports.tl.applicationchannel
+    type: multivaluelist
+    source: tl
+    isMandatory: false
+    searchClause: AND tld.channel in ( $applicationChannel )
+    pattern: 'list://SYSTEM:SYSTEM'
+  - name: applicationType
+    label: reports.tl.applicationtype
+    type: multivaluelist
+    source: tl
+    isMandatory: false
+    searchClause: AND applicationtype in ( $applicationType )
+    pattern: 'list://NEW:NEW,RENEWAL:RENEWAL'
+  - name: applicationStatus
+    label: reports.tl.applicationstatus
+    type: multivaluelist
+    source: tl
+    isMandatory: false
+    searchClause: AND tl.status in ( $applicationStatus )
+    pattern: 'list://APPLIED:APPLIED,APPROVED:APPROVED,INITIATED:INITIATED,FIELDINSPECTION:FIELDINSPECTION,PENDINGAPPROVAL:PENDINGAPPROVAL,PENDINGPAYMENT:PENDINGPAYMENT,CITIZENACTIONREQUIRED:CITIZENACTIONREQUIRED'
+  query: select applicationnumber,to_char(To_timestamp(applicationdate / 1000), 'DD/MM/YYYY') as applicationdate , tld.channel as applicationchannel, applicationtype, eg_user.name as name, concat(split_part(tlunit.tradetype,'.',2),' / ',deptmap_def.name) as tradetype , tradename, tl.status as applicationstatus,  case when isterminatestate=true then null else assigner end as currentowner,licensenumber from eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_tl_tradelicense tl on pi.businessid=tl.applicationnumber  inner join eg_tl_tradelicensedetail tld on tl.id=tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=tlunit.tradetype where tl.businessservice='TL' 
+  orderby: ORDER BY applicationdate asc
