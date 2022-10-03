@@ -1084,6 +1084,8 @@ ReportDefinitions:
     type: string
     source: tl
     total: false
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
   - name: currentstatus
     label: report.tl.currentstatus
     type: string
@@ -1114,12 +1116,15 @@ ReportDefinitions:
     searchClause: AND tl.issueddate  <= $toDate 
   - name: locality
     label: reports.tl.locality
-    type: multivaluelist
+    type: singlevaluelist
     pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.code
     source: tl
+    wrapper: true
     isMandatory: false
-    searchClause: AND locality in ( $locality )
-  query: select licensenumber,eg_user.uuid as uuid, to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as issueddate , financialyear, tradename, to_char(To_timestamp(commencementdate / 1000), 'DD/MM/YYYY') as commencementdate , eg_user.name as name, split_part(unt.tradetype,'.',2) as tradetype,  deptmap_def.name as tradesubtype, concat(split_part(tld.structuretype,'.',1),' / ',split_part(tld.structuretype,'.',2)) as structuretype, concat(buildingname,' ', street,' ', city,' ', pincode) as tradeaddress, locality, tl.status as currentstatus, to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY') as licenseexpirydate  from eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id= tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit unt on unt.tradelicensedetailid=tld.id inner join eg_tl_address addr on addr.tradelicensedetailid=tld.id  inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=unt.tradetype where tl.businessservice='TL' and financialyear=(select max(financialyear) from eg_tl_tradelicense where licensenumber=tl.licensenumber) and tl.tenantid= $tenantid 
+    localisationPrefix: TENANTS_MOHALLA_
+    isLocalisationRequired: true
+    searchClause: AND locality = $locality  
+  query: select initcap(split_part(tenantid, '.', 2)) as tenantid, licensenumber,eg_user.uuid as uuid, to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as issueddate , financialyear, tradename, to_char(To_timestamp(commencementdate / 1000), 'DD/MM/YYYY') as commencementdate , eg_user.name as name, split_part(unt.tradetype,'.',2) as tradetype,  deptmap_def.name as tradesubtype, concat(split_part(tld.structuretype,'.',1),' / ',split_part(tld.structuretype,'.',2)) as structuretype, concat(doorno,',', street,',', initcap(split_part(city, '.', 2)),',', pincode) as tradeaddress, locality, tl.status as currentstatus, to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY') as licenseexpirydate  from eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id= tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit unt on unt.tradelicensedetailid=tld.id inner join eg_tl_address addr on addr.tradelicensedetailid=tld.id  inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=unt.tradetype where tl.businessservice='TL' and financialyear=(select max(financialyear) from eg_tl_tradelicense where licensenumber=tl.licensenumber) and tl.tenantid= $tenantid 
 
 - reportName: TLRenewalPendingReport
   decryptionPathId: TLRenewalPendingReport
