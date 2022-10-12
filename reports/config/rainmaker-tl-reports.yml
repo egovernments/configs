@@ -901,16 +901,20 @@ ReportDefinitions:
     source: tl
     isMandatory: false
     searchClause: AND paymentmode = $instrumentType
+    pattern: 'list://ONLINE:ONLINE,CHEQUE/DD:CHEQUE/DD,CARD:CARD,ONLINE:ONLINE'
   - name: instrumentStatus
     label: reports.tl.instrumentstatus
     type: string
     source: tl
     isMandatory: false
     searchClause: AND instrumentstatus = $instrumentStatus
+    pattern: 'list://APPLIED:APPLIED,APPROVED:APPROVED,INITIATED:INITIATED,FIELDINSPECTION:FIELDINSPECTION,PENDINGAPPROVAL:PENDINGAPPROVAL,PENDINGPAYMENT:PENDINGPAYMENT,CITIZENACTIONREQUIRED:CITIZENACTIONREQUIRED'
   - name: collectionOperator
     label: CollectionOperator
-    type: string
+    type: singlevaluelist
+    pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=TL_CEMP|$.Employees[*].user.id|$.Employees[*].user.name
     source: tl
+    wrapper: true
     isMandatory: false
     searchClause: AND egcl_payment.createdby = $collectionOperator
   query: select to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, eg_user.uuid as uuid, receiptnumber,applicationnumber,licensenumber, eg_user.name as name, paymentmode as instrumenttype, CASE WHEN paymentmode='CHEQUE' THEN  to_char(To_timestamp(instrumentdate/ 1000), 'DD/MM/YYYY') ELSE null END as chequedate, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno, egcl_payment.additionaldetails->'bankDetails'->'BANK' as bankname,  CASE WHEN paymentmode='ONLINE' THEN transactionnumber ELSE null END as transactionid ,CASE WHEN paymentmode='CARD' THEN substring(instrumentnumber,1,4) ELSE null END as lastfourdigits, totalamountpaid, instrumentstatus from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_tl_tradelicense tl on consumercode=tl.applicationnumber inner join eg_tl_tradelicensedetail on tl.id = eg_tl_tradelicensedetail.tradelicenseid inner join eg_tl_owner  on eg_tl_owner.tradelicensedetailid=eg_tl_tradelicensedetail.id inner join eg_user on eg_user.uuid=eg_tl_owner.id  where egcl_paymentdetail.businessservice='TL' and tl.tenantid= $tenantid
@@ -1000,7 +1004,7 @@ ReportDefinitions:
     source: tl
     isMandatory: false
     searchClause: AND tld.channel in ( $applicationChannel )
-    pattern: 'list://SYSTEM:SYSTEM'
+    pattern: 'list://SYSTEM:SYSTEM,CITIZEN:CITIZEN,EMPLOYEE:EMPLOYEE'
   - name: applicationType
     label: reports.tl.applicationtype
     type: multivaluelist
@@ -1015,8 +1019,8 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND tl.status in ( $applicationStatus )
     pattern: 'list://APPLIED:APPLIED,APPROVED:APPROVED,INITIATED:INITIATED,FIELDINSPECTION:FIELDINSPECTION,PENDINGAPPROVAL:PENDINGAPPROVAL,PENDINGPAYMENT:PENDINGPAYMENT,CITIZENACTIONREQUIRED:CITIZENACTIONREQUIRED'
-  query: select applicationnumber, eg_user.uuid as uuid,to_char(To_timestamp(applicationdate / 1000), 'DD/MM/YYYY') as applicationdate , tld.channel as applicationchannel, applicationtype, eg_user.name as name, concat(split_part(tlunit.tradetype,'.',2),' / ',deptmap_def.name) as tradetype , tradename, tl.status as applicationstatus,  case when isterminatestate=true then null else assigner end as currentowner,licensenumber from eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_tl_tradelicense tl on pi.businessid=tl.applicationnumber  inner join eg_tl_tradelicensedetail tld on tl.id=tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=tlunit.tradetype where tl.businessservice='TL' 
-  orderby: ORDER BY applicationdate asc
+  query: select distinct(applicationnumber), eg_user.uuid as uuid,to_char(To_timestamp(applicationdate / 1000), 'DD/MM/YYYY') as applicationdate , tld.channel as applicationchannel, applicationtype, eg_user.name as name, concat(split_part(tlunit.tradetype,'.',2),' / ',deptmap_def.name) as tradetype , tradename, tl.status as applicationstatus,  case when isterminatestate=true then null else assigner end as currentowner,licensenumber from eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_tl_tradelicense tl on pi.businessid=tl.applicationnumber  inner join eg_tl_tradelicensedetail tld on tl.id=tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=tlunit.tradetype where tl.businessservice='TL' 
+  orderby: ORDER BY applicationdate desc
 
 - reportName: TLRegistryReport
   decryptionPathId: TLRegistryReport
