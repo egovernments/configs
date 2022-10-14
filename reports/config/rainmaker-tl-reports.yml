@@ -1020,7 +1020,7 @@ ReportDefinitions:
     searchClause: AND tl.status in ( $applicationStatus )
     pattern: 'list://APPLIED:APPLIED,APPROVED:APPROVED,INITIATED:INITIATED,FIELDINSPECTION:FIELDINSPECTION,PENDINGAPPROVAL:PENDINGAPPROVAL,PENDINGPAYMENT:PENDINGPAYMENT,CITIZENACTIONREQUIRED:CITIZENACTIONREQUIRED'
   query: select distinct(applicationnumber), eg_user.uuid as uuid,to_char(To_timestamp(applicationdate / 1000), 'DD/MM/YYYY') as applicationdate , tld.channel as applicationchannel, applicationtype, eg_user.name as name, concat(split_part(tlunit.tradetype,'.',2),' / ',deptmap_def.name) as tradetype , tradename, tl.status as applicationstatus,  case when isterminatestate=true then null else assigner end as currentowner,licensenumber from eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_tl_tradelicense tl on pi.businessid=tl.applicationnumber  inner join eg_tl_tradelicensedetail tld on tl.id=tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=tlunit.tradetype where tl.businessservice='TL' 
-  orderby: ORDER BY applicationdate desc
+  orderby: ORDER BY applicationdate asc
 
 - reportName: TLRegistryReport
   decryptionPathId: TLRegistryReport
