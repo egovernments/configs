@@ -4,7 +4,7 @@ serviceMaps:
  - version: 1.0
    name: WaterConnection
    description: create ConnectionDetails in connection and water_service_connection
-   fromTopic: save-ws-connection-batch
+   fromTopic: save-ws-connection
    isTransaction: true
    queryMaps: 
     - query: INSERT INTO eg_ws_connection (id, tenantid, property_id, applicationno, applicationstatus, status, connectionno, oldconnectionno,roadcuttingarea,action,roadtype, createdby, lastmodifiedby, createdtime, lastmodifiedtime, applicationtype, channel, dateEffectiveFrom, locality, isoldapplication,additionaldetails, isDisconnectionTemporary, disconnectionReason) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
@@ -162,7 +162,7 @@ serviceMaps:
  - version: 1.0
    name: WaterConnection
    description: update ConnectionDetails in eg_ws_connection and eg_ws_service
-   fromTopic: update-ws-connection-batch
+   fromTopic: update-ws-connection
    isTransaction: true
    queryMaps: 
    
@@ -435,7 +435,7 @@ serviceMaps:
  - version: 1.0
    name: WaterConnection
    description: update ConnectionDetails in eg_ws_connection and eg_ws_service
-   fromTopic: update-ws-workflow-batch
+   fromTopic: update-ws-workflow
    isTransaction: true
    queryMaps: 
    
@@ -465,7 +465,7 @@ serviceMaps:
  - version: 1.0
    name: WaterConnection
    description: save filestore ids
-   fromTopic: save-ws-filestoreids-batch
+   fromTopic: save-ws-filestoreids
    isTransaction: true
    queryMaps:
    
@@ -474,13 +474,16 @@ serviceMaps:
       jsonMaps:
       - jsonPath: $.WaterConnection.id
       
-    - query: UPDATE eg_ws_service SET estimationfileStoreId = ?, sanctionfileStoreId = ? WHERE connection_id=?;
+    - query: UPDATE eg_ws_service SET estimationfileStoreId = ?, sanctionfileStoreId = ?, estimationLetterDate = ?, appCreatedDate = ? WHERE connection_id=?;
       basePath: $.WaterConnection
       jsonMaps:
 
       - jsonPath: $.WaterConnection.additionalDetails.estimationFileStoreId
 
       - jsonPath: $.WaterConnection.additionalDetails.sanctionFileStoreId
+      
+      - jsonPath: $.WaterConnection.additionalDetails.estimationLetterDate
+      
+      - jsonPath: $.WaterConnection.additionalDetails.appCreatedDate      
 
-      - jsonPath: $.WaterConnection.id   
-   
+      - jsonPath: $.WaterConnection.id
