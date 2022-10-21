@@ -1,482 +1,285 @@
---- 
-serviceMaps: 
-  mappings: 
-    - 
-      description: "Persists FSM Application details in eg_fsm_application  table"
-      fromTopic: save-fsm-application
-      isTransaction: true
-      queryMaps: 
-        - 
-          basePath: fsm
-          jsonMaps: 
-            - 
-              jsonPath: $.fsm.id
-            - 
-              jsonPath: $.fsm.applicationNo
-            - 
-              jsonPath: $.fsm.tenantId
-            - 
-              dbType: JSONB
-              jsonPath: $.fsm.additionalDetails
-              type: JSON
-            - 
-              jsonPath: $.fsm.accountId
-            - 
-              jsonPath: $.fsm.description
-            - 
-              jsonPath: $.fsm.applicationStatus
-            - 
-              jsonPath: $.fsm.source
-            - 
-              jsonPath: $.fsm.sanitationtype
-            - 
-              jsonPath: $.fsm.propertyUsage
-            - 
-              jsonPath: $.fsm.noOfTrips
-            - 
-              jsonPath: $.fsm.status
-            - 
-              jsonPath: $.fsm.vehicleId
-            - 
-              jsonPath: $.fsm.vehicleType
-            - 
-              jsonPath: $.fsm.vehicleCapacity
-            - 
-              jsonPath: $.fsm.paymentPreference
-            - 
-              jsonPath: $.fsm.advanceAmount
-            - 
-              jsonPath: $.fsm.applicationType
-            - 
-              jsonPath: $.fsm.oldApplicationNo
-            - 
-              jsonPath: $.fsm.auditDetails.createdBy
-            - 
-              jsonPath: $.fsm.auditDetails.lastModifiedBy
-            - 
-              jsonPath: $.fsm.auditDetails.createdTime
-            - 
-              jsonPath: $.fsm.auditDetails.lastModifiedTime
-          query: "INSERT INTO  eg_fsm_application( id, applicationno, tenantid, additionaldetails, accountid, description, applicationstatus, source, sanitationtype, propertyusage, nooftrips, status, vehicle_id, vehicletype, vehicleCapacity, paymentPreference,advanceAmount, applicationType, oldApplicationNo, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?);"
-        - 
-          basePath: fsm.address
-          jsonMaps: 
-            - 
-              jsonPath: $.fsm.address.id
-            - 
-              jsonPath: $.fsm.address.tenantId
-            - 
-              jsonPath: $.fsm.address.doorNo
-            - 
-              jsonPath: $.fsm.address.plotNo
-            - 
-              jsonPath: $.fsm.address.landmark
-            - 
-              jsonPath: $.fsm.address.city
-            - 
-              jsonPath: $.fsm.address.district
-            - 
-              jsonPath: $.fsm.address.region
-            - 
-              jsonPath: $.fsm.address.state
-            - 
-              jsonPath: $.fsm.address.country
-            - 
-              jsonPath: $.fsm.address.locality.code
-            - 
-              jsonPath: $.fsm.address.pincode
-            - 
-              dbType: JSONB
-              jsonPath: $.fsm.address.additionalDetails
-              type: JSON
-            - 
-              jsonPath: $.fsm.address.buildingName
-            - 
-              jsonPath: $.fsm.address.street
-            - 
-              jsonPath: $.fsm.address.slumName
-            - 
-              jsonPath: $.fsm.id
-            - 
-              jsonPath: $.fsm.address.auditDetails.createdBy
-            - 
-              jsonPath: $.fsm.address.auditDetails.lastModifiedBy
-            - 
-              jsonPath: $.fsm.address.auditDetails.createdTime
-            - 
-              jsonPath: $.fsm.address.auditDetails.lastModifiedTime
-          query: "INSERT INTO  eg_fsm_address(id, tenantid, doorno, plotno, landmark, city, district, region, state, country, locality, pincode, additionalDetails, buildingname, street,slumname, fsm_id, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-        - 
-          basePath: fsm.address.geoLocation
-          jsonMaps: 
-            - 
-              jsonPath: $.fsm.address.geoLocation.id
-            - 
-              dbType: DOUBLE
-              jsonPath: $.fsm.address.geoLocation.latitude
-              type: DOUBLE
-            - 
-              dbType: DOUBLE
-              jsonPath: $.fsm.address.geoLocation.longitude
-              type: DOUBLE
-            - 
-              dbType: JSONB
-              jsonPath: $.fsm.address.geoLocation.additionalDetails
-              type: JSON
-            - 
-              jsonPath: $.fsm.address.id
-          query: "INSERT INTO eg_fsm_geolocation( id, latitude, longitude, additionaldetails, address_id) VALUES (?, ?, ?, ?, ?);"
-        - 
-          basePath: fsm.pitDetail
-          jsonMaps: 
-            - 
-              jsonPath: $.fsm.pitDetail.id
-            - 
-              jsonPath: $.fsm.pitDetail.tenantId
-            - 
-              jsonPath: $.fsm.pitDetail.height
-            - 
-              jsonPath: $.fsm.pitDetail.length
-            - 
-              jsonPath: $.fsm.pitDetail.width
-            - 
-              jsonPath: $.fsm.pitDetail.diameter
-            - 
-              jsonPath: $.fsm.pitDetail.distanceFromRoad
-            - 
-              jsonPath: $.fsm.id
-            - 
-              dbType: JSONB
-              jsonPath: $.fsm.pitDetail.additionalDetails
-              type: JSON
-            - 
-              jsonPath: $.fsm.pitDetail.auditDetails.createdBy
-            - 
-              jsonPath: $.fsm.pitDetail.auditDetails.lastModifiedBy
-            - 
-              jsonPath: $.fsm.pitDetail.auditDetails.createdTime
-            - 
-              jsonPath: $.fsm.pitDetail.auditDetails.lastModifiedTime
-          query: "INSERT INTO  eg_fsm_pit_detail( id, tenantid, height, length, width, diameter, distancefromroad, fsm_id, additionaldetails,  createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-      version: 1.0
-    - 
-      description: "Persists FSM Application details in eg_fsm_application  table"
-      fromTopic: update-fsm-application
-      isTransaction: true
-      queryMaps: 
-        - 
-          basePath: fsm
-          jsonMaps: 
-            - 
-              jsonPath: $.fsm.id
-          query: "INSERT INTO eg_fsm_application_auditlog SELECT * FROM eg_fsm_application WHERE id =?"
-        - 
-          basePath: fsm
-          jsonMaps: 
-            - 
-              dbType: JSONB
-              jsonPath: $.fsm.additionalDetails
-              type: JSON
-            - 
-              jsonPath: $.fsm.description
-            - 
-              jsonPath: $.fsm.applicationStatus
-            - 
-              jsonPath: $.fsm.source
-            - 
-              jsonPath: $.fsm.sanitationtype
-            - 
-              jsonPath: $.fsm.propertyUsage
-            - 
-              jsonPath: $.fsm.noOfTrips
-            - 
-              jsonPath: $.fsm.status
-            - 
-              jsonPath: $.fsm.vehicleId
-            - 
-              jsonPath: $.fsm.vehicleType
-            - 
-              jsonPath: $.fsm.vehicleCapacity
-            - 
-              jsonPath: $.fsm.paymentPreference
-            - 
-              jsonPath: $.fsm.advanceAmount
-            - 
-              jsonPath: $.fsm.auditDetails.createdBy
-            - 
-              jsonPath: $.fsm.auditDetails.lastModifiedBy
-            - 
-              jsonPath: $.fsm.auditDetails.createdTime
-            - 
-              jsonPath: $.fsm.auditDetails.lastModifiedTime
-            - 
-              jsonPath: $.fsm.possibleServiceDate
-            - 
-              jsonPath: $.fsm.dsoId
-            - 
-              jsonPath: $.fsm.id
-          query: "UPDATE  eg_fsm_application SET additionaldetails=?, description=?, applicationstatus=?, source=?, sanitationtype=?, propertyusage=?, nooftrips=?, status=?, vehicle_id=?, vehicletype=?,vehicleCapacity=?, paymentPreference=?,advanceAmount=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=?, possible_srv_date=?, dso_id=? where id=?"
-        - 
-          basePath: fsm.address
-          jsonMaps: 
-            - 
-              jsonPath: $.fsm.address.id
-          query: "INSERT INTO eg_fsm_address_auditlog SELECT * FROM eg_fsm_address WHERE id =?;"
-        - 
-          basePath: fsm.address
-          jsonMaps: 
-            - 
-              jsonPath: $.fsm.address.doorNo
-            - 
-              jsonPath: $.fsm.address.plotNo
-            - 
-              jsonPath: $.fsm.address.landmark
-            - 
-              jsonPath: $.fsm.address.city
-            - 
-              jsonPath: $.fsm.address.district
-            - 
-              jsonPath: $.fsm.address.region
-            - 
-              jsonPath: $.fsm.address.state
-            - 
-              jsonPath: $.fsm.address.slumName
-            - 
-              jsonPath: $.fsm.address.country
-            - 
-              jsonPath: $.fsm.address.locality.code
-            - 
-              jsonPath: $.fsm.address.pincode
-            - 
-              dbType: JSONB
-              jsonPath: $.fsm.address.additionalDetails
-              type: JSON
-            - 
-              jsonPath: $.fsm.address.buildingName
-            - 
-              jsonPath: $.fsm.address.street
-            - 
-              jsonPath: $.fsm.address.auditDetails.createdBy
-            - 
-              jsonPath: $.fsm.address.auditDetails.lastModifiedBy
-            - 
-              jsonPath: $.fsm.address.auditDetails.createdTime
-            - 
-              jsonPath: $.fsm.address.auditDetails.lastModifiedTime
-            - 
-              jsonPath: $.fsm.address.id
-          query: "UPDATE  eg_fsm_address SET  doorno=?, plotno=?, landmark=?, city=?, district=?, region=?, state=?,slumname=?, country=?, locality=?, pincode=?, additionalDetails=?, buildingname=?, street=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? where id=?"
-        - 
-          basePath: fsm.address.geoLocation
-          jsonMaps: 
-            - 
-              jsonPath: $.fsm.address.geoLocation.id
-          query: "INSERT INTO eg_fsm_geolocation_auditlog SELECT * FROM eg_fsm_geolocation WHERE id =?;"
-        - 
-          basePath: fsm.address.geoLocation
-          jsonMaps: 
-            - 
-              dbType: DOUBLE
-              jsonPath: $.fsm.address.geoLocation.latitude
-              type: DOUBLE
-            - 
-              dbType: DOUBLE
-              jsonPath: $.fsm.address.geoLocation.longitude
-              type: DOUBLE
-            - 
-              dbType: JSONB
-              jsonPath: $.fsm.address.geoLocation.additionalDetails
-              type: JSON
-            - 
-              jsonPath: $.fsm.address.geoLocation.id
-          query: "UPDATE  eg_fsm_geolocation SET latitude=?, longitude=?, additionaldetails=? where id=?"
-        - 
-          basePath: fsm.pitDetail
-          jsonMaps: 
-            - 
-              jsonPath: $.fsm.pitDetail.id
-          query: "INSERT INTO eg_fsm_pit_detail_auditlog SELECT * FROM eg_fsm_pit_detail WHERE id =?;"
-        - 
-          basePath: fsm.pitDetail
-          jsonMaps: 
-            - 
-              dbType: JSONB
-              jsonPath: $.fsm.pitDetail.additionalDetails
-              type: JSON
-            - 
-              jsonPath: $.fsm.pitDetail.height
-            - 
-              jsonPath: $.fsm.pitDetail.length
-            - 
-              jsonPath: $.fsm.pitDetail.width
-            - 
-              jsonPath: $.fsm.pitDetail.diameter
-            - 
-              jsonPath: $.fsm.pitDetail.distanceFromRoad
-            - 
-              jsonPath: $.fsm.pitDetail.auditDetails.createdBy
-            - 
-              jsonPath: $.fsm.pitDetail.auditDetails.lastModifiedBy
-            - 
-              jsonPath: $.fsm.pitDetail.auditDetails.createdTime
-            - 
-              jsonPath: $.fsm.pitDetail.auditDetails.lastModifiedTime
-            - 
-              jsonPath: $.fsm.pitDetail.id
-          query: "UPDATE  eg_fsm_pit_detail SET additionaldetails=?,height=?, length=?, width=?, diameter=?, distancefromroad=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=?  where id=?"
-      version: 1.0
-    - 
-      description: "Persists FSM Application details in eg_fsm_application  table"
-      fromTopic: update-fsm-workflow-application
-      isTransaction: true
-      queryMaps: 
-        - 
-          basePath: fsm
-          jsonMaps: 
-            - 
-              jsonPath: $.fsm.id
-          query: "INSERT INTO eg_fsm_application_auditlog SELECT * FROM eg_fsm_application WHERE id =?"
-        - 
-          basePath: fsm
-          jsonMaps: 
-            - 
-              dbType: JSONB
-              jsonPath: $.fsm.additionalDetails
-              type: JSON
-            - 
-              jsonPath: $.fsm.applicationStatus
-            - 
-              jsonPath: $.fsm.vehicleId
-            - 
-              jsonPath: $.fsm.vehicleType
-            - 
-              jsonPath: $.fsm.auditDetails.lastModifiedBy
-            - 
-              jsonPath: $.fsm.auditDetails.lastModifiedTime
-            - 
-              jsonPath: $.fsm.possibleServiceDate
-            - 
-              jsonPath: $.fsm.dsoId
-            -  
-              jsonPath: $.fsm.id
-          query: "UPDATE eg_fsm_application SET additionaldetails=?, applicationstatus=?, vehicle_id =?, vehicletype=?, lastmodifiedby=?,  lastmodifiedtime=?, possible_srv_date=?, dso_id=? where id=?"
-        - 
-          basePath: fsm.pitDetail
-          jsonMaps: 
-            - 
-              jsonPath: $.fsm.pitDetail.id
-          query: "INSERT INTO eg_fsm_pit_detail_auditlog SELECT * FROM eg_fsm_pit_detail WHERE id =?;"
-        - 
-          basePath: fsm.pitDetail
-          jsonMaps: 
-            - 
-              dbType: JSONB
-              jsonPath: $.fsm.pitDetail.additionalDetails
-              type: JSON
-            - 
-              jsonPath: $.fsm.pitDetail.height
-            - 
-              jsonPath: $.fsm.pitDetail.length
-            - 
-              jsonPath: $.fsm.pitDetail.width
-            - 
-              jsonPath: $.fsm.pitDetail.diameter
-            - 
-              jsonPath: $.fsm.pitDetail.distanceFromRoad
-            - 
-              jsonPath: $.fsm.pitDetail.auditDetails.createdBy
-            - 
-              jsonPath: $.fsm.pitDetail.auditDetails.lastModifiedBy
-            - 
-              jsonPath: $.fsm.pitDetail.auditDetails.createdTime
-            - 
-              jsonPath: $.fsm.pitDetail.auditDetails.lastModifiedTime
-            - 
-              jsonPath: $.fsm.pitDetail.id
-          query: "UPDATE  eg_fsm_pit_detail SET additionaldetails=?,height=?, length=?, width=?, diameter=?, distancefromroad=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=?  where id=?"
-      version: 1.0
-    - 
-      description: "Persists FSTP-employee mapping in eg_fsm_plantmapping table"
-      fromTopic: save-plant-map-application
-      isTransaction: true
-      queryMaps: 
-        - 
-          basePath: plantMapping
-          jsonMaps: 
-            - 
-              jsonPath: $.plantMapping.id
-            - 
-              jsonPath: $.plantMapping.tenantId
-            - 
-              jsonPath: $.plantMapping.status
-            - 
-              jsonPath: $.plantMapping.employeeUuid
-            - 
-              jsonPath: $.plantMapping.plantCode
-            - 
-              jsonPath: $.plantMapping.auditDetails.createdBy
-            - 
-              jsonPath: $.plantMapping.auditDetails.lastModifiedBy
-            - 
-              jsonPath: $.plantMapping.auditDetails.createdTime
-            - 
-              jsonPath: $.plantMapping.auditDetails.lastModifiedTime
-          query: "INSERT INTO  eg_fsm_plantmapping( id, tenantId,  status, employeeUuid, plantCode, createdBy, lastmodifiedBy, createdTime, lastmodifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);"
-      version: 1.0
-    - 
-      description: "Update  FSTP-employee mapping in eg_fsm_plantmapping table"
-      fromTopic: update-plant-map-application
-      isTransaction: true
-      queryMaps: 
-        - 
-          basePath: plantMapping
-          jsonMaps: 
-            - 
-              jsonPath: $.plantMapping.status
-            - 
-              jsonPath: $.plantMapping.employeeUuid
-            - 
-              jsonPath: $.plantMapping.plantCode
-            - 
-              jsonPath: $.plantMapping.auditDetails.createdBy
-            - 
-              jsonPath: $.plantMapping.auditDetails.lastModifiedBy
-            - 
-              jsonPath: $.plantMapping.auditDetails.createdTime
-            - 
-              jsonPath: $.plantMapping.auditDetails.lastModifiedTime
-            - 
-              jsonPath: $.plantMapping.id
-          query: "UPDATE  eg_fsm_plantmapping SET  status=?, employeeuuid=?, plantcode=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? where id=?"
-      version: 1.0
-      serviceName: fsm
-    -  
-      description: Vehicle Trip details in eg_vehicle_trip  table
-      fromTopic: update-vehicle-trip-Details
+serviceMaps:
+  serviceName: vehicle
+  mappings:
+    - version: 1.0
+      description: Persists Vehicle Application details in eg_vehicle table
+      fromTopic: save-vehicle-application
       isTransaction: true
       queryMaps:
-        - query: UPDATE eg_vehicle_trip SET  status=? ,lastmodifiedby=?, lastmodifiedtime=? WHERE id=?
+        - query : INSERT INTO eg_vehicle( id, tenantId, registrationNumber, model, type, tankCapicity, suctionType, pollutionCertiValidTill, InsuranceCertValidTill, fitnessValidTill, roadTaxPaidTill, gpsEnabled, source, status, additionalDetails, owner_id , createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: vehicle
+          jsonMaps:
+            - jsonPath: $.vehicle.id
+            - jsonPath: $.vehicle.tenantId
+            - jsonPath: $.vehicle.registrationNumber
+            - jsonPath: $.vehicle.model
+            - jsonPath: $.vehicle.type
+            - jsonPath: $.vehicle.tankCapacity
+            - jsonPath: $.vehicle.suctionType
+            - jsonPath: $.vehicle.pollutionCertiValidTill
+            - jsonPath: $.vehicle.InsuranceCertValidTill
+            - jsonPath: $.vehicle.fitnessValidTill
+            - jsonPath: $.vehicle.roadTaxPaidTill
+            - jsonPath: $.vehicle.gpsEnabled
+            - jsonPath: $.vehicle.source
+            - jsonPath: $.vehicle.status
+            - jsonPath: $.vehicle.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.vehicle.owner.uuid
+            - jsonPath: $.vehicle.auditDetails.createdBy
+            - jsonPath: $.vehicle.auditDetails.lastModifiedBy
+            - jsonPath: $.vehicle.auditDetails.createdTime
+            - jsonPath: $.vehicle.auditDetails.lastModifiedTime
+             
+    - version: 1.0
+      description: Persists Vehicle Application details in eg_vehicle table
+      fromTopic: update-vehicle-application
+      isTransaction: true
+      queryMaps:
+        
+        - query : INSERT INTO eg_vehicle_auditlog SELECT * FROM eg_vehicle WHERE id=?
+          basePath: vehicle
+          jsonMaps:
+            - jsonPath: $.vehicle.id
+            
+        - query : UPDATE eg_vehicle SET tenantId=?, registrationNumber=?, model=?, type=?, tankCapicity=?, suctionType=?, pollutionCertiValidTill=?, InsuranceCertValidTill=?, fitnessValidTill=?, roadTaxPaidTill=?, gpsEnabled=?, source=?, status=?, additionalDetails=?, owner_id =?, createdBy=?, lastModifiedBy=?, createdTime=?, lastModifiedTime=? WHERE id=?
+          basePath: vehicle
+          jsonMaps:
+            - jsonPath: $.vehicle.tenantId
+            - jsonPath: $.vehicle.registrationNumber
+            - jsonPath: $.vehicle.model
+            - jsonPath: $.vehicle.type
+            - jsonPath: $.vehicle.tankCapacity
+            - jsonPath: $.vehicle.suctionType
+            - jsonPath: $.vehicle.pollutionCertiValidTill
+            - jsonPath: $.vehicle.InsuranceCertValidTill
+            - jsonPath: $.vehicle.fitnessValidTill
+            - jsonPath: $.vehicle.roadTaxPaidTill
+            - jsonPath: $.vehicle.gpsEnabled
+            - jsonPath: $.vehicle.source
+            - jsonPath: $.vehicle.status
+            - jsonPath: $.vehicle.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.vehicle.owner.uuid
+            - jsonPath: $.vehicle.auditDetails.createdBy
+            - jsonPath: $.vehicle.auditDetails.lastModifiedBy
+            - jsonPath: $.vehicle.auditDetails.createdTime
+            - jsonPath: $.vehicle.auditDetails.lastModifiedTime
+            - jsonPath: $.vehicle.id
+
+    - version: 1.0
+      description: Vehicle Trip details in eg_vehicle_log  table
+      fromTopic: save-vehicle-trip
+      isTransaction: true
+      queryMaps:
+
+        - query: INSERT INTO eg_vehicle_trip(id, tenantid, owner_id, driver_id, vehicle_id, applicationno, additionaldetails, status, businessservice, applicationstatus, tripstarttime, tripendtime, volumecarried, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.vehicleTrip.*
+          jsonMaps:
+            - jsonPath: $.vehicleTrip.*.id
+  
+            - jsonPath: $.vehicleTrip.*.tenantId
+            
+            - jsonPath: $.vehicleTrip.*.tripOwnerId
+            
+            - jsonPath: $.vehicleTrip.*.driverId
+            
+            - jsonPath: $.vehicleTrip.*.vehicleId
+  
+            - jsonPath: $.vehicleTrip.*.applicationNo
+            
+            - jsonPath: $.vehicleTrip.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            
+            - jsonPath: $.vehicleTrip.*.status
+            
+            - jsonPath: $.vehicleTrip.*.businessService
+            
+            - jsonPath: $.vehicleTrip.*.applicationStatus
+            
+            - jsonPath: $.vehicleTrip.*.tripStartTime
+            
+            - jsonPath: $.vehicleTrip.*.tripEndTime
+            
+            - jsonPath: $.vehicleTrip.*.volumeCarried
+            
+            - jsonPath: $.vehicleTrip.*.auditDetails.createdBy
+  
+            - jsonPath: $.vehicleTrip.*.auditDetails.lastModifiedBy
+  
+            - jsonPath: $.vehicleTrip.*.auditDetails.createdTime
+  
+            - jsonPath: $.vehicleTrip.*.auditDetails.lastModifiedTime
+            
+            
+        - query: INSERT INTO eg_vehicle_trip_detail( id, tenantid, trip_id, referenceno, referencestatus, additionaldetails, status, itemstarttime, itemendtime, volume, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); 
+          basePath: $.vehicleTrip.*.tripDetails.*
+          jsonMaps:
+          
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.id
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.tenantId
+  
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.trip_id 
+               
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.referenceNo
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.referenceStatus    
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.additionalDetails  
+              type: JSON
+              dbType: JSONB 
+               
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.status
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.itemStartTime 
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.itemEndTime 
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.volume 
+  
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.createdBy
+  
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.lastModifiedBy
+  
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.createdTime
+  
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.lastModifiedTime
+
+
+    - version: 1.0
+      description: Vehicle Trip details in eg_vehicle_trip  table
+      fromTopic: update-vehicle-trip
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE eg_vehicle_trip SET  driver_id=?,  applicationno=?, additionaldetails=?, status=?, applicationstatus=?, tripstarttime=?, tripendtime=?, volumecarried=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
           basePath: $.vehicleTrip.*
           jsonMaps:
               
+            
+            - jsonPath: $.vehicleTrip.*.driverId
+  
+            - jsonPath: $.vehicleTrip.*.applicationNo
+            
+            - jsonPath: $.vehicleTrip.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            
             - jsonPath: $.vehicleTrip.*.status
+            
+            - jsonPath: $.vehicleTrip.*.applicationStatus
+            
+            - jsonPath: $.vehicleTrip.*.tripStartTime
+            
+            - jsonPath: $.vehicleTrip.*.tripEndTime
+            
+            - jsonPath: $.vehicleTrip.*.volumeCarried
+            
+            - jsonPath: $.vehicleTrip.*.auditDetails.createdBy
   
             - jsonPath: $.vehicleTrip.*.auditDetails.lastModifiedBy
-    
+  
+            - jsonPath: $.vehicleTrip.*.auditDetails.createdTime
+  
             - jsonPath: $.vehicleTrip.*.auditDetails.lastModifiedTime
             
             - jsonPath: $.vehicleTrip.*.id
-        - 
+            
+        - query: UPDATE eg_vehicle_trip_detail SET  referencestatus=?, additionaldetails=?, status=?, itemstarttime=?, itemendtime=?, volume=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
           basePath: $.vehicleTrip.*.tripDetails.*
           jsonMaps:
-            - 
-              jsonPath: $.vehicleTrip.*.tripDetails.*.status 
-            - 
-              jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.lastModifiedBy
-            - 
-              jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.lastModifiedTime
-            - 
-              jsonPath: $.vehicleTrip.*.tripDetails.*.id
-          query: "UPDATE eg_vehicle_trip_detail SET  status=?, lastmodifiedby=?, lastmodifiedtime=? WHERE id=?"
-      version: 1.0
-             
+          
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.referenceStatus    
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.additionalDetails  
+              type: JSON
+              dbType: JSONB 
+               
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.status
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.itemStartTime 
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.itemEndTime 
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.volume 
+  
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.createdBy
+  
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.lastModifiedBy
+  
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.createdTime
+  
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.lastModifiedTime
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.id
+            
+    - version: 1.0
+      description: Vehicle Trip details in eg_vehicle_trip  table
+      fromTopic: update-workflow-vehicle-trip
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE eg_vehicle_trip SET  driver_id=?,  applicationno=?, additionaldetails=?, status=?, applicationstatus=?, tripstarttime=?, tripendtime=?, volumecarried=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
+          basePath: $.vehicleTrip.*
+          jsonMaps:
+              
+            
+            - jsonPath: $.vehicleTrip.*.driverId
+  
+            - jsonPath: $.vehicleTrip.*.applicationNo
+            
+            - jsonPath: $.vehicleTrip.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            
+            - jsonPath: $.vehicleTrip.*.status
+            
+            - jsonPath: $.vehicleTrip.*.applicationStatus
+            
+            - jsonPath: $.vehicleTrip.*.tripStartTime
+            
+            - jsonPath: $.vehicleTrip.*.tripEndTime
+            
+            - jsonPath: $.vehicleTrip.*.volumeCarried
+            
+            - jsonPath: $.vehicleTrip.*.auditDetails.createdBy
+  
+            - jsonPath: $.vehicleTrip.*.auditDetails.lastModifiedBy
+  
+            - jsonPath: $.vehicleTrip.*.auditDetails.createdTime
+  
+            - jsonPath: $.vehicleTrip.*.auditDetails.lastModifiedTime
+            
+            - jsonPath: $.vehicleTrip.*.id
+            
+        - query: UPDATE eg_vehicle_trip_detail SET  referencestatus=?, additionaldetails=?, status=?, itemstarttime=?, itemendtime=?, volume=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
+          basePath: $.vehicleTrip.*.tripDetails.*
+          jsonMaps:
+          
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.referenceStatus    
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.additionalDetails  
+              type: JSON
+              dbType: JSONB 
+               
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.status
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.itemStartTime 
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.itemEndTime 
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.volume 
+  
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.createdBy
+  
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.lastModifiedBy
+  
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.createdTime
+  
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.lastModifiedTime
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.id
