@@ -160,7 +160,7 @@ ReportDefinitions:
     source: wns
     isMandatory: false
     pattern: 'list://WS:Water,SW:Sewerage'
-    searchClause: AND egcl_bill.businessservice = $serviceName
+    searchClause: AND CASE WHEN $serviceName='WS' THEN egcl_bill.businessservice in('WS','WS.ONE_TIME_FEE') WHEN $serviceName='SW' THEN egcl_bill.businessservice in('SW','SW.ONE_TIME_FEE') ELSE 1=1 END
   - name: paymentInstrument
     label: reports.wns.paymentmode
     type: singlevaluelist
@@ -170,7 +170,7 @@ ReportDefinitions:
     source: wns
     isMandatory: false
     searchClause: AND paymentmode = $paymentInstrument
-  query: select locality, eg_user.uuid, CASE WHEN egcl_bill.businessservice='WS' THEN 'Water' ELSE NULL END as service,eg_user.name, paymentmode, count(receiptnumber) as totaltransactions,sum(totalamountpaid) as totalamountpaid from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_ws_connection on egcl_bill.consumercode=connectionno inner join eg_user on CAST(egcl_payment.createdby AS INT) = eg_user.id where eg_ws_connection.tenantid=$tenantid UNION ALL select locality, eg_user.uuid, CASE WHEN egcl_bill.businessservice='SW' THEN 'Sewerage' ELSE NULL END as service,eg_user.name, paymentmode, count(receiptnumber) as totaltransactions, sum(totalamountpaid) as totalamountpaid from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_sw_connection on egcl_bill.consumercode=connectionno inner join eg_user on CAST(egcl_payment.createdby AS INT) = eg_user.id where eg_sw_connection.tenantid=$tenantid 
+  query: select locality, eg_user.uuid, CASE WHEN egcl_bill.businessservice='WS' THEN 'Water' WHEN egcl_bill.businessservice='WS.ONE_TIME_FEE' THEN 'Water Application Fee' ELSE NULL END as service,eg_user.name, paymentmode, count(receiptnumber) as totaltransactions,sum(totalamountpaid) as totalamountpaid from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_ws_connection on egcl_bill.consumercode=connectionno  or egcl_bill.consumercode= applicationno inner join eg_user on CAST(egcl_payment.createdby AS INT) = eg_user.id where eg_ws_connection.tenantid=$tenantid UNION ALL select locality, eg_user.uuid, CASE WHEN egcl_bill.businessservice='SW' THEN 'Sewerage' WHEN egcl_bill.businessservice='SW.ONE_TIME_FEE' THEN 'Sewerage Application Fee'  ELSE NULL END as service,eg_user.name, paymentmode, count(receiptnumber) as totaltransactions, sum(totalamountpaid) as totalamountpaid from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join eg_sw_connection on egcl_bill.consumercode=connectionno  or egcl_bill.consumercode= applicationno inner join eg_user on CAST(egcl_payment.createdby AS INT) = eg_user.id where eg_sw_connection.tenantid=$tenantid
   groupby: GROUP BY locality, service, name,paymentmode, eg_user.uuid
 
 - reportName: WnsDefaulterReport
