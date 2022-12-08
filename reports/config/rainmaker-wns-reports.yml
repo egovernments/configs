@@ -57,27 +57,27 @@ ReportDefinitions:
     type: epoch
     source: wns
     isMandatory: true
-    searchClause: AND egcl_paymentdetail.receiptdate >= $fromDate
+    searchClause: AND pd.receiptdate >= $fromDate
   - name: toDate
     label: ToDate
     type: epoch
     source: wns
     isMandatory: true
-    searchClause: AND egcl_paymentdetail.receiptdate  <= $toDate 
+    searchClause: AND pd.receiptdate  <= $toDate 
   - name: receiptStatus
     label: reports.wns.receiptStatus
     type: singlevaluelist
     pattern: 'list://NEW:New,DEPOSITED:Deposited,DISHONOURED:Dishonoured'
     source: wns
     isMandatory: false
-    searchClause: AND egcl_bill.status = $receiptStatus
+    searchClause: AND bill.status = $receiptStatus
   - name: serviceName
     label: reports.wns.serviceName
     type: singlevaluelist
     source: wns
     isMandatory: false
     pattern: 'list://WS:Water,SW:Sewerage'
-    searchClause: AND CASE WHEN $serviceName='WS' THEN egcl_bill.businessservice in('WS','WS.ONE_TIME_FEE') WHEN $serviceName='SW' THEN egcl_bill.businessservice in('SW','SW.ONE_TIME_FEE') ELSE 1=1 END
+    searchClause: AND CASE WHEN $serviceName='WS' THEN bill.businessservice in('WS','WS.ONE_TIME_FEE') WHEN $serviceName='SW' THEN bill.businessservice in('SW','SW.ONE_TIME_FEE') ELSE 1=1 END
   - name: collectionOperator
     label: CollectionOperator
     type: singlevaluelist
@@ -85,8 +85,8 @@ ReportDefinitions:
     wrapper: true
     source: wns
     isMandatory: false
-    searchClause: AND egcl_payment.createdby = $collectionOperator
-  query: WITH cte AS(select id,connectionno,applicationno,property_id,tenantid from eg_ws_connection where tenantid=$tenantid), cteSw AS(select id,connectionno,applicationno,property_id,tenantid from eg_sw_connection where tenantid=$tenantid) select receiptnumber, eg_user.uuid as uuid, to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, CASE WHEN egcl_bill.businessservice='WS' THEN 'Water' WHEN egcl_bill.businessservice='WS.ONE_TIME_FEE' THEN 'Water Application Fee' ELSE NULL END as service, eg_user.name, totalamountpaid, payername, transactionnumber, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join cte as conn on egcl_bill.consumercode = conn.connectionno or egcl_bill.consumercode= conn.applicationno inner join (select COALESCE( uuid1.userid, uuid2.userid) as finaluuid,uuid2.propertyid as propertyid,uuid2.id as connId from (select ch.userid ,conn.property_id, conn.id from eg_ws_connectionholder as ch inner join cte as conn on ch.connectionid=conn.id) as uuid1 right outer join (select pto.userid, prop.propertyid, wsConn.id from eg_pt_owner as pto inner join eg_pt_property as prop ON prop.id = pto.propertyid inner join cte as wsConn on wsConn.property_id=prop.propertyid ) as uuid2 on uuid1.property_id=uuid2.propertyid group by finaluuid,uuid2.propertyid,uuid2.id) as uuids ON uuids.propertyid=conn.property_id and uuids.connId=conn.id inner join eg_user on uuids.finaluuid=eg_user.uuid where conn.tenantid=$tenantid  UNION ALL select receiptnumber, eg_user.uuid as uuid, to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, CASE WHEN egcl_bill.businessservice='SW' THEN 'Sewerage' WHEN egcl_bill.businessservice='SW.ONE_TIME_FEE' THEN 'Sewerage  Application Fee' ELSE NULL END as service, eg_user.name, totalamountpaid, payername, transactionnumber, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on egcl_paymentdetail.billid=egcl_bill.id inner join cteSw as conn on egcl_bill.consumercode = conn.connectionno or egcl_bill.consumercode= conn.applicationno inner join (select COALESCE( uuid1.userid, uuid2.userid) as finaluuid,uuid2.propertyid as propertyid,uuid2.id as connId from (select ch.userid ,conn.property_id, conn.id from eg_sw_connectionholder as ch inner join cteSw as conn on ch.connectionid=conn.id) as uuid1 right outer join (select pto.userid, prop.propertyid, swConn.id from eg_pt_owner as pto inner join eg_pt_property as prop ON prop.id = pto.propertyid inner join cteSw as swConn on swConn.property_id=prop.propertyid ) as uuid2 on uuid1.property_id=uuid2.propertyid group by finaluuid,uuid2.propertyid,uuid2.id) as uuids ON uuids.propertyid=conn.property_id and uuids.connId=conn.id inner join eg_user on uuids.finaluuid=eg_user.uuid where conn.tenantid=$tenantid 
+    searchClause: AND payment.createdby = $collectionOperator
+  query: select transactionnumber, receiptnumber, totalamountpaid, payername, eg_user.name, eg_user.uuid, to_char( To_timestamp(receiptdate / 1000), 'DD/MM/YYYY' ) as receiptdate, CASE WHEN bill.businessservice = 'WS' THEN 'Water' WHEN bill.businessservice = 'WS.ONE_TIME_FEE' THEN 'Water Application Fee' ELSE NULL END as service from egcl_payment payment INNER join egcl_paymentdetail pd on payment.id = pd.paymentid INNER JOIN egcl_bill bill ON bill.id = pd.billid inner join ( select demand.consumercode, payer as ownerUuid from egbs_demand_v1 demand inner join ( select consumercode, max(createdtime) as maxtime from egbs_demand_v1 group by consumercode ) maxdemand ON demand.consumercode = maxdemand.consumercode and demand.createdtime = maxdemand.maxtime ) as conn on conn.consumercode = bill.consumercode inner join eg_user on conn.owneruuid = eg_user.uuid where bill.businessservice in( 'WS', 'WS.ONE_TIME_FEE', 'SW', 'SW.ONE_TIME_FEE') and bill.tenantid=$tenantid 
 
 - reportName: WnsCollectionRegisterReport
   decryptionPathId: WnsCollectionRegisterReport
