@@ -1,0 +1,978 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Cluster RAM and CPU utilization grouped by namespaces, deployments and specific pods. This dashboard shows the values at specific point in time, its useful for get an instant feeling about what takes most of the resources in the cluster.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "gnetId": 16734,
+  "graphTooltip": 0,
+  "id": 5,
+  "iteration": 1670497701875,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": "$datasource",
+      "description": "The memory usage in percentage of all nodes in the cluster.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "null": {
+                  "index": 0,
+                  "text": "N/A"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 65
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 0,
+        "y": 0
+      },
+      "id": 13,
+      "options": {
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": "$datasource",
+          "editorMode": "code",
+          "expr": "sum (container_memory_working_set_bytes{id=\"/\"}) / sum (kube_node_status_capacity{resource=\"memory\"}) * 100",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Memory Usage",
+      "type": "gauge"
+    },
+    {
+      "datasource": "$datasource",
+      "description": "The average CPU usage of all the nodes in the cluster.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "links": [],
+          "mappings": [
+            {
+              "options": {
+                "null": {
+                  "index": 0,
+                  "text": "N/A"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 65
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 3,
+        "y": 0
+      },
+      "id": 12,
+      "options": {
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": "$datasource",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum (rate (container_cpu_usage_seconds_total{id=\"/\"}[5m])) / sum (kube_node_status_capacity{resource=\"cpu\"}) * 100",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "CPU Usage",
+      "type": "gauge"
+    },
+    {
+      "datasource": "$datasource",
+      "description": "The memory usage in a cluster grouped by Kubernetes deployment",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-YlRd"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 7,
+        "x": 6,
+        "y": 0
+      },
+      "id": 8,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 20,
+        "minVizWidth": 0,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "text": {}
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": "$datasource",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sort_desc(sum by (container, namespace) (container_memory_working_set_bytes{container!=\"POD\", container!=\"\"}))",
+          "format": "time_series",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{ namespace }} - {{ container}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Memory usage by deployment",
+      "transformations": [],
+      "type": "bargauge"
+    },
+    {
+      "datasource": "$datasource",
+      "description": "The memory usage in a cluster grouped by Kubernetes pod",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-YlRd"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 7,
+        "x": 13,
+        "y": 0
+      },
+      "id": 9,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 20,
+        "minVizWidth": 0,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "text": {}
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": "$datasource",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sort_desc(sum by (pod, namespace) (container_memory_working_set_bytes{pod!=\"\",container!=\"POD\", container!=\"\"}))",
+          "format": "time_series",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{ namespace }} - {{ pod}}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Memory usage by pod",
+      "transformations": [],
+      "type": "bargauge"
+    },
+    {
+      "datasource": "$datasource",
+      "description": "Total number of cores on k8s cluster",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "id": 19,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": "$datasource",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum (kube_node_status_capacity{resource=\"cpu\"})",
+          "format": "time_series",
+          "instant": true,
+          "interval": "10s",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Total Cores",
+      "type": "stat"
+    },
+    {
+      "datasource": "$datasource",
+      "description": "This is the sum of CPU request - All namespaces",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 3
+      },
+      "id": 27,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": "$datasource",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(kube_pod_container_resource_requests{resource=\"cpu\"})",
+          "instant": true,
+          "interval": "10s",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "CPU requests",
+      "type": "stat"
+    },
+    {
+      "datasource": "$datasource",
+      "description": "The memory usage in a cluster grouped by Kubernetes namespace",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-YlRd"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 0,
+        "y": 5
+      },
+      "id": 10,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 20,
+        "minVizWidth": 0,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "text": {}
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": "$datasource",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sort_desc(sum by (namespace) (container_memory_working_set_bytes{pod!=\"\",container!=\"POD\", container!=\"\"}))",
+          "format": "time_series",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "{{ namespace }}",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Memory usage by namespace",
+      "transformations": [],
+      "type": "bargauge"
+    },
+    {
+      "datasource": "$datasource",
+      "description": "Total number of used cores",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 1,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 6
+      },
+      "id": 29,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": "$datasource",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(rate(container_cpu_usage_seconds_total{id=\"/\"}[5m]))",
+          "instant": false,
+          "interval": "",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Used Cores",
+      "type": "stat"
+    },
+    {
+      "datasource": "$datasource",
+      "description": "Total memory allocated on k8s cluster",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 9
+      },
+      "id": 21,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": "$datasource",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum (kube_node_status_capacity{resource=\"memory\"})",
+          "instant": true,
+          "interval": "10s",
+          "legendFormat": "Total Mem.",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Total Memory",
+      "type": "stat"
+    },
+    {
+      "datasource": "$datasource",
+      "description": "Total memory request - All namespaces",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 12
+      },
+      "id": 23,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": "$datasource",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum(kube_pod_container_resource_requests{resource=\"memory\"})",
+          "instant": true,
+          "interval": "10s",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Mem Request",
+      "type": "stat"
+    },
+    {
+      "datasource": "$datasource",
+      "description": "The CPU usage in a cluster grouped by Kubernetes deployment",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-YlRd"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 7,
+        "x": 6,
+        "y": 13
+      },
+      "id": 15,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 15,
+        "minVizWidth": 0,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": "$datasource",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sort_desc(sum by (container, namespace) (rate(container_cpu_usage_seconds_total{container!=\"\", container!=\"POD\"}[5m])))",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "{{ namespace }} - {{container}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "CPU Usage by deployment",
+      "type": "bargauge"
+    },
+    {
+      "datasource": "$datasource",
+      "description": "The CPU usage in a cluster grouped by Kubernetes pod",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-YlRd"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 7,
+        "x": 13,
+        "y": 13
+      },
+      "id": 17,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 15,
+        "minVizWidth": 0,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": "$datasource",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sort_desc(sum by (pod, namespace) (rate(container_cpu_usage_seconds_total{container!=\"\", container!=\"POD\"}[5m])))",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "{{ namespace }} - {{ pod}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "CPU Usage by pod",
+      "type": "bargauge"
+    },
+    {
+      "datasource": "$datasource",
+      "description": "The CPU usage in a cluster grouped by Kubernetes namespace",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-YlRd"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 11,
+        "w": 6,
+        "x": 0,
+        "y": 14
+      },
+      "id": 16,
+      "options": {
+        "displayMode": "gradient",
+        "minVizHeight": 20,
+        "minVizWidth": 0,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": "$datasource",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sort_desc(sum by (namespace) (rate(container_cpu_usage_seconds_total{container!=\"\", container!=\"POD\"}[5m])))",
+          "format": "time_series",
+          "instant": false,
+          "legendFormat": "{{container}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "CPU Usage by namespace",
+      "type": "bargauge"
+    },
+    {
+      "datasource": "$datasource",
+      "description": "Total used memory",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 15
+      },
+      "id": 25,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.0.0",
+      "targets": [
+        {
+          "datasource": "$datasource",
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum (container_memory_working_set_bytes{id=\"/\"})",
+          "instant": true,
+          "interval": "10s",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Used Mem.",
+      "type": "stat"
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 36,
+  "style": "dark",
+  "tags": [
+    "kubernetes",
+    "utilization",
+    "ram",
+    "cpu"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "Digit-Dev",
+          "value": "Digit-Dev"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "queryValue": "",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Kubernetes Cluster RAM and CPU Utilization",
+  "uid": "gzIcCaiVz",
+  "version": 2,
+  "weekStart": ""
+}
