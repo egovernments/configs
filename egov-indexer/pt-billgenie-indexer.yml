@@ -5,14 +5,14 @@ ServiceMaps:
     - topic: pt-bill-genie
       configKey: INDEX
       indexes:
-        - name: save-bill-genie
+        - name: bill-inbox
           type: general
           id: $.bill.id ,$.bill.tenantId
           jsonPath: $
-          timeStampField: $.auditDetails.lastModifiedBy
+          timeStampField: $.bill.auditDetails.lastModifiedBy
           isBulk: false
           customJsonMapping:
-            indexMapping: {"Data":{"bill":{"id":"","mobilenumber":"","payername":"","payeraddress":"","payeremail":"","status":"","totalAmount":"","businessService":"","consumerCode":"","billDetails":{"billid":"","demandid":"","amount":""},"tenantId":"","taxheadcode":"","TaxPeriod":{"fromperiod":"","toperiod":"","financialyear":""},"@timestamp":"timestamp"},"propertyaddress":{"locality":{"doorNo":""}},"history":{},"auditDetails":{}}}
+            indexMapping: {"Data":{"bill":{"id":"","mobilenumber":"","payername":"","payeraddress":"","payeremail":"","status":"","totalAmount":"","businessService":"","consumerCode":"","billDetails":{"billid":"","demandid":"","amount":""},"auditDetails":"","tenantId":"","taxheadcode":"","TaxPeriod":{"fromperiod":"","toperiod":"","financialyear":""}},"propertyaddress":{"locality":{"doorNo":""}}},"history":{}}
             fieldMapping:
               - inJsonPath: $.bill.id
                 outJsonPath: $.Data.bill.id
@@ -38,6 +38,8 @@ ServiceMaps:
                 outJsonPath: $.Data.bill.billDetails.demandid
               - inJsonPath: $.bill.billDetails.amount
                 outJsonPath: $.Data.bill.billDetails.amount
+              - inJsonPath: $.bill.auditDetails
+                outJsonPath: $.Data.bill.auditDetails
               - inJsonPath: $.bill.tenantId
                 outJsonPath: $.Data.bill.tenantId
               - inJsonPath: $.bill.taxheadcode
@@ -48,8 +50,6 @@ ServiceMaps:
                 outJsonPath: $.Data.bill.TaxPeriod.toperiod
               - inJsonPath: $.bill.TaxPeriod.financialyear
                 outJsonPath: $.Data.bill.financialyear
-              - inJsonPath: $.bill.@timestamp
-                outJsonPath: $.Data.@timestamp
               - inJsonPath: $.propertyaddress.locality.doorNo
                 outJsonPath: $.Data.propertyaddress.locality.doorNo
             mdmsMapping:
