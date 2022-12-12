@@ -7,51 +7,48 @@ ServiceMaps:
       indexes:
         - name: bill-inbox
           type: general
-          id: $.bill.id ,$.bill.tenantId
+          id: $.id,$.tenantId
           jsonPath: $
-          timeStampField: $.bill.auditDetails.lastModifiedBy
+          timeStampField: $.auditDetails.createdTime
           isBulk: false
           customJsonMapping:
-            indexMapping: {"Data":{"bill":{"id":"","mobilenumber":"","payername":"","payeraddress":"","payeremail":"","status":"","totalAmount":"","businessService":"","consumerCode":"","billDetails":{"billid":"","demandid":"","amount":""},"auditDetails":"","tenantId":"","taxheadcode":"","TaxPeriod":{"fromperiod":"","toperiod":"","financialyear":""}},"propertyaddress":{"locality":{"doorNo":""}}},"history":{}}
+            indexMapping: {"Data":{"workflow":{"state":{},"action":"","assignes":[]},"BillV2":{},"status":"","additionalDetails":{},"id":"","propertyId":"","@timestamp":"timestamp","auditDetails":{},"propertyAddress":{},"history":{}}}
             fieldMapping:
-              - inJsonPath: $.bill.id
-                outJsonPath: $.Data.bill.id
-              - inJsonPath: $.bill.mobilenumber
-                outJsonPath: $.Data.bill.mobilenumber
-              - inJsonPath: $.bill.payername
-                outJsonPath: $.Data.bill.payername
-              - inJsonPath: $.bill.payeraddress
-                outJsonPath: $.Data.bill.payeraddress
-              - inJsonPath: $.bill.payeremail
-                outJsonPath: $.Data.bill.payeremail
-              - inJsonPath: $.bill.status
-                outJsonPath: $.Data.bill.status
-              - inJsonPath: $.bill.totalAmount
-                outJsonPath: $.Data.bill.totalamount
-              - inJsonPath: $.bill.businessService
-                outJsonPath: $.Data.bill.businessservice
-              - inJsonPath: $.bill.consumerCode
-                outJsonPath: $.Data.bill.consumercode
-              - inJsonPath: $.bill.billDetails.billid
-                outJsonPath: $.Data.bill.billDetails.billid
-              - inJsonPath: $.bill.billDetails.demandid
-                outJsonPath: $.Data.bill.billDetails.demandid
-              - inJsonPath: $.bill.billDetails.amount
-                outJsonPath: $.Data.bill.billDetails.amount
-              - inJsonPath: $.bill.auditDetails
-                outJsonPath: $.Data.bill.auditDetails
-              - inJsonPath: $.bill.tenantId
-                outJsonPath: $.Data.bill.tenantId
-              - inJsonPath: $.bill.taxheadcode
-                outJsonPath: $.Data.bill.taxheadcode
-              - inJsonPath: $.bill.TaxPeriod.fromperiod
-                outJsonPath: $.Data.bill.TaxPeriod.fromperiod
-              - inJsonPath: $.bill.TaxPeriod.toperiod
-                outJsonPath: $.Data.bill.TaxPeriod.toperiod
-              - inJsonPath: $.bill.TaxPeriod.financialyear
-                outJsonPath: $.Data.bill.financialyear
-              - inJsonPath: $.propertyaddress.locality.doorNo
-                outJsonPath: $.Data.propertyaddress.locality.doorNo
+              - inJsonPath: $.applicationStatus.state
+                outJsonPath: $.Data.workflow.state
+              - inJsonPath: $.processInstance.action
+                outJsonPath: $.Data.workflow.action
+              - inJsonPath: $.processInstance.assignes.*.uuid
+                outJsonPath: $.Data.workflow.assignes
+              - inJsonPath: $.BillV2
+                outJsonPath: $.Data.BillV2
+              - inJsonPath: $.status
+                outJsonPath: $.Data.status
+              - inJsonPath: $.additionalDetails
+                outJsonPath: $.Data.additionalDetails
+              - inJsonPath: $.id
+                outJsonPath: $.Data.id
+              - inJsonPath: $.propertyId
+                outJsonPath: $.Data.propertyId
+              - inJsonPath: $.@timestamp
+                outJsonPath: $.Data.@timestamp
+              - inJsonPath: $.auditDetails
+                outJsonPath: $.Data.auditDetails
+              - inJsonPath: $.property.address
+                outJsonPath: $.Data.propertyAddress
+            externalUriMapping:
+              - path: https://dev.digit.org/egov-workflow-v2/egov-wf/process/_search
+                queryParam: businessIds=$.propertyId,history=true,tenantId=$.tenantId
+                apiRequest: { "RequestInfo": { "apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654","requesterId": "61","authToken": "d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo": { "id": 1,"uuid": "1fec8102-0e02-4d0a-b283-cd80d5dab067","type": "EMPLOYEE","tenantId": "pb.amritsar","roles": [ { "name": "Employee","code": "EMPLOYEE","tenantId": "pb.amritsar" } ] } } }
+                uriResponseMapping:
+                  - inJsonPath: $.ProcessInstances
+                    outJsonPath: $.Data.history
+              - path: https://dev.digit.org/egov-location/location/v11/boundarys/_search
+                queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.additionalDetails.locality,tenantId=$.tenantId
+                apiRequest: { "RequestInfo": { "apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61","authToken": "02dbe5be-28df-4d82-954f-3d27c56cca7d","userInfo": { "id": 73 } } }
+                uriResponseMapping:
+                  - inJsonPath: $.TenantBoundary[0].boundary[0]
+                    outJsonPath: $.Data.ward
             mdmsMapping:
               - path: https://dev.digit.org/egov-mdms-service/v1/_search
                 moduleName: tenant
@@ -60,7 +57,8 @@ ServiceMaps:
                 filter: "[?(@.code == $tenant)]"
                 filterMapping:
                   - variable: $tenant
-                    valueJsonpath: $.bill.tenantId
+                    valueJsonpath: $.tenantId
                 uriResponseMapping:
                   - inJsonPath: $.MdmsRes.tenant.tenants
                     outJsonPath: $.Data.tenantData
+
