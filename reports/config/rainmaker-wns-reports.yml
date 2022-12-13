@@ -67,10 +67,10 @@ ReportDefinitions:
   - name: receiptStatus
     label: reports.wns.receiptStatus
     type: singlevaluelist
-    pattern: 'list://NEW:New,DEPOSITED:Deposited,DISHONOURED:Dishonoured'
+    pattern: 'list://CANCELLED:Cancelled,APPROVED:Approved,DISHONOURED:Dishonoured,REMITTED:Remitted'
     source: wns
     isMandatory: false
-    searchClause: AND bill.status = $receiptStatus
+    searchClause: AND payment.instrumentstatus = $receiptStatus
   - name: serviceName
     label: reports.wns.serviceName
     type: singlevaluelist
@@ -86,7 +86,7 @@ ReportDefinitions:
     source: wns
     isMandatory: false
     searchClause: AND payment.createdby = $collectionOperator
-  query: select transactionnumber, receiptnumber, totalamountpaid, payername, eg_user.name, eg_user.uuid, to_char( To_timestamp(receiptdate / 1000), 'DD/MM/YYYY' ) as receiptdate, CASE WHEN bill.businessservice = 'WS' THEN 'Water' WHEN bill.businessservice = 'WS.ONE_TIME_FEE' THEN 'Water Application Fee' ELSE NULL END as service from egcl_payment payment INNER join egcl_paymentdetail pd on payment.id = pd.paymentid INNER JOIN egcl_bill bill ON bill.id = pd.billid inner join ( select demand.consumercode, payer as ownerUuid from egbs_demand_v1 demand inner join ( select consumercode, max(createdtime) as maxtime from egbs_demand_v1 group by consumercode ) maxdemand ON demand.consumercode = maxdemand.consumercode and demand.createdtime = maxdemand.maxtime ) as conn on conn.consumercode = bill.consumercode inner join eg_user on conn.owneruuid = eg_user.uuid where bill.businessservice in( 'WS', 'WS.ONE_TIME_FEE', 'SW', 'SW.ONE_TIME_FEE') and bill.tenantid=$tenantid 
+  query: select transactionnumber, receiptnumber, totalamountpaid, payername, eg_user.name, eg_user.uuid, to_char( To_timestamp(receiptdate / 1000), 'DD/MM/YYYY' ) as receiptdate, CASE WHEN bill.businessservice = 'WS' THEN 'Water' WHEN bill.businessservice = 'WS.ONE_TIME_FEE' THEN 'Water Application Fee' WHEN bill.businessservice = 'SW' THEN 'Sewerage' WHEN bill.businessservice = 'SW.ONE_TIME_FEE' THEN 'Sewerage Application Fee' ELSE NULL END as service from egcl_payment payment INNER join egcl_paymentdetail pd on payment.id = pd.paymentid INNER JOIN egcl_bill bill ON bill.id = pd.billid inner join ( select demand.consumercode, payer as ownerUuid from egbs_demand_v1 demand inner join ( select consumercode, max(createdtime) as maxtime from egbs_demand_v1 group by consumercode ) maxdemand ON demand.consumercode = maxdemand.consumercode and demand.createdtime = maxdemand.maxtime ) as conn on conn.consumercode = bill.consumercode inner join eg_user on conn.owneruuid = eg_user.uuid where bill.businessservice in( 'WS', 'WS.ONE_TIME_FEE', 'SW', 'SW.ONE_TIME_FEE') and bill.tenantid=$tenantid 
 
 - reportName: WnsCollectionRegisterReport
   decryptionPathId: WnsCollectionRegisterReport
