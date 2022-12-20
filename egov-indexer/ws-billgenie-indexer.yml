@@ -1,28 +1,22 @@
 ServiceMaps:
-  serviceName: Property Tax Service
+  serviceName: Water Service
   version: 1.0.0
   mappings:
-    - topic: pt-bill-genie
+    - topic: ws-bill-genie
       configKey: INDEX
       indexes:
-        - name: bill-inbox
+        - name: ws-bill-inbox
           type: general
           id: $.id, $.tenantId
           isBulk: true
           jsonPath: $.Bill
           timeStampField: $.auditDetails.createdTime
           customJsonMapping:
-            indexMapping: { "Data":{"Bill":{},"Properties":{},"ward":{},"tenantData":{}, "history":{}}}
+            indexMapping: { "Data":{"Bill":{},"WaterConnection":{},ward":{},"tenantData":{}, "history":{}}}
             fieldMapping:
               - inJsonPath: $
                 outJsonPath: $.Data.Bill
             externalUriMapping:
-              - path: https://dev.digit.org/property-services/property/_search
-                queryParam: propertyIds=$.consumerCode,tenantId=$.tenantId
-                apiRequest: { "RequestInfo": { "apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654","requesterId": "61","authToken": "e9ef1ac7-b6b3-455a-ac07-61dd6a3a1550","userInfo": { "id": 1,"uuid": "1fec8102-0e02-4d0a-b283-cd80d5dab067","type": "EMPLOYEE","tenantId": "pb.amritsar","roles": [ { "name": "Employee","code": "FSM_EDITOR_EMP","tenantId": "pb.amritsar" } ] } } }
-                uriResponseMapping:
-                  - inJsonPath: $.Properties
-                    outJsonPath: $.Data.Properties
               - path: https://dev.digit.org/egov-workflow-v2/egov-wf/process/_search
                 queryParam: businessIds=$.id,history=true,tenantId=$.tenantId
                 apiRequest: { "RequestInfo": { "apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654","requesterId": "61","authToken": "e9ef1ac7-b6b3-455a-ac07-61dd6a3a1550","userInfo": { "id": 1,"uuid": "1fec8102-0e02-4d0a-b283-cd80d5dab067","type": "EMPLOYEE","tenantId": "pb.amritsar","roles": [ { "name": "Employee","code": "EMPLOYEE","tenantId": "pb.amritsar" } ] } } }
@@ -35,6 +29,12 @@ ServiceMaps:
                 uriResponseMapping:
                   - inJsonPath: $.TenantBoundary[0].boundary[0]
                     outJsonPath: $.Data.ward
+              - path: https://dev.digit.org/ws-services/wc/_search
+                queryParam: applicationNumber=$.consumerCode,tenantId=$.tenantId
+                apiRequest: { "RequestInfo": { "apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654","requesterId": "61","authToken": "e9ef1ac7-b6b3-455a-ac07-61dd6a3a1550","userInfo": { "id": 1,"uuid": "1fec8102-0e02-4d0a-b283-cd80d5dab067","type": "EMPLOYEE","tenantId": "pb.amritsar","roles": [ { "name": "Employee","code": "FSM_EDITOR_EMP","tenantId": "pb.amritsar" } ] } } }
+                uriResponseMapping:
+                  - inJsonPath: $.WaterConnection
+                    outJsonPath: $.Data.WaterConnection
             mdmsMapping:
               - path: https://dev.digit.org/egov-mdms-service/v1/_search
                 moduleName: tenant
