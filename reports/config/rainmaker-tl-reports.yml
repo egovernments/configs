@@ -962,7 +962,7 @@ ReportDefinitions:
     source: tl
     total: false
   - name: tradetype
-    label: report.tl.tradetype
+    label: report.tl.tradetypesubtype
     type: string
     source: tl
     total: false
@@ -1027,6 +1027,8 @@ ReportDefinitions:
     pattern: 'list://INITIATED:INITIATED,APPLIED:APPLIED,FIELDINSPECTION:FIELDINSPECTION,PENDINGAPPROVAL:PENDINGAPPROVAL,APPROVED:APPROVED,PENDINGPAYMENT:PENDINGPAYMENT,CITIZENACTIONREQUIRED:CITIZENACTIONREQUIRED,MANUALEXPIRED:MANUALEXPIRED,EXPIRED:EXPIRED,REJECTED:REJECTED,CANCELLED:CANCELLED'
   query: select distinct(applicationnumber), usr.uuid as uuid, applicationdate as normalappdate, to_char(To_timestamp(applicationdate / 1000), 'DD/MM/YYYY') as applicationdate , tld.channel as applicationchannel, applicationtype, usr.name as name, concat(split_part(tlunit.tradetype,'.',2),' / ',deptmap_def.name) as tradetype , tradename, tl.status as applicationstatus, case when isterminatestate=true then null else userassignee.name end as currentowner,coalesce(licensenumber,'NA') as licensenumber from eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id=tld.tradelicenseid inner join eg_user usr ON tl.createdby = usr.uuid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id inner join eg_wf_processinstance_v2 pi on pi.businessid=tl.applicationnumber inner join (select businessid, max(createdtime) as maxtime from eg_wf_processinstance_v2 group by businessid) wfg ON pi.businessid=wfg.businessid and maxtime=pi.createdtime inner join eg_wf_state_v2 st on pi.status=st.uuid left outer join eg_wf_assignee_v2 assignee on assignee.processinstanceid = pi.id left outer join eg_user userassignee on assignee.assignee = userassignee.uuid inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=tlunit.tradetype where tl.businessservice='TL'
   orderby: ORDER BY normalappdate asc
+
+
 - reportName: TLRegistryReport
   decryptionPathId: TLRegistryReport
   summary: TL Registry Report
@@ -1073,6 +1075,8 @@ ReportDefinitions:
     type: string
     source: tl
     total: false
+    localisationPrefix: TRADELICENSE_TRADETYPE_
+    isLocalisationRequired: true
   - name: tradesubtype
     label: report.tl.tradesubtype
     type: string
@@ -1167,7 +1171,7 @@ ReportDefinitions:
     source: tl
     total: false
   - name: tradetype
-    label: report.tl.tradetype
+    label: report.tl.tradetypesubtype
     type: string
     source: tl
     total: false
