@@ -71,3 +71,45 @@ serviceMaps:
                 - jsonPath: $.billingSlab.auditDetails.lastModifiedTime
                 
                 - jsonPath: $.billingSlab.id
+                
+                
+ - version: 1.0
+   description: Persists FSM-CALCULATOR ZeroPricing details in eg_zero_pricing  table
+   fromTopic: save-zeroPricing
+   isTransaction: true
+   queryMaps:
+
+       - query: INSERT INTO public.eg_zero_pricing(propertytype,subPropertytype,status) VALUES (?,?,?);
+         basePath: zeroPricing
+         jsonMaps:
+          - jsonPath: $.zeroPricing.propertytype
+          
+          - jsonPath: $.zeroPricing.subPropertytype
+      
+          - jsonPath: $.zeroPricing.status
+          
+              
+ - version: 1.0
+   description: updates FSM-CALCULATOR ZeroPricing details in eg_zero_pricing  table
+   fromTopic: update-zeroPricing
+   isTransaction: true
+   queryMaps: 
+   
+       - query: INSERT INTO public.eg_zero_pricing_audit SELECT * FROM public.eg_zero_pricing WHERE propertytype=? and subPropertytype=? ;
+         basePath:  zeroPricing
+         jsonMaps: 
+  
+          - jsonPath: $.zeroPricing.propertytype
+          
+          - jsonPath: $.zeroPricing.subPropertytype
+             
+       - query: UPDATE public.eg_billing_slab SET status=? where propertytype=? and subPropertytype=? ;
+         basePath: zeroPricing
+         jsonMaps:    
+                - jsonPath: $.zeroPricing.status
+      
+                - jsonPath: $.zeroPricing.propertytype
+                
+                - jsonPath: $.zeroPricing.subPropertytype
+                
+                           
