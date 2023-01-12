@@ -882,6 +882,7 @@ ReportDefinitions:
     type: string
     source: tl
     total: false
+    isLocalisationRequired: true
   - name: uuid
     label: report.tl.uuid
     type: string
@@ -922,7 +923,7 @@ ReportDefinitions:
     wrapper: true
     isMandatory: false
     searchClause: AND egcl_payment.createdby = $collectionOperator
-  query: select to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, eg_user.uuid as uuid, receiptnumber,applicationnumber,licensenumber, eg_user.name as name,eg_user.username as username, paymentmode as instrumenttype, CASE WHEN paymentmode='CHEQUE' THEN  to_char(To_timestamp(instrumentdate/ 1000), 'DD/MM/YYYY') ELSE null END as chequedate, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno, TRIM('"' FROM ((egcl_payment.additionaldetails->'bankDetails'->'BANK') ::json::text)) as bankname,  CASE WHEN paymentmode='ONLINE' THEN transactionnumber ELSE null END as transactionid ,CASE WHEN paymentmode='CARD' THEN substring(instrumentnumber,1,4) ELSE null END as lastfourdigits, totalamountpaid, instrumentstatus from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_tl_tradelicense tl on consumercode=tl.applicationnumber inner join eg_tl_tradelicensedetail on tl.id = eg_tl_tradelicensedetail.tradelicenseid inner join eg_tl_owner  on eg_tl_owner.tradelicensedetailid=eg_tl_tradelicensedetail.id inner join eg_user on eg_user.uuid=eg_tl_owner.id  where egcl_paymentdetail.businessservice='TL' and tl.tenantid= $tenantid
+  query: select to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, eg_user.uuid as uuid, receiptnumber,applicationnumber,licensenumber, eg_user.name as name, eg_user.username as username, paymentmode as instrumenttype, CASE WHEN paymentmode='CHEQUE' THEN  to_char(To_timestamp(instrumentdate/ 1000), 'DD/MM/YYYY') ELSE 'NA' END as chequedate, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE 'NA' END as chequeno, coalesce(TRIM('"' FROM ((egcl_payment.additionaldetails->'bankDetails'->'BANK') ::json::text)),'NA') as bankname,  CASE WHEN paymentmode='ONLINE' THEN transactionnumber ELSE 'NA' END as transactionid ,CASE WHEN paymentmode='CARD' THEN substring(instrumentnumber,1,4) ELSE 'NA' END as lastfourdigits, totalamountpaid, instrumentstatus from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_tl_tradelicense tl on consumercode=tl.applicationnumber inner join eg_tl_tradelicensedetail on tl.id = eg_tl_tradelicensedetail.tradelicenseid inner join eg_tl_owner  on eg_tl_owner.tradelicensedetailid=eg_tl_tradelicensedetail.id inner join eg_user on eg_user.uuid=eg_tl_owner.id  where egcl_paymentdetail.businessservice='TL' and tl.tenantid= $tenantid
 
 - reportName: TLApplicationStatusReport
   decryptionPathId: TLApplicationStatusReport
@@ -949,11 +950,15 @@ ReportDefinitions:
     label: report.tl.applicationchannel
     type: string
     source: tl
+    localisationPrefix: TL_CHANNEL_
+    isLocalisationRequired: true
     total: false
   - name: applicationtype
     label: report.tl.applicationtype
     type: string
     source: tl
+    localisationPrefix: TL_LOCALIZATION_APPLICATIONTYPE_
+    isLocalisationRequired: true
     total: false
   - name: name
     label: report.tl.name
@@ -983,6 +988,7 @@ ReportDefinitions:
     label: report.tl.applicationstatus
     type: string
     source: tl
+    isLocalisationRequired: true
     total: false
   - name: currentowner
     label: report.tl.currentowner
@@ -1097,6 +1103,7 @@ ReportDefinitions:
     type: string
     source: tl
     total: false
+    isLocalisationRequired: true
   - name: tradeaddress
     label: report.tl.tradeaddress
     type: string
@@ -1114,6 +1121,7 @@ ReportDefinitions:
     type: string
     source: tl
     total: false
+    isLocalisationRequired: true
   - name: licenseexpirydate
     label: report.tl.licenseexpirydate
     type: string
@@ -1147,7 +1155,7 @@ ReportDefinitions:
     localisationPrefix: TENANTS_MOHALLA_
     isLocalisationRequired: true
     searchClause: AND locality in ($locality)
-  query: select licensenumber,eg_user.uuid as uuid, to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as issueddate , financialyear, tradename, to_char(To_timestamp(commencementdate / 1000), 'DD/MM/YYYY') as commencementdate , eg_user.name as name, split_part(unt.tradetype,'.',2) as tradetype,  deptmap_def.code as tradesubtype, concat(split_part(tld.structuretype,'.',1),' / ',split_part(tld.structuretype,'.',2)) as structuretype, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT(doorno,',', street,',', initcap(split_part(city, '.', 2)),',', pincode), ',+', ','), '^,|,$', '') as tradeaddress, locality, tl.status as currentstatus, to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY') as licenseexpirydate  from eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id= tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit unt on unt.tradelicensedetailid=tld.id inner join eg_tl_address addr on addr.tradelicensedetailid=tld.id  inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=unt.tradetype where tl.businessservice='TL' and financialyear=(select max(financialyear) from eg_tl_tradelicense where licensenumber=tl.licensenumber) and tl.tenantid= $tenantid and tl.status IN ('EXPIRED','APPROVED','CANCELLED')
+  query: select licensenumber,eg_user.uuid as uuid, to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as issueddate , financialyear, tradename, coalesce(to_char(To_timestamp(commencementdate / 1000), 'DD/MM/YYYY'),'NA') as commencementdate , eg_user.name as name, split_part(unt.tradetype,'.',2) as tradetype,  deptmap_def.code as tradesubtype, concat(split_part(tld.structuretype,'.',1),' / ',split_part(tld.structuretype,'.',2)) as structuretype, COALESCE (NULLIF( REGEXP_REPLACE(REGEXP_REPLACE(CONCAT(doorno,',', street,',', initcap(split_part(city, '.', 2)),',', pincode), ',+', ','), '^,|,$', ''),''), 'NA') as tradeaddress, locality, tl.status as currentstatus, coalesce(to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY'),'NA') as licenseexpirydate  from eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id= tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit unt on unt.tradelicensedetailid=tld.id inner join eg_tl_address addr on addr.tradelicensedetailid=tld.id  inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=unt.tradetype where tl.businessservice='TL' and financialyear=(select max(financialyear) from eg_tl_tradelicense where licensenumber=tl.licensenumber) and tl.tenantid= $tenantid and tl.status IN ('EXPIRED','APPROVED','CANCELLED')
 
 - reportName: TLRenewalPendingReport
   decryptionPathId: TLRenewalPendingReport
@@ -1213,6 +1221,7 @@ ReportDefinitions:
     label: report.tl.status
     type: string
     source: tl
+    isLocalisationRequired: true
     total: false
   - name: uuid
     label: report.tl.uuid
@@ -1239,5 +1248,5 @@ ReportDefinitions:
     source: tl
     isMandatory: false
     searchClause: AND tl.financialyear = $financialYear
-  query: select licensenumber, eg_user.uuid as uuid, to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as issueddate,to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY') as licenseexpirydate, tradename, split_part(tlunit.tradetype,'.',2) as tradetype, deptmap_def.code as tradesubtype, eg_user.name as name, eg_user.mobilenumber as mobilenumber, CASE WHEN(round( date_part( 'epoch', now() ) )*1000 - validto)/86400000>=0 THEN floor(((round( date_part( 'epoch', now() ) )*1000 - validto)/86400000)-(select count(dt) from generate_series((select to_timestamp(validto/1000)::date),(select to_timestamp(date_part( 'epoch', now()))::date), interval '1' day) as t(dt) where extract(dow from dt) in (0,6))) else null end as elapsedtime, tl.status as status from eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id = tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=tlunit.tradetype where tl.businessservice='TL' and licensenumber is not null and tl.tenantid = $tenantid AND tl.status in('MANUALEXPIRED', 'EXPIRED', 'APPROVED')
+  query: select licensenumber, eg_user.uuid as uuid, coalesce(to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY'),'NA') as issueddate,coalesce(to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY'),'NA') as licenseexpirydate, tradename, split_part(tlunit.tradetype,'.',2) as tradetype, deptmap_def.code as tradesubtype, eg_user.name as name, eg_user.mobilenumber as mobilenumber, CASE WHEN(round( date_part( 'epoch', now() ) )*1000 - validto)/86400000>=0 THEN floor(((round( date_part( 'epoch', now() ) )*1000 - validto)/86400000)-(select count(dt) from generate_series((select to_timestamp(validto/1000)::date),(select to_timestamp(date_part( 'epoch', now()))::date), interval '1' day) as t(dt) where extract(dow from dt) in (0,6))) else null end as elapsedtime, tl.status as status from eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id = tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=tlunit.tradetype where tl.businessservice='TL' and licensenumber is not null and tl.tenantid = $tenantid AND tl.status in('MANUALEXPIRED', 'EXPIRED', 'APPROVED')
   orderby: ORDER BY floor(((round( date_part( 'epoch', now() ) )*1000 - validto)/86400000)-(select count(dt) from generate_series((select to_timestamp(validto/1000)::date), (select to_timestamp(date_part( 'epoch', now()))::date), interval '1' day) as t(dt) where extract(dow from dt) in (0,6))) desc
