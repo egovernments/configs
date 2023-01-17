@@ -79,15 +79,17 @@ serviceMaps:
    isTransaction: true
    queryMaps:
 
-       - query: INSERT INTO public.eg_zero_pricing(propertytype,subPropertytype,status) VALUES (?,?,?);
+       - query: INSERT INTO public.eg_zero_pricing(propertyType,propertySubType,status,tenantId) VALUES (?,?,?,?);
          basePath: zeroPricing
          jsonMaps:
-          - jsonPath: $.zeroPricing.propertytype
+          - jsonPath: $.zeroPricing.propertyType
           
-          - jsonPath: $.zeroPricing.subPropertytype
+          - jsonPath: $.zeroPricing.propertySubType
+          
+          - jsonPath: $.zeroPricing.status 
+          
+          - jsonPath: $.zeroPricing.tenantId
       
-          - jsonPath: $.zeroPricing.status
-          
               
  - version: 1.0
    description: updates FSM-CALCULATOR ZeroPricing details in eg_zero_pricing  table
@@ -95,21 +97,22 @@ serviceMaps:
    isTransaction: true
    queryMaps: 
    
-       - query: INSERT INTO public.eg_zero_pricing_audit SELECT * FROM public.eg_zero_pricing WHERE propertytype=? and subPropertytype=? ;
+       - query: INSERT INTO public.eg_zero_pricing_audit SELECT * FROM public.eg_zero_pricing WHERE propertyType=? and propertySubType=? ;
          basePath:  zeroPricing
          jsonMaps: 
   
-          - jsonPath: $.zeroPricing.propertytype
+          - jsonPath: $.zeroPricing.propertyType
           
-          - jsonPath: $.zeroPricing.subPropertytype
+          - jsonPath: $.zeroPricing.propertySubType
              
-       - query: UPDATE public.eg_billing_slab SET status=? where propertytype=? and subPropertytype=? ;
+       - query: UPDATE public.eg_zero_pricing SET status=? where propertyType=? and propertySubType=? and tenantId=?;
          basePath: zeroPricing
          jsonMaps:    
                 - jsonPath: $.zeroPricing.status
       
-                - jsonPath: $.zeroPricing.propertytype
+                - jsonPath: $.zeroPricing.propertyType
                 
-                - jsonPath: $.zeroPricing.subPropertytype
+                - jsonPath: $.zeroPricing.propertySubType
                 
+                - jsonPath: $.zeroPricing.tenantId
                            
