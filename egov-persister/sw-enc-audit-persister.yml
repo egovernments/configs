@@ -26,3 +26,67 @@ serviceMaps:
       
       - jsonPath: $.encryptiontime
       
+
+  - version: 1.0
+    description: Update sewerage-Connection in eg_sw_plumberinfo and eg_sw_connectionholder table
+    fromTopic: update-sw-encryption
+    isTransaction: true
+    queryMaps:
+
+    - query: UPDATE eg_sw_connection SET lastModifiedBy=?, lastModifiedTime=?  WHERE id=? AND tenantid=?;
+      basePath: $.SewerageConnection
+      jsonMaps:
+
+       - jsonPath: $.SewerageConnection.auditDetails.lastModifiedBy
+
+       - jsonPath: $.SewerageConnection.auditDetails.lastModifiedTime
+           
+       - jsonPath: $.SewerageConnection.id   
+
+       - jsonPath: $.SewerageConnection.tenantId  
+         
+    - query: UPDATE eg_sw_plumberinfo SET mobilenumber =?, lastmodifiedby =?, lastmodifiedtime =? WHERE id=? AND swid=? AND tenantid=?;
+      basePath: $.SewerageConnection.plumberInfo.*
+      jsonMaps:
+                   
+          - jsonPath: $.SewerageConnection.plumberInfo.*.mobileNumber
+          
+          - jsonPath: $.SewerageConnection.auditDetails.lastModifiedBy
+      
+          - jsonPath: $.SewerageConnection.auditDetails.lastModifiedTime
+          
+          - jsonPath: $.SewerageConnection.plumberInfo.*.id
+
+          - jsonPath: $.SewerageConnection.id
+          
+          - jsonPath: $.SewerageConnection.tenantId
+          
+    - query: UPDATE eg_sw_connectionholder SET  connectionholdertype =?, relationship=?, lastmodifiedby =?, lastmodifiedtime =? WHERE userid=? AND connectionid=? AND tenantid=?;
+      basePath: $.SewerageConnection.connectionHolders.*
+      jsonMaps:    
+
+       - jsonPath: $.SewerageConnection.connectionHolders.*.ownerType
+
+       - jsonPath: $.SewerageConnection.connectionHolders.*.relationship
+       
+       - jsonPath: $.SewerageConnection.auditDetails.lastModifiedBy
+
+       - jsonPath: $.SewerageConnection.auditDetails.lastModifiedTime
+       
+       - jsonPath: $.SewerageConnection.connectionHolders.*.uuid
+       
+       - jsonPath: $.SewerageConnection.id
+
+       - jsonPath: $.SewerageConnection.tenantId
+
+    - query: INSERT INTO eg_sw_id_enc_audit (id,tenantId,applicationNo,connectionNo,createdTime) VALUES (?,?,?,?,(SELECT extract(epoch from now()))*1000);
+      basePath: SewerageConnection
+      jsonMaps:
+
+      - jsonPath: $.SewerageConnection.id
+
+      - jsonPath: $.SewerageConnection.tenantId
+      
+      - jsonPath: $.SewerageConnection.applicationNo
+
+      - jsonPath: $.SewerageConnection.connectionNo
