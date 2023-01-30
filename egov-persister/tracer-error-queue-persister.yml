@@ -1,0 +1,37 @@
+serviceMaps:
+  serviceName: tracer
+  mappings:
+    - version: 1.0
+      description: Persists error details in eg_error_details table
+      fromTopic: egov-error
+      isTransaction: true
+      queryMaps:
+
+        - query: INSERT INTO eg_error_details( id, correlationid, body, source, ts, message) VALUES (?, ?, ?, ?, ?, ?);
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.id
+
+            - jsonPath: $.correlationId
+
+            - jsonPath: $.body
+
+            - jsonPath: $.source
+
+            - jsonPath: $.ts
+
+            - jsonPath: $.message
+
+
+        - query: INSERT INTO eg_error_entity( id, parentid, code, message, description, params) VALUES (?, ?, ?, ?, ?, ?);
+          basePath: $.errorRes.*
+          jsonMaps:
+            - jsonPath: $.errorRes.*.id
+
+            - jsonPath: $.errorRes.*.parentId
+
+            - jsonPath: $.errorRes.*.code
+
+            - jsonPath: $.errorRes.*.message
+
+            - jsonPath: $.errorRes.*.description
