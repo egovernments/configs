@@ -470,6 +470,39 @@
                   "required": true,
                   "prefix": null,
                   "module": "rainmaker-common"
+                },
+				{
+                "variable": "no_of_trip",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_NO_OF_TRIP"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
+                },
+				{
+                "variable": "amount_per_trip",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_AMOUNT_PER_TRIP"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
+                },
+				{
+                "variable": "advance_paid_amount",
+                "value": {
+                  "path": "PDF_STATIC_LABEL_CONSOLIDATED_RECEIPT_ADVANCE_AMOUNT"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
                 }
               }
             ]
@@ -483,6 +516,14 @@
               {
                 "variable": "excessAmountPaid",
                 "formula": "{{paidAmount}}>{{dueAmount}}?{{paidAmount}}-{{dueAmount}}:0"
+              },
+			  {
+                "variable": "totalAmount",
+                "formula": "{{noOfTrips}}*{{amountPerTrip}}"
+              },
+			  {
+                "variable": "balanceAmountPaid",
+                "formula": "{{dueAmount}}=={{paidAmount}}?{{paidAmount}}:0"
               }
             ]
           },
@@ -561,7 +602,28 @@
                     }
                   }
                 ]
-              }
+              },
+			   { 
+                    "path": "http://fsm.egov:8080/fsm/v1/_search",
+                    "queryParam": "applicationNos=$.paymentDetails[0].bill.consumerCode,tenantId=$.tenantId",
+                    "apiRequest": null,
+                    "responseMapping":[
+                      {
+                       {
+                    "variable":"noOfTrips",
+                    "value":"$.fsm[0].noOfTrips"
+                  },
+				  {
+                    "variable":"amountPerTrip",
+                    "value":"$.fsm[0].additionalDetails.tripAmount"
+                  },
+				  {
+                    "variable":"advancePaidAmount",
+                    "value":"$.fsm[0].advanceAmount"
+                  }
+                      }
+                    ]
+                }
             ]
           }
         ]
