@@ -19725,6 +19725,54 @@
       "isRoundOff": true
     },
     "_comment": "Total non tax collection"
+  },
+  "ptCollectionReport":  {
+    "chartName": "DSS_PT_COLLECTION_REPORT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "requestQueryMap": "{ \"tenantId\" : \"dataObject.tenantId\" }",
+        "dateRefField": "dataObject.paymentDetails.receiptDate",
+        "indexName": "dss-collection_v2",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"dataObject.paymentDetails.bill.businessService.keyword\":{\"value\":\"PT\"}}}],\"must_not\":[{\"term\":{\"dataObject.paymentStatus.keyword\":{\"value\":\"CANCELLED\"}}}]}},\"aggs\":{\"Locality\":{\"terms\":{\"field\":\"dataObject.tenantData.city.localName.keyword\",\"size\":10000},\"aggs\":{\"Collector Name\":{\"terms\":{\"field\":\"dataObject.payer.name.keyword\",\"size\":10000},\"aggs\":{\"Payment Instrument\":{\"terms\":{\"field\":\"dataObject.paymentMode.keyword\",\"size\":10},\"aggs\":{\"Total Transactions\":{\"value_count\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.amountPaid\"}},\"Amount Collected\":{\"sum\":{\"field\":\"dataObject.paymentDetails.bill.billDetails.amountPaid\"}}}}}}}}}}}}"
+      }
+    ],
+    "filterKeys": [
+
+    ],
+    "chartType": "report",
+    "valueType": "number",
+    "drillChart": "",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Usage Type",
+    "aggregationPaths": [
+      "Locality",
+      "Collector Name",
+      "Payment Instrument",
+      "Total Transactions",
+      "Amount Collected"
+    ],
+    "pathDataTypeMapping": [
+      {
+        "Locality": "string"
+      },
+      {
+        "Collector Name": "string"
+      },
+      {
+        "Payment Instrument": "string"
+      },
+      {
+        "Total Transactions": "number"
+      },
+      {
+        "Amount Collected": "amount"
+      }
+    ],
+    "insight": {
+    },
+    "_comment": ""
   }
 }
   
