@@ -144,6 +144,8 @@ ReportDefinitions:
       type: string
       source: obps
       total: false
+      isLocalisationRequired: true
+      localisationPrefix: REPORT_OBPS_
     - name: uuid
       label: reports.obps.uuid
       type: string
@@ -159,11 +161,15 @@ ReportDefinitions:
       type: string
       source: obps
       total: false
+      isLocalisationRequired: true
+      localisationPrefix: REPORT_OBPS_
     - name: servicetype
       label: reports.obps.servicetype
       type: string
       source: obps
       total: false
+      isLocalisationRequired: true
+      localisationPrefix: REPORT_OBPS_
     - name: occupancytype
       label: reports.obps.occupancytype
       type: string
@@ -174,6 +180,8 @@ ReportDefinitions:
       type: string
       source: obps
       total: false
+      isLocalisationRequired: true
+      localisationPrefix: REPORT_OBPS_
     - name: currentowner
       label: reports.obps.currentowner
       type: string
@@ -234,5 +242,5 @@ ReportDefinitions:
       isLocalisationRequired: true
       localisationPrefix: REPORT_OBPS_
 
-  query: select applicationno,to_char(To_timestamp(bp.applicationdate / 1000), 'DD/MM/YYYY') as applicationdate, landinfo.channel as applicationchannel, usr.name as name,  usr.uuid as uuid, bp.additionaldetails->>'applicationType' as applicationtype, bp.additionaldetails->> 'serviceType' as servicetype, land.occupancytype, bp.status, case when isterminatestate=true then null else userassignee.name end as currentowner, bp.approvalno as permitno FROM eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_bpa_buildingplan bp on pi.businessid=bp.applicationno inner join eg_user usr ON bp.createdby = usr.uuid  inner join eg_land_unit land ON land.landinfoid = bp.landid inner join eg_land_landinfo landinfo ON land.landinfoid = landinfo.id inner join eg_land_address adr ON adr.landinfoid = landinfo.id inner join eg_user userassignee ON assigner = userassignee.uuid WHERE 1=1
+  query: FROM eg_bpa_buildingplan bp inner join eg_wf_processinstance_v2 pi on pi.businessid=bp.applicationno inner join (select businessid, max(createdtime) as maxtime from eg_wf_processinstance_v2 group by businessid) wfg ON pi.businessid=wfg.businessid and maxtime=pi.createdtime inner join eg_wf_state_v2 st on pi.status=st.uuid inner join eg_user usr ON bp.createdby = usr.uuid  inner join eg_land_unit land ON land.landinfoid = bp.landid inner join eg_land_landinfo landinfo ON land.landinfoid = landinfo.id inner join eg_land_address adr ON adr.landinfoid = landinfo.id inner join eg_user userassignee ON assigner = userassignee.uuid WHERE 1=1
   orderby: ORDER BY applicationdate asc
