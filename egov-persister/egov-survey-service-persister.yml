@@ -1,0 +1,184 @@
+serviceMaps:
+  serviceName: egov-survey-services
+  mappings:
+    - version: 1.0
+      description: Persists surveys in eg_ss_survey table
+      fromTopic: save-ss-survey
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO eg_ss_survey( uuid,tenantid,title,description,status,postedby,startDate,endDate,active,createdby,lastmodifiedby,createdtime,lastmodifiedtime) VALUES (?,?,?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: SurveyEntity
+          jsonMaps:
+            - jsonPath: $.SurveyEntity.uuid
+
+            - jsonPath: $.SurveyEntity.tenantId
+
+            - jsonPath: $.SurveyEntity.title
+
+            - jsonPath: $.SurveyEntity.description
+
+            - jsonPath: $.SurveyEntity.status
+
+            - jsonPath: $.SurveyEntity.postedBy
+
+            - jsonPath: $.SurveyEntity.startDate
+
+            - jsonPath: $.SurveyEntity.endDate
+
+            - jsonPath: $.SurveyEntity.active
+
+            - jsonPath: $.SurveyEntity.auditDetails.createdBy
+
+            - jsonPath: $.SurveyEntity.auditDetails.lastModifiedBy
+
+            - jsonPath: $.SurveyEntity.auditDetails.createdTime
+
+            - jsonPath: $.SurveyEntity.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO eg_ss_question( uuid,surveyid,questionstatement,options,status,type,required,createdby,lastmodifiedby,createdtime,lastmodifiedtime,qorder) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
+          basePath: SurveyEntity.questions.*
+          jsonMaps:
+            - jsonPath: $.SurveyEntity.questions.*.uuid
+
+            - jsonPath: $.SurveyEntity.questions.*.surveyId
+
+            - jsonPath: $.SurveyEntity.questions.*.questionStatement
+
+            - jsonPath: $.SurveyEntity.questions.*.options
+              type: ARRAY
+              dbType: STRING
+
+            - jsonPath: $.SurveyEntity.questions.*.status
+
+            - jsonPath: $.SurveyEntity.questions.*.type
+
+            - jsonPath: $.SurveyEntity.questions.*.required
+
+            - jsonPath: $.SurveyEntity.questions.*.auditDetails.createdBy
+
+            - jsonPath: $.SurveyEntity.questions.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.SurveyEntity.questions.*.auditDetails.createdTime
+
+            - jsonPath: $.SurveyEntity.questions.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.SurveyEntity.questions.*.qorder
+
+    - version: 1.0
+      description: Persists answers in eg_ss_answer table
+      fromTopic: save-ss-answer
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO eg_ss_answer( uuid,questionid,surveyid,answer,citizenid,createdby,lastmodifiedby,createdtime,lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?);
+          basePath: AnswerEntity.answers.*
+          jsonMaps:
+            - jsonPath: $.AnswerEntity.answers.*.uuid
+
+            - jsonPath: $.AnswerEntity.answers.*.questionId
+
+            - jsonPath: $.AnswerEntity.surveyId
+
+            - jsonPath: $.AnswerEntity.answers.*.answer
+              type: ARRAY
+              dbType: STRING
+
+            - jsonPath: $.AnswerEntity.answers.*.citizenId
+
+            - jsonPath: $.AnswerEntity.answers.*.auditDetails.createdBy
+
+            - jsonPath: $.AnswerEntity.answers.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.AnswerEntity.answers.*.auditDetails.createdTime
+
+            - jsonPath: $.AnswerEntity.answers.*.auditDetails.lastModifiedTime
+
+    - version: 1.0
+      description: Updates survey in tables
+      fromTopic: update-ss-survey
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE eg_ss_survey SET tenantid=?, title=?, description=?, status=?, postedBy=?, startDate = ?, endDate = ?, lastmodifiedby=?, lastmodifiedtime=? WHERE uuid=?;
+          basePath: SurveyEntity
+          jsonMaps:
+            - jsonPath: $.SurveyEntity.tenantId
+
+            - jsonPath: $.SurveyEntity.title
+
+            - jsonPath: $.SurveyEntity.description
+
+            - jsonPath: $.SurveyEntity.status
+
+            - jsonPath: $.SurveyEntity.postedBy
+
+            - jsonPath: $.SurveyEntity.startDate
+
+            - jsonPath: $.SurveyEntity.endDate
+
+            - jsonPath: $.SurveyEntity.auditDetails.lastModifiedBy
+
+            - jsonPath: $.SurveyEntity.auditDetails.lastModifiedTime
+
+            - jsonPath: $.SurveyEntity.uuid
+
+        - query: UPDATE eg_ss_question SET questionstatement = ?, options = ?, status = ?, type = ?, required = ?, lastmodifiedby = ?, lastmodifiedtime = ? WHERE uuid = ?;
+          basePath: SurveyEntity.questions.*
+          jsonMaps:
+
+            - jsonPath: $.SurveyEntity.questions.*.questionStatement
+
+            - jsonPath: $.SurveyEntity.questions.*.options
+              type: ARRAY
+              dbType: STRING
+
+            - jsonPath: $.SurveyEntity.questions.*.status
+
+            - jsonPath: $.SurveyEntity.questions.*.type
+
+            - jsonPath: $.SurveyEntity.questions.*.required
+
+            - jsonPath: $.SurveyEntity.questions.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.SurveyEntity.questions.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.SurveyEntity.questions.*.uuid
+
+        - query: INSERT INTO eg_ss_question( uuid,surveyid,questionstatement,options,status,type,required,createdby,lastmodifiedby,createdtime,lastmodifiedtime,qorder) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
+          basePath: SurveyEntity.insertQuestionsForUpdate.*
+          jsonMaps:
+            - jsonPath: $.SurveyEntity.insertQuestionsForUpdate.*.uuid
+
+            - jsonPath: $.SurveyEntity.insertQuestionsForUpdate.*.surveyId
+
+            - jsonPath: $.SurveyEntity.insertQuestionsForUpdate.*.questionStatement
+
+            - jsonPath: $.SurveyEntity.insertQuestionsForUpdate.*.options
+              type: ARRAY
+              dbType: STRING
+
+            - jsonPath: $.SurveyEntity.insertQuestionsForUpdate.*.status
+
+            - jsonPath: $.SurveyEntity.insertQuestionsForUpdate.*.type
+
+            - jsonPath: $.SurveyEntity.insertQuestionsForUpdate.*.required
+
+            - jsonPath: $.SurveyEntity.insertQuestionsForUpdate.*.auditDetails.createdBy
+
+            - jsonPath: $.SurveyEntity.insertQuestionsForUpdate.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.SurveyEntity.insertQuestionsForUpdate.*.auditDetails.createdTime
+
+            - jsonPath: $.SurveyEntity.insertQuestionsForUpdate.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.SurveyEntity.insertQuestionsForUpdate.*.qorder
+
+    - version: 1.0
+      description: Deletes survey in tables
+      fromTopic: delete-ss-survey
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE eg_ss_survey SET active=? WHERE uuid=?;
+          basePath: SurveyEntity
+          jsonMaps:
+            - jsonPath: $.SurveyEntity.active
+
+            - jsonPath: $.SurveyEntity.uuid

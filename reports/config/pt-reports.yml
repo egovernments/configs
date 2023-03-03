@@ -19,7 +19,12 @@ ReportDefinitions:
     label: reports.pt.consumername
     type: string
     source: pt
-    total: false 
+    total: false
+  - name: user_uuid
+    label: reports.pt.user_uuid
+    type: string
+    source: pt
+    showColumn: false 
   - name: amountCollected
     label: reports.pt.amountCollected
     type: string
@@ -70,7 +75,7 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND ep.createdby= $collectorname   
   query: |
-        SELECT receiptnumber,payerName,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,users.name as name,
+        SELECT receiptnumber,payerName,To_char(To_timestamp(ed.receiptdate / 1000), 'DD/MM/YYYY') AS paymentdate,users.name as name,users.uuid as user_uuid,
         transactionnumber,totalamountpaid AS amountCollected,ep.instrumentnumber as chequeNo,ROW_NUMBER() OVER(PARTITION BY receiptnumber) AS RowNum FROM egcl_payment AS ep
         JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid JOIN egcl_bill as bill on ed.billid=bill.id JOIN eg_pt_property as property on bill.consumercode=property.propertyid JOIN eg_pt_owner as owner on property.id=owner.propertyid  JOIN eg_user as users on owner.userid=users.uuid where 1=1  and ed.businessservice='PT' and ep.paymentstatus !='CANCELLED' and ep.tenantid=$tenantid and owner.status='ACTIVE' and property.status='ACTIVE'
   orderby: order by ed.receiptdate desc
@@ -93,6 +98,11 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
+  - name: user_uuid
+    label: reports.pt.user_uuid
+    type: string
+    source: pt
+    showColumn: false
   - name: paymentinstrument
     label: reports.pt.paymentinstrument
     type: string
@@ -139,9 +149,9 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND paymentmode = $paymentinstrument  
   query: |
-        SELECT ptd.locality AS locality, users.name as name,count(*) as totaltransactions,sum(totalamountpaid) AS amountCollected,paymentmode AS paymentinstrument FROM egcl_payment AS ep
+        SELECT ptd.locality AS locality, users.name as name,users.uuid as user_uuid, count(*) as totaltransactions,sum(totalamountpaid) AS amountCollected,paymentmode AS paymentinstrument FROM egcl_payment AS ep
         JOIN egcl_paymentdetail AS ed ON ep.id = ed.paymentid JOIN egcl_bill  as bill on ed.billid=bill.id JOIN eg_pt_property as property on bill.consumercode=property.propertyid JOIN eg_pt_address as ptd on property.id=ptd.propertyid JOIN eg_user as users on ep.createdby::int=users.id JOIN eg_userrole_v1 as userrole on users.id=userrole.user_id  where 1=1  and ed.businessservice='PT' and ep.paymentstatus !='CANCELLED' and ep.tenantid=$tenantid and userrole.role_tenantid=$tenantid and ep.paymentmode!='ONLINE' and userrole.role_code='PT_CEMP' and property.status='ACTIVE'
-  groupby: group by locality,name,paymentinstrument
+  groupby: group by locality,name,paymentinstrument,user_uuid
 
   
 - reportName: DefaulterReport
@@ -172,6 +182,11 @@ ReportDefinitions:
     type: string
     source: pt
     total: false
+  - name: user_uuid
+    label: reports.pt.user_uuid
+    type: string
+    source: pt
+    showColumn: false
   - name: dueamount
     label: reports.pt.dueamount
     type: string
@@ -199,4 +214,4 @@ ReportDefinitions:
     isLocalisationRequired: false
     searchClause: AND usagecategory = $usagetype 
   query: |
-        select distinct(propertyid),name,(select status  from eg_pt_property where propertyid=propertyid order by createdtime asc limit 1)as propertystatus,locality,dueamount from (SELECT ep.propertyid,ep.usagecategory,(select name from eg_user where uuid=(select userid from eg_pt_owner where propertyid=propertyid order by createdtime limit 1)) as name, ep.status  AS propertystatus,ea.locality   FROM eg_pt_property ep join eg_pt_address as ea on ep.id=ea.propertyid where ep.tenantid=$tenantid) property join (select consumercode, (sum(taxamount)-sum(collectionamount)) as dueamount from egbs_demand_v1 as demand join egbs_demanddetail_v1 as demanddetail on demand.id=demanddetail.demandid where (demanddetail.taxamount - demanddetail.collectionamount)>0 and demand.ispaymentcompleted is not true and demand.tenantid=$tenantid group by consumercode) demand on property.propertyid=demand.consumercode where 1=1
+        select distinct(propertyid),name,user_uuid,(select status  from eg_pt_property where propertyid=propertyid order by createdtime asc limit 1)as propertystatus,locality,dueamount from (SELECT ep.propertyid,ep.usagecategory,(select name from eg_user where uuid=(select userid from eg_pt_owner where propertyid=propertyid order by createdtime limit 1)) as name, (select userid from eg_pt_owner where propertyid=propertyid order by createdtime limit 1) as user_uuid, ep.status  AS propertystatus,ea.locality   FROM eg_pt_property ep join eg_pt_address as ea on ep.id=ea.propertyid where ep.tenantid=$tenantid) property join (select consumercode, (sum(taxamount)-sum(collectionamount)) as dueamount from egbs_demand_v1 as demand join egbs_demanddetail_v1 as demanddetail on demand.id=demanddetail.demandid where (demanddetail.taxamount - demanddetail.collectionamount)>0 and demand.ispaymentcompleted is not true and demand.tenantid=$tenantid group by consumercode) demand on property.propertyid=demand.consumercode where 1=1
