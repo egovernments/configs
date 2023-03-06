@@ -2,7 +2,7 @@ ServiceMaps:
  serviceName: Sewerage Service - rainmaker
  version: 1.0.0
  mappings:
-  - topic: save-sw-connection
+  - topic: statea-save-sw-connection
     configKey: INDEX
     indexes:
       - name: sewerage-services
@@ -11,7 +11,7 @@ ServiceMaps:
         timeStampField: $.auditDetails.createdTime
         jsonPath: $.SewerageConnection
         customJsonMapping:
-          indexMapping: {"Data":{"workflow": {"state": {}, "action": "", "assignes": []},"applicationNo":"","applicationStatus":"","status":"","connectionNo":"","oldConnectionNo":"","plumberInfo":[],"roadCuttingInfo":[],"connectionHolders":[],"roadType":"","roadCuttingArea":"","connectionExecutionDate":"","connectionCategory":"","connectionType":"","additionalDetails":{},"auditDetails":{},"id":"","propertyId":"","propertyUsageType":"","tenantId":"","proposedWaterClosets":"","proposedToilets":"","noOfWaterClosets":"","noOfToilets":"","applicationType":"","dateEffectiveFrom":"","channel":"","history":{}}}
+          indexMapping: {"Data":{"workflow": {"state": {}, "action": "", "assignes": []},"applicationNo":"","applicationStatus":"","status":"","connectionNo":"","oldConnectionNo":"","plumberInfo":[],"roadCuttingInfo":[],"connectionHolders":[],"roadType":"","roadCuttingArea":"","connectionExecutionDate":"","connectionCategory":"","connectionType":"","additionalDetails":{},"auditDetails":{},"id":"","propertyId":"","propertyUsageType":"","tenantId":"","proposedWaterClosets":"","proposedToilets":"","noOfWaterClosets":"","noOfToilets":"","applicationType":"","dateEffectiveFrom":"","channel":"","@timestamp":"timestamp","history":{}}}
           fieldMapping:
           - inJsonPath: $.applicationStatus.state
             outJsonPath: $.Data.workflow.state
@@ -32,7 +32,7 @@ ServiceMaps:
           - inJsonPath: $.plumberInfo
             outJsonPath: $.Data.plumberInfo
           - inJsonPath: $.roadCuttingInfo
-            outJsonPath: $.Data.roadCuttingInfo  
+            outJsonPath: $.Data.roadCuttingInfo
           - inJsonPath: $.connectionHolders
             outJsonPath: $.Data.connectionHolders
           - inJsonPath: $.roadType
@@ -47,6 +47,8 @@ ServiceMaps:
             outJsonPath: $.Data.connectionType
           - inJsonPath: $.additionalDetails
             outJsonPath: $.Data.additionalDetails
+          - inJsonPath: $.auditDetails
+            outJsonPath: $.Data.auditDetails
           - inJsonPath: $.id
             outJsonPath: $.Data.id
           - inJsonPath: $.propertyId
@@ -69,21 +71,21 @@ ServiceMaps:
             outJsonPath: $.Data.channel
           - inJsonPath: $.@timestamp
             outJsonPath: $.Data.@timestamp
-          - inJsonPath: $.auditDetails
-            outJsonPath: $.Data.auditDetails
           externalUriMapping:
           - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
             queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
-            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"in.statea.tenantx"}]}}}
             uriResponseMapping:
             - inJsonPath: $.ProcessInstances
               outJsonPath: $.Data.history
           - path: http://property-services.egov:8080/property-services/property/_search
             queryParam: propertyIds=$.propertyId,tenantId=$.tenantId
-            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Reindexing Role","code":"REINDEXING_ROLE","tenantId":"in.statea.tenantx"}]}}}
             uriResponseMapping:
             - inJsonPath: $.Properties[0].usageCategory
               outJsonPath: $.Data.propertyUsageType
+            - inJsonPath: $.Properties[0].owners[*].mobileNumber
+              outJsonPath: $.Data.ownerMobileNumbers
           - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
             queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.additionalDetails.locality,tenantId=$.tenantId
             apiRequest: {"RequestInfo": {"apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61",
@@ -95,7 +97,7 @@ ServiceMaps:
           - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
             moduleName: tenant
             masterName: tenants
-            tenantId: pb
+            tenantId: in.statea
             filter: "[?(@.code == $tenant)]"
             filterMapping:
             - variable: $tenant
@@ -104,7 +106,7 @@ ServiceMaps:
             - inJsonPath: $.MdmsRes.tenant.tenants
               outJsonPath: $.Data.tenantData
 
-  - topic: update-sw-connection
+  - topic: statea-update-sw-connection
     configKey: INDEX
     indexes:
       - name: sewerage-services
@@ -134,7 +136,7 @@ ServiceMaps:
           - inJsonPath: $.plumberInfo
             outJsonPath: $.Data.plumberInfo
           - inJsonPath: $.roadCuttingInfo
-            outJsonPath: $.Data.roadCuttingInfo  
+            outJsonPath: $.Data.roadCuttingInfo
           - inJsonPath: $.connectionHolders
             outJsonPath: $.Data.connectionHolders
           - inJsonPath: $.roadType
@@ -149,6 +151,8 @@ ServiceMaps:
             outJsonPath: $.Data.connectionType
           - inJsonPath: $.additionalDetails
             outJsonPath: $.Data.additionalDetails
+          - inJsonPath: $.auditDetails
+            outJsonPath: $.Data.auditDetails
           - inJsonPath: $.id
             outJsonPath: $.Data.id
           - inJsonPath: $.propertyId
@@ -171,21 +175,21 @@ ServiceMaps:
             outJsonPath: $.Data.channel
           - inJsonPath: $.@timestamp
             outJsonPath: $.Data.@timestamp
-          - inJsonPath: $.auditDetails
-            outJsonPath: $.Data.auditDetails
           externalUriMapping:
           - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
             queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
-            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"in.statea.tenantx"}]}}}
             uriResponseMapping:
             - inJsonPath: $.ProcessInstances
               outJsonPath: $.Data.history
           - path: http://property-services.egov:8080/property-services/property/_search
             queryParam: propertyIds=$.propertyId,tenantId=$.tenantId
-            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Reindexing Role","code":"REINDEXING_ROLE","tenantId":"in.statea.tenantx"}]}}}
             uriResponseMapping:
             - inJsonPath: $.Properties[0].usageCategory
               outJsonPath: $.Data.propertyUsageType
+            - inJsonPath: $.Properties[0].owners[*].mobileNumber
+              outJsonPath: $.Data.ownerMobileNumbers
           - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
             queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.additionalDetails.locality,tenantId=$.tenantId
             apiRequest: {"RequestInfo": {"apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61",
@@ -197,7 +201,7 @@ ServiceMaps:
           - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
             moduleName: tenant
             masterName: tenants
-            tenantId: pb
+            tenantId: in.statea
             filter: "[?(@.code == $tenant)]"
             filterMapping:
             - variable: $tenant
@@ -207,7 +211,7 @@ ServiceMaps:
               outJsonPath: $.Data.tenantData
 
 
-  - topic: update-sw-workflow
+  - topic: statea-update-sw-workflow
     configKey: INDEX
     indexes:
       - name: sewerage-services
@@ -216,7 +220,7 @@ ServiceMaps:
         timeStampField: $.auditDetails.lastModifiedTime
         jsonPath: $.SewerageConnection
         customJsonMapping:
-          indexMapping: {"Data":{"workflow": {"state": {}, "action": "", "assignes": []},"applicationNo":"","applicationStatus":"","status":"","connectionNo":"","oldConnectionNo":"","plumberInfo":[],"roadCuttingInfo":[],"connectionHolders":[],"roadType":"","roadCuttingArea":"","connectionExecutionDate":"","connectionCategory":"","connectionType":"","additionalDetails":{},"auditDetails":{},"id":"","propertyId":"","tenantId":"","proposedWaterClosets":"","proposedToilets":"","noOfWaterClosets":"","noOfToilets":"","applicationType":"","dateEffectiveFrom":"","channel":"","@timestamp":"timestamp","history":{}}}
+          indexMapping: {"Data":{"workflow": {"state": {}, "action": "", "assignes": []},"applicationNo":"","applicationStatus":"","status":"","connectionNo":"","oldConnectionNo":"","plumberInfo":[],"roadCuttingInfo":[],"connectionHolders":[],"roadType":"","roadCuttingArea":"","connectionExecutionDate":"","connectionCategory":"","connectionType":"","additionalDetails":{},"auditDetails":{},"id":"","propertyId":"","tenantId":"","proposedWaterClosets":"","proposedToilets":"","noOfWaterClosets":"","noOfToilets":"","applicationType":"","dateEffectiveFrom":"","channel":"","history":{}}}
           fieldMapping:
           - inJsonPath: $.applicationStatus.state
             outJsonPath: $.Data.workflow.state
@@ -237,7 +241,7 @@ ServiceMaps:
           - inJsonPath: $.plumberInfo
             outJsonPath: $.Data.plumberInfo
           - inJsonPath: $.roadCuttingInfo
-            outJsonPath: $.Data.roadCuttingInfo  
+            outJsonPath: $.Data.roadCuttingInfo
           - inJsonPath: $.connectionHolders
             outJsonPath: $.Data.connectionHolders
           - inJsonPath: $.roadType
@@ -252,6 +256,8 @@ ServiceMaps:
             outJsonPath: $.Data.connectionType
           - inJsonPath: $.additionalDetails
             outJsonPath: $.Data.additionalDetails
+          - inJsonPath: $.auditDetails
+            outJsonPath: $.Data.auditDetails
           - inJsonPath: $.id
             outJsonPath: $.Data.id
           - inJsonPath: $.propertyId
@@ -272,21 +278,21 @@ ServiceMaps:
             outJsonPath: $.Data.dateEffectiveFrom
           - inJsonPath: $.channel
             outJsonPath: $.Data.channel
-          - inJsonPath: $.auditDetails
-            outJsonPath: $.Data.auditDetails
           externalUriMapping:
           - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
             queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
-            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"in.statea.tenantx"}]}}}
             uriResponseMapping:
             - inJsonPath: $.ProcessInstances
               outJsonPath: $.Data.history
           - path: http://property-services.egov:8080/property-services/property/_search
             queryParam: propertyIds=$.propertyId,tenantId=$.tenantId
-            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Reindexing Role","code":"REINDEXING_ROLE","tenantId":"in.statea.tenantx"}]}}}
             uriResponseMapping:
             - inJsonPath: $.Properties[0].usageCategory
               outJsonPath: $.Data.propertyUsageType
+            - inJsonPath: $.Properties[0].owners[*].mobileNumber
+              outJsonPath: $.Data.ownerMobileNumbers
           - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
             queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.additionalDetails.locality,tenantId=$.tenantId
             apiRequest: {"RequestInfo": {"apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61",
@@ -298,29 +304,27 @@ ServiceMaps:
           - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
             moduleName: tenant
             masterName: tenants
-            tenantId: pb
+            tenantId: in.statea
             filter: "[?(@.code == $tenant)]"
             filterMapping:
             - variable: $tenant
               valueJsonpath: $.tenantId
             uriResponseMapping:
             - inJsonPath: $.MdmsRes.tenant.tenants
-              outJsonPath: $.Data.tenantData  
-
-  - topic: sw-connection-legacyIndex
+              outJsonPath: $.Data.tenantData
+                   
+  - topic: statea-sw-connection-legacyIndex
     configKey: LEGACYINDEX
     indexes:
-      - name: sewerage-services
+      - name: sewerage-services-legacyindex
         type: general
         isBulk: true
         id: $.id,$.tenantId
         timeStampField: $.auditDetails.createdTime
         jsonPath: $.SewerageConnections
         customJsonMapping:
-          indexMapping: {"Data":{"workflow": {"state": {}, "action": "", "assignes": []},"applicationNo":"","applicationStatus":"","status":"","connectionNo":"","oldConnectionNo":"","plumberInfo":[],"roadCuttingInfo":[],"connectionHolders":[],"roadType":"","roadCuttingArea":"","connectionExecutionDate":"","connectionCategory":"","connectionType":"","additionalDetails":{},"auditDetails":{},"id":"","propertyId":"","propertyUsageType":"","tenantId":"","proposedWaterClosets":"","proposedToilets":"","noOfWaterClosets":"","noOfToilets":"","applicationType":"","dateEffectiveFrom":"","channel":"","history":{}}}
+          indexMapping: {"Data":{"workflow": {"state": {}, "action": "", "assignes": []},"applicationNo":"","applicationStatus":"","status":"","connectionNo":"","oldConnectionNo":"","plumberInfo":[],"roadCuttingInfo":[],"connectionHolders":[],"roadType":"","roadCuttingArea":"","connectionExecutionDate":"","connectionCategory":"","connectionType":"","additionalDetails":{},"auditDetails":{},"id":"","propertyId":"","propertyUsageType":"","tenantId":"","proposedWaterClosets":"","proposedToilets":"","noOfWaterClosets":"","noOfToilets":"","applicationType":"","dateEffectiveFrom":"","channel":"","@timestamp":"timestamp","history":{}}}
           fieldMapping:
-          - inJsonPath: $.applicationStatus.state
-            outJsonPath: $.Data.workflow.state
           - inJsonPath: $.processInstance.action
             outJsonPath: $.Data.workflow.action
           - inJsonPath: $.processInstance.assignes.*.uuid
@@ -352,7 +356,9 @@ ServiceMaps:
           - inJsonPath: $.connectionType
             outJsonPath: $.Data.connectionType
           - inJsonPath: $.additionalDetails
-            outJsonPath: $.Data.additionalDetails
+            outJsonPath: $.Data.additionalDetails          
+          - inJsonPath: $.auditDetails
+            outJsonPath: $.Data.auditDetails
           - inJsonPath: $.id
             outJsonPath: $.Data.id
           - inJsonPath: $.propertyId
@@ -375,21 +381,21 @@ ServiceMaps:
             outJsonPath: $.Data.channel
           - inJsonPath: $.@timestamp
             outJsonPath: $.Data.@timestamp
-          - inJsonPath: $.auditDetails
-            outJsonPath: $.Data.auditDetails
           externalUriMapping:
           - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
             queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
-            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"in.statea.tenantx"}]}}}
             uriResponseMapping:
             - inJsonPath: $.ProcessInstances
               outJsonPath: $.Data.history
           - path: http://property-services.egov:8080/property-services/property/_search
             queryParam: propertyIds=$.propertyId,tenantId=$.tenantId
-            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Reindexing Role","code":"REINDEXING_ROLE","tenantId":"in.statea.tenantx"}]}}}
             uriResponseMapping:
             - inJsonPath: $.Properties[0].usageCategory
               outJsonPath: $.Data.propertyUsageType
+            - inJsonPath: $.Properties[0].owners[*].mobileNumber
+              outJsonPath: $.Data.ownerMobileNumbers
           - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
             queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.additionalDetails.locality,tenantId=$.tenantId
             apiRequest: {"RequestInfo": {"apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61",
@@ -401,7 +407,111 @@ ServiceMaps:
           - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
             moduleName: tenant
             masterName: tenants
-            tenantId: pb
+            tenantId: in.statea
+            filter: "[?(@.code == $tenant)]"
+            filterMapping:
+            - variable: $tenant
+              valueJsonpath: $.tenantId
+            uriResponseMapping:
+            - inJsonPath: $.MdmsRes.tenant.tenants
+              outJsonPath: $.Data.tenantData
+
+  - topic: statea-update-sw-encryption
+    configKey: INDEX
+    indexes:
+      - name: sewerage-services
+        type: general
+        id: $.id,$.tenantId
+        timeStampField: $.auditDetails.lastModifiedTime
+        jsonPath: $.SewerageConnection
+        customJsonMapping:
+          indexMapping: {"Data":{"workflow": {"state": {}, "action": "", "assignes": []},"applicationNo":"","applicationStatus":"","status":"","connectionNo":"","oldConnectionNo":"","plumberInfo":[],"roadCuttingInfo":[],"connectionHolders":[],"roadType":"","roadCuttingArea":"","connectionExecutionDate":"","connectionCategory":"","connectionType":"","additionalDetails":{},"auditDetails":{},"id":"","propertyId":"","propertyUsageType":"","tenantId":"","proposedWaterClosets":"","proposedToilets":"","noOfWaterClosets":"","noOfToilets":"","applicationType":"","dateEffectiveFrom":"","channel":"","@timestamp":"timestamp","history":{}}}
+          fieldMapping:
+          - inJsonPath: $.applicationStatus.state
+            outJsonPath: $.Data.workflow.state
+          - inJsonPath: $.processInstance.action
+            outJsonPath: $.Data.workflow.action
+          - inJsonPath: $.processInstance.assignes.*.uuid
+            outJsonPath: $.Data.workflow.assignes
+          - inJsonPath: $.applicationNo
+            outJsonPath: $.Data.applicationNo
+          - inJsonPath: $.applicationStatus
+            outJsonPath: $.Data.applicationStatus
+          - inJsonPath: $.status
+            outJsonPath: $.Data.status
+          - inJsonPath: $.connectionNo
+            outJsonPath: $.Data.connectionNo
+          - inJsonPath: $.oldConnectionNo
+            outJsonPath: $.Data.oldConnectionNo
+          - inJsonPath: $.plumberInfo
+            outJsonPath: $.Data.plumberInfo
+          - inJsonPath: $.roadCuttingInfo
+            outJsonPath: $.Data.roadCuttingInfo
+          - inJsonPath: $.connectionHolders
+            outJsonPath: $.Data.connectionHolders
+          - inJsonPath: $.roadType
+            outJsonPath: $.Data.roadType
+          - inJsonPath: $.roadCuttingArea
+            outJsonPath: $.Data.roadCuttingArea
+          - inJsonPath: $.connectionExecutionDate
+            outJsonPath: $.Data.connectionExecutionDate
+          - inJsonPath: $.connectionCategory
+            outJsonPath: $.Data.connectionCategory
+          - inJsonPath: $.connectionType
+            outJsonPath: $.Data.connectionType
+          - inJsonPath: $.additionalDetails
+            outJsonPath: $.Data.additionalDetails
+          - inJsonPath: $.auditDetails
+            outJsonPath: $.Data.auditDetails
+          - inJsonPath: $.id
+            outJsonPath: $.Data.id
+          - inJsonPath: $.propertyId
+            outJsonPath: $.Data.propertyId
+          - inJsonPath: $.tenantId
+            outJsonPath: $.Data.tenantId
+          - inJsonPath: $.proposedWaterClosets
+            outJsonPath: $.Data.proposedWaterClosets
+          - inJsonPath: $.proposedToilets
+            outJsonPath: $.Data.proposedToilets
+          - inJsonPath: $.noOfWaterClosets
+            outJsonPath: $.Data.noOfWaterClosets
+          - inJsonPath: $.noOfToilets
+            outJsonPath: $.Data.noOfToilets
+          - inJsonPath: $.applicationType
+            outJsonPath: $.Data.applicationType
+          - inJsonPath: $.dateEffectiveFrom
+            outJsonPath: $.Data.dateEffectiveFrom
+          - inJsonPath: $.channel
+            outJsonPath: $.Data.channel
+          - inJsonPath: $.@timestamp
+            outJsonPath: $.Data.@timestamp
+          externalUriMapping:
+          - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+            queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"in.statea.tenantx"}]}}}
+            uriResponseMapping:
+            - inJsonPath: $.ProcessInstances
+              outJsonPath: $.Data.history
+          - path: http://property-services.egov:8080/property-services/property/_search
+            queryParam: propertyIds=$.propertyId,tenantId=$.tenantId
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Reindexing Role","code":"REINDEXING_ROLE","tenantId":"in.statea.tenantx"}]}}}
+            uriResponseMapping:
+            - inJsonPath: $.Properties[0].usageCategory
+              outJsonPath: $.Data.propertyUsageType
+            - inJsonPath: $.Properties[0].owners[*].mobileNumber
+              outJsonPath: $.Data.ownerMobileNumbers
+          - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
+            queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.additionalDetails.locality,tenantId=$.tenantId
+            apiRequest: {"RequestInfo": {"apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61",
+            "authToken": "02dbe5be-28df-4d82-954f-3d27c56cca7d","userInfo":{"id":73}}}
+            uriResponseMapping:
+            - inJsonPath: $.TenantBoundary[0].boundary[0]
+              outJsonPath: $.Data.ward
+          mdmsMapping:
+          - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+            moduleName: tenant
+            masterName: tenants
+            tenantId: in.statea
             filter: "[?(@.code == $tenant)]"
             filterMapping:
             - variable: $tenant

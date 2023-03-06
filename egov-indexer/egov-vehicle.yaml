@@ -2,7 +2,7 @@ ServiceMaps:
  serviceName: vehicle
  version: 1.0.0
  mappings:
-  - topic: save-vehicle-application
+  - topic: statea-save-vehicle-application
     configKey: INDEX
     indexes:
     - name: vehicle
@@ -20,7 +20,7 @@ ServiceMaps:
         - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
           moduleName: tenant
           masterName: tenants
-          tenantId: pb
+          tenantId: in.statea
           filter: "[?(@.code == $tenant)]"
           filterMapping:
           - variable: $tenant
@@ -29,30 +29,30 @@ ServiceMaps:
           - inJsonPath: $.MdmsRes.tenant.tenants
             outJsonPath: $.Data.tenantData
           
-  - topic: save-vehicle-trip
+  - topic: statea-save-vehicle-trip
     configKey: INDEX
     indexes:
     - name: vehicletrip
       type: vehicletripapplication
       id: $.id, $.tenantId
-      isBulk: false
+      isBulk: true
       timeStampField: $.auditDetails.createdTime
-      jsonPath: $.vehicleTrip
+      jsonPath: $.vehicleTrip.*
       customJsonMapping:
-        indexMapping: {"Data":{"vehicleTrip":{},"tenantData":{}, "history":{},"fsm":{},"fstpPlantInfo":{}}}
+        indexMapping: {"Data":{vehicleTrip":{},"tenantData":{}, "history":{},"fsm":{},"fstpPlantInfo":{}}}
         fieldMapping:
         - inJsonPath: $
           outJsonPath: $.Data.vehicleTrip
         externalUriMapping:
         - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
           queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
-          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"FSM_EMP_FSTPO","tenantId":"pb.amritsar"}]}}}
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Employee","code":"FSM_EMP_FSTPO","tenantId":"in.statea.tenantx"}]}}}
           uriResponseMapping:
           - inJsonPath: $.ProcessInstances
             outJsonPath: $.Data.history
         - path: http://fsm.egov:8080/fsm/v1/_search
-          queryParam: applicationNos=$.Data.vehicleTrip.tripDetails.*.referenceNo,tenantId=$.tenantId
-          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"},{"name":"FSTP OPERATOR","code":"FSM_EMP_FSTPO","tenantId":"pb.amritsar"}]}}}
+          queryParam: applicationNos=$.tripDetails[0].referenceNo,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"in.statea.tenantx"},{"name":"FSTP OPERATOR","code":"FSM_EMP_FSTPO","tenantId":"in.statea.tenantx"}]}}}
           uriResponseMapping:
           - inJsonPath: $.fsm
             outJsonPath: $.Data.fsm
@@ -60,7 +60,7 @@ ServiceMaps:
         - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
           moduleName: tenant
           masterName: tenants
-          tenantId: pb
+          tenantId: in.statea
           filter: "[?(@.code == $tenant)]"
           filterMapping:
           - variable: $tenant
@@ -71,7 +71,7 @@ ServiceMaps:
         - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
           moduleName: FSM
           masterName: FSTPPlantInfo
-          tenantId: pb
+          tenantId: in.statea
           filter: "[?(@.ULBS contains $tenant)]"
           filterMapping:
           - variable: $tenant
@@ -80,30 +80,30 @@ ServiceMaps:
           - inJsonPath: $.MdmsRes.FSM.FSTPPlantInfo
             outJsonPath: $.Data.fstpPlantInfo
    
-  - topic: update-vehicle-trip
+  - topic: statea-update-vehicle-trip
     configKey: INDEX
     indexes:
     - name: vehicletrip
       type: vehicletripapplication
       id: $.id, $.tenantId
-      isBulk: false
+      isBulk: true
       timeStampField: $.auditDetails.createdTime
-      jsonPath: $.vehicleTrip
+      jsonPath: $.vehicleTrip.*
       customJsonMapping:
-        indexMapping: {"Data":{"vehicleTrip":{},"tenantData":{}, "history":{},"fsm":{},"fstpPlantInfo":{}}}
+        indexMapping: {"Data":{vehicleTrip":{},"tenantData":{}, "history":{},"fsm":{},"fstpPlantInfo":{}}}
         fieldMapping:
         - inJsonPath: $
           outJsonPath: $.Data.vehicleTrip
         externalUriMapping:
         - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
           queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
-          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"FSM_EMP_FSTPO","tenantId":"pb.amritsar"}]}}}
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Employee","code":"FSM_EMP_FSTPO","tenantId":"in.statea.tenantx"}]}}}
           uriResponseMapping:
           - inJsonPath: $.ProcessInstances
             outJsonPath: $.Data.history
         - path: http://fsm.egov:8080/fsm/v1/_search
-          queryParam: applicationNos=$.Data.vehicleTrip.tripDetails.*.referenceNo,tenantId=$.tenantId
-          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"},{"name":"FSTP OPERATOR","code":"FSM_EMP_FSTPO","tenantId":"pb.amritsar"}]}}}
+          queryParam: applicationNos=$.tripDetails[0].referenceNo,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"in.statea.tenantx"},{"name":"FSTP OPERATOR","code":"FSM_EMP_FSTPO","tenantId":"in.statea.tenantx"}]}}}
           uriResponseMapping:
           - inJsonPath: $.fsm
             outJsonPath: $.Data.fsm
@@ -111,7 +111,7 @@ ServiceMaps:
         - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
           moduleName: tenant
           masterName: tenants
-          tenantId: pb
+          tenantId: in.statea
           filter: "[?(@.code == $tenant)]"
           filterMapping:
           - variable: $tenant
@@ -122,7 +122,7 @@ ServiceMaps:
         - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
           moduleName: FSM
           masterName: FSTPPlantInfo
-          tenantId: pb
+          tenantId: in.statea
           filter: "[?(@.ULBS contains $tenant)]"
           filterMapping:
           - variable: $tenant
@@ -131,30 +131,30 @@ ServiceMaps:
           - inJsonPath: $.MdmsRes.FSM.FSTPPlantInfo
             outJsonPath: $.Data.fstpPlantInfo
 
-  - topic: update-workflow-vehicle-trip
+  - topic: statea-update-workflow-vehicle-trip
     configKey: INDEX
     indexes:
     - name: vehicletrip
       type: vehicletripapplication
       id: $.id, $.tenantId
-      isBulk: false
+      isBulk: true
       timeStampField: $.auditDetails.createdTime
-      jsonPath: $.vehicleTrip
+      jsonPath: $.vehicleTrip.*
       customJsonMapping:
-        indexMapping: {"Data":{"vehicleTrip":{},"tenantData":{}, "history":{},"fsm":{},"fstpPlantInfo":{}}}
+        indexMapping: {"Data":{vehicleTrip":{},"tenantData":{}, "history":{},"fsm":{},"fstpPlantInfo":{}}}
         fieldMapping:
         - inJsonPath: $
           outJsonPath: $.Data.vehicleTrip
         externalUriMapping:
         - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
           queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
-          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"FSM_EMP_FSTPO","tenantId":"pb.amritsar"}]}}}
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Employee","code":"FSM_EMP_FSTPO","tenantId":"in.statea.tenantx"}]}}}
           uriResponseMapping:
           - inJsonPath: $.ProcessInstances
             outJsonPath: $.Data.history
         - path: http://fsm.egov:8080/fsm/v1/_search
-          queryParam: applicationNos=$.Data.vehicleTrip.tripDetails.*.referenceNo,tenantId=$.tenantId
-          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"},{"name":"FSTP OPERATOR","code":"FSM_EMP_FSTPO","tenantId":"pb.amritsar"}]}}}
+          queryParam: applicationNos=$.tripDetails[0].referenceNo,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"in.statea.tenantx"},{"name":"FSTP OPERATOR","code":"FSM_EMP_FSTPO","tenantId":"in.statea.tenantx"}]}}}
           uriResponseMapping:
           - inJsonPath: $.fsm
             outJsonPath: $.Data.fsm
@@ -162,7 +162,7 @@ ServiceMaps:
         - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
           moduleName: tenant
           masterName: tenants
-          tenantId: pb
+          tenantId: in.statea
           filter: "[?(@.code == $tenant)]"
           filterMapping:
           - variable: $tenant
@@ -173,7 +173,7 @@ ServiceMaps:
         - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
           moduleName: FSM
           masterName: FSTPPlantInfo
-          tenantId: pb
+          tenantId: in.statea
           filter: "[?(@.ULBS contains $tenant)]"
           filterMapping:
           - variable: $tenant
@@ -182,7 +182,7 @@ ServiceMaps:
           - inJsonPath: $.MdmsRes.FSM.FSTPPlantInfo
             outJsonPath: $.Data.fstpPlantInfo
                  
-  - topic: vehicle-trip-legacyindex
+  - topic: statea-vehicle-trip-legacyindex
     configKey: LEGACYINDEX
     indexes:
     - name: vehicletrip
@@ -192,20 +192,20 @@ ServiceMaps:
       timeStampField: $.auditDetails.createdTime
       jsonPath: $.vehicleTrip.*
       customJsonMapping:
-        indexMapping: {"Data":{"vehicleTrip":{},"tenantData":{}, "history":{},"fsm":{},"fstpPlantInfo":{}}}
+        indexMapping: {"Data":{vehicleTrip":{},"tenantData":{}, "history":{},"fsm":{},"fstpPlantInfo":{}}}
         fieldMapping:
         - inJsonPath: $
           outJsonPath: $.Data.vehicleTrip
         externalUriMapping:
         - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
           queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
-          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"FSM_EMP_FSTPO","tenantId":"pb.amritsar"}]}}}
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Employee","code":"FSM_EMP_FSTPO","tenantId":"in.statea.tenantx"}]}}}
           uriResponseMapping:
           - inJsonPath: $.ProcessInstances
             outJsonPath: $.Data.history
         - path: http://fsm.egov:8080/fsm/v1/_search
-          queryParam: applicationNos=$.Data.vehicleTrip.tripDetails.*.referenceNo,tenantId=$.tenantId
-          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"},{"name":"FSTP OPERATOR","code":"FSM_EMP_FSTPO","tenantId":"pb.amritsar"}]}}}
+          queryParam: applicationNos=$.tripDetails[0].referenceNo,tenantId=$.tenantId
+          apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"in.statea.tenantx","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"in.statea.tenantx"},{"name":"FSTP OPERATOR","code":"FSM_EMP_FSTPO","tenantId":"in.statea.tenantx"}]}}}
           uriResponseMapping:
           - inJsonPath: $.fsm
             outJsonPath: $.Data.fsm
@@ -213,7 +213,7 @@ ServiceMaps:
         - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
           moduleName: tenant
           masterName: tenants
-          tenantId: pb
+          tenantId: in.statea
           filter: "[?(@.code == $tenant)]"
           filterMapping:
           - variable: $tenant
@@ -224,7 +224,7 @@ ServiceMaps:
         - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
           moduleName: FSM
           masterName: FSTPPlantInfo
-          tenantId: pb
+          tenantId: in.statea
           filter: "[?(@.ULBS contains $tenant)]"
           filterMapping:
           - variable: $tenant
@@ -233,7 +233,7 @@ ServiceMaps:
           - inJsonPath: $.MdmsRes.FSM.FSTPPlantInfo
             outJsonPath: $.Data.fstpPlantInfo
 
-  - topic: vehicle-application-legacyindex
+  - topic: statea-vehicle-application-legacyindex
     configKey: LEGACYINDEX
     indexes:
     - name: vehicle
@@ -241,7 +241,7 @@ ServiceMaps:
       id: $.id, $.tenantId
       isBulk: true
       timeStampField: $.auditDetails.createdTime
-      jsonPath: $.vehicle.*
+      jsonPath: $.vehicle
       customJsonMapping:
         indexMapping: {"Data":{"vehicle":{},"tenantData":{}}}
         fieldMapping:
@@ -251,7 +251,7 @@ ServiceMaps:
         - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
           moduleName: tenant
           masterName: tenants
-          tenantId: pb
+          tenantId: in.statea
           filter: "[?(@.code == $tenant)]"
           filterMapping:
           - variable: $tenant
