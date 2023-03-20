@@ -43,6 +43,8 @@ serviceMaps:
             - 
               jsonPath: $.fsm.paymentPreference
             - 
+              jsonPath: $.fsm.advanceAmount
+            - 
               jsonPath: $.fsm.applicationType
             - 
               jsonPath: $.fsm.oldApplicationNo
@@ -54,7 +56,7 @@ serviceMaps:
               jsonPath: $.fsm.auditDetails.createdTime
             - 
               jsonPath: $.fsm.auditDetails.lastModifiedTime
-          query: "INSERT INTO  eg_fsm_application( id, applicationno, tenantid, additionaldetails, accountid, description, applicationstatus, source, sanitationtype, propertyusage, nooftrips, status, vehicle_id, vehicletype, vehicleCapacity, paymentPreference, applicationType, oldApplicationNo, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+          query: "INSERT INTO  eg_fsm_application( id, applicationno, tenantid, additionaldetails, accountid, description, applicationstatus, source, sanitationtype, propertyusage, nooftrips, status, vehicle_id, vehicletype, vehicleCapacity, paymentPreference,advanceAmount, applicationType, oldApplicationNo, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?);"
         - 
           basePath: fsm.address
           jsonMaps: 
@@ -197,6 +199,8 @@ serviceMaps:
             - 
               jsonPath: $.fsm.paymentPreference
             - 
+              jsonPath: $.fsm.advanceAmount
+            - 
               jsonPath: $.fsm.auditDetails.createdBy
             - 
               jsonPath: $.fsm.auditDetails.lastModifiedBy
@@ -210,7 +214,7 @@ serviceMaps:
               jsonPath: $.fsm.dsoId
             - 
               jsonPath: $.fsm.id
-          query: "UPDATE  eg_fsm_application SET additionaldetails=?, description=?, applicationstatus=?, source=?, sanitationtype=?, propertyusage=?, nooftrips=?, status=?, vehicle_id=?, vehicletype=?,vehicleCapacity=?, paymentPreference=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=?, possible_srv_date=?, dso_id=? where id=?"
+          query: "UPDATE  eg_fsm_application SET additionaldetails=?, description=?, applicationstatus=?, source=?, sanitationtype=?, propertyusage=?, nooftrips=?, status=?, vehicle_id=?, vehicletype=?,vehicleCapacity=?, paymentPreference=?,advanceAmount=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=?, possible_srv_date=?, dso_id=? where id=?"
         - 
           basePath: fsm.address
           jsonMaps: 
@@ -444,4 +448,36 @@ serviceMaps:
               jsonPath: $.plantMapping.id
           query: "UPDATE  eg_fsm_plantmapping SET  status=?, employeeuuid=?, plantcode=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? where id=?"
       version: 1.0
-  serviceName: fsm
+     
+    -
+      description: Vehicle Trip details in eg_vehicle_trip and in eg_vehicle_trip_detail table
+      fromTopic: update-vehicle-trip-Details
+      isTransaction: true
+      queryMaps:
+        -
+          basePath: $.vehicleTrip.*.tripDetails.*
+          jsonMaps:
+        
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.status
+            
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.lastModifiedBy
+  
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.auditDetails.lastModifiedTime
+          
+            - jsonPath: $.vehicleTrip.*.tripDetails.*.id
+          query: UPDATE eg_vehicle_trip_detail SET  status=?, lastmodifiedby=?, lastmodifiedtime=? WHERE id=?
+        -
+          basePath: $.vehicleTrip.*
+          jsonMaps:
+            
+            - jsonPath: $.vehicleTrip.*.status
+          
+            - jsonPath: $.vehicleTrip.*.auditDetails.lastModifiedBy
+  
+            - jsonPath: $.vehicleTrip.*.auditDetails.lastModifiedTime
+          
+            - jsonPath: $.vehicleTrip.*.id
+          query: UPDATE eg_vehicle_trip SET  status=?, lastmodifiedby=?, lastmodifiedtime=? WHERE id=?
+      version: 1.0
+      serviceName: fsm
+   
