@@ -1,0 +1,92 @@
+serviceMaps:
+  serviceName: water-services
+  mappings:
+  - version: 1.0
+    description: Persists batch audit in EG_WS_ENC_AUDIT table
+    fromTopic: ws-enc-audit
+    isTransaction: true
+    queryMaps:
+
+
+    - query: INSERT INTO eg_ws_enc_audit (id,batchoffset,createdtime,tenantid,recordCount,message,encryptiontime) VALUES (?,?,?,?,?,?,?);
+      basePath: $
+      jsonMaps:
+
+      - jsonPath: $.id
+
+      - jsonPath: $.batchOffset
+
+      - jsonPath: $.createdTime
+
+      - jsonPath: $.tenantid
+
+      - jsonPath: $.recordCount
+
+      - jsonPath: $.message
+      
+      - jsonPath: $.encryptiontime
+      
+  - version: 1.0
+    description: Update water-Connection in eg_ws_plumberinfo and eg_ws_connectionholder table
+    fromTopic: update-ws-encryption
+    isTransaction: true
+    queryMaps:
+
+    - query: UPDATE eg_ws_connection SET lastModifiedBy=?, lastModifiedTime=?  WHERE id=? AND tenantid=?;
+      basePath: $.WaterConnection
+      jsonMaps:
+
+       - jsonPath: $.WaterConnection.auditDetails.lastModifiedBy
+
+       - jsonPath: $.WaterConnection.auditDetails.lastModifiedTime
+
+       - jsonPath: $.WaterConnection.id   
+
+       - jsonPath: $.WaterConnection.tenantId  
+
+    - query: UPDATE eg_ws_plumberinfo SET mobilenumber =?, lastmodifiedby =?, lastmodifiedtime =? WHERE id=? AND wsid=? AND tenantid=?;
+      basePath: $.WaterConnection.plumberInfo.*
+      jsonMaps:
+
+          - jsonPath: $.WaterConnection.plumberInfo.*.mobileNumber
+
+          - jsonPath: $.WaterConnection.auditDetails.lastModifiedBy
+
+          - jsonPath: $.WaterConnection.auditDetails.lastModifiedTime
+
+          - jsonPath: $.WaterConnection.plumberInfo.*.id
+
+          - jsonPath: $.WaterConnection.id
+
+          - jsonPath: $.WaterConnection.tenantId
+
+    - query: UPDATE eg_ws_connectionholder SET  connectionholdertype =?, relationship=?, lastmodifiedby =?, lastmodifiedtime =? WHERE userid=? AND connectionid=? AND tenantid=?;
+      basePath: $.WaterConnection.connectionHolders.*
+      jsonMaps:    
+
+       - jsonPath: $.WaterConnection.connectionHolders.*.ownerType
+
+       - jsonPath: $.WaterConnection.connectionHolders.*.relationship
+
+       - jsonPath: $.WaterConnection.auditDetails.lastModifiedBy
+
+       - jsonPath: $.WaterConnection.auditDetails.lastModifiedTime
+
+       - jsonPath: $.WaterConnection.connectionHolders.*.uuid
+
+       - jsonPath: $.WaterConnection.id
+
+       - jsonPath: $.WaterConnection.tenantId
+
+
+    - query: INSERT INTO eg_ws_id_enc_audit (id,tenantId,applicationNo,connectionNo,createdTime) VALUES (?,?,?,?,(SELECT extract(epoch from now()))*1000);
+      basePath: WaterConnection
+      jsonMaps:
+
+      - jsonPath: $.WaterConnection.id
+
+      - jsonPath: $.WaterConnection.tenantId
+
+      - jsonPath: $.WaterConnection.applicationNo
+
+      - jsonPath: $.WaterConnection.connectionNo

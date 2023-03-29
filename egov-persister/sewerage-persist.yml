@@ -7,7 +7,7 @@ serviceMaps:
    fromTopic: save-sw-connection
    isTransaction: true
    queryMaps: 
-    - query: INSERT INTO eg_sw_connection (id, tenantid, property_id, applicationno, applicationstatus, status, connectionno, oldconnectionno,roadcuttingarea,action,roadtype, createdby, lastmodifiedby, createdtime, lastmodifiedtime, applicationtype, channel, dateEffectiveFrom, locality, isoldapplication, additionaldetails) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?,?,?,?,?,?,?,?,?);
+    - query: INSERT INTO eg_sw_connection (id, tenantid, property_id, applicationno, applicationstatus, status, connectionno, oldconnectionno,roadcuttingarea,action,roadtype, createdby, lastmodifiedby, createdtime, lastmodifiedtime, applicationtype, channel, dateEffectiveFrom, locality, isoldapplication, additionaldetails, isDisconnectionTemporary, disconnectionReason) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
       basePath: $.SewerageConnection
       jsonMaps:
        - jsonPath: $.SewerageConnection.id 
@@ -54,8 +54,12 @@ serviceMaps:
          type: JSON
          dbType: JSONB
 
+       - jsonPath: $.SewerageConnection.isDisconnectionTemporary
+
+       - jsonPath: $.SewerageConnection.disconnectionReason
+
          
-    - query: INSERT INTO eg_sw_service(connection_id,connectionExecutionDate,noOfWaterClosets,noOfToilets,connectiontype,proposedWaterClosets,proposedToilets, appCreatedDate, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES(?,?,?,?,?,?,?,?,?,?,?,?);
+    - query: INSERT INTO eg_sw_service(connection_id,connectionExecutionDate,noOfWaterClosets,noOfToilets,connectiontype,proposedWaterClosets,proposedToilets, appCreatedDate, createdby, lastmodifiedby, createdtime, lastmodifiedtime, disconnectionExecutionDate) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?);
       basePath: $.SewerageConnection
       jsonMaps:
 
@@ -82,6 +86,9 @@ serviceMaps:
        - jsonPath: $.SewerageConnection.auditDetails.createdTime
 
        - jsonPath: $.SewerageConnection.auditDetails.lastModifiedTime
+       
+       - jsonPath: $.SewerageConnection.disconnectionExecutionDate
+       
          
     - query: INSERT INTO eg_sw_connectionholder(tenantid, connectionid, userid, status, isprimaryholder, connectionholdertype, holdershippercentage, relationship, createdby, createdtime, lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
       basePath: $.SewerageConnection.connectionHolders.*
@@ -123,7 +130,7 @@ serviceMaps:
       jsonMaps:
       - jsonPath: $.SewerageConnection.id
 
-    - query: UPDATE eg_sw_connection SET applicationstatus=?, status=?, connectionno=?, oldconnectionno=?, action=?, roadCuttingArea=?, roadType=?, adhocpenalty=?, adhocrebate=?, adhocpenaltyreason=?, adhocpenaltycomment=?, adhocrebatereason=?, adhocrebatecomment=?, lastmodifiedby=?, lastmodifiedtime=?, dateEffectiveFrom=?, locality=?, isoldapplication=?, property_id=?, additionaldetails=? WHERE id=?;
+    - query: UPDATE eg_sw_connection SET applicationstatus=?, status=?, connectionno=?, oldconnectionno=?, action=?, roadCuttingArea=?, roadType=?, adhocpenalty=?, adhocrebate=?, adhocpenaltyreason=?, adhocpenaltycomment=?, adhocrebatereason=?, adhocrebatecomment=?, lastmodifiedby=?, lastmodifiedtime=?, dateEffectiveFrom=?, locality=?, isoldapplication=?, property_id=?, additionaldetails=?, isDisconnectionTemporary=?, disconnectionReason=? WHERE id=?;
       basePath: $.SewerageConnection
       jsonMaps:
         
@@ -169,6 +176,10 @@ serviceMaps:
          type: JSON
          dbType: JSONB
 
+       - jsonPath: $.SewerageConnection.isDisconnectionTemporary
+
+       - jsonPath: $.SewerageConnection.disconnectionReason
+
        - jsonPath: $.SewerageConnection.id   
        
     - query: INSERT INTO eg_sw_service_audit SELECT * FROM eg_sw_service WHERE connection_id = ?;
@@ -176,7 +187,7 @@ serviceMaps:
       jsonMaps:
       - jsonPath: $.SewerageConnection.id
       
-    - query: UPDATE eg_sw_service SET connectionexecutiondate=?, noOfWaterClosets=?, noOfToilets=?, connectiontype=?, proposedWaterClosets=?, proposedToilets=?, detailsprovidedby = ?, estimationfileStoreId = ?, sanctionfileStoreId = ?, estimationLetterDate = ?, lastmodifiedby=?, lastmodifiedtime=? WHERE connection_id=?;
+    - query: UPDATE eg_sw_service SET connectionexecutiondate=?, noOfWaterClosets=?, noOfToilets=?, connectiontype=?, proposedWaterClosets=?, proposedToilets=?, detailsprovidedby = ?, estimationfileStoreId = ?, sanctionfileStoreId = ?, estimationLetterDate = ?, lastmodifiedby=?, lastmodifiedtime=?, disconnectionExecutionDate=? WHERE connection_id=?;
       basePath: $.SewerageConnection
       jsonMaps:
 
@@ -203,8 +214,10 @@ serviceMaps:
        - jsonPath: $.SewerageConnection.auditDetails.lastModifiedBy
 
        - jsonPath: $.SewerageConnection.auditDetails.lastModifiedTime
+       
+       - jsonPath: $.SewerageConnection.disconnectionExecutionDate
          
-       - jsonPath: $.SewerageConnection.id
+       - jsonPath: $.SewerageConnection.id       
 
 
     - query: INSERT INTO eg_sw_applicationDocument(id, tenantId, documenttype, filestoreid, swid, active, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET active = ?, documenttype =?, filestoreid =?,lastmodifiedby =?, lastmodifiedtime =?;
@@ -412,12 +425,16 @@ serviceMaps:
       jsonMaps:
       - jsonPath: $.SewerageConnection.id
       
-    - query: UPDATE eg_sw_service SET estimationfileStoreId = ?, sanctionfileStoreId = ? WHERE connection_id=?;
+    - query: UPDATE eg_sw_service SET estimationfileStoreId = ?, sanctionfileStoreId = ?, estimationLetterDate = ?, appCreatedDate = ? WHERE connection_id=?;
       basePath: $.SewerageConnection
       jsonMaps:
 
         - jsonPath: $.SewerageConnection.additionalDetails.estimationFileStoreId
 
         - jsonPath: $.SewerageConnection.additionalDetails.sanctionFileStoreId
+        
+        - jsonPath: $.SewerageConnection.additionalDetails.estimationLetterDate
+        
+        - jsonPath: $.SewerageConnection.additionalDetails.appCreatedDate        
 
         - jsonPath: $.SewerageConnection.id

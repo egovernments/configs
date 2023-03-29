@@ -7,12 +7,12 @@ serviceMaps:
    isTransaction: true
    queryMaps:
 
-       - query: INSERT INTO eg_vendor( id, name, tenantid, additionaldetails, owner_id, description, source, status,createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );
+       - query: INSERT INTO eg_vendor( id, name, tenantid, additionaldetails, owner_id, description, source, status,agencyType,paymentPreference,createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );
          basePath: vendor
          jsonMaps:
           - jsonPath: $.vendor.id
 
-          - jsonPath: $.vendor.name
+          - jsonPath: $.vendor.name 
           
           - jsonPath: $.vendor.tenantId
 
@@ -27,6 +27,10 @@ serviceMaps:
           - jsonPath: $.vendor.source
           
           - jsonPath: $.vendor.status
+          
+          - jsonPath: $.vendor.agencyType
+          
+          - jsonPath: $.vendor.paymentPreference
 
           - jsonPath: $.vendor.auditDetails.createdBy
 
@@ -84,19 +88,287 @@ serviceMaps:
           
           
           
-       - query: INSERT INTO eg_vendor_driver(  vendor_id, driver_id) VALUES ( ?, ?);
+       - query: INSERT INTO eg_driver( id, name, tenantid, additionaldetails, owner_id, description, status,licenseNumber, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
          basePath: vendor.drivers.*
          jsonMaps:
-
-
-          - jsonPath: $.vendor.id
-
-          - jsonPath: $.vendor.drivers.*.uuid
+          - jsonPath: $.vendor.drivers.*.id
+          - jsonPath: $.vendor.drivers.*.name 
+          - jsonPath: $.vendor.drivers.*.tenantId
+          - jsonPath: $.vendor.drivers.*.additionalDetails
+            type: JSON
+            dbType: JSONB
+          - jsonPath: $.vendor.drivers.*.owner.uuid
+          - jsonPath: $.vendor.drivers.*.description
+          - jsonPath: $.vendor.drivers.*.status
+          - jsonPath: $.vendor.drivers.*.licenseNumber
+          - jsonPath: $.vendor.drivers.*.auditDetails.createdBy
+          - jsonPath: $.vendor.drivers.*.auditDetails.lastModifiedBy
+          - jsonPath: $.vendor.drivers.*.auditDetails.createdTime
+          - jsonPath: $.vendor.drivers.*.auditDetails.lastModifiedTime
           
-       - query: INSERT INTO eg_vendor_vehicle(  vendor_id,vechile_id) VALUES ( ?, ?); 
+       - query: INSERT INTO eg_vendor_driver(  vendor_id, driver_id, vendordriverstatus) VALUES ( ?, ?, ?);
+         basePath: vendor.drivers.*
+         jsonMaps:
+          - jsonPath: $.vendor.id
+          - jsonPath: $.vendor.drivers.*.id
+          - jsonPath: $.vendor.drivers.*.vendorDriverStatus
+          
+       - query: INSERT INTO eg_vendor_vehicle(  vendor_id,vechile_id, vendorVehicleStatus) VALUES ( ?, ?, ?); 
          basePath: vendor.vehicles.*
          jsonMaps:
-          
           - jsonPath: $.vendor.id
-
           - jsonPath: $.vendor.vehicles.*.id
+          - jsonPath: $.vendor.vehicles.*.vendorVehicleStatus
+ 
+ - version: 1.0
+   description: Update Vendor details
+   fromTopic: update-vendor-application
+   isTransaction: true
+   queryMaps:
+
+       - query: INSERT INTO eg_vendor_auditlog SELECT * FROM eg_vendor WHERE id=?
+         basePath: vendor
+         jsonMaps:
+          - jsonPath: $.vendor.id
+          
+       - query: UPDATE eg_vendor SET name=?, tenantid=?, additionaldetails=?, owner_id=?, description=?, source=?, status=?, agencyType=?, paymentPreference=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
+         basePath: vendor
+         jsonMaps:
+          - jsonPath: $.vendor.name
+          - jsonPath: $.vendor.tenantId
+          - jsonPath: $.vendor.additionalDetails
+            type: JSON
+            dbType: JSONB
+          - jsonPath: $.vendor.owner.uuid
+          - jsonPath: $.vendor.description
+          - jsonPath: $.vendor.source
+          - jsonPath: $.vendor.status
+          - jsonPath: $.vendor.agencyType
+          - jsonPath: $.vendor.paymentPreference
+          - jsonPath: $.vendor.auditDetails.createdBy
+          - jsonPath: $.vendor.auditDetails.lastModifiedBy
+          - jsonPath: $.vendor.auditDetails.createdTime
+          - jsonPath: $.vendor.auditDetails.lastModifiedTime
+          - jsonPath: $.vendor.id
+          
+       - query: INSERT INTO eg_vendor_address_auditlog SELECT * FROM eg_vendor_address WHERE id=?
+         basePath: vendor.address
+         jsonMaps:
+          - jsonPath: $.vendor.address.id
+          
+       - query: UPDATE eg_vendor_address SET tenantid=?, doorno=?, plotno=?, landmark=?, city=?, district=?, region=?, state=?, country=?, locality=?, pincode=?, additionalDetails=?, buildingname=?, street=?, vendor_id=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
+         basePath: vendor.address
+         jsonMaps:
+          - jsonPath: $.vendor.address.tenantId
+          - jsonPath: $.vendor.address.doorNo
+          - jsonPath: $.vendor.address.plotNo
+          - jsonPath: $.vendor.address.landmark
+          - jsonPath: $.vendor.address.city
+          - jsonPath: $.vendor.address.district
+          - jsonPath: $.vendor.address.region
+          - jsonPath: $.vendor.address.state
+          - jsonPath: $.vendor.address.country
+          - jsonPath: $.vendor.address.locality.code
+          - jsonPath: $.vendor.address.pincode
+          - jsonPath: $.vendor.address.additionalDetails
+            type: JSON
+            dbType: JSONB
+          - jsonPath: $.vendor.address.buildingName
+          - jsonPath: $.vendor.address.street
+          - jsonPath: $.vendor.id
+          - jsonPath: $.vendor.address.auditDetails.createdBy
+          - jsonPath: $.vendor.address.auditDetails.lastModifiedBy
+          - jsonPath: $.vendor.address.auditDetails.createdTime
+          - jsonPath: $.vendor.address.auditDetails.lastModifiedTime
+          - jsonPath: $.vendor.address.id
+          
+       - query: INSERT INTO eg_driver_auditlog SELECT * FROM eg_driver WHERE id=?
+         basePath: vendor.drivers.*
+         jsonMaps:
+          - jsonPath: $.vendor.drivers.*.id
+          
+       - query: UPDATE eg_driver SET name=?, tenantid=?, additionaldetails=?, owner_id=?, description=?, status=?, licenseNumber=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
+         basePath: vendor.drivers.*
+         jsonMaps:
+          - jsonPath: $.vendor.drivers.*.name 
+          - jsonPath: $.vendor.drivers.*.tenantId
+          - jsonPath: $.vendor.drivers.*.additionalDetails
+            type: JSON
+            dbType: JSONB
+          - jsonPath: $.vendor.drivers.*.owner.uuid
+          - jsonPath: $.vendor.drivers.*.description
+          - jsonPath: $.vendor.drivers.*.status
+          - jsonPath: $.vendor.drivers.*.licenseNumber
+          - jsonPath: $.vendor.drivers.*.auditDetails.createdBy
+          - jsonPath: $.vendor.drivers.*.auditDetails.lastModifiedBy
+          - jsonPath: $.vendor.drivers.*.auditDetails.createdTime
+          - jsonPath: $.vendor.drivers.*.auditDetails.lastModifiedTime
+          - jsonPath: $.vendor.drivers.*.id
+          
+       - query: UPDATE EG_VENDOR_DRIVER SET vendor_id= ?, vendorDriverStatus= ? WHERE DRIVER_ID= ? ;
+         basePath: vendor.drivers.*
+         jsonMaps:
+          - jsonPath: $.vendor.id
+          - jsonPath: $.vendor.drivers.*.vendorDriverStatus
+          - jsonPath: $.vendor.drivers.*.id
+                    
+       - query: UPDATE eg_vendor_vehicle SET vendor_id= ?,vendorVehicleStatus= ? WHERE VECHILE_ID= ? ;
+         basePath: vendor.vehicles.*
+         jsonMaps:
+          - jsonPath: $.vendor.id
+          - jsonPath: $.vendor.vehicles.*.vendorVehicleStatus
+          - jsonPath: $.vendor.vehicles.*.id
+          
+ - version: 1.0
+   description: Update Vendor details
+   fromTopic: save-vendordrivervehicle-application
+   isTransaction: true
+   queryMaps:
+
+       - query: INSERT INTO eg_vendor_auditlog SELECT * FROM eg_vendor WHERE id=?
+         basePath: vendor
+         jsonMaps:
+          - jsonPath: $.vendor.id
+          
+       - query: UPDATE eg_vendor SET name=?, tenantid=?, additionaldetails=?, owner_id=?, description=?, source=?, status=?, agencyType=?, paymentPreference=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
+         basePath: vendor
+         jsonMaps:
+          - jsonPath: $.vendor.name
+          - jsonPath: $.vendor.tenantId
+          - jsonPath: $.vendor.additionalDetails
+            type: JSON
+            dbType: JSONB
+          - jsonPath: $.vendor.owner.uuid
+          - jsonPath: $.vendor.description
+          - jsonPath: $.vendor.source
+          - jsonPath: $.vendor.status
+          - jsonPath: $.vendor.agencyType
+          - jsonPath: $.vendor.paymentPreference
+          - jsonPath: $.vendor.auditDetails.createdBy
+          - jsonPath: $.vendor.auditDetails.lastModifiedBy
+          - jsonPath: $.vendor.auditDetails.createdTime
+          - jsonPath: $.vendor.auditDetails.lastModifiedTime
+          - jsonPath: $.vendor.id
+          
+       - query: INSERT INTO eg_vendor_address_auditlog SELECT * FROM eg_vendor_address WHERE id=?
+         basePath: vendor.address
+         jsonMaps:
+          - jsonPath: $.vendor.address.id
+          
+       - query: UPDATE eg_vendor_address SET tenantid=?, doorno=?, plotno=?, landmark=?, city=?, district=?, region=?, state=?, country=?, locality=?, pincode=?, additionalDetails=?, buildingname=?, street=?, vendor_id=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
+         basePath: vendor.address
+         jsonMaps:
+          - jsonPath: $.vendor.address.tenantId
+          - jsonPath: $.vendor.address.doorNo
+          - jsonPath: $.vendor.address.plotNo
+          - jsonPath: $.vendor.address.landmark
+          - jsonPath: $.vendor.address.city
+          - jsonPath: $.vendor.address.district
+          - jsonPath: $.vendor.address.region
+          - jsonPath: $.vendor.address.state
+          - jsonPath: $.vendor.address.country
+          - jsonPath: $.vendor.address.locality.code
+          - jsonPath: $.vendor.address.pincode
+          - jsonPath: $.vendor.address.additionalDetails
+            type: JSON
+            dbType: JSONB
+          - jsonPath: $.vendor.address.buildingName
+          - jsonPath: $.vendor.address.street
+          - jsonPath: $.vendor.id
+          - jsonPath: $.vendor.address.auditDetails.createdBy
+          - jsonPath: $.vendor.address.auditDetails.lastModifiedBy
+          - jsonPath: $.vendor.address.auditDetails.createdTime
+          - jsonPath: $.vendor.address.auditDetails.lastModifiedTime
+          - jsonPath: $.vendor.address.id
+          
+       - query: INSERT INTO eg_driver_auditlog SELECT * FROM eg_driver WHERE id=?
+         basePath: vendor.drivers.*
+         jsonMaps:
+          - jsonPath: $.vendor.drivers.*.id
+          
+       - query: UPDATE eg_driver SET name=?, tenantid=?, additionaldetails=?, owner_id=?, description=?, status=?, licenseNumber=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
+         basePath: vendor.drivers.*
+         jsonMaps:
+          - jsonPath: $.vendor.drivers.*.name 
+          - jsonPath: $.vendor.drivers.*.tenantId
+          - jsonPath: $.vendor.drivers.*.additionalDetails
+            type: JSON
+            dbType: JSONB
+          - jsonPath: $.vendor.drivers.*.owner.uuid
+          - jsonPath: $.vendor.drivers.*.description
+          - jsonPath: $.vendor.drivers.*.status
+          - jsonPath: $.vendor.drivers.*.licenseNumber
+          - jsonPath: $.vendor.drivers.*.auditDetails.createdBy
+          - jsonPath: $.vendor.drivers.*.auditDetails.lastModifiedBy
+          - jsonPath: $.vendor.drivers.*.auditDetails.createdTime
+          - jsonPath: $.vendor.drivers.*.auditDetails.lastModifiedTime
+          - jsonPath: $.vendor.drivers.*.id  
+       
+       - query: INSERT INTO eg_vendor_driver(vendor_id, driver_id, vendordriverstatus) VALUES ( ?, ?, ?);
+         basePath: vendor.drivers.*
+         jsonMaps:
+          - jsonPath: $.vendor.id
+          - jsonPath: $.vendor.drivers.*.id
+          - jsonPath: $.vendor.drivers.*.vendorDriverStatus
+          
+       - query: INSERT INTO eg_vendor_vehicle(vendor_id,vechile_id, vendorVehicleStatus) VALUES ( ?, ?, ?); 
+         basePath: vendor.vehicles.*
+         jsonMaps:
+          - jsonPath: $.vendor.id
+          - jsonPath: $.vendor.vehicles.*.id
+          - jsonPath: $.vendor.vehicles.*.vendorVehicleStatus
+          
+ - version: 1.0
+   description: Driver Registration Application details in eg_driver  table
+   fromTopic: save-driver-application
+   isTransaction: true
+   queryMaps:
+
+       - query: INSERT INTO eg_driver( id, name, tenantid, additionaldetails, owner_id, description, status,licenseNumber, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+         basePath: driver
+         jsonMaps:
+          - jsonPath: $.driver.id
+          - jsonPath: $.driver.name 
+          - jsonPath: $.driver.tenantId
+          - jsonPath: $.driver.additionalDetails
+            type: JSON
+            dbType: JSONB
+          - jsonPath: $.driver.owner.uuid
+          - jsonPath: $.driver.description
+          - jsonPath: $.driver.status
+          - jsonPath: $.driver.licenseNumber
+          - jsonPath: $.driver.auditDetails.createdBy
+          - jsonPath: $.driver.auditDetails.lastModifiedBy
+          - jsonPath: $.driver.auditDetails.createdTime
+          - jsonPath: $.driver.auditDetails.lastModifiedTime
+          
+         
+       
+ - version: 1.0
+   description: Update Driver details
+   fromTopic: update-driver-application
+   isTransaction: true
+   queryMaps:
+
+       - query: INSERT INTO eg_driver_auditlog SELECT * FROM eg_driver WHERE id=?
+         basePath: driver
+         jsonMaps:
+          - jsonPath: $.driver.id
+          
+       - query: UPDATE eg_driver SET name=?, tenantid=?, additionaldetails=?, owner_id=?, description=?, status=?, licenseNumber=?, createdby=?, lastmodifiedby=?, createdtime=?, lastmodifiedtime=? WHERE id=?
+         basePath: driver
+         jsonMaps:
+          - jsonPath: $.driver.name
+          - jsonPath: $.driver.tenantId
+          - jsonPath: $.driver.additionalDetails
+            type: JSON
+            dbType: JSONB
+          - jsonPath: $.driver.owner.uuid
+          - jsonPath: $.driver.description
+          - jsonPath: $.driver.status
+          - jsonPath: $.driver.licenseNumber
+          - jsonPath: $.driver.auditDetails.createdBy
+          - jsonPath: $.driver.auditDetails.lastModifiedBy
+          - jsonPath: $.driver.auditDetails.createdTime
+          - jsonPath: $.driver.auditDetails.lastModifiedTime
+          - jsonPath: $.driver.id

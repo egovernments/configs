@@ -1,0 +1,94 @@
+serviceMaps:
+  serviceName: property-services
+  mappings:
+  - version: 1.0
+    description: Persists batch audit in EG_PT_ENC_AUDIT table
+    fromTopic: pt-enc-audit
+    isTransaction: true
+    queryMaps:
+
+
+    - query: INSERT INTO eg_pt_enc_audit (id,batchoffset,createdtime,tenantid,recordCount,message,encryptiontime) VALUES (?,?,?,?,?,?,?);
+      basePath: $
+      jsonMaps:
+
+      - jsonPath: $.id
+
+      - jsonPath: $.batchOffset
+
+      - jsonPath: $.createdTime
+
+      - jsonPath: $.tenantid
+
+      - jsonPath: $.recordCount
+
+      - jsonPath: $.message
+      
+      - jsonPath: $.encryptiontime
+      
+  - version: 1.0
+    description: Update property EG_PT_PROPERTY table
+    fromTopic: update-property-encryption
+    isTransaction: true
+    queryMaps:
+
+    - query: UPDATE eg_pt_property SET lastmodifiedby=?, lastmodifiedtime=? WHERE Id=? AND tenantId=?;
+      basePath: Property
+      jsonMaps:
+
+      - jsonPath: $.Property.auditDetails.lastModifiedBy
+
+      - jsonPath: $.Property.auditDetails.lastModifiedTime
+
+      - jsonPath: $.Property.id
+
+      - jsonPath: $.Property.tenantId
+
+    - query: UPDATE eg_pt_address SET doorno=?, street=?, landmark=?, lastModifiedBy=?, lastmodifiedtime=? WHERE id=? AND propertyid=?;
+      basePath: Property.address
+      jsonMaps:
+
+      - jsonPath: $.Property.address.doorNo
+
+      - jsonPath: $.Property.address.street
+
+      - jsonPath: $.Property.address.landmark
+
+      - jsonPath: $.Property.auditDetails.lastModifiedBy
+
+      - jsonPath: $.Property.auditDetails.lastModifiedTime
+
+      - jsonPath: $.Property.address.id
+
+      - jsonPath: $.Property.id
+
+    - query: INSERT INTO eg_pt_id_enc_audit (id,tenantId,propertyId,acknowldgementNumber,createdTime) VALUES (?,?,?,?,(SELECT extract(epoch from now()))*1000);
+      basePath: Property
+      jsonMaps:
+
+      - jsonPath: $.Property.id
+
+      - jsonPath: $.Property.tenantId
+
+      - jsonPath: $.Property.propertyId
+
+      - jsonPath: $.Property.acknowldgementNumber
+
+
+  - version: 1.0
+    description: Update property EG_PT_PROPERTY_AUDIT ltable
+    fromTopic: update-property-audit-enc
+    isTransaction: true
+    queryMaps:
+
+    - query: UPDATE eg_pt_property_audit SET property=? WHERE audituuid=? AND propertyid=?;
+      basePath: $
+      jsonMaps:
+
+      - jsonPath: $.Property
+        type: JSON
+        dbType: JSONB
+
+      - jsonPath: $.audituuid
+
+      - jsonPath: $.propertyid
