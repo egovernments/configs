@@ -18991,6 +18991,46 @@
       "isRoundOff": true
     },
     "_comment": " "
+  },
+   "nssPtCitizenServiceDeliveryIndex": {
+    "chartName": "NATIONAL_DSS_PT_CITIZEN_SERVICE_DELIVERY_INDEX",
+    "queries": [
+      {
+        "module": "PT",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "pt-national-dashboard",
+        "aggrQuery": "{\"aggs\": {\"all_matching_docs\": {\"filters\": {\"filters\": {\"all\": {\"match_all\": {}}}},\"aggs\": {\"state\":{\"terms\": {\"field\": \"state.keyword\",\"size\": 10000},\"aggs\": {\"ulb\": {\"terms\": {\"field\": \"ulb.keyword\",\"size\": 10000},\"aggs\": {\"ward\": {\"terms\": {\"field\": \"ward.keyword\",\"size\": 10000},\"aggs\": {\"SlaintermediateAggr\": {\"terms\": {\"field\": \"date\",\"size\": 10000},\"aggs\": {\"applicationsSubmittedWithInSla\": {\"avg\": {\"field\": \"todaysApplicationsWithinSLA\"}}}},\"Total_Applications_Within_SLA\": {\"sum_bucket\": {\"buckets_path\": \"SlaintermediateAggr.applicationsSubmittedWithInSla\"}},\"app\": {\"filter\": {\"bool\": {\"must\":[{\"match\":{\"applicationStatus.keyword\" : \"APPROVED\"}}]}},\"aggs\": {\"totalapplication\": {\"sum\": {\"field\": \"todaysMovedApplicationsForApplicationStatus\"}}}},\"aggregatedsla\": {\"bucket_script\": {\"buckets_path\": {\"total\": \"app.totalapplication\",\"withinsla\": \"Total_Applications_Within_SLA\"},\"script\": \"((params.withinsla / params.total) * 100)*0.5\"}}}}}}}}}}}}"
+      },
+      {
+        "module": "CF",
+        "requestQueryMap": "{\"state\" : \"state.keyword\",\"ulb\" : \"ulb.keyword\",\"ward\" : \"ward.keyword\"}",
+        "dateRefField": "date",
+        "indexName": "citizen-feedback-national-dashboard",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\": {\"must\": [{\"term\": {\"serviceModule.keyword\": \"PT\"}}]}},\"aggs": {\"all_matching_docs\": {\"filters\": {\"filters\": {\"all\": {\"match_all\": {}}}},\"aggs\": {\"state\": {\"terms\": {\"field\": \"state.keyword\",\"size\": 10000},\"aggs\": {\"ulb\": {\"terms\": {\"field\": \"ulb.keyword\",\"size\": 10000},\"aggs\": {\"ward\": {\"terms\": {\"field\": \"ward.keyword\",\"size\": 10000},\"aggs\": {\"TotalFeedbackScore\": {\"sum\": {\"script\": {\"lang\": \"painless\",\"inline\": \"doc['todaysAverageCitizenRating'].value * doc['todaysNoOfCitizenResponsesForChannel'].value\"}}},\"TotalNumberofResponses\": {\"sum\": {\"field\": \"todaysNoOfCitizenResponsesForChannel\"}},\"avgfeedback\": {\"bucket_script\": {\"buckets_path\": {\"response\": \"TotalNumberofResponses\",\"feedbak\": \"TotalFeedbackScore\"},\"script\": \"((params.response / params.feedbak) * 100)*0.5\"}}}}}}}}}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "nss",
+    "action": "",
+    "isRoundOff": true,
+    "aggregationPaths": [
+      "aggregatedsla",
+      "avgfeedback"
+    ],
+    "insight": {
+      "chartResponseMap" : "nssPtCitizenServiceDeliveryIndex",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": " "
   }
 
 
