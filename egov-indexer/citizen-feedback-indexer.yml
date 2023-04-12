@@ -12,7 +12,7 @@ ServiceMaps:
          timeStampField: $.auditDetails.createdTime
          jsonPath: $.Service
          customJsonMapping:
-           indexMapping: {"Data":{"id":"id","tenantId":"tenantId","serviceDefId":"serviceDefId","referenceId":"referenceId","auditDetails":{},"additionalDetails":{},"rating":"rating","accountId":"accountId","clientId":"clientId","code":"serviceType","module":"serviceModule","attributes":[]}}
+           indexMapping: {"Data":{"id":"id","tenantId":"tenantId","serviceDefId":"serviceDefId","referenceId":"referenceId","auditDetails":{},"additionalDetails":{},"accountId":"accountId","clientId":"clientId","serviceType":"serviceType","serviceModule":"serviceModule","rating":"rating","consumerCode":"consumerCode"}}
            fieldMapping:
            - inJsonPath: $.id
              outJsonPath: $.Data.id
@@ -36,11 +36,13 @@ ServiceMaps:
              outJsonPath: $.Data.serviceType
            - inJsonPath: $.module
              outJsonPath: $.Data.serviceModule
-           - inJsonPath: $.attributes
-             outJsonPath: $.Data.attributes
+           - inJsonPath: $.attributes.[?(@.attributeCode == "consumerCode")].value
+             outJsonPath: $.Data.consumerCode
+           - inJsonPath: $.attributes.[?(@.attributeCode == "rating")].value
+             outJsonPath: $.Data.rating
            externalUriMapping:
            - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
-             queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.landInfo.address.locality.code,tenantId=$.tenantId
+             queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.additionalDetails.localityCode,tenantId=$.tenantId
              apiRequest: { "RequestInfo": { "apiId": "org.service.request","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61",
              "authToken": "02dbe5be-28df-4d82-954f-3d27c56cca7d","userInfo": { "id": 73 } } }
              uriResponseMapping:
