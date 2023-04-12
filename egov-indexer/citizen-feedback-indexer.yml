@@ -12,7 +12,7 @@ ServiceMaps:
          timeStampField: $.auditDetails.createdTime
          jsonPath: $.Service
          customJsonMapping:
-           indexMapping: {"Data":{"id":"id","tenantId":"tenantId","serviceDefId":"serviceDefId","referenceId":"referenceId","auditDetails":{},"additionalDetails":{},"rating":"rating","accountId":"accountId","clientId":"clientId","code":"serviceType","module":"serviceModule","attributes":[]}}
+           indexMapping: {"Data":{"id":"id","tenantId":"tenantId","serviceDefId":"serviceDefId","referenceId":"referenceId","auditDetails":{},"additionalDetails":{},"accountId":"accountId","clientId":"clientId","serviceType":"serviceType","serviceModule":"serviceModule","rating":"rating","consumerCode":"consumerCode"}}
            fieldMapping:
            - inJsonPath: $.id
              outJsonPath: $.Data.id
@@ -36,10 +36,10 @@ ServiceMaps:
              outJsonPath: $.Data.serviceType
            - inJsonPath: $.module
              outJsonPath: $.Data.serviceModule
-           - inJsonPath: $.attributes
-             outJsonPath: $.Data.attributes
-           - inJsonPath: $.additionalDetails.localityCode
-             outJsonPath: $.Data.localityCode
+           - inJsonPath: $.attributes.[?(@.attributeCode == "consumerCode")].value
+             outJsonPath: $.Data.consumerCode
+           - inJsonPath: $.attributes.[?(@.attributeCode == "rating")].value
+             outJsonPath: $.Data.rating
            externalUriMapping:
            - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
              queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.additionalDetails.localityCode,tenantId=$.tenantId
