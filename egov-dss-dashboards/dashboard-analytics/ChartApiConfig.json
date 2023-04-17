@@ -18631,7 +18631,7 @@
       }
     ],
     "chartType": "metric",
-    "valueType": "number",
+    "valueType": "percentage",
     "drillChart": "none",
     "documentType": "nss",
     "action": "",
@@ -18651,5 +18651,40 @@
       "isRoundOff": true
     },
     "_comment": " "
+  },
+
+  "sdssPtSlaAchieved": {
+    "chartName": "DSS_PT_SLA_ACHIEVED",
+    "queries": [
+      {
+        "module": "PT",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \r\n  \"district\" : \"Data.tenantData.city.districtCode\", \r\n\"tenantId\" : \"Data.tenantId\" \r\n}",
+        "dateRefField": "Data.auditDetails.lastModifiedTime",
+        "indexName": "property-application",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Closed With In Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.history.state.state.keyword\":[\"APPROVED\",\"REJECTED\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.auditDetails.lastModifiedTime'].date.millis - doc['Data.auditDetails.createdTime'].date.millis < doc['Data.businessserviceSla'].date.millis\",\"lang\":\"painless\"}}}]}},\"aggs\":{\"count\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}},\"Total Applications\":{\"terms\":{\"field\":\"Data.tenantId.keyword\"},\"aggs\":{\"tenant_count\":{\"value_count\":{\"field\":\"Data.tenantId.keyword\"}}}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "percentage",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "isRoundOff": true,
+    "aggregationPaths": [
+      "Closed With In Sla",
+      "Total Applications"
+    ],
+    "insight": {
+      "chartResponseMap" : "sdssPtSlaAchieved",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": " "
   }
+  
 }
