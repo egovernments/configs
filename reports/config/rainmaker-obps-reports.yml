@@ -182,6 +182,26 @@ ReportDefinitions:
       type: string
       source: obps
       total: false
+    - name: emailid
+      label: reports.obps.emailid
+      type: string
+      source: obps
+      total: false
+    - name: emailUser
+      label: reports.obps.emailUser
+      type: string
+      source: obps
+      total: false
+    - name: mobilenumber
+      label: reports.obps.mobilenumber
+      type: string
+      source: obps
+      total: false
+    - name: altContactNumber
+      label: reports.obps.altContactNumber
+      type: string
+      source: obps
+      total: false
   searchParams:
     - name: fromDate
       label: FromDate
@@ -232,5 +252,5 @@ ReportDefinitions:
       isLocalisationRequired: true
       localisationPrefix: REPORT_OBPS_
 
-  query: select applicationno,to_char(To_timestamp(bp.applicationdate / 1000), 'DD/MM/YYYY') as applicationdate, landinfo.channel as applicationchannel, usr.name as name,  usr.uuid as uuid, bp.additionaldetails->>'applicationType' as applicationtype, bp.additionaldetails->> 'serviceType' as servicetype, land.occupancytype, bp.status, case when isterminatestate=true then null else userassignee.name end as currentowner, bp.approvalno as permitno FROM eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_bpa_buildingplan bp on pi.businessid=bp.applicationno inner join eg_user usr ON bp.createdby = usr.uuid  inner join eg_land_unit land ON land.landinfoid = bp.landid inner join eg_land_landinfo landinfo ON land.landinfoid = landinfo.id inner join eg_land_address adr ON adr.landinfoid = landinfo.id inner join eg_user userassignee ON assigner = userassignee.uuid WHERE 1=1
+  query: select applicationno,to_char(To_timestamp(bp.applicationdate / 1000), 'DD/MM/YYYY') as applicationdate, landinfo.channel as applicationchannel, usr.name as name,  usr.uuid as uuid, usr.emailid as emailid, usr.mobilenumber as mobilenumber, userassignee.emailid as emailUser, userassignee.mobilenumber as altContactNumber, bp.additionaldetails->>'applicationType' as applicationtype, bp.additionaldetails->> 'serviceType' as servicetype, land.occupancytype, bp.status, case when isterminatestate=true then null else userassignee.name end as currentowner, bp.approvalno as permitno FROM eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_bpa_buildingplan bp on pi.businessid=bp.applicationno inner join eg_user usr ON bp.createdby = usr.uuid  inner join eg_land_unit land ON land.landinfoid = bp.landid inner join eg_land_landinfo landinfo ON land.landinfoid = landinfo.id inner join eg_land_address adr ON adr.landinfoid = landinfo.id inner join eg_user userassignee ON assigner = userassignee.uuid WHERE 1=1
   orderby: ORDER BY applicationdate asc
