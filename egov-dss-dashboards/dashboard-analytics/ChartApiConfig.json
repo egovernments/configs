@@ -5227,10 +5227,10 @@
       },
       {
         "module": "FSM",
-        "indexName": "vehicletrip",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"term\":{\"Data.vehicleTrip.applicationStatus.keyword\":\"DISPOSED\"}}]}},\"aggs\":{\"No Of Trips Completed\":{\"value_count\":{\"field\":\"Data.vehicleTrip.id.keyword\"}}}}}}",
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"No Of Trips Completed\":{\"sum\":{\"field\":\"Data.fsm.noOfTrips\"}}}}}}",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
-        "dateRefField": "Data.vehicleTrip.@timestamp"
+        "dateRefField": "Data.fsm.@timestamp"
       }
     ],
     "chartType": "metric",
@@ -5267,7 +5267,7 @@
       {
         "module": "FSM",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"Total No Of Applications\":{\"value_count\":{\"field\":\"Data.fsm.applicationNo.keyword\"}}}}}}",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tenantId.keyword\":\"pb.testing\"}}],\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"Total No Of Applications\":{\"value_count\":{\"field\":\"Data.fsm.applicationNo.keyword\"}}}}}}",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "dateRefField": "Data.fsm.@timestamp"
       }
@@ -5549,7 +5549,34 @@
     ],
     "insight": {
     },
-    "_comment": " "
+    "_comment": "Applications by Channel Pie Chart "
+  },
+  "fsmApplicationsByChannelLineChart": {
+    "chartName": "DSS_FSM_APPLICATIONS_BY_CHANNEL_LINE",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.fsm.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
+        "indexName": "fsm",
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pb.testing\"}}]}},\"aggs\":{\"ApplicationsByChannelOnline\":{\"date_histogram\":{\"field\":\"Data.fsm.@timestamp\",\"interval\":\"intervalvalue\"},\"aggs\":{\"applicationsByChannelOnline\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.source.keyword\":[\"ONLINE\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.fsm.applicationNo.keyword\"}}}}}},\"ApplicationsByChannelTelephone\":{\"date_histogram\":{\"field\":\"Data.fsm.@timestamp\",\"interval\":\"intervalvalue\"},\"aggs\":{\"applicationsByChannelTelephone\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.source.keyword\":[\"TELEPHONE\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.fsm.applicationNo.keyword\"}}}}}},\"ApplicationsByChannelCounter\":{\"date_histogram\":{\"field\":\"Data.fsm.@timestamp\",\"interval\":\"intervalvalue\"},\"aggs\":{\"applicationsByChannelCounter\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.source.keyword\":[\"COUNTER\"]}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.fsm.applicationNo.keyword\"}}}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "valueType": "number",
+    "action": "",
+    "documentType": "_doc",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "ApplicationsByChannelCounter",
+      "ApplicationsByChannelTelephone",
+      "ApplicationsByChannelOnline"
+    ],
+    "interval": "month",
+    "isCumulative": false,
+    "insight": {
+    },
+    "_comment": "Applications by Channel Line Chart"
   },
   "fsmCollectionByUsageType": {
     "chartName": "DSS_FSM_COLLECTION_BY_USAGE_TYPE",
