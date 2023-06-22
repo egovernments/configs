@@ -315,6 +315,11 @@ ReportDefinitions:
     summary: Report is used to  check FSM daily desludging request 
     version: 1.0.0
     moduleName: fsm
+    externalService:
+      - entity: $.messages
+        apiURL: http://egov-localization.egov:8080/localization/messages/v1/_search?locale=en_IN&tenantId=pb&module=rainmaker-fsm&codes=CS_COMMON_FSM_PENDING_DSO_APPROVAL,CS_COMMON_FSM_CREATED,CS_COMMON_FSM_PENDING_APPL_FEE_PAYMENT,CS_COMMON_FSM_ASSING_DSO,CS_COMMON_FSM_DSO_REJECTED,CS_COMMON_FSM_DSO_INPROGRESS,CS_COMMON_FSM_PENDING_DSO_APPROVAL,CS_COMMON_FSM_COMPLETED,CS_COMMON_FSM_REJECTED,CS_COMMON_FSM_CANCELED,CS_COMMON_FSM_CITIZEN_FEEDBACK_PENDING,REPORTS_FSM_PARAM_TENANT,ACTION_TEST_FSM_DAILY_DESLUDING_REPORT,ACTION_TEST_FSM_AREA_WISE_COLLECTION_REPORT,ACTION_TEST_FSM_FSTP_PLANT_WITH_VEHICLE_LOG_REPORT,REPORT_FSM_RESULT_VEHICLEENTRYDATE,REPORT_FSM_RESULT_SLA_COMPLIANCE
+        keyOrder: message,code
+        tableName: fsm_status_keys
     sourceColumns:
       - name: applicationno
         label: REPORT_FSM_RESULT_APPLICATIONNO
@@ -371,7 +376,7 @@ ReportDefinitions:
         isMandatory: false
         searchClause: AND app.dso_id = $dsoId
     query: |
-      SELECT app.applicationno, to_char(to_timestamp(app.createdtime/1000),'DD/MM/YYYY') as applicationDate, CASE WHEN (app.applicationstatus='' or app.applicationstatus is NULL) THEN 'NA' ELSE app.applicationstatus END  as currentStatus, vendor.name as dsoname, coalesce(payment.amountpaid) as amountpaid,CASE WHEN picomplete.lastmodifiedtime <= 0  THEN 'NA' ELSE to_char(to_timestamp(picomplete.lastmodifiedtime/1000),'DD/MM/YYYY')  END as dateOfCompletion from eg_fsm_application app inner join eg_vendor vendor ON  (app.dso_id =vendor.id) LEFT  JOIN egcl_bill bill ON ( bill.consumercode = app.applicationno) LEFT  JOIN egcl_paymentdetail payment ON ( payment.billid = bill.id ) LEFT  JOIN (select pi.businessId,pi.lastmodifiedtime from eg_wf_processinstance_v2 pi JOIN eg_wf_state_v2 status ON ( status.uuid =pi.status) where pi.businessService LIKE 'FSM%' AND status.applicationstatus IN ('CITIZEN_FEEDBACK_PENDING','COMPLETED')) picomplete ON ( picomplete.businessId = app.applicationno) where app.tenantid=$tenantid
+      SELECT app.applicationno, to_char(to_timestamp(app.createdtime/1000),'DD/MM/YYYY') as applicationDate, CASE WHEN (statuskeys.message='' or statuskeys.message is NULL) THEN 'NA' ELSE statuskeys.message END  as currentStatus, vendor.name as dsoname, coalesce(payment.amountpaid) as amountpaid,CASE WHEN picomplete.lastmodifiedtime <= 0  THEN 'NA' ELSE to_char(to_timestamp(picomplete.lastmodifiedtime/1000),'DD/MM/YYYY')  END as dateOfCompletion from eg_fsm_application app inner join eg_vendor vendor ON  (app.dso_id =vendor.id) LEFT  JOIN egcl_bill bill ON ( bill.consumercode = app.applicationno) LEFT  JOIN egcl_paymentdetail payment ON ( payment.billid = bill.id ) LEFT  JOIN (select pi.businessId,pi.lastmodifiedtime from eg_wf_processinstance_v2 pi JOIN eg_wf_state_v2 status ON ( status.uuid =pi.status) where pi.businessService LIKE 'FSM%' AND status.applicationstatus IN ('CITIZEN_FEEDBACK_PENDING','COMPLETED')) picomplete ON ( picomplete.businessId = app.applicationno) LEFT  JOIN (VALUES fsm_status_keys) statuskeys(message,code) ON ( statuskeys.code = CONCAT('CS_COMMON_FSM_',fsm.applicationstatus)) where app.tenantid=$tenantid
     orderby: order by app.createdtime  desc
 
   - reportName: FSMAreaWiseDailyCollectionReport
@@ -383,6 +388,10 @@ ReportDefinitions:
         apiURL: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantId
         keyOrder: name,code
         tableName: fsm_boundary
+      - entity: $.messages
+        apiURL: http://egov-localization.egov:8080/localization/messages/v1/_search?locale=en_IN&tenantId=pb&module=rainmaker-fsm&codes=CS_COMMON_FSM_PENDING_DSO_APPROVAL,CS_COMMON_FSM_CREATED,CS_COMMON_FSM_PENDING_APPL_FEE_PAYMENT,CS_COMMON_FSM_ASSING_DSO,CS_COMMON_FSM_DSO_REJECTED,CS_COMMON_FSM_DSO_INPROGRESS,CS_COMMON_FSM_PENDING_DSO_APPROVAL,CS_COMMON_FSM_COMPLETED,CS_COMMON_FSM_REJECTED,CS_COMMON_FSM_CANCELED,CS_COMMON_FSM_CITIZEN_FEEDBACK_PENDING,REPORTS_FSM_PARAM_TENANT,ACTION_TEST_FSM_DAILY_DESLUDING_REPORT,ACTION_TEST_FSM_AREA_WISE_COLLECTION_REPORT,ACTION_TEST_FSM_FSTP_PLANT_WITH_VEHICLE_LOG_REPORT,REPORT_FSM_RESULT_VEHICLEENTRYDATE,REPORT_FSM_RESULT_SLA_COMPLIANCE
+        keyOrder: message,code
+        tableName: fsm_status_keys
     sourceColumns:
       - name: applicationno
         label: REPORT_FSM_RESULT_APPLICATIONNO
@@ -448,7 +457,7 @@ ReportDefinitions:
         isMandatory: false
         searchClause: AND app.dso_id = $dsoId
     query: |
-      SELECT app.applicationno, boundary.name as locality, vendor.name as dsoname, app.applicationstatus as currentStatus, CASE WHEN app.status = 'COMPLETED' THEN DATE_PART('day', AGE(to_timestamp(app.createdtime/1000), to_timestamp(app.completed_on/1000))) ELSE ((DATE_PART('day', AGE(to_timestamp(app.createdtime/1000), to_timestamp((EXTRACT(EPOCH FROM (SELECT NOW())))/1000))))) END as slaCompliance, vhtrip.volumecarried as septagedumped from eg_fsm_application app JOIN eg_fsm_address address ON ( address.fsm_id = app.id) LEFT JOIN eg_vendor vendor ON  (app.dso_id =vendor.id) LEFT JOIN eg_wf_processinstance_v2 pi ON (pi.businessId=app.applicationno) LEFT JOIN eg_vehicle_trip_detail vhtripdtl  on (app.applicationno=vhtripdtl.referenceno) LEFT JOIN eg_vehicle_trip vhtrip on (vhtripdtl.trip_id=vhtrip.id) LEFT  JOIN (VALUES fsm_boundary) AS boundary(name,code) ON (boundary.code = address.locality) where app.tenantid=$tenantid
+      SELECT app.applicationno, boundary.name as locality, vendor.name as dsoname, statuskeys.message as currentStatus, CASE WHEN app.applicationstatus = 'COMPLETED' THEN DATE_PART('day', AGE(to_timestamp(app.createdtime/1000), to_timestamp(app.completed_on/1000))) ELSE ((DATE_PART('day', AGE(to_timestamp(app.createdtime/1000), to_timestamp((EXTRACT(EPOCH FROM (SELECT NOW())))/1000))))) END as slaCompliance, vhtrip.volumecarried as septagedumped from eg_fsm_application app JOIN eg_fsm_address address ON ( address.fsm_id = app.id) LEFT JOIN eg_vendor vendor ON  (app.dso_id =vendor.id) LEFT JOIN eg_wf_processinstance_v2 pi ON (pi.businessId=app.applicationno) LEFT JOIN eg_vehicle_trip_detail vhtripdtl  on (app.applicationno=vhtripdtl.referenceno) LEFT JOIN eg_vehicle_trip vhtrip on (vhtripdtl.trip_id=vhtrip.id) LEFT  JOIN (VALUES fsm_boundary) AS boundary(name,code) ON (boundary.code = address.locality) LEFT  JOIN (VALUES fsm_status_keys) statuskeys(message,code) ON ( statuskeys.code = CONCAT('CS_COMMON_FSM_',fsm.applicationstatus)) where app.tenantid=$tenantid
     orderby: order by app.createdtime  desc
 
 
