@@ -223,10 +223,10 @@ ReportDefinitions:
       LEFT  JOIN eg_vendor vendor ON ( vendor.id = fsm.dso_id) 
       LEFT   JOIN (select pi.businessId,MAX(pi.lastmodifiedtime) as lastmodifiedtime from eg_wf_processinstance_v2 pi 
       LEFT  JOIN eg_wf_state_v2 status ON ( status.uuid =pi.status) 
-      where pi.businessService='FSM' AND status.applicationstatus='PENDING_DSO_APPROVAL'  GROUP BY pi.businessId) pidso ON ( pidso.businessId = fsm.applicationno) 
+      where pi.businessService IN ('FSM_POST_PAY_SERVICE','PAY_LATER_SERVICE','FSM_ZERO_PAY_SERVICE','FSM_ADVANCE_PAY_SERVICE','FSM') AND status.applicationstatus='PENDING_DSO_APPROVAL'  GROUP BY pi.businessId) pidso ON ( pidso.businessId = fsm.applicationno) 
       LEFT  JOIN (select pi.businessId,pi.lastmodifiedtime from eg_wf_processinstance_v2 pi 
       JOIN eg_wf_state_v2 status ON ( status.uuid =pi.status) 
-      where pi.businessService='FSM' AND status.applicationstatus='CITIZEN_FEEDBACK_PENDING') picomplete ON ( picomplete.businessId = fsm.applicationno) 
+      where pi.businessService IN ('FSM_POST_PAY_SERVICE','PAY_LATER_SERVICE','FSM_ZERO_PAY_SERVICE','FSM_ADVANCE_PAY_SERVICE','FSM') AND status.applicationstatus IN ('CITIZEN_FEEDBACK_PENDING','COMPLETED')) picomplete ON ( picomplete.businessId = fsm.applicationno) 
       LEFT  JOIN egcl_bill bill ON ( bill.consumercode = fsm.applicationno) 
       LEFT  JOIN egcl_paymentdetail payment ON ( payment.billid = bill.id )
       LEFT  JOIN (VALUES fsm_boundary) AS boundary(name,code) ON (boundary.code = address.locality) 
@@ -527,7 +527,7 @@ ReportDefinitions:
         source: fsm
         wrapper: true
         isMandatory: true
-        searchClause: AND vhtrip.additionaldetails ::json ->>'plantCode' in ($fstpcode)
+        searchClause: AND vhtrip.additionaldetails ::json ->>'plantCode ' in ($fstpcode)
       - name: dsoId
         label: REPORTS_FSM_PARAM_DSONAME
         type: singlevaluelist
