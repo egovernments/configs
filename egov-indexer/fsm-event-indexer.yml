@@ -8,49 +8,49 @@ ServiceMaps:
       - name: fsm-inbox
         type: fsmapplication
         id: $.id, $.tenantId
-        jsonPath: $
+        jsonPath: $.fsm
         timeStampField: $.auditDetails.createdTime
         isBulk: false
         customJsonMapping:
           indexMapping: { "Data": { "workflow": { "state": {}, "action": "", "assignes": []},"id": "","tenantId": "", "applicationNo": "","applicationStatus": "","status": "","possibleServiceDate": "","mobileNumberHash": [],"@timestamp": "timestamp","auditDetails": {},"locality": "locality","currentProcessInstance": {}, "history": {}, "ward":{}, "tenantData":{}}}      
           fieldMapping:
-          - inJsonPath: $.workflow.applicationStatus.state
+          - inJsonPath: $.processInstance.state.applicationStatus
             outJsonPath: $.Data.workflow.state
-          - inJsonPath: $.workflow.processInstance.action
+          - inJsonPath: $.processInstance.action
             outJsonPath: $.Data.workflow.action
-          - inJsonPath: $.workflow.processInstance.assignes.*.uuid
+          - inJsonPath: $.processInstance.assignes.*.uuid
             outJsonPath: $.Data.workflow.assignes
-          - inJsonPath: $.fsm.id
+          - inJsonPath: $.id
             outJsonPath: $.Data.id
-          - inJsonPath: $.fsm.tenantId
+          - inJsonPath: $.tenantId
             outJsonPath: $.Data.tenantId
-          - inJsonPath: $.fsm.applicationNo
+          - inJsonPath: $.applicationNo
             outJsonPath: $.Data.applicationNo
-          - inJsonPath: $.fsm.applicationStatus
+          - inJsonPath: $.applicationStatus
             outJsonPath: $.Data.applicationStatus
-          - inJsonPath: $.fsm.status
+          - inJsonPath: $.status
             outJsonPath: $.Data.status
-          - inJsonPath: $.fsm.possibleServiceDate
+          - inJsonPath: $.possibleServiceDate
             outJsonPath: $.Data.possibleServiceDate
-          - inJsonPath: $.fsm.citizen.mobileNumber
+          - inJsonPath: $.citizen.mobileNumber
             outJsonPath: $.Data.mobileNumber
           - inJsonPath: $.@timestamp
             outJsonPath: $.Data.@timestamp
-          - inJsonPath: $.fsm.auditDetails
+          - inJsonPath: $.auditDetails
             outJsonPath: $.Data.auditDetails
-          - inJsonPath: $.fsm.address.locality
+          - inJsonPath: $.address.locality
             outJsonPath: $.Data.locality
-          - inJsonPath: $.fsm.processInstance
+          - inJsonPath: $.processInstance
             outJsonPath: $.Data.currentProcessInstance
           externalUriMapping:
           - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
-            queryParam: businessIds=$.waterConnectionRequest.WaterConnection.applicationNo,history=true,tenantId=$.waterConnectionRequest.WaterConnection.tenantId
+            queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
             apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.amritsar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.amritsar"}]}}}
             uriResponseMapping:
             - inJsonPath: $.ProcessInstances
               outJsonPath: $.Data.history
           - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
-            queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.waterConnectionRequest.WaterConnection.additionalDetails.locality,tenantId=$.waterConnectionRequest.WaterConnection.tenantId
+            queryParam: hierarchyTypeCode=REVENUE,boundaryType=locality,codes=$.address.locality.code,tenantId=$.tenantId
             apiRequest: {"RequestInfo": {"apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61",
             "authToken": "02dbe5be-28df-4d82-954f-3d27c56cca7d","userInfo":{"id":73}}}
             uriResponseMapping:
@@ -64,7 +64,7 @@ ServiceMaps:
             filter: "[?(@.code == $tenant)]"
             filterMapping:
             - variable: $tenant
-              valueJsonpath: $.waterConnectionRequest.WaterConnection.tenantId
+              valueJsonpath: $.tenantId
             uriResponseMapping:
             - inJsonPath: $.MdmsRes.tenant.tenants
               outJsonPath: $.Data.tenantData
