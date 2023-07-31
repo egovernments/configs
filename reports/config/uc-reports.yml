@@ -848,6 +848,12 @@ ReportDefinitions:
         type: string
         source: uc
         total: false
+      - name: uuid
+        label: reports.uc.uuid
+        type: string
+        source: uc
+        total: false
+        showColumn: false
       - name: servicecategory
         label: reports.uc.businessdetails
         type: string
@@ -899,4 +905,4 @@ ReportDefinitions:
         searchClause: AND applicationstatus = $status
     query: |
         -- Use CTE to force query plan, compute & use CTE later
-        Select DISTINCT challanno as challanno,accountid,eg_user.name as consumername,businessservice,message.message as servicecategory,applicationstatus,ddetail.amount as amount,To_char((To_timestamp(challan.createdtime / 1000) at time Zone 'Asia/Kolkata'), 'DD/MM/YYYY') as challandate from eg_echallan AS challan LEFT OUTER JOIN message ON CONCAT('BILLINGSERVICE_BUSINESSSERVICE_',replace(businessservice, '.', '_')) = message.code AND message.locale='en_IN' AND message.module='rainmaker-uc' INNER JOIN (Select  id,consumercode from egbs_demand_v1 demand) as demand on demand.consumercode = challan.challanno INNER JOIN (Select DISTINCT  demandid,SUM(taxamount)as amount from egbs_demanddetail_v1 ddetail group by demandid) as ddetail on ddetail.demandid = demand.id LEFT OUTER JOIN eg_user ON challan.accountid=eg_user.uuid  WHERE challan.tenantid like $tenantid and challan.applicationstatus in ('ACTIVE','CANCELLED','PAID')
+      Select DISTINCT challanno as challanno,accountid,eg_user.uuid as uuid,eg_user.name as consumername,businessservice,message.message as servicecategory,applicationstatus,ddetail.amount as amount,To_char((To_timestamp(challan.createdtime / 1000) at time Zone 'Asia/Kolkata'), 'DD/MM/YYYY') as challandate from stateb.eg_echallan AS challan LEFT OUTER JOIN message ON CONCAT('BILLINGSERVICE_BUSINESSSERVICE_',replace(businessservice, '.', '_')) = message.code AND message.locale='en_IN' AND message.module='rainmaker-uc' INNER JOIN (Select  id,consumercode from stateb.egbs_demand_v1 demand) as demand on demand.consumercode = challan.challanno INNER JOIN (Select DISTINCT  demandid,SUM(taxamount)as amount from stateb.egbs_demanddetail_v1 ddetail group by demandid) as ddetail on ddetail.demandid = demand.id LEFT OUTER JOIN eg_user ON challan.accountid=eg_user.uuid  WHERE challan.tenantid like $tenantid and challan.applicationstatus in ('ACTIVE','CANCELLED','PAID')
