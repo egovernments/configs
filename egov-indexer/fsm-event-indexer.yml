@@ -14,6 +14,8 @@ ServiceMaps:
         customJsonMapping:
           indexMapping: { "Data": { "workflow": { "state": "", "action": "", "assignes": []},"id": "","tenantId": "", "applicationNo": "","applicationStatus": "","status": "","possibleServiceDate": "","mobileNumber": "","@timestamp": "timestamp","auditDetails": {},"locality": "","currentProcessInstance": {}, "history": {}, "ward":{}, "tenantData":{}}}      
           fieldMapping:
+           - inJsonPath: $.processInstance
+            outJsonPath: $.Data.currentProcessInstance
           - inJsonPath: $.processInstance.state.state
             outJsonPath: $.Data.workflow.state
           - inJsonPath: $.processInstance.action
@@ -40,8 +42,6 @@ ServiceMaps:
             outJsonPath: $.Data.auditDetails
           - inJsonPath: $.address.locality.code
             outJsonPath: $.Data.locality
-          - inJsonPath: $.processInstance
-            outJsonPath: $.Data.currentProcessInstance
           externalUriMapping:
           - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
             queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
@@ -109,14 +109,14 @@ ServiceMaps:
             uriResponseMapping:
             - inJsonPath: $.ProcessInstances
               outJsonPath: $.Data.history
-            - inJsonPath: $.ProcessInstances[0].state.state
-              outJsonPath: $.Data.workflow.state
-            - inJsonPath: $.ProcessInstances[0].action
-              outJsonPath: $.Data.workflow.action
-            - inJsonPath: $.ProcessInstances[0].assignee.uuid
-              outJsonPath: $.Data.workflow.assignes
             - inJsonPath: $.ProcessInstances[0]
               outJsonPath: $.Data.currentProcessInstance
+            - inJsonPath: $.ProcessInstances[0].action
+              outJsonPath: $.Data.workflow.action
+            - inJsonPath: $.ProcessInstances[0].state.state
+              outJsonPath: $.Data.workflow.state
+            - inJsonPath: $.ProcessInstances[0].assignee.uuid
+              outJsonPath: $.Data.workflow.assignes
           - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
             queryParam: hierarchyTypeCode=REVENUE,boundaryType=locality,codes=$.address.locality.code,tenantId=$.tenantId
             apiRequest: {"RequestInfo": {"apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61",
