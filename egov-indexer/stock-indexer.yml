@@ -1,0 +1,45 @@
+ServiceMaps:
+  serviceName: stock
+  version: 1.0.0
+  mappings:
+    - topic: transformer-producer-bulk-stock-index-v1-topic
+      configKey: INDEX
+      indexes:
+        - name: stock-index-v1
+          type: stock
+          id: $.id
+          isBulk: true
+          jsonPath: $
+          customJsonMapping:
+            indexMapping: { "Data": { } }
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data
+          timeStampField: $.lastModifiedTime
+        - name: user-sync-index-v1
+          type: users
+          id: $.id
+          isBulk: true
+          jsonPath: $
+          customJsonMapping:
+            indexMapping: { "Data": { } }
+            fieldMapping:
+              - inJsonPath: $.lastModifiedBy
+                outJsonPath: $.Data.userId
+              - inJsonPath: $.lastModifiedTime
+                outJsonPath: $.Data.createdTime
+              - inJsonPath: $.province
+                outJsonPath: $.Data.province
+              - inJsonPath: $.district
+                outJsonPath: $.Data.district
+              - inJsonPath: $.administrativeProvince
+                outJsonPath: $.Data.administrativeProvince
+              - inJsonPath: $.locality
+                outJsonPath: $.Data.locality
+              - inJsonPath: $.village
+                outJsonPath: $.Data.village
+              - inJsonPath: $.latitude
+                outJsonPath: $.Data.latitude
+              - inJsonPath: $.longitude
+                outJsonPath: $.Data.longitude
+          timeStampField: $.lastModifiedTime
