@@ -1,0 +1,171 @@
+serviceMaps:
+  serviceName: Measurement-Registry
+  mappings:
+    - version: 1.0
+      name: measurement
+      description: Persists measurements details in the table
+      fromTopic: save-measurement-details
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO eg_mb_measurements(id, tenantid, mbnumber, phyrefnumber, referenceid, entrydate, isactive, additionaldetails, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+          basePath: measurements.*
+          jsonMaps:
+
+            - jsonPath: $.measurements.*.id
+
+            - jsonPath: $.measurements.*.tenantId
+
+            - jsonPath: $.measurements.*.measurementNumber
+
+            - jsonPath: $.measurements.*.physicalRefNumber
+
+            - jsonPath: $.measurements.*.referenceId
+
+            - jsonPath: $.measurements.*.entryDate
+
+            - jsonPath: $.measurements.*.isActive
+
+            - jsonPath: $.measurements.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.measurements.*.auditDetails.createdTime
+
+            - jsonPath: $.measurements.*.auditDetails.createdBy
+
+            - jsonPath: $.measurements.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.measurements.*.auditDetails.lastModifiedBy
+
+
+        - query: INSERT INTO eg_mb_measurement_details(id, referenceid, targetid, isactive, description, additionaldetails, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+          basePath: measurements.*.measures.*
+          jsonMaps:
+
+
+            - jsonPath: $.measurements.*.measures.*.id
+
+            - jsonPath: $.measurements.*.measures.*.referenceId
+
+            - jsonPath: $.measurements.*.measures.*.targetId
+
+            - jsonPath: $.measurements.*.measures.*.isActive
+
+            - jsonPath: $.measurements.*.measures.*.comments
+
+            - jsonPath: $.measurements.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.measurements.*.measures.*.auditDetails.createdTime
+
+            - jsonPath: $.measurements.*.measures.*.auditDetails.createdBy
+
+            - jsonPath: $.measurements.*.measures.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.measurements.*.measures.*.auditDetails.lastModifiedBy
+
+
+        - query: INSERT INTO eg_mb_measurement_measures(id, length, breadth, height, numofitems, totalvalue, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+          basePath: measurements.*.measures.*
+          jsonMaps:
+
+
+            - jsonPath: $.measurements.*.measures.*.id
+
+            - jsonPath: $.measurements.*.measures.*.length
+
+            - jsonPath: $.measurements.*.measures.*.breadth
+
+            - jsonPath: $.measurements.*.measures.*.height
+
+            - jsonPath: $.measurements.*.measures.*.numItems
+
+            - jsonPath: $.measurements.*.measures.*.cumulativeValue
+
+            - jsonPath: $.measurements.*.measures.*.auditDetails.createdTime
+
+            - jsonPath: $.measurements.*.measures.*.auditDetails.createdBy
+
+            - jsonPath: $.measurements.*.measures.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.measurements.*.measures.*.auditDetails.lastModifiedBy
+
+
+    - version: 1.0
+      name: measurement
+      description: Persists measurements details in the table
+      fromTopic: update-measurement-details
+      isTransaction: true
+      queryMaps:
+
+        - query: UPDATE eg_mb_measurements SET phyrefnumber = ?,referenceid = ?, entrydate = ?,isactive = ?,additionaldetails = ?, lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
+
+          basePath: measurements.*
+          jsonMaps:
+
+
+            - jsonPath: $.measurements.*.physicalRefNumber
+
+            - jsonPath: $.measurements.*.referenceId
+
+            - jsonPath: $.measurements.*.entryDate
+
+            - jsonPath: $.measurements.*.isActive
+
+            - jsonPath: $.measurements.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.measurements.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.measurements.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.measurements.*.id
+
+
+        - query: UPDATE eg_mb_measurement_details SET targetid = ?,isactive = ?, description = ?,additionaldetails = ?,lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
+
+          basePath: measurements.*.measures.*
+          jsonMaps:
+
+            - jsonPath: $.measurements.*.measures.*.targetId
+
+            - jsonPath: $.measurements.*.measures.*.isActive
+
+            - jsonPath: $.measurements.*.description
+
+            - jsonPath: $.measurements.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.measurements.*.measures.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.measurements.*.measures.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $..measurements.*.measures.*.id
+
+
+        - query: UPDATE eg_mb_measurement_measures SET length = ?,breadth = ?,height = ?, numofitems = ?,totalvalue = ?, lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
+
+          basePath: measurements.*
+          jsonMaps:
+
+            - jsonPath: $.measurements.*.measures.*.length
+
+            - jsonPath: $.measurements.*.measures.*.breadth
+
+            - jsonPath: $.measurements.*.measures.*.height
+
+            - jsonPath: $.measurements.*.measures.*.numItems
+
+            - jsonPath: $.measurements.*.measures.*.cumulativeValue
+
+            - jsonPath: $.measurements.*.measures.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.measurements.*.measures.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.measurements.*.measures.*.id
