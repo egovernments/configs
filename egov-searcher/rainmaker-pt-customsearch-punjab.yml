@@ -1,0 +1,108 @@
+SearchDefinitions:
+ moduleName: rainmaker-pt-customsearch-punjab
+ summary: Vasika number search for punjab
+ version: 1.0.0
+ definitions:
+ - name: searchPropertyIDByVasikaNo
+   query: 
+    baseQuery: |
+      select 
+        array_to_json(array_agg(row_to_json(vasika_results))) 
+      from (select propertyid from eg_pt_property_v2
+      $where and
+        additionaldetails is not null and additionaldetails !='null'
+      ) vasika_results
+    groupBy:    
+    orderBy: 
+   searchParams:
+    condition: AND
+    params:
+    - name: tenantid
+      isMandatory: false
+      jsonPath: $.searchCriteria.tenantId
+    - name: additionaldetails->>'vasikaNo'
+      isMandatory: true
+      jsonPath: $.searchCriteria.vasikaNo
+    - name: propertyid
+      isMandatory: false
+      jsonPath: $.searchCriteria.propertyId
+
+   output:
+    jsonFormat: {"ResponseInfo": {}}
+    outJsonPath: $.services
+    responseInfoPath: $.ResponseInfo
+ - name: searchLocalitiesUsedInRevenue
+   query: 
+    baseQuery: |
+      select 
+              array_to_json(array_agg(localities)) 
+            from (
+            select distinct locality from eg_tl_address $where
+      union
+      select distinct locality from eg_pt_address_v2 $where
+      ) as localities
+    groupBy:    
+    orderBy: 
+   searchParams:
+    condition: AND
+    params:
+    - name: tenantid
+      isMandatory: true
+      jsonPath: $.searchCriteria.tenantId
+
+   output:
+    jsonFormat: {"ResponseInfo": {}}
+    outJsonPath: $.services
+    responseInfoPath: $.ResponseInfo
+ - name: searchLocalitiesUsedInAdmin
+   query: 
+    baseQuery: |
+      select 
+        array_to_json(array_agg(localities)) 
+        from (
+            select distinct eg_pgr_address.mohalla from eg_pgr_address $where
+            ) as localities
+    groupBy:    
+    orderBy: 
+   searchParams:
+    condition: AND
+    params:
+    - name: tenantid
+      isMandatory: true
+      jsonPath: $.searchCriteria.tenantId
+
+   output:
+    jsonFormat: {"ResponseInfo": {}}
+    outJsonPath: $.services
+    responseInfoPath: $.ResponseInfo
+ - name: propertyidSearch
+   query:
+    baseQuery: |
+      select array_to_json(array_agg(row_to_json(data))) from (
+        select
+          property as propertyid,
+          assessmentnumber,
+          receiptnumber,
+          amount,
+          pt_detail.financialyear
+        from eg_pt_propertydetail_v2 as pt_detail
+        left outer join egcl_receiptheader rh ON CONCAT(pt_detail.property, ':', pt_detail.assessmentnumber) = rh.consumercode
+        left outer JOIN egcl_receiptinstrument_v1 AS ri ON rh.id = ri.receiptheader
+        left outer JOIN egcl_instrumentheader_v1 AS ih ON ih.id = ri.instrumentheader $where) data
+    groupBy:
+    orderBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: pt_detail.property
+      isMandatory: true
+      jsonPath: $.searchCriteria.propertyid
+      operator: =
+
+   output:
+    jsonFormat: {"ResponseInfo": {}}
+    outJsonPath: $.data
+    responseInfoPath: $.ResponseInfo
+
+
+    
