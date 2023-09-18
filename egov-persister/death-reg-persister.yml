@@ -2,11 +2,11 @@ serviceMaps:
  serviceName: dtr
  mappings:
  - version: 1.0
-   description: Persists DET Application details in eg_dt_registration and eg_dt_address table
+   description: Persists DET Application details in eg_dtr_registration and eg_dtr_address table
    fromTopic: save-dt-application
    isTransaction: true
    queryMaps:
-     - query: INSERT INTO eg_dt_registration(id, tenantId, applicationNumber, applicationStatus, applicantId, deceasedFirstName, deceasedLastName, timeOfDeath, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+     - query: INSERT INTO eg_dtr_registration(id, tenantId, applicationNumber, deceasedFirstName, deceasedLastName,timeOfDeath, createdBy, lastModifiedBy, createdTime, lastModifiedTime, applicantId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
        basePath: $.DeathRegistrationApplications.*
        jsonMaps:
          - jsonPath: $.DeathRegistrationApplications.*.id
@@ -14,10 +14,6 @@ serviceMaps:
          - jsonPath: $.DeathRegistrationApplications.*.tenantId
 
          - jsonPath: $.DeathRegistrationApplications.*.applicationNumber
-
-         - jsonPath: $.DeathRegistrationApplications.*.applicationStatus
-
-         - jsonPath: $.DeathRegistrationApplications.*.applicant.id
 
          - jsonPath: $.DeathRegistrationApplications.*.deceasedFirstName
 
@@ -32,8 +28,10 @@ serviceMaps:
          - jsonPath: $.DeathRegistrationApplications.*.auditDetails.createdTime
 
          - jsonPath: $.DeathRegistrationApplications.*.auditDetails.lastModifiedTime
+         
+         - jsonPath: $.DeathRegistrationApplications.*.applicant.uuid
 
-     - query: INSERT INTO eg_dt_address(id, tenantId, doorNo, latitude, longitude, buildingName, addressId, addressNumber, type, addressLine1, addressLine2, landmark, street, city, locality, pincode, detail, registrationId, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+     - query: INSERT INTO eg_dtr_address(id, tenantId, doorNo, latitude, longitude, buildingName, addressId, addressNumber, type, addressLine1, addressLine2, landmark, street, city, locality, pincode, detail, registrationId, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
        basePath: $.DeathRegistrationApplications.*.addressOfDeceased
        jsonMaps:
          - jsonPath: $.DeathRegistrationApplications.*.addressOfDeceased.id
@@ -82,15 +80,14 @@ serviceMaps:
 
          
  - version: 1.0
-   description: update DET Application details in eg_dt_registration and eg_dt_address table
+   description: update DET Application details in eg_dtr_registration and eg_dtr_address table
    fromTopic: update-dt-application
    isTransaction: true
    queryMaps:
-     - query: UPDATE eg_dt_registration SET applicantId=?, deceasedFirstName=?, deceasedLastName=?, timeOfDeath=?, lastModifiedBy=?, lastModifiedTime=?, applicationStatus=? WHERE tenantId=? and applicationNumber=?;
+     - query: UPDATE eg_dtr_registration SET  deceasedFirstName=?, deceasedLastName=?, timeOfDeath=?, lastModifiedBy=?, lastModifiedTime=? WHERE tenantId=? and applicationNumber=?;
        basePath: $.DeathRegistrationApplications.*
        jsonMaps:
-         - jsonPath: $.DeathRegistrationApplications.*.applicant.id
-
+   
          - jsonPath: $.DeathRegistrationApplications.*.deceasedFirstName
          
          - jsonPath: $.DeathRegistrationApplications.*.deceasedLastName
@@ -100,8 +97,6 @@ serviceMaps:
          - jsonPath: $.DeathRegistrationApplications.*.auditDetails.lastModifiedBy
 
          - jsonPath: $.DeathRegistrationApplications.*.auditDetails.lastModifiedTime
-
-         - jsonPath: $.DeathRegistrationApplications.*.applicationStatus
 
          - jsonPath: $.DeathRegistrationApplications.*.tenantId
 
