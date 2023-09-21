@@ -1,0 +1,91 @@
+ServiceMaps:
+  serviceName: measurement-service
+  version: 1.0.0
+  mappings:
+    - topic: enrich-measurement-service-details
+      configKey: INDEX
+      indexes:
+        - name: measurement-service-index
+          type: general
+          id: $.measurement.id,$.measurement.tenantId
+          jsonPath: $.*
+          isBulk: true
+          timeStampField: $.measurement.auditDetails.createdTime
+          customJsonMapping:
+            indexMapping: {"Measurement":{"id":"","tenantId":"","measurementNumber":"","physicalRefNumber":"","referenceId":"","entryDate":"","measures":[],"auditDetails":{},"additionalDetails":{}},"Contracts":{"id":"","contractNumber":"","supplementNumber":"","versionNumber":"","businessService":"","wfStatus":"","executingAuthority":"","contractType":"","totalContractedAmount":"","securityDeposit":"","agreementDate":"","issueDate":"","defectLiabilityPeriod":"","orgId":"","startDate":"","endDate":"","completionPeriod":"","status":"","lineItems":[],"documents":"","processInstance":"","auditDetails":{},"additionalDetails":{}}}
+            fieldMapping:
+            - inJsonPath: $.measurement.id
+              outJsonPath: $.Measurement.id
+            - inJsonPath: $.measurement.tenantId
+              outJsonPath: $.Measurement.tenantId
+            - inJsonPath: $.measurement.measurementNumber
+              outJsonPath: $.Measurement.measurementNumber
+            - inJsonPath: $.measurement.physicalRefNumber
+              outJsonPath: $.Measurement.physicalRefNumber
+            - inJsonPath: $.measurement.referenceId
+              outJsonPath: $.Measurement.referenceId
+            - inJsonPath: $.measurement.entryDate
+              outJsonPath: $.Measurement.entryDate
+            - inJsonPath: $.measurement.measures
+              outJsonPath: $.Measurement.measures
+            - inJsonPath: $.measurement.auditDetails
+              outJsonPath: $.Measurement.auditDetails
+            - inJsonPath: $.measurement.additionalDetails
+              outJsonPath: $.Measurement.additionalDetails
+            - inJsonPath: $.contracts.id
+              outJsonPath: $.Contracts.id
+            - inJsonPath: $.contracts.contractNumber
+              outJsonPath: $.Contracts.contractNumber
+            - inJsonPath: $.contracts.supplementNumber
+              outJsonPath: $.Contracts.supplementNumber
+            - inJsonPath: $.contracts.versionNumber
+              outJsonPath: $.Contracts.versionNumber
+            - inJsonPath: $.contracts.businessService
+              outJsonPath: $.Contracts.businessService
+            - inJsonPath: $.contracts.wfStatus
+              outJsonPath: $.Contracts.wfStatus
+            - inJsonPath: $.contracts.executingAuthority
+              outJsonPath: $.Contracts.executingAuthority
+            - inJsonPath: $.contracts.contractType
+              outJsonPath: $.Contracts.contractType
+            - inJsonPath: $.contracts.totalContractedAmount
+              outJsonPath: $.Contracts.totalContractedAmount
+            - inJsonPath: $.contracts.securityDeposit
+              outJsonPath: $.Contracts.securityDeposit
+            - inJsonPath: $.contracts.agreementDate
+              outJsonPath: $.Contracts.agreementDate
+            - inJsonPath: $.contracts.issueDate
+              outJsonPath: $.Contracts.issueDate
+            - inJsonPath: $.contracts.defectLiabilityPeriod
+              outJsonPath: $.Contracts.defectLiabilityPeriod
+            - inJsonPath: $.contracts.orgId
+              outJsonPath: $.Contracts.orgId
+            - inJsonPath: $.contracts.startDate
+              outJsonPath: $.Contracts.startDate
+            - inJsonPath: $.contracts.endDate
+              outJsonPath: $.Contracts.endDate
+            - inJsonPath: $.contracts.completionPeriod
+              outJsonPath: $.Contracts.completionPeriod
+            - inJsonPath: $.contracts.status
+              outJsonPath: $.Contracts.status
+            - inJsonPath: $.contracts.lineItems
+              outJsonPath: $.Contracts.lineItems
+            - inJsonPath: $.contracts.documents
+              outJsonPath: $.Contracts.documents
+            - inJsonPath: $.contracts.processInstance
+              outJsonPath: $.Contracts.processInstance
+            - inJsonPath: $.contracts.auditDetails
+              outJsonPath: $.Contracts.auditDetails
+            - inJsonPath: $.contracts.additionalDetails
+              outJsonPath: $.Contracts.additionalDetails
+
+
+            externalUriMapping:
+            - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+              queryParam: businessIds=$.measurementNumber,history=true,tenantId=$.tenantId
+              apiRequest: { "RequestInfo": { "apiId": "org.egov.bill","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654","requesterId": "61","authToken": "d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo": { "id": 1,"uuid": "1fec8102-0e02-4d0a-b283-cd80d5dab067","type": "EMPLOYEE","tenantId": "pg.citya","roles": [ { "name": "Employee","code": "EMPLOYEE","tenantId": "pg.citya" } ] } } }
+              uriResponseMapping:
+              - inJsonPath: $.ProcessInstances
+                outJsonPath: $.Measurement.history
+              - inJsonPath: $.ProcessInstances[0]
+                outJsonPath: $.Measurement.currentProcessInstance
