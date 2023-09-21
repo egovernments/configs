@@ -55,7 +55,7 @@ serviceMaps:
 
             - jsonPath: $.measurements.*.measures.*.comments
 
-            - jsonPath: $.measurements.*.additionalDetails
+            - jsonPath: $.measurements.*.measures.*.additionalDetails
               type: JSON
               dbType: JSONB
 
@@ -68,7 +68,33 @@ serviceMaps:
             - jsonPath: $.measurements.*.measures.*.auditDetails.lastModifiedBy
 
 
-        - query: INSERT INTO eg_mb_measurement_measures(id, length, breadth, height, numofitems, totalvalue, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO eg_mb_measurement_documents (id, filestore, documenttype, documentuuid, referenceid, additionaldetails, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?);
+          basePath: measurements.*.documents.*
+          jsonMaps:
+            - jsonPath: $.measurements.*.documents.*.id
+
+            - jsonPath: $.measurements.*.documents.*.fileStore
+
+            - jsonPath: $.measurements.*.documents.*.documentType
+
+            - jsonPath: $.measurements.*.documents.*.documentUid
+
+            - jsonPath: $.measurements[*][?({id} in @.documents[*].id)].id
+
+            - jsonPath: $.measurements.*.documents.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.measurements[*][?({id} in @.documents[*].id)].auditDetails.createdBy
+
+            - jsonPath: $.measurements[*][?({id} in @.documents[*].id)].auditDetails.lastModifiedBy
+
+            - jsonPath: $.measurements[*][?({id} in @.documents[*].id)].auditDetails.createdTime
+
+            - jsonPath: $.measurements[*][?({id} in @.documents[*].id)].auditDetails.lastModifiedTime
+
+
+        - query: INSERT INTO eg_mb_measurement_measures(id, length, breadth, height, numofitems, totalvalue, cumulative, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
           basePath: measurements.*.measures.*
           jsonMaps:
@@ -83,6 +109,8 @@ serviceMaps:
             - jsonPath: $.measurements.*.measures.*.height
 
             - jsonPath: $.measurements.*.measures.*.numItems
+
+            - jsonPath: $.measurements.*.measures.*.totalValue
 
             - jsonPath: $.measurements.*.measures.*.cumulativeValue
 
@@ -127,7 +155,7 @@ serviceMaps:
             - jsonPath: $.measurements.*.id
 
 
-        - query: UPDATE eg_mb_measurement_details SET targetid = ?,isactive = ?, description = ?,additionaldetails = ?,lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
+        - query: UPDATE eg_mb_measurement_details SET targetid = ?,isactive = ?, description = ?, additionaldetails = ?,lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
 
           basePath: measurements.*.measures.*
           jsonMaps:
@@ -136,9 +164,9 @@ serviceMaps:
 
             - jsonPath: $.measurements.*.measures.*.isActive
 
-            - jsonPath: $.measurements.*.description
+            - jsonPath: $.measurements.*.measures.*.comments
 
-            - jsonPath: $.measurements.*.additionalDetails
+            - jsonPath: $.measurements.*.measures.*.additionalDetails
               type: JSON
               dbType: JSONB
 
@@ -146,12 +174,35 @@ serviceMaps:
 
             - jsonPath: $.measurements.*.measures.*.auditDetails.lastModifiedBy
 
-            - jsonPath: $..measurements.*.measures.*.id
+            - jsonPath: $.measurements.*.measures.*.id
 
 
-        - query: UPDATE eg_mb_measurement_measures SET length = ?,breadth = ?,height = ?, numofitems = ?,totalvalue = ?, lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
+        - query: UPDATE eg_mb_measurement_documents SET filestore = ?, documenttype = ?, documentuuid = ?, additionaldetails = ?,lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
 
-          basePath: measurements.*
+          basePath: measurements.*.documents.*
+          jsonMaps:
+
+            - jsonPath: $.measurements.*.documents.*.fileStore
+
+            - jsonPath: $.measurements.*.documents.*.documentType
+
+            - jsonPath: $.measurements.*.documents.*.documentUid
+
+            - jsonPath: $.measurements.*.documents.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.measurements[*][?({id} in @.documents[*].id)].auditDetails.lastModifiedTime
+
+            - jsonPath: $.measurements[*][?({id} in @.documents[*].id)].auditDetails.lastModifiedBy
+
+            - jsonPath: $.measurements.*.documents.*.id
+
+
+
+        - query: UPDATE eg_mb_measurement_measures SET length = ?,breadth = ?,height = ?, numofitems = ?,totalvalue = ?, cumulative = ?,lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
+
+          basePath: measurements.*.measures.*
           jsonMaps:
 
             - jsonPath: $.measurements.*.measures.*.length
@@ -161,6 +212,8 @@ serviceMaps:
             - jsonPath: $.measurements.*.measures.*.height
 
             - jsonPath: $.measurements.*.measures.*.numItems
+
+            - jsonPath: $.measurements.*.measures.*.totalValue
 
             - jsonPath: $.measurements.*.measures.*.cumulativeValue
 
