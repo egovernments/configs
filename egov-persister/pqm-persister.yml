@@ -95,3 +95,41 @@ serviceMaps:
             - jsonPath: $.tests.*.documents.*.auditDetails.createdTime
             - jsonPath: $.tests.*.documents.*.auditDetails.lastModifiedTime
 
+
+    - version: 1.0
+      description: Update PQM Application details in eg_pqm_tests table
+      fromTopic: update-pqm-application
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO eg_pqm_tests_auditlog SELECT * FROM eg_pqm_tests WHERE id = ?
+          basePath: $.tests.*
+          jsonMaps:
+            - jsonPath: $.tests.*.id
+
+        - query: UPDATE eg_pqm_tests SET status = ?, wfStatus = ?, qualityCriteria = ?::jsonb, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ? WHERE id = ?;
+          basePath: $.tests.*
+          jsonMaps:
+            - jsonPath: $.tests.*.status
+            - jsonPath: $.tests.*.wfStatus
+            - jsonPath: $.tests.*.qualityCriteria
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.tests.*.createdBy
+            - jsonPath: $.tests.*.lastModifiedBy
+            - jsonPath: $.tests.*.createdTime
+            - jsonPath: $.tests.*.lastModifiedTime
+            - jsonPath: $.tests.*.id
+
+        - query: INSERT INTO eg_pqm_test_result_documents_auditlog SELECT * FROM eg_pqm_test_result_documents WHERE id = ?;
+          basePath: $.tests.*.documents.*
+          jsonMaps:
+            - jsonPath: $.tests.*.documents.*.id
+
+        - query: UPDATE eg_pqm_test_result_documents SET createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ? WHERE id = ?;
+          basePath: $.tests.*.documents.*
+          jsonMaps:
+            - jsonPath: $.tests.documents.createdBy
+            - jsonPath: $.tests.documents.lastModifiedBy
+            - jsonPath: $.tests.documents.createdTime
+            - jsonPath: $.tests.documents.lastModifiedTime
+            - jsonPath: $.tests.documents.id
