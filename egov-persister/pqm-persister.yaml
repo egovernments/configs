@@ -6,7 +6,7 @@ serviceMaps:
       fromTopic: save-test-application
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO eg_pqm_tests(id, tenantId, plantCode, processCode, stageCode, materialCode, deviceCode, testType, status, wfStatus, scheduledDate, qualityCriteria, additionalDetails, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO eg_pqm_tests(id, tenantId, plantCode, processCode, stageCode, materialCode, deviceCode, testType, status, wfStatus, scheduledDate, additionalDetails, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.tests.*
           jsonMaps:
             - jsonPath: $.tests.*.id
@@ -20,9 +20,6 @@ serviceMaps:
             - jsonPath: $.tests.*.status
             - jsonPath: $.tests.*.wfStatus
             - jsonPath: $.tests.*.scheduledDate
-            - jsonPath: $.tests.*.qualityCriteria
-              type: JSON
-              dbType: JSONB
             - jsonPath: $.tests.*.additionalDetails
               type: JSON
               dbType: JSONB
@@ -51,7 +48,21 @@ serviceMaps:
             - jsonPath: $.tests.*.documents.*.auditDetails.createdTime
             - jsonPath: $.tests.*.documents.*.auditDetails.lastModifiedTime
 
-        - query: INSERT INTO eg_pqm_tests_auditlog (id, tenantId, plantCode, processCode, stageCode, materialCode, deviceCode, testType, status, wfStatus, scheduledDate, qualityCriteria, additionalDetails, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO eg_pqm_test_criteria_results (id, testId, criteriaCode, resultValue, resultStatus, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.tests.*.testCriteria.*
+          jsonMaps:
+            - jsonPath: $.tests.*.testCriteria.*.id
+            - jsonPath: $.tests.*.testCriteria.*.testId
+            - jsonPath: $.tests.*.testCriteria.*.criteriaCode
+            - jsonPath: $.tests.*.testCriteria.*.resultValue
+            - jsonPath: $.tests.*.testCriteria.*.resultStatus
+            - jsonPath: $.tests.*.testCriteria.*.isActive
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.createdBy
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.lastModifiedBy
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.createdTime
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO eg_pqm_tests_auditlog (id, tenantId, plantCode, processCode, stageCode, materialCode, deviceCode, testType, status, wfStatus, scheduledDate, additionalDetails, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.tests.*
           jsonMaps:
             - jsonPath: $.tests.*.id
@@ -65,9 +76,6 @@ serviceMaps:
             - jsonPath: $.tests.*.status
             - jsonPath: $.tests.*.wfStatus
             - jsonPath: $.tests.*.scheduledDate
-            - jsonPath: $.tests.*.qualityCriteria
-              type: JSON
-              dbType: JSONB
             - jsonPath: $.tests.*.additionalDetails
               type: JSON
               dbType: JSONB
@@ -95,6 +103,19 @@ serviceMaps:
             - jsonPath: $.tests.*.documents.*.auditDetails.createdTime
             - jsonPath: $.tests.*.documents.*.auditDetails.lastModifiedTime
 
+        - query: INSERT INTO eg_pqm_test_criteria_results_auditlog (id, testId, criteriaCode, resultValue, resultStatus, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.tests.*.testCriteria.*
+          jsonMaps:
+            - jsonPath: $.tests.*.testCriteria.*.id
+            - jsonPath: $.tests.*.testCriteria.*.testId
+            - jsonPath: $.tests.*.testCriteria.*.criteriaCode
+            - jsonPath: $.tests.*.testCriteria.*.resultValue
+            - jsonPath: $.tests.*.testCriteria.*.resultStatus
+            - jsonPath: $.tests.*.testCriteria.*.isActive
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.createdBy
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.lastModifiedBy
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.createdTime
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.lastModifiedTime
 
     - version: 1.0
       description: Update PQM Application details in eg_pqm_tests table
@@ -106,18 +127,33 @@ serviceMaps:
           jsonMaps:
             - jsonPath: $.tests.*.id
 
-        - query: UPDATE eg_pqm_tests SET status = ?, qualityCriteria = ?::jsonb, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ? WHERE id = ?;
+        - query: UPDATE eg_pqm_tests SET status = ?, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ? WHERE id = ?;
           basePath: $.tests.*
           jsonMaps:
             - jsonPath: $.tests.*.status
-            - jsonPath: $.tests.*.qualityCriteria
-              type: JSON
-              dbType: JSONB
             - jsonPath: $.tests.*.auditDetails.createdBy
             - jsonPath: $.tests.*.auditDetails.lastModifiedBy
             - jsonPath: $.tests.*.auditDetails.createdTime
             - jsonPath: $.tests.*.auditDetails.lastModifiedTime
             - jsonPath: $.tests.*.id
+
+        - query: INSERT INTO eg_pqm_test_criteria_results_auditlog SELECT * FROM eg_pqm_test_criteria_results WHERE id = ?
+          basePath: $.tests.*.testCriteria.*
+          jsonMaps:
+            - jsonPath: $.tests.*.testCriteria.*.id
+
+        - query: UPDATE eg_pqm_test_criteria_results SET resultValue = ?, resultStatus = ?, isActive = ?, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ? WHERE id = ?;
+          basePath: $.tests.*.testCriteria.*
+          jsonMaps:
+            - jsonPath: $.tests.*.testCriteria.*.resultValue
+            - jsonPath: $.tests.*.testCriteria.*.resultStatus
+            - jsonPath: $.tests.*.testCriteria.*.isActive
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.createdBy
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.lastModifiedBy
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.createdTime
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.lastModifiedTime
+            - jsonPath: $.tests.*.testCriteria.*.id
+
 
     - version: 1.0
       description: Update PQM Application details in eg_pqm_tests table
@@ -129,16 +165,30 @@ serviceMaps:
           jsonMaps:
             - jsonPath: $.tests.*.id
 
-        - query: UPDATE eg_pqm_tests SET status = ?,wfStatus = ?, qualityCriteria = ?::jsonb, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ? WHERE id = ?;
+        - query: UPDATE eg_pqm_tests SET status = ?,wfStatus = ?, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ? WHERE id = ?;
           basePath: $.tests.*
           jsonMaps:
             - jsonPath: $.tests.*.status
             - jsonPath: $.tests.*.wfStatus
-            - jsonPath: $.tests.*.qualityCriteria
-              type: JSON
-              dbType: JSONB
             - jsonPath: $.tests.*.auditDetails.createdBy
             - jsonPath: $.tests.*.auditDetails.lastModifiedBy
             - jsonPath: $.tests.*.auditDetails.createdTime
             - jsonPath: $.tests.*.auditDetails.lastModifiedTime
             - jsonPath: $.tests.*.id
+
+        - query: INSERT INTO eg_pqm_test_criteria_results_auditlog SELECT * FROM eg_pqm_test_criteria_results WHERE id = ?
+          basePath: $.tests.*.testCriteria.*
+          jsonMaps:
+            - jsonPath: $.tests.*.testCriteria.*.id
+
+        - query: UPDATE eg_pqm_test_criteria_results SET resultValue = ?, resultStatus = ?, isActive = ?, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ?  WHERE id = ?;
+          basePath: $.tests.*.testCriteria.*
+          jsonMaps:
+            - jsonPath: $.tests.*.testCriteria.*.resultValue
+            - jsonPath: $.tests.*.testCriteria.*.resultStatus
+            - jsonPath: $.tests.*.testCriteria.*.isActive
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.createdBy
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.lastModifiedBy
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.createdTime
+            - jsonPath: $.tests.*.testCriteria.*.auditDetails.lastModifiedTime
+            - jsonPath: $.tests.*.testCriteria.*.id
