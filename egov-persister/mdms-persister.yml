@@ -36,6 +36,12 @@ serviceMaps:
       description: Persists the mdms data
       fromTopic: save-mdms-data
       isTransaction: true
+      isAuditEnabled: true
+      module: MDMS
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      transactionCodeJsonPath: $.uniqueIdentifier
+      auditAttributeBasePath: $.Mdms
       queryMaps:
         - query: INSERT INTO eg_mdms_data (id, tenantid, uniqueidentifier, schemacode, data, isactive, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.Mdms
@@ -61,3 +67,29 @@ serviceMaps:
             - jsonPath: $.Mdms.auditDetails.createdTime
 
             - jsonPath: $.Mdms.auditDetails.lastModifiedTime
+
+    - version: 1.0
+      description: Updates the mdms data
+      fromTopic: update-mdms-data
+      isTransaction: true
+      isAuditEnabled: true
+      module: MDMS
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      transactionCodeJsonPath: $.uniqueIdentifier
+      auditAttributeBasePath: $.Mdms
+      queryMaps:
+        - query: UPDATE eg_mdms_data SET data = ?, isActive = ?, lastModifiedBy = ?, lastModifiedTime = ? WHERE id = ?;
+          basePath: $.Mdms
+          jsonMaps:
+            - jsonPath: $.Mdms.data
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.Mdms.isActive
+
+            - jsonPath: $.Mdms.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Mdms.auditDetails.lastModifiedTime
+
+            - jsonPath: $.Mdms.id
