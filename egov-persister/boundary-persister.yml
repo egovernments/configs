@@ -1,0 +1,76 @@
+serviceMaps:
+  serviceName: boundary-Service
+  mappings:
+    - version: 1.0
+      description: Persists the boundary entity data
+      fromTopic: create-boundary-entity
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO boundary (id, tenantId, code, geometry, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.Boundary.*
+          jsonMaps:
+            - jsonPath: $.Boundary.*.id
+
+            - jsonPath: $.Boundary.*.tenantId
+
+            - jsonPath: $.Boundary.*.code
+
+            - jsonPath: $.Boundary.*.geometry
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.Boundary.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.Boundary.*.auditDetails.createdBy
+
+            - jsonPath: $.Boundary.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Boundary.*.auditDetails.createdTime
+
+            - jsonPath: $.Boundary.*.auditDetails.lastModifiedTime
+    - version: 1.0
+      description: Persists the boundary entity data
+      fromTopic: update-boundary-entity
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE boundary SET geometry = ? , lastModifiedBy = ? , lastModifiedTime = ? WHERE code = ? AND tenantId = ?;
+          basePath: $.Boundary.*
+          jsonMaps:
+            - jsonPath: $.Boundary.*.geometry
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.Boundary.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Boundary.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.Boundary.*.code
+
+            - jsonPath: $.Boundary.*.tenantId
+    - version: 1.0
+      description: Persists the boundary hierarchy definition data
+      fromTopic: save-boundary-hierarchy-definition
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO boundary_hierarchy (id, tenantId, hierarchyType, boundaryHierarchy, createdTime, createdBy, lastModifiedTime, lastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.BoundaryHierarchy
+          jsonMaps:
+            - jsonPath: $.BoundaryHierarchy.id
+
+            - jsonPath: $.BoundaryHierarchy.tenantId
+
+            - jsonPath: $.BoundaryHierarchy.hierarchyType
+
+            - jsonPath: $.BoundaryHierarchy.boundaryHierarchyJsonNode
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.BoundaryHierarchy.auditDetails.createdTime
+
+            - jsonPath: $.BoundaryHierarchy.auditDetails.createdBy
+
+            - jsonPath: $.BoundaryHierarchy.auditDetails.lastModifiedTime
+
+            - jsonPath: $.BoundaryHierarchy.auditDetails.lastModifiedBy
