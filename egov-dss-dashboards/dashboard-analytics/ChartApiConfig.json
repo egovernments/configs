@@ -25782,6 +25782,36 @@
     },
     "_comment": " PQM Total Plants"
   },
+  "pqmPlantsWithPercentageTestPassedGreaterThan90": {
+    "chartName": "DSS_PQM_PLANTS_WITH_PERCENTAGE_TEST_PASSED_90",
+    "queries": [
+      {
+        "module": "PQM",
+        "indexName": "pqm-service",
+        "aggrQuery": "{\"size\":0,\"query\":{\"bool\":{\"must\":[{\"term\":{\"Data.tests.wfStatus.keyword\":\"SUBMITTED\"}}]}},\"aggs\":{\"plants_pass_percentage\":{\"terms\":{\"field\":\"Data.tests.plantCode.keyword\",\"size\":10},\"aggs\":{\"TotalPassTest\":{\"filter\":{\"term\":{\"Data.tests.status.keyword\":\"PASS\"}}},\"PassPercentage\":{\"bucket_script\":{\"buckets_path\":{\"passCount\":\"TotalPassTest._count\",\"totalCount\":\"_count\"},\"script\":\"params.passCount/params.totalCount*100\"}},\"PassPercentageFilter\":{\"bucket_selector\":{\"buckets_path\":{\"passPercentage\":\"PassPercentage\"},\"script\":\"params.passPercentage>90\"}}}}}}",
+        "requestQueryMap": "{\"tenantId\" : \"Data.tests.tenantId\"}",
+        "dateRefField": "Data.tests.@timestamp"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "DSS_PQM_PLANTS_WITH_PERCENTAGE_TEST_PASSED_90"
+    ],
+    "insight": {
+      "chartResponseMap" : "pqmPlantsWithPercentageTestPassedGreaterThan90",
+      "action" : "differenceOfNumbers",
+      "upwardIndicator" : "positive",
+      "downwardIndicator" : "negative",
+      "textMessage" : "$indicator$value% than last $insightInterval",
+      "colorCode" : "#228B22",
+      "insightInterval" : "year",
+      "isRoundOff": true
+    },
+    "_comment": " PQM Plants With Percentage Test Passed Greater Than 90"
+  },
   "pqmTestCompliance": {
     "chartName": "DSS_PQM_TEST_COMPLIANCE",
     "queries": [
