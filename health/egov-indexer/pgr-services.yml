@@ -1,0 +1,92 @@
+ServiceMaps:
+ serviceName: Public Grievance Redressal - rainmaker
+ version: 1.0.0
+ mappings:
+  - topic: save-pgr-request
+    configKey: INDEX
+    indexes:
+      - name: pgr-services
+        type: general
+        id: $.service.serviceRequestId
+        jsonPath: $
+        timeStampField: $.service.auditDetails.createdTime
+        fieldsToBeMasked: ["$.service.citizen.userName", "$.service.citizen.name", "$.service.citizen.mobileNumber", "$.service.citizen.emailId"]
+        customJsonMapping:
+          indexMapping: {"Data":{"service":{},"tenantId": "","auditDetails": {},"currentProcessInstance": {}}}
+          fieldMapping:
+          - inJsonPath: $.service
+            outJsonPath: $.Data.service
+          - inJsonPath: $.service.tenantId
+            outJsonPath: $.Data.tenantId
+          - inJsonPath: $.service.auditDetails
+            outJsonPath: $.Data.auditDetails
+          externalUriMapping:
+            - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+              queryParam: businessIds=$.service.serviceRequestId,history=true,tenantId=$.service.tenantId
+              apiRequest: { "RequestInfo": { "apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654","requesterId": "61","authToken": "d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo": { "id": 1,"uuid": "1fec8102-0e02-4d0a-b283-cd80d5dab067","type": "EMPLOYEE","tenantId": "default","roles": [ { "name": "Employee","code": "EMPLOYEE","tenantId": "default" } ] } } }
+              uriResponseMapping:
+                - inJsonPath: $.ProcessInstances[0]
+                  outJsonPath: $.Data.currentProcessInstance
+
+  - topic: update-pgr-request
+    configKey: INDEX
+    indexes:
+      - name: pgr-services
+        type: general
+        id: $.service.serviceRequestId
+        jsonPath: $
+        timeStampField: $.service.auditDetails.createdTime
+        fieldsToBeMasked: ["$.service.citizen.userName", "$.service.citizen.name", "$.service.citizen.mobileNumber", "$.service.citizen.emailId"]
+        customJsonMapping:
+          indexMapping: {"Data":{"service":{},"tenantId": "","auditDetails": {},"currentProcessInstance": {}}}
+          fieldMapping:
+          - inJsonPath: $.service
+            outJsonPath: $.Data.service
+          - inJsonPath: $.service.tenantId
+            outJsonPath: $.Data.tenantId
+          - inJsonPath: $.service.auditDetails
+            outJsonPath: $.Data.auditDetails
+          externalUriMapping:
+            - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+              queryParam: businessIds=$.service.serviceRequestId,history=true,tenantId=$.service.tenantId
+              apiRequest: { "RequestInfo": { "apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654","requesterId": "61","authToken": "d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo": { "id": 1,"uuid": "1fec8102-0e02-4d0a-b283-cd80d5dab067","type": "EMPLOYEE","tenantId": "default","roles": [ { "name": "Employee","code": "EMPLOYEE","tenantId": "default" } ] } } }
+              uriResponseMapping:
+                - inJsonPath: $.ProcessInstances[0]
+                  outJsonPath: $.Data.currentProcessInstance
+
+  - topic: pgr-services-inboxIndex
+    configKey: LEGACYINDEX
+    indexes:
+      - name: pgr-services
+        type: general
+        isBulk: true
+        id: $.service.serviceRequestId
+        jsonPath: $.ServiceWrappers.*
+        timeStampField: $.service.auditDetails.createdTime
+        fieldsToBeMasked: ["$.service.citizen.userName", "$.service.citizen.name", "$.service.citizen.mobileNumber", "$.service.citizen.emailId"]
+        customJsonMapping:
+          indexMapping: {"Data":{"service":{},"tenantId": "","auditDetails": {},"currentProcessInstance": {}}}
+          fieldMapping:
+          - inJsonPath: $.service
+            outJsonPath: $.Data.service
+          - inJsonPath: $.service.tenantId
+            outJsonPath: $.Data.tenantId
+          - inJsonPath: $.service.auditDetails
+            outJsonPath: $.Data.auditDetails
+          externalUriMapping:
+            - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+              queryParam: businessIds=$.service.serviceRequestId,history=true,tenantId=$.service.tenantId
+              apiRequest: { "RequestInfo": { "apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654","requesterId": "61","authToken": "d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo": { "id": 1,"uuid": "1fec8102-0e02-4d0a-b283-cd80d5dab067","type": "EMPLOYEE","tenantId": "default","roles": [ { "name": "Employee","code": "EMPLOYEE","tenantId": "default" } ] } } }
+              uriResponseMapping:
+                - inJsonPath: $.ProcessInstances[0]
+                  outJsonPath: $.Data.currentProcessInstance
+                  
+  - topic: pgr-service-reindex
+    configKey: REINDEX
+    indexes:
+      - name: pgrreindex-v2
+        type: general
+        id: $.Data.service.serviceRequestId
+        isBulk: true
+        jsonPath: $.hits
+        timeStampField: $.Data.service.auditDetails.lastModifiedTime
