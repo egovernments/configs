@@ -480,6 +480,44 @@ serviceMaps:
      - jsonPath: $.vehicleTrip.*.auditDetails.lastModifiedTime
           
      - jsonPath: $.vehicleTrip.*.id
-          
-   
-                
+
+ - version: 1.0
+   description: Insert FSM Application worker details in eg_fsm_application_worker table
+   fromTopic: create-fsm-application-workers
+   isTransaction: true
+   queryMaps:
+   - query: INSERT INTO eg_fsm_application_worker( id, tenantId, application_id, individual_id, workerType, status, additionaldetails, createdBy, lastmodifiedBy, createdTime, lastmodifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+     basePath: $.workers.*
+     jsonMaps:
+       - jsonPath: $.workers.*.id
+       - jsonPath: $.workers.*.tenantId
+       - jsonPath: $.workers.*.applicationId
+       - jsonPath: $.workers.*.individualId
+       - jsonPath: $.workers.*.workerType
+       - jsonPath: $.workers.*.status
+       - jsonPath: $.workers.*.additionalDetails
+         type: JSON
+         dbType: JSONB
+       - jsonPath: $.workers.*.auditDetails.createdBy
+       - jsonPath: $.workers.*.auditDetails.lastModifiedBy
+       - jsonPath: $.workers.*.auditDetails.createdTime
+       - jsonPath: $.workers.*.auditDetails.lastModifiedTime
+
+ - version: 1.0
+   description: Update FSM Application worker details in eg_fsm_application_worker table
+   fromTopic: update-fsm-application-workers
+   isTransaction: true
+   queryMaps:
+     - query: UPDATE eg_fsm_application_worker SET workerType=?, status=?, additionaldetails=?, createdBy=?, lastmodifiedBy=?, createdTime=?, lastmodifiedTime=? WHERE id=?;
+       basePath: $.workers.*
+       jsonMaps:
+         - jsonPath: $.workers.*.workerType
+         - jsonPath: $.workers.*.status
+         - jsonPath: $.workers.*.additionalDetails
+           type: JSON
+           dbType: JSONB
+         - jsonPath: $.workers.*.auditDetails.createdBy
+         - jsonPath: $.workers.*.auditDetails.lastModifiedBy
+         - jsonPath: $.workers.*.auditDetails.createdTime
+         - jsonPath: $.workers.*.auditDetails.lastModifiedTime
+         - jsonPath: $.workers.*.id
