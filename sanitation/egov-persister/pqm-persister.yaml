@@ -126,12 +126,8 @@ serviceMaps:
       fromTopic: update-test-application
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO eg_pqm_tests_auditlog SELECT * FROM eg_pqm_tests WHERE testId = ?
-          basePath: $.tests.*
-          jsonMaps:
-            - jsonPath: $.tests.*.testId
-
-        - query: UPDATE eg_pqm_tests SET status = ?, wfStatus = ?, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ? WHERE testId = ?;
+    
+        - query: UPDATE eg_pqm_tests SET status = ?, wfStatus = ?, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ?, labAssignedTo = ? WHERE testId = ?;
           basePath: $.tests.*
           jsonMaps:
             - jsonPath: $.tests.*.status
@@ -140,12 +136,18 @@ serviceMaps:
             - jsonPath: $.tests.*.auditDetails.lastModifiedBy
             - jsonPath: $.tests.*.auditDetails.createdTime
             - jsonPath: $.tests.*.auditDetails.lastModifiedTime
+            - jsonPath: $.tests.*.labAssignedTo
             - jsonPath: $.tests.*.testId
-        - query: INSERT INTO eg_pqm_test_result_documents (id, testId, documentUid, documentUri, documentType, filestoreId, isActive, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO eg_pqm_tests_auditlog SELECT * FROM eg_pqm_tests WHERE testId = ?
+          basePath: $.tests.*
+          jsonMaps:
+            - jsonPath: $.tests.*.testId        
+        - query: INSERT INTO eg_pqm_test_result_documents (id, testId, tenantId, documentUid, documentUri, documentType, filestoreId, isActive, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.tests.*.documents.*
           jsonMaps:
             - jsonPath: $.tests.*.documents.*.id
             - jsonPath: $.tests.*.documents.*.testId
+            - jsonPath: $.tests.*.documents.*.tenantId
             - jsonPath: $.tests.*.documents.*.documentUid
             - jsonPath: $.tests.*.documents.*.documentUri
             - jsonPath: $.tests.*.documents.*.documentType
