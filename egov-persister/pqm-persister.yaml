@@ -6,11 +6,13 @@ serviceMaps:
       fromTopic: save-test-application
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO eg_pqm_tests(id, tenantId, plantCode, processCode, stageCode, materialCode, deviceCode, testType, status, wfStatus, scheduledDate, additionalDetails, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO eg_pqm_tests(id,testId, tenantId, testCode, plantCode, processCode, stageCode, materialCode, deviceCode, sourceType, status, wfStatus, scheduledDate, additionalDetails, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.tests.*
           jsonMaps:
             - jsonPath: $.tests.*.id
+            - jsonPath: $.tests.*.testId
             - jsonPath: $.tests.*.tenantId
+            - jsonPath: $.tests.*.testCode
             - jsonPath: $.tests.*.plantCode
             - jsonPath: $.tests.*.processCode
             - jsonPath: $.tests.*.stageCode
@@ -38,7 +40,7 @@ serviceMaps:
             - jsonPath: $.tests.*.documents.*.documentUid
             - jsonPath: $.tests.*.documents.*.documentUri
             - jsonPath: $.tests.*.documents.*.documentType
-            - jsonPath: $.tests.*.documents.*.filestoreId
+            - jsonPath: $.tests.*.documents.*.fileStoreId
             - jsonPath: $.tests.*.documents.*.isActive
             - jsonPath: $.tests.*.documents.*.additionalDetails
               type: JSON
@@ -62,11 +64,13 @@ serviceMaps:
             - jsonPath: $.tests.*.testCriteria.*.auditDetails.createdTime
             - jsonPath: $.tests.*.testCriteria.*.auditDetails.lastModifiedTime
 
-        - query: INSERT INTO eg_pqm_tests_auditlog (id, tenantId, plantCode, processCode, stageCode, materialCode, deviceCode, testType, status, wfStatus, scheduledDate, additionalDetails, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO eg_pqm_tests_auditlog (id, testId, tenantId, testCode, plantCode, processCode, stageCode, materialCode, deviceCode, sourceType, status, wfStatus, scheduledDate, additionalDetails, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.tests.*
           jsonMaps:
             - jsonPath: $.tests.*.id
+            - jsonPath: $.tests.*.testId
             - jsonPath: $.tests.*.tenantId
+            - jsonPath: $.tests.*.testCode
             - jsonPath: $.tests.*.plantCode
             - jsonPath: $.tests.*.processCode
             - jsonPath: $.tests.*.stageCode
@@ -93,7 +97,7 @@ serviceMaps:
             - jsonPath: $.tests.*.documents.*.documentUid
             - jsonPath: $.tests.*.documents.*.documentUri
             - jsonPath: $.tests.*.documents.*.documentType
-            - jsonPath: $.tests.*.documents.*.filestoreId
+            - jsonPath: $.tests.*.documents.*.fileStoreId
             - jsonPath: $.tests.*.documents.*.additionalDetails
               type: JSON
               dbType: JSONB
@@ -122,12 +126,8 @@ serviceMaps:
       fromTopic: update-test-application
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO eg_pqm_tests_auditlog SELECT * FROM eg_pqm_tests WHERE id = ?
-          basePath: $.tests.*
-          jsonMaps:
-            - jsonPath: $.tests.*.id
 
-        - query: UPDATE eg_pqm_tests SET status = ?, wfStatus = ?, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ? WHERE id = ?;
+        - query: UPDATE eg_pqm_tests SET status = ?, wfStatus = ?, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ?, labAssignedTo = ? WHERE testId = ?;
           basePath: $.tests.*
           jsonMaps:
             - jsonPath: $.tests.*.status
@@ -136,9 +136,16 @@ serviceMaps:
             - jsonPath: $.tests.*.auditDetails.lastModifiedBy
             - jsonPath: $.tests.*.auditDetails.createdTime
             - jsonPath: $.tests.*.auditDetails.lastModifiedTime
-            - jsonPath: $.tests.*.id
+            - jsonPath: $.tests.*.labAssignedTo
+            - jsonPath: $.tests.*.testId
 
-        - query: INSERT INTO eg_pqm_test_result_documents (id, testId, documentUid, documentUri, documentType, filestoreId, isActive, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO eg_pqm_tests_auditlog SELECT * FROM eg_pqm_tests WHERE testId = ?
+          basePath: $.tests.*
+          jsonMaps:
+            - jsonPath: $.tests.*.testId
+
+
+        - query: INSERT INTO eg_pqm_test_result_documents (id, testId, documentUid, documentUri, documentType, filestoreId, isActive, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);
           basePath: $.tests.*.documents.*
           jsonMaps:
             - jsonPath: $.tests.*.documents.*.id
@@ -197,12 +204,12 @@ serviceMaps:
       fromTopic: update-workflow-test-application
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO eg_pqm_tests_auditlog SELECT * FROM eg_pqm_tests WHERE id = ?
+        - query: INSERT INTO eg_pqm_tests_auditlog SELECT * FROM eg_pqm_tests WHERE testId = ?
           basePath: $.tests.*
           jsonMaps:
-            - jsonPath: $.tests.*.id
+            - jsonPath: $.tests.*.testId
 
-        - query: UPDATE eg_pqm_tests SET status = ?,wfStatus = ?, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ? WHERE id = ?;
+        - query: UPDATE eg_pqm_tests SET status = ?,wfStatus = ?, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ? WHERE testId = ?;
           basePath: $.tests.*
           jsonMaps:
             - jsonPath: $.tests.*.status
@@ -211,7 +218,7 @@ serviceMaps:
             - jsonPath: $.tests.*.auditDetails.lastModifiedBy
             - jsonPath: $.tests.*.auditDetails.createdTime
             - jsonPath: $.tests.*.auditDetails.lastModifiedTime
-            - jsonPath: $.tests.*.id
+            - jsonPath: $.tests.*.testId
 
         - query: INSERT INTO eg_pqm_test_criteria_results_auditlog SELECT * FROM eg_pqm_test_criteria_results WHERE id = ?
           basePath: $.tests.*.testCriteria.*
@@ -229,3 +236,65 @@ serviceMaps:
             - jsonPath: $.tests.*.testCriteria.*.auditDetails.createdTime
             - jsonPath: $.tests.*.testCriteria.*.auditDetails.lastModifiedTime
             - jsonPath: $.tests.*.testCriteria.*.id
+
+    - version: 1.0
+      description: Save plant and user mapping in eq_plant_user_map table
+      fromTopic: save-plant-user-mapping
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO eq_plant_user_map(id, tenantId, plantCode, plantUserUuid, plantUserType, additionalDetails, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.plantUsers.*
+          jsonMaps:
+            - jsonPath: $.plantUsers.*.id
+            - jsonPath: $.plantUsers.*.tenantId
+            - jsonPath: $.plantUsers.*.plantCode
+            - jsonPath: $.plantUsers.*.plantUserUuid
+            - jsonPath: $.plantUsers.*.plantUserType
+            - jsonPath: $.plantUsers.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.plantUsers.*.isActive
+            - jsonPath: $.plantUsers.*.auditDetails.createdBy
+            - jsonPath: $.plantUsers.*.auditDetails.lastModifiedBy
+            - jsonPath: $.plantUsers.*.auditDetails.createdTime
+            - jsonPath: $.plantUsers.*.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO eq_plant_user_map_auditlog(id, tenantId, plantCode, plantUserUuid, plantUserType, additionalDetails, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.plantUsers.*
+          jsonMaps:
+            - jsonPath: $.plantUsers.*.id
+            - jsonPath: $.plantUsers.*.tenantId
+            - jsonPath: $.plantUsers.*.plantCode
+            - jsonPath: $.plantUsers.*.plantUserUuid
+            - jsonPath: $.plantUsers.*.plantUserType
+            - jsonPath: $.plantUsers.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.plantUsers.*.isActive
+            - jsonPath: $.plantUsers.*.auditDetails.createdBy
+            - jsonPath: $.plantUsers.*.auditDetails.lastModifiedBy
+            - jsonPath: $.plantUsers.*.auditDetails.createdTime
+            - jsonPath: $.plantUsers.*.auditDetails.lastModifiedTime
+
+    - version: 1.0
+      description: Update plant and user mapping in eq_plant_user_map table
+      fromTopic: update-plant-user-mapping
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO eq_plant_user_map_auditlog SELECT * FROM eq_plant_user_map WHERE id = ?
+          basePath: $.plantUsers.*
+          jsonMaps:
+            - jsonPath: $.plantUsers.*.id
+
+        - query: UPDATE eq_plant_user_map SET isActive = ?, additionalDetails = ?::jsonb, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ? WHERE id = ?;
+          basePath: $.plantUsers.*
+          jsonMaps:
+            - jsonPath: $.plantUsers.*.isActive
+            - jsonPath: $.plantUsers.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.plantUsers.*.auditDetails.createdBy
+            - jsonPath: $.plantUsers.*.auditDetails.lastModifiedBy
+            - jsonPath: $.plantUsers.*.auditDetails.createdTime
+            - jsonPath: $.plantUsers.*.auditDetails.lastModifiedTime
+            - jsonPath: $.plantUsers.*.id
