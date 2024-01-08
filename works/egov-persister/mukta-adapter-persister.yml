@@ -1,0 +1,27 @@
+serviceMaps:
+  serviceName: mukta-adapter-service
+  mappings:
+    - version: 1.0
+      name: MuktaAdapterService
+      description: Persists Payment details and status to Mukta
+      fromTopic: egf-adapter-payment-create
+      isTransaction: true
+      module: MAS
+      queryMaps:
+        - query: INSERT INTO eg_mukta_ifms_adapter(id, tenantid, paymentid, paymentstatus,disbursedata, additionaldetails, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?,?,?,?,?,?,?,?,?,?);
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.id
+            - jsonPath: $.location_code
+            - jsonPath: $.target_id
+            - jsonPath: $.status.status_code
+            - jsonPath: $.bills.*
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.additional_details
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.audit_details.createdTime
+            - jsonPath: $.audit_details.createdBy
+            - jsonPath: $.audit_details.lastModifiedTime
+            - jsonPath: $.audit_details.lastModifiedBy
