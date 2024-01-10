@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "baseKeyPath": "$.tests.*",
     "entityIdPath":"$.testId",
-    "isCommonTableBorderRequired": false,
+    "isCommonTableBorderRequired": true,
     "mappings": [
       {
         "mappings": [
@@ -90,23 +90,64 @@
                 "value": {
                   "path": "$.labAssignedTo"
                 }
+              },
+              {
+                "variable": "tableData",
+                "value": {
+                  "path": "$.testCriteria"
+                },
+                "type":"function",
+                "format": "var y = [];\nvar a = [];\nvar testCriteria = arguments[0];\n\nfor (var i = 0; i < testCriteria.length; i++) {\n        var x = {\n            Sno: i + 1,\n            qualityParameterDescription: testCriteria[i].criteriaCode,\n            benchmarkResult: testCriteria[i].resultValue\n        };\n\n        y.push(x);\n}\n\nreturn y;"
               }
 
             ]
           },
           {
-            "externalAPI": [
-              {
-                "path": "http://localhost:8081/user/_search",
-                "queryParam": "",
-                "apiRequest": null,
-                "responseMapping":[
-                  {
-                    "variable":"testSubmittedBy",
-                    "value":"$.user.*.name"
+            "externalAPI": [ {
+              "path": "http://egov-mdms-service:8080/egov-mdms-service/v1/_get",
+              "queryParam": "moduleName=tenant&masterName=tenants&tenantId=pg&filter=%5B?(@.code=='{$.tenantId}')%5D",
+              "apiRequest": null,
+              "responseMapping":[
+                {
+                  "variable":"address",
+                  "value":"$.MdmsRes.tenant.tenants[0].address"
+                },
+                {
+                  "variable":"phoneNumber",
+                  "value":"$.MdmsRes.tenant.tenants[0].contactNumber"
+                },
+                {
+                  "variable":"website",
+                  "value":"$.MdmsRes.tenant.tenants[0].domainUrl"
+                },
+                {
+                  "variable":"email",
+                  "value":"$.MdmsRes.tenant.tenants[0].emailId"
+                },
+                {
+                  "variable": "logoImage",
+                  "value":"$.MdmsRes.tenant.tenants[0].logoId",
+                  "type":"image"
+                },
+                {
+                  "variable": "logo-header",
+                  "value":"$.MdmsRes.tenant.tenants[0].code",
+                  "localisation":{
+                    "required":true,
+                    "module":"rainmaker-common"
                   }
-                ]
-              }
+                },
+                {
+                  "variable": "subdivision",
+                  "value": "$.MdmsRes.tenant.tenants[0].city.ulbGrade",
+                  "localisation": {
+                    "required": true,
+                    "prefix": "COMMON_SUBDIVISION",
+                    "module": "rainmaker-common"
+                  }
+                }
+              ]
+            }
             ]
           }
         ]
