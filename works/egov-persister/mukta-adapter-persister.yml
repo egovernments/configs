@@ -8,20 +8,75 @@ serviceMaps:
       isTransaction: true
       module: MAS
       queryMaps:
-        - query: INSERT INTO eg_mukta_ifms_adapter(id, tenantid, paymentid, paymentstatus,disbursedata, additionaldetails, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?,?,?,?,?,?,?,?,?,?);
-          basePath: $
+        - query: INSERT INTO eg_mukta_ifms_exchange_message ( id, location_code, schema_version, action, function_code, administration_code, program_code, status, recipient_segment_code, economic_segment_code, source_of_found_code, target_segment_code, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.disbursement
           jsonMaps:
-            - jsonPath: $.id
-            - jsonPath: $.location_code
-            - jsonPath: $.target_id
-            - jsonPath: $.status.status_code
-            - jsonPath: $.bills.*
-              type: JSON
-              dbType: JSONB
-            - jsonPath: $.additional_details
-              type: JSON
-              dbType: JSONB
-            - jsonPath: $.audit_details.createdTime
-            - jsonPath: $.audit_details.createdBy
-            - jsonPath: $.audit_details.lastModifiedTime
-            - jsonPath: $.audit_details.lastModifiedBy
+            - jsonPath: $.disbursement.id
+            - jsonPath: $.disbursement.location_code
+            - jsonPath: $.disbursement.schema_version
+            - jsonPath: $.disbursement.action
+            - jsonPath: $.disbursement.function_code
+            - jsonPath: $.disbursement.administration_code
+            - jsonPath: $.disbursement.program_code
+            - jsonPath: $.disbursement.status.status_code
+            - jsonPath: $.disbursement.recipient_segment_code
+            - jsonPath: $.disbursement.economic_segment_code
+            - jsonPath: $.disbursement.source_of_found_code
+            - jsonPath: $.disbursement.target_segment_code
+            - jsonPath: $.disbursement.audit_details.createdBy
+            - jsonPath: $.disbursement.audit_details.createdTime
+            - jsonPath: $.disbursement.audit_details.lastModifiedBy
+            - jsonPath: $.disbursement.audit_details.lastModifiedTime
+
+        - query: INSERT INTO eg_mukta_ifms_disburse (id,exchange_id,target_id,allocation_ids,account_code,net_amount,gross_amount,createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?,?,?,?,?,?,?,?,?,?,?);
+          basePath: $.disbursement
+          jsonMaps:
+            - jsonPath: $.disbursement.id
+            - jsonPath: $.disbursement.id
+            - jsonPath: $.disbursement.target_id
+            - jsonPath: $.disbursement.allocation_ids
+            - jsonPath: $.disbursement.account_code
+            - jsonPath: $.disbursement.net_amount
+            - jsonPath: $.disbursement.gross_amount
+            - jsonPath: $.disbursement.audit_details.createdTime
+            - jsonPath: $.disbursement.audit_details.createdBy
+            - jsonPath: $.disbursement.audit_details.lastModifiedTime
+            - jsonPath: $.disbursement.audit_details.lastModifiedBy
+
+        - query: INSERT INTO eg_mukta_ifms_exchange_message ( id, location_code, parent_id, schema_version, action, function_code, administration_code, program_code, status, recipient_segment_code, economic_segment_code, source_of_found_code, target_segment_code, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?);
+          basePath: $.disbursement.disbursements.*
+          jsonMaps:
+            - jsonPath: $.disbursement.disbursements.*.id
+            - jsonPath: $.disbursement.disbursements.*.location_code
+            - jsonPath: $.disbursement.id
+            - jsonPath: $.disbursement.disbursements.*.schema_version
+            - jsonPath: $.disbursement.disbursements.*.action
+            - jsonPath: $.disbursement.disbursements.*.function_code
+            - jsonPath: $.disbursement.disbursements.*.administration_code
+            - jsonPath: $.disbursement.disbursements.*.program_code
+            - jsonPath: $.disbursement.disbursements.*.status.status_code
+            - jsonPath: $.disbursement.disbursements.*.recipient_segment_code
+            - jsonPath: $.disbursement.disbursements.*.economic_segment_code
+            - jsonPath: $.disbursement.disbursements.*.source_of_found_code
+            - jsonPath: $.disbursement.disbursements.*.target_segment_code
+            - jsonPath: $.disbursement.disbursements.*.audit_details.createdBy
+            - jsonPath: $.disbursement.disbursements.*.audit_details.createdTime
+            - jsonPath: $.disbursement.disbursements.*.audit_details.lastModifiedBy
+            - jsonPath: $.disbursement.disbursements.*.audit_details.lastModifiedTime
+        
+        - query: INSERT INTO eg_mukta_ifms_disburse (id,exchange_id,target_id,allocation_ids,account_code,net_amount,gross_amount,createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?,?,?,?,?,?,?,?,?,?,?);
+          basePath: $.disbursement.disbursements.*
+          jsonMaps:
+            - jsonPath: $.disbursement.disbursements.*.id
+            - jsonPath: $.disbursement.disbursements.*.id
+            - jsonPath: $.disbursement.disbursements.*.target_id
+            - jsonPath: $.disbursement.disbursements.*.allocation_ids
+            - jsonPath: $.disbursement.disbursements.*.account_code
+            - jsonPath: $.disbursement.disbursements.*.net_amount
+            - jsonPath: $.disbursement.disbursements.*.gross_amount
+            - jsonPath: $.disbursement.disbursements.*.audit_details.createdTime
+            - jsonPath: $.disbursement.disbursements.*.audit_details.createdBy
+            - jsonPath: $.disbursement.disbursements.*.audit_details.lastModifiedTime
+            - jsonPath: $.disbursement.disbursements.*.audit_details.lastModifiedBy
+
+    
