@@ -88,6 +88,42 @@ serviceMaps:
             - jsonPath: $.disbursement.disbursements.*.audit_details.createdBy
             - jsonPath: $.disbursement.disbursements.*.audit_details.lastModifiedTime
             - jsonPath: $.disbursement.disbursements.*.audit_details.lastModifiedBy
-
-
     
+    - version: 1.0
+      name: MuktaIFixAdapterService
+      description: Updating Payment details and status to Mukta
+      fromTopic: mukta-ifix-adapter-disburse-update
+      isTransaction: true
+      module: MAS
+      queryMaps:
+        - query: UPDATE eg_mukta_ifms_disburse SET status = ?, status_message = ?, last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
+          basePath: $.message
+          jsonMaps:
+            - jsonPath: $.message.status.status_code
+            - jsonPath: $.message.status.status_message
+            - jsonPath: $.message.audit_details.lastModifiedTime
+            - jsonPath: $.message.audit_details.lastModifiedBy
+            - jsonPath: $.message.id
+
+        - query: UPDATE eg_mukta_ifms_message_codes SET last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
+          basePath: $.message
+          jsonMaps:
+            - jsonPath: $.message.audit_details.lastModifiedTime
+            - jsonPath: $.message.audit_details.lastModifiedBy
+            - jsonPath: $.message.id
+
+        - query: UPDATE eg_mukta_ifms_disburse SET status = ?, status_message = ?, last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
+          basePath: $.message.disbursements.*
+          jsonMaps:
+            - jsonPath: $.message.disbursements.*.status.status_code
+            - jsonPath: $.message.disbursements.*.status.status_message
+            - jsonPath: $.message.disbursements.*.audit_details.lastModifiedTime
+            - jsonPath: $.message.disbursements.*.audit_details.lastModifiedBy
+            - jsonPath: $.message.disbursements.*.id
+
+        - query: UPDATE eg_mukta_ifms_message_codes SET last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
+          basePath: $.message.disbursements.*
+          jsonMaps:
+            - jsonPath: $.message.disbursements.*.audit_details.lastModifiedTime
+            - jsonPath: $.message.disbursements.*.audit_details.lastModifiedBy
+            - jsonPath: $.message.disbursements.*.id
