@@ -3,7 +3,7 @@ serviceMaps:
   mappings:
   - version: 1.0
     name: Campaign
-    description: Persists Campaign details in the eg_ingestion_details table
+    description: Persists Campaign details in the eg_campaign_details table
     fromTopic: save-campaign-details
     isTransaction: true
     queryMaps:
@@ -26,7 +26,7 @@ serviceMaps:
 
   - version: 1.0
     name: UpdateCampaign
-    description: Updates Campaign details in the eg_ingestion_details table
+    description: Updates Campaign details in the eg_campaign_details table
     fromTopic: update-campaign-details
     isTransaction: true
     queryMaps:
@@ -76,3 +76,18 @@ serviceMaps:
           - jsonPath: $.ingestionData.auditDetails.lastModifiedBy
           - jsonPath: $.ingestionData.auditDetails.lastModifiedTime
           - jsonPath: $.ingestionData.id
+
+  - version: 1.0
+    name: UpdateCampaignErrors
+    description: Updates campaign errors in the eg_campaign_details table
+    fromTopic: update-campaign-errors
+    isTransaction: true
+    queryMaps:
+      - query: UPDATE eg_campaign_ingestionDetails SET status = ?, lastmodifiedby = ?, lastmodifiedtime = ?,additionaldetails = ? WHERE id = ?;
+        basePath: campaignDetails
+        jsonMaps:
+          - jsonPath: $.campaignDetails.status
+          - jsonPath: $.campaignDetails.auditDetails.lastModifiedBy
+          - jsonPath: $.campaignDetails.auditDetails.lastModifiedTime
+          - jsonPath: $.campaignDetails.additionalDetails
+          - jsonPath: $.campaignDetails.id
