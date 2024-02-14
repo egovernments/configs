@@ -298,3 +298,44 @@ serviceMaps:
             - jsonPath: $.plantUsers.*.auditDetails.createdTime
             - jsonPath: $.plantUsers.*.auditDetails.lastModifiedTime
             - jsonPath: $.plantUsers.*.id
+
+    - version: 1.0
+      description: Update test result documents
+      fromTopic: update-test-documents
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE eg_pqm_test_result_documents SET documentUid = ?, documentUri = ?, documentType = ?, filestoreId = ?, isActive = ?, additionalDetails = ?, createdBy = ?, lastModifiedBy = ?, createdTime = ?, lastModifiedTime = ? WHERE id = ?;
+          basePath: $.tests.*.documents.*
+          jsonMaps:
+            - jsonPath: $.tests.*.documents.*.documentUid
+            - jsonPath: $.tests.*.documents.*.documentUri
+            - jsonPath: $.tests.*.documents.*.documentType
+            - jsonPath: $.tests.*.documents.*.fileStoreId
+            - jsonPath: $.tests.*.documents.*.isActive
+            - jsonPath: $.tests.*.documents.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.tests.*.documents.*.auditDetails.createdBy
+            - jsonPath: $.tests.*.documents.*.auditDetails.lastModifiedBy
+            - jsonPath: $.tests.*.documents.*.auditDetails.createdTime
+            - jsonPath: $.tests.*.documents.*.auditDetails.lastModifiedTime
+            - jsonPath: $.tests.*.documents.*.id
+
+
+        - query: INSERT INTO eg_pqm_test_result_documents_auditlog (id, testId, documentUid, documentUri, documentType, filestoreId, additionalDetails, isActive, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.tests.*.documents.*
+          jsonMaps:
+            - jsonPath: $.tests.*.documents.*.id
+            - jsonPath: $.tests.*.documents.*.testId
+            - jsonPath: $.tests.*.documents.*.documentUid
+            - jsonPath: $.tests.*.documents.*.documentUri
+            - jsonPath: $.tests.*.documents.*.documentType
+            - jsonPath: $.tests.*.documents.*.fileStoreId
+            - jsonPath: $.tests.*.documents.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.tests.*.documents.*.isActive
+            - jsonPath: $.tests.*.documents.*.auditDetails.createdBy
+            - jsonPath: $.tests.*.documents.*.auditDetails.lastModifiedBy
+            - jsonPath: $.tests.*.documents.*.auditDetails.createdTime
+            - jsonPath: $.tests.*.documents.*.auditDetails.lastModifiedTime
