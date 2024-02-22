@@ -3,10 +3,17 @@ serviceMaps:
   mappings:
     - version: 1.0
       description: Saves a facility
-      fromTopic: save-facility-topic
+      fromTopic: save-facility-health-topic
       isTransaction: true
+      isAuditEnabled: true
+      module: FACILITY
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      userUuidJsonPath: $.[0].auditDetails.createdBy
+      transactionCodeJsonPath: $.clientReferenceId
+      auditAttributeBasePath: $.*
       queryMaps:
-        - query: INSERT INTO FACILITY(id, clientReferenceId, tenantId, isPermanent, name, usage, storageCapacity, addressId, additionalDetails, createdBy, createdTime, lastModifiedBy, lastModifiedTime, rowVersion, isDeleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO health.FACILITY(id, clientReferenceId, tenantId, isPermanent, name, usage, storageCapacity, addressId, additionalDetails, createdBy, createdTime, lastModifiedBy, lastModifiedTime, rowVersion, isDeleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.id
@@ -27,7 +34,7 @@ serviceMaps:
             - jsonPath: $.*.rowVersion
             - jsonPath: $.*.isDeleted
 
-        - query: INSERT INTO ADDRESS(id, tenantid, clientReferenceId, doorno, latitude, longitude, locationAccuracy, type, addressline1, addressline2, landmark, city, pincode, buildingName, street, localityCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO health.ADDRESS(id, tenantid, clientReferenceId, doorno, latitude, longitude, locationAccuracy, type, addressline1, addressline2, landmark, city, pincode, buildingName, street, localityCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.*.address
           jsonMaps:
             - jsonPath: $.*.address.id
@@ -49,10 +56,17 @@ serviceMaps:
 
     - version: 1.0
       description: Updates a facility
-      fromTopic: update-facility-topic
+      fromTopic: update-facility-health-topic
       isTransaction: true
+      isAuditEnabled: true
+      module: FACILITY
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      userUuidJsonPath: $.[0].auditDetails.createdBy
+      transactionCodeJsonPath: $.clientReferenceId
+      auditAttributeBasePath: $.*
       queryMaps:
-        - query: UPDATE FACILITY SET tenantId=?, clientReferenceId=?, isPermanent=?, name=?, usage=?, storageCapacity=?, addressId=?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=? WHERE id=? AND isDeleted=false;
+        - query: UPDATE health.FACILITY SET tenantId=?, clientReferenceId=?, isPermanent=?, name=?, usage=?, storageCapacity=?, addressId=?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=? WHERE id=? AND isDeleted=false;
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.tenantId
@@ -70,7 +84,7 @@ serviceMaps:
             - jsonPath: $.*.rowVersion
             - jsonPath: $.*.id
 
-        - query: INSERT INTO ADDRESS(id, tenantid, clientReferenceId, doorno, latitude, longitude, locationAccuracy, type, addressline1, addressline2, landmark, city, pincode, buildingName, street, localityCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET tenantId = ?, clientReferenceId=?, doorno = ?, latitude = ?, longitude = ?, locationAccuracy = ?, type = ?, addressline1 = ?, addressline2 = ?, landmark = ?, city = ?, pincode = ?, buildingName = ?, street = ?, localityCode = ?;
+        - query: INSERT INTO health.ADDRESS(id, tenantid, clientReferenceId, doorno, latitude, longitude, locationAccuracy, type, addressline1, addressline2, landmark, city, pincode, buildingName, street, localityCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET tenantId = ?, clientReferenceId=?, doorno = ?, latitude = ?, longitude = ?, locationAccuracy = ?, type = ?, addressline1 = ?, addressline2 = ?, landmark = ?, city = ?, pincode = ?, buildingName = ?, street = ?, localityCode = ?;
           basePath: $.*.address
           jsonMaps:
             - jsonPath: $.*.address.id
@@ -107,10 +121,17 @@ serviceMaps:
 
     - version: 1.0
       description: Deletes a facility
-      fromTopic: delete-facility-topic
+      fromTopic: delete-facility-health-topic
       isTransaction: true
+      isAuditEnabled: true
+      module: FACILITY
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      userUuidJsonPath: $.[0].auditDetails.createdBy
+      transactionCodeJsonPath: $.clientReferenceId
+      auditAttributeBasePath: $.*
       queryMaps:
-        - query: UPDATE FACILITY SET lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, additionalDetails=? WHERE id=?;
+        - query: UPDATE health.FACILITY SET lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, additionalDetails=? WHERE id=?;
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.auditDetails.lastModifiedBy
