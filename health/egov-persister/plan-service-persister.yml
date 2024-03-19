@@ -1,0 +1,170 @@
+serviceMaps:
+  serviceName: plan-service
+  mappings:
+    - version: 1.0
+      name: plan-configuration
+      description: Persists plan configuration details
+      fromTopic: plan-config-create-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: PLAN
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      userUuidJsonPath: $.auditDetails.createdBy
+      transactionCodeJsonPath: $.id
+      auditAttributeBasePath: $.PlanConfiguration
+      queryMaps:
+        - query: INSERT INTO health.plan_configuration(id, tenant_id, name, execution_plan_id, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.PlanConfiguration
+          jsonMaps:
+            - jsonPath: $.PlanConfiguration.id
+            - jsonPath: $.PlanConfiguration.tenantId
+            - jsonPath: $.PlanConfiguration.name
+            - jsonPath: $.PlanConfiguration.executionPlanId
+            - jsonPath: $.PlanConfiguration.auditDetails.createdBy
+            - jsonPath: $.PlanConfiguration.auditDetails.createdTime
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO health.plan_configuration_files(id, plan_configuration_id, filestore_id, input_file_type, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.PlanConfiguration.files.*
+          jsonMaps:
+            - jsonPath: $.PlanConfiguration.files.*.id
+            - jsonPath: $.PlanConfiguration.id
+            - jsonPath: $.PlanConfiguration.files.*.filestoreId
+            - jsonPath: $.PlanConfiguration.files.*.inputFileType
+            - jsonPath: $.PlanConfiguration.auditDetails.createdBy
+            - jsonPath: $.PlanConfiguration.auditDetails.createdTime
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+
+
+        - query: INSERT INTO health.plan_configuration_assumptions(id, key, value, plan_configuration_id, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.PlanConfiguration.assumptions.*
+          jsonMaps:
+            - jsonPath: $.PlanConfiguration.assumptions.*.id
+            - jsonPath: $.PlanConfiguration.assumptions.*.key
+            - jsonPath: $.PlanConfiguration.assumptions.*.value
+            - jsonPath: $.PlanConfiguration.id
+            - jsonPath: $.PlanConfiguration.auditDetails.createdBy
+            - jsonPath: $.PlanConfiguration.auditDetails.createdTime
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO health.plan_configuration_operations(id, input, operator, assumption_value, output, plan_configuration_id, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.PlanConfiguration.operations.*
+          jsonMaps:
+            - jsonPath: $.PlanConfiguration.operations.*.id
+            - jsonPath: $.PlanConfiguration.operations.*.input
+            - jsonPath: $.PlanConfiguration.operations.*.operator
+            - jsonPath: $.PlanConfiguration.operations.*.assumptionValue
+            - jsonPath: $.PlanConfiguration.operations.*.output
+            - jsonPath: $.PlanConfiguration.id
+            - jsonPath: $.PlanConfiguration.auditDetails.createdBy
+            - jsonPath: $.PlanConfiguration.auditDetails.createdTime
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO health.plan_configuration_mapping(id, mapped_from, mapped_to, plan_configuration_id, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.PlanConfiguration.resourceMapping.*
+          jsonMaps:
+            - jsonPath: $.PlanConfiguration.resourceMapping.*.id
+            - jsonPath: $.PlanConfiguration.resourceMapping.*.mappedFrom
+            - jsonPath: $.PlanConfiguration.resourceMapping.*.mappedTo
+            - jsonPath: $.PlanConfiguration.id
+            - jsonPath: $.PlanConfiguration.auditDetails.createdBy
+            - jsonPath: $.PlanConfiguration.auditDetails.createdTime
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+
+
+    - version: 1.0
+      name: plan-configuration
+      description: Updates plan configuration details
+      fromTopic: plan-config-update-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: PLAN
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      userUuidJsonPath: $.auditDetails.createdBy
+      transactionCodeJsonPath: $.id
+      auditAttributeBasePath: $.PlanConfiguration
+      queryMaps:
+        - query: UPDATE health.plan_configuration SET tenant_id = ?, name = ?, execution_plan_id = ?, last_modified_by = ?, last_modified_time = ? WHERE id = ?;
+          basePath: $.PlanConfiguration
+          jsonMaps:
+            - jsonPath: $.PlanConfiguration.tenantId
+            - jsonPath: $.PlanConfiguration.name
+            - jsonPath: $.PlanConfiguration.executionPlanId
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+            - jsonPath: $.PlanConfiguration.id
+
+        - query: INSERT INTO health.plan_configuration_files(id, plan_configuration_id, filestore_id, input_file_type, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET filestore_id =?, input_file_type = ?, last_modified_by = ?, last_modified_time = ?;
+          basePath: $.PlanConfiguration.files.*
+          jsonMaps:
+            - jsonPath: $.PlanConfiguration.files.*.id
+            - jsonPath: $.PlanConfiguration.id
+            - jsonPath: $.PlanConfiguration.files.*.filestoreId
+            - jsonPath: $.PlanConfiguration.files.*.inputFileType
+            - jsonPath: $.PlanConfiguration.auditDetails.createdBy
+            - jsonPath: $.PlanConfiguration.auditDetails.createdTime
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+            - jsonPath: $.PlanConfiguration.files.*.filestoreId
+            - jsonPath: $.PlanConfiguration.files.*.inputFileType
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO health.plan_configuration_assumptions(id, key, value, plan_configuration_id, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET key = ?, value = ?, last_modified_by = ?, last_modified_time = ?;
+          basePath: $.PlanConfiguration.assumptions.*
+          jsonMaps:
+            - jsonPath: $.PlanConfiguration.assumptions.*.id
+            - jsonPath: $.PlanConfiguration.assumptions.*.key
+            - jsonPath: $.PlanConfiguration.assumptions.*.value
+            - jsonPath: $.PlanConfiguration.id
+            - jsonPath: $.PlanConfiguration.auditDetails.createdBy
+            - jsonPath: $.PlanConfiguration.auditDetails.createdTime
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+            - jsonPath: $.PlanConfiguration.assumptions.*.key
+            - jsonPath: $.PlanConfiguration.assumptions.*.value
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO health.plan_configuration_operations(id, input, operator, assumption_value, output, plan_configuration_id, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET input = ?, operator = ?, assumption_value = ?, output = ?, last_modified_by = ?, last_modified_time = ?;
+          basePath: $.PlanConfiguration.operations.*
+          jsonMaps:
+            - jsonPath: $.PlanConfiguration.operations.*.id
+            - jsonPath: $.PlanConfiguration.operations.*.input
+            - jsonPath: $.PlanConfiguration.operations.*.operator
+            - jsonPath: $.PlanConfiguration.operations.*.assumptionValue
+            - jsonPath: $.PlanConfiguration.operations.*.output
+            - jsonPath: $.PlanConfiguration.id
+            - jsonPath: $.PlanConfiguration.auditDetails.createdBy
+            - jsonPath: $.PlanConfiguration.auditDetails.createdTime
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+            - jsonPath: $.PlanConfiguration.operations.*.input
+            - jsonPath: $.PlanConfiguration.operations.*.operator
+            - jsonPath: $.PlanConfiguration.operations.*.assumptionValue
+            - jsonPath: $.PlanConfiguration.operations.*.output
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO health.plan_configuration_mapping(id, mapped_from, mapped_to, plan_configuration_id, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET mapped_from = ?, mapped_to = ?, last_modified_by = ?, last_modified_time = ?;
+          basePath: $.PlanConfiguration.resourceMapping.*
+          jsonMaps:
+            - jsonPath: $.PlanConfiguration.resourceMapping.*.id
+            - jsonPath: $.PlanConfiguration.resourceMapping.*.mappedFrom
+            - jsonPath: $.PlanConfiguration.resourceMapping.*.mappedTo
+            - jsonPath: $.PlanConfiguration.id
+            - jsonPath: $.PlanConfiguration.auditDetails.createdBy
+            - jsonPath: $.PlanConfiguration.auditDetails.createdTime
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+            - jsonPath: $.PlanConfiguration.resourceMapping.*.mappedFrom
+            - jsonPath: $.PlanConfiguration.resourceMapping.*.mappedTo
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
