@@ -168,3 +168,243 @@ serviceMaps:
             - jsonPath: $.PlanConfiguration.resourceMapping.*.mappedTo
             - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
             - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+
+    - version: 1.0.0
+      description: Persists the plan
+      fromTopic: save-plan
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO plan(id, tenant_id, locality, execution_plan_id, plan_configuration_id, additional_details, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.Plan
+          jsonMaps:
+            - jsonPath: $.Plan.id
+
+            - jsonPath: $.Plan.tenantId
+
+            - jsonPath: $.Plan.locality
+
+            - jsonPath: $.Plan.executionPlanId
+
+            - jsonPath: $.Plan.planConfigurationId
+
+            - jsonPath: $.Plan.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.Plan.auditDetails.createdBy
+
+            - jsonPath: $.Plan.auditDetails.createdTime
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO plan_activity(id, code, description, planned_start_date, planned_end_date, dependencies, plan_id, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.Plan.activities.*
+          jsonMaps:
+            - jsonPath: $.Plan.activities.*.id
+
+            - jsonPath: $.Plan.activities.*.code
+
+            - jsonPath: $.Plan.activities.*.description
+
+            - jsonPath: $.Plan.activities.*.plannedStartDate
+
+            - jsonPath: $.Plan.activities.*.plannedEndDate
+
+            - jsonPath: $.Plan.activities.*.dependencies
+              type: ARRAY
+              dbType: STRING
+
+            - jsonPath: $.Plan.id
+
+            - jsonPath: $.Plan.auditDetails.createdBy
+
+            - jsonPath: $.Plan.auditDetails.createdTime
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO plan_activity_condition(id, entity, entity_property, expression, activity_id, is_active, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.Plan.activities.*.conditions.*
+          jsonMaps:
+            - jsonPath: $.Plan.activities.*.conditions.*.id
+
+            - jsonPath: $.Plan.activities.*.conditions.*.entity
+
+            - jsonPath: $.Plan.activities.*.conditions.*.entityProperty
+
+            - jsonPath: $.Plan.activities.*.conditions.*.expression
+
+            - jsonPath: $.Plan.activities[*][?({id} in @.conditions[*].id)].id
+
+            - jsonPath: $.Plan.activities.*.conditions.*.isActive
+
+            - jsonPath: $.Plan.auditDetails.createdBy
+
+            - jsonPath: $.Plan.auditDetails.createdTime
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO plan_resource(id, resource_type, estimated_number, plan_id, activity_code, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.Plan.resources.*
+          jsonMaps:
+            - jsonPath: $.Plan.resources.*.id
+
+            - jsonPath: $.Plan.resources.*.resourceType
+
+            - jsonPath: $.Plan.resources.*.estimatedNumber
+
+            - jsonPath: $.Plan.id
+
+            - jsonPath: $.Plan.resources.*.activityCode
+
+            - jsonPath: $.Plan.auditDetails.createdBy
+
+            - jsonPath: $.Plan.auditDetails.createdTime
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO plan_target(id, metric, metric_value, metric_comparator, metric_unit, plan_id, activity_code, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.Plan.targets.*
+          jsonMaps:
+            - jsonPath: $.Plan.targets.*.id
+
+            - jsonPath: $.Plan.targets.*.metric
+
+            - jsonPath: $.Plan.targets.*.metricDetail.value
+
+            - jsonPath: $.Plan.targets.*.metricDetail.comparator
+
+            - jsonPath: $.Plan.targets.*.metricDetail.unit
+
+            - jsonPath: $.Plan.id
+
+            - jsonPath: $.Plan.targets.*.activityCode
+
+            - jsonPath: $.Plan.auditDetails.createdBy
+
+            - jsonPath: $.Plan.auditDetails.createdTime
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedTime
+
+    - version: 1.0.0
+      description: Updates the plan
+      fromTopic: update-plan
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE plan SET execution_plan_id = ?, plan_configuration_id = ?, last_modified_by=?, last_modified_time=? WHERE id = ?;
+          basePath: $.Plan
+          jsonMaps:
+            - jsonPath: $.Plan.executionPlanId
+
+            - jsonPath: $.Plan.planConfigurationId
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedTime
+
+            - jsonPath: $.Plan.id
+
+        - query: INSERT INTO plan_activity(id, code, description, planned_start_date, planned_end_date, dependencies, plan_id, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET description = EXCLUDED.description, planned_start_date = EXCLUDED.planned_start_date, planned_end_date = EXCLUDED.planned_end_date, dependencies = EXCLUDED.dependencies, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time;
+          basePath: $.Plan.activities.*
+          jsonMaps:
+            - jsonPath: $.Plan.activities.*.id
+
+            - jsonPath: $.Plan.activities.*.code
+
+            - jsonPath: $.Plan.activities.*.description
+
+            - jsonPath: $.Plan.activities.*.plannedStartDate
+
+            - jsonPath: $.Plan.activities.*.plannedEndDate
+
+            - jsonPath: $.Plan.activities.*.dependencies
+              type: ARRAY
+              dbType: STRING
+
+            - jsonPath: $.Plan.id
+
+            - jsonPath: $.Plan.auditDetails.createdBy
+
+            - jsonPath: $.Plan.auditDetails.createdTime
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO plan_activity_condition(id, entity, entity_property, expression, activity_id, is_active, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET entity = EXCLUDED.entity, entity_property = EXCLUDED.entity_property, expression = EXCLUDED.expression, is_active = EXCLUDED.is_active, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time;
+          basePath: $.Plan.activities.*.conditions.*
+          jsonMaps:
+            - jsonPath: $.Plan.activities.*.conditions.*.id
+
+            - jsonPath: $.Plan.activities.*.conditions.*.entity
+
+            - jsonPath: $.Plan.activities.*.conditions.*.entityProperty
+
+            - jsonPath: $.Plan.activities.*.conditions.*.expression
+
+            - jsonPath: $.Plan.activities[*][?({id} in @.conditions[*].id)].id
+
+            - jsonPath: $.Plan.activities.*.conditions.*.isActive
+
+            - jsonPath: $.Plan.auditDetails.createdBy
+
+            - jsonPath: $.Plan.auditDetails.createdTime
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO plan_resource(id, resource_type, estimated_number, plan_id, activity_code, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET resource_type = EXCLUDED.resource_type, estimated_number = EXCLUDED.estimated_number, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time;
+          basePath: $.Plan.resources.*
+          jsonMaps:
+            - jsonPath: $.Plan.resources.*.id
+
+            - jsonPath: $.Plan.resources.*.resourceType
+
+            - jsonPath: $.Plan.resources.*.estimatedNumber
+
+            - jsonPath: $.Plan.id
+
+            - jsonPath: $.Plan.resources.*.activityCode
+
+            - jsonPath: $.Plan.auditDetails.createdBy
+
+            - jsonPath: $.Plan.auditDetails.createdTime
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedTime
+
+        - query: INSERT INTO plan_target(id, metric, metric_value, metric_comparator, metric_unit, plan_id, activity_code, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET metric = EXCLUDED.metric, metric_value = EXCLUDED.metric_value, metric_comparator = EXCLUDED.metric_comparator, metric_unit = EXCLUDED.metric_unit, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time;
+          basePath: $.Plan.targets.*
+          jsonMaps:
+            - jsonPath: $.Plan.targets.*.id
+
+            - jsonPath: $.Plan.targets.*.metric
+
+            - jsonPath: $.Plan.targets.*.metricDetail.value
+
+            - jsonPath: $.Plan.targets.*.metricDetail.comparator
+
+            - jsonPath: $.Plan.targets.*.metricDetail.unit
+
+            - jsonPath: $.Plan.id
+
+            - jsonPath: $.Plan.targets.*.activityCode
+
+            - jsonPath: $.Plan.auditDetails.createdBy
+
+            - jsonPath: $.Plan.auditDetails.createdTime
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedBy
+
+            - jsonPath: $.Plan.auditDetails.lastModifiedTime
