@@ -1,683 +1,186 @@
 serviceMaps:
-  serviceName: project
+  serviceName: API Resource Service
   mappings:
     - version: 1.0
-      description: Saves a project staff
-      fromTopic: save-project-staff-health-topic
+      name: CreateResourceDetails
+      description: Create resource details in the eg_cm_resource_details table
+      fromTopic: create-resource-details
       isTransaction: true
-      isAuditEnabled: true
-      module: PROJECT
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].auditDetails.createdBy
-      transactionCodeJsonPath: $.clientReferenceId
-      auditAttributeBasePath: $.*
       queryMaps:
-        - query: INSERT INTO health.project_staff (id, tenantId, projectId, staffId, startDate, endDate, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);
-          basePath: $.*
+        - query: INSERT INTO health.eg_cm_resource_details(id, "status", tenantId, fileStoreId,processedFileStoreId,"action", "type", createdBy, createdTime, lastModifiedBy, lastModifiedTime, additionalDetails) VALUES (?, ?,?, ?,?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.ResourceDetails
           jsonMaps:
-            - jsonPath: $.*.id
-            - jsonPath: $.*.tenantId
-            - jsonPath: $.*.projectId
-            - jsonPath: $.*.userId
-            - jsonPath: $.*.startDate
-            - jsonPath: $.*.endDate
-            - jsonPath: $.*.additionalFields
-              type: JSON
-              dbType: JSONB
-            - jsonPath: $.*.auditDetails.createdBy
-            - jsonPath: $.*.auditDetails.lastModifiedBy
-            - jsonPath: $.*.auditDetails.createdTime
-            - jsonPath: $.*.auditDetails.lastModifiedTime
-            - jsonPath: $.*.rowVersion
-            - jsonPath: $.*.isDeleted
-
-    - version: 1.0
-      description: Update Project Staff
-      fromTopic: update-project-staff-health-topic
-      isTransaction: true
-      isAuditEnabled: true
-      module: PROJECT
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].auditDetails.createdBy
-      transactionCodeJsonPath: $.clientReferenceId
-      auditAttributeBasePath: $.*
-      queryMaps:
-        - query: UPDATE health.project_staff SET projectId=?, staffId=?, startDate=?, endDate=?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=? WHERE id = ?
-          basePath: $.*
-          jsonMaps:
-            - jsonPath: $.*.projectId
-            - jsonPath: $.*.userId
-            - jsonPath: $.*.startDate
-            - jsonPath: $.*.endDate
-            - jsonPath: $.*.additionalFields
-              type: JSON
-              dbType: JSONB
-            - jsonPath: $.*.auditDetails.lastModifiedBy
-            - jsonPath: $.*.auditDetails.lastModifiedTime
-            - jsonPath: $.*.rowVersion
-            - jsonPath: $.*.isDeleted
-            - jsonPath: $.*.id
-
-    - version: 1.0
-      description: Deletes Project Staff
-      fromTopic: delete-project-staff-health-topic
-      isTransaction: true
-      isAuditEnabled: true
-      module: PROJECT
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].auditDetails.createdBy
-      transactionCodeJsonPath: $.clientReferenceId
-      auditAttributeBasePath: $.*
-      queryMaps:
-        - query: UPDATE health.project_staff SET lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, additionalDetails=? WHERE id=?;
-          basePath: $.*
-          jsonMaps:
-            - jsonPath: $.*.auditDetails.lastModifiedBy
-            - jsonPath: $.*.auditDetails.lastModifiedTime
-            - jsonPath: $.*.rowVersion
-            - jsonPath: $.*.isDeleted
-            - jsonPath: $.*.additionalFields
-              type: JSON
-              dbType: JSONB
-            - jsonPath: $.*.id
-
-    - version: 1.0
-      description: Saves a project beneficiary
-      fromTopic: save-project-beneficiary-health-topic
-      isTransaction: true
-      isAuditEnabled: true
-      module: PROJECT
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].auditDetails.createdBy
-      transactionCodeJsonPath: $.clientReferenceId
-      auditAttributeBasePath: $.*
-      queryMaps:
-        - query: INSERT INTO health.project_beneficiary (id, tenantId, projectId, beneficiaryId, clientReferenceId, beneficiaryClientReferenceId, dateOfRegistration, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted, clientCreatedTime, clientLastModifiedTime, clientCreatedBy, clientLastModifiedBy, tag) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
-          basePath: $.*
-          jsonMaps:
-            - jsonPath: $.*.id
-            - jsonPath: $.*.tenantId
-            - jsonPath: $.*.projectId
-            - jsonPath: $.*.beneficiaryId
-            - jsonPath: $.*.clientReferenceId
-            - jsonPath: $.*.beneficiaryClientReferenceId
-            - jsonPath: $.*.dateOfRegistration
-            - jsonPath: $.*.additionalFields
-              type: JSON
-              dbType: JSONB
-            - jsonPath: $.*.auditDetails.createdBy
-            - jsonPath: $.*.auditDetails.lastModifiedBy
-            - jsonPath: $.*.auditDetails.createdTime
-            - jsonPath: $.*.auditDetails.lastModifiedTime
-            - jsonPath: $.*.rowVersion
-            - jsonPath: $.*.isDeleted
-            - jsonPath: $.*.clientAuditDetails.createdTime
-            - jsonPath: $.*.clientAuditDetails.lastModifiedTime
-            - jsonPath: $.*.clientAuditDetails.createdBy
-            - jsonPath: $.*.clientAuditDetails.lastModifiedBy
-            - jsonPath: $.*.tag
-
-    - version: 1.0
-      description: Update Project Beneficiary
-      fromTopic: update-project-beneficiary-health-topic
-      isTransaction: true
-      isAuditEnabled: true
-      module: PROJECT
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].auditDetails.createdBy
-      transactionCodeJsonPath: $.clientReferenceId
-      auditAttributeBasePath: $.*
-      queryMaps:
-        - query: UPDATE health.project_beneficiary SET projectId=?, beneficiaryId=?, clientReferenceId=?, beneficiaryClientReferenceId=?, dateOfRegistration=?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, clientLastModifiedTime = ?, clientLastModifiedBy = ?, tag=?  WHERE id = ? AND isDeleted=false
-          basePath: $.*
-          jsonMaps:
-            - jsonPath: $.*.projectId
-            - jsonPath: $.*.beneficiaryId
-            - jsonPath: $.*.clientReferenceId
-            - jsonPath: $.*.beneficiaryClientReferenceId
-            - jsonPath: $.*.dateOfRegistration
-            - jsonPath: $.*.additionalFields
-              type: JSON
-              dbType: JSONB
-            - jsonPath: $.*.auditDetails.lastModifiedBy
-            - jsonPath: $.*.auditDetails.lastModifiedTime
-            - jsonPath: $.*.rowVersion
-            - jsonPath: $.*.isDeleted
-            - jsonPath: $.*.clientAuditDetails.lastModifiedTime
-            - jsonPath: $.*.clientAuditDetails.lastModifiedBy
-            - jsonPath: $.*.tag
-            - jsonPath: $.*.id
-
-    - version: 1.0
-      description: Deletes Project Beneficiaries
-      fromTopic: delete-project-beneficiary-health-topic
-      isTransaction: true
-      isAuditEnabled: true
-      module: PROJECT
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].auditDetails.createdBy
-      transactionCodeJsonPath: $.clientReferenceId
-      auditAttributeBasePath: $.*
-      queryMaps:
-        - query: UPDATE health.project_beneficiary SET lastModifiedBy=?, lastModifiedTime=?, clientLastModifiedTime = ?, clientLastModifiedBy = ?, rowVersion=?, isDeleted=?, additionalDetails=? WHERE id=?;
-          basePath: $.*
-          jsonMaps:
-            - jsonPath: $.*.auditDetails.lastModifiedBy
-            - jsonPath: $.*.auditDetails.lastModifiedTime
-            - jsonPath: $.*.clientAuditDetails.lastModifiedTime
-            - jsonPath: $.*.clientAuditDetails.lastModifiedBy
-            - jsonPath: $.*.rowVersion
-            - jsonPath: $.*.isDeleted
-            - jsonPath: $.*.additionalFields
-              type: JSON
-              dbType: JSONB
-            - jsonPath: $.*.id
-
-    - version: 1.0
-      name: Projects
-      description: Persists project details in project table
-      fromTopic: save-project-health
-      isTransaction: true
-      isAuditEnabled: true
-      module: PROJECT
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].auditDetails.createdBy
-      transactionCodeJsonPath: $.id
-      auditAttributeBasePath: $.*
-      queryMaps:
-        - query: INSERT INTO health.project(id,tenantId,projectNumber,name,projectType,projectTypeId,projectSubType,department,description,referenceId,startDate,endDate,isTaskEnabled,parent,projectHierarchy,natureOfWork,additionalDetails,isDeleted,rowVersion,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
-          basePath: $.Projects.*
-          jsonMaps:
-            - jsonPath: $.Projects.*.id
-
-            - jsonPath: $.Projects.*.tenantId
-
-            - jsonPath: $.Projects.*.projectNumber
-
-            - jsonPath: $.Projects.*.name
-
-            - jsonPath: $.Projects.*.projectType
-
-            - jsonPath: $.Projects.*.projectTypeId
-
-            - jsonPath: $.Projects.*.projectSubType
-
-            - jsonPath: $.Projects.*.department
-
-            - jsonPath: $.Projects.*.description
-
-            - jsonPath: $.Projects.*.referenceID
-
-            - jsonPath: $.Projects.*.startDate
-
-            - jsonPath: $.Projects.*.endDate
-
-            - jsonPath: $.Projects.*.isTaskEnabled
-
-            - jsonPath: $.Projects.*.parent
-
-            - jsonPath: $.Projects.*.projectHierarchy
-
-            - jsonPath: $.Projects.*.natureOfWork
-
-            - jsonPath: $.Projects.*.additionalDetails
+            - jsonPath: $.ResourceDetails.id
+            - jsonPath: $.ResourceDetails.status
+            - jsonPath: $.ResourceDetails.tenantId
+            - jsonPath: $.ResourceDetails.fileStoreId
+            - jsonPath: $.ResourceDetails.processedFileStoreId
+            - jsonPath: $.ResourceDetails.action
+            - jsonPath: $.ResourceDetails.type
+            - jsonPath: $.ResourceDetails.auditDetails.createdBy
+            - jsonPath: $.ResourceDetails.auditDetails.createdTime
+            - jsonPath: $.ResourceDetails.auditDetails.lastModifiedBy
+            - jsonPath: $.ResourceDetails.auditDetails.lastModifiedTime
+            - jsonPath: $.ResourceDetails.additionalDetails
               type: JSON
               dbType: JSONB
 
-            - jsonPath: $.Projects.*.isDeleted
-
-            - jsonPath: $.Projects.*.rowVersion
-
-            - jsonPath: $.Projects.*.auditDetails.createdBy
-
-            - jsonPath: $.Projects.*.auditDetails.lastModifiedBy
-
-            - jsonPath: $.Projects.*.auditDetails.createdTime
-
-            - jsonPath: $.Projects.*.auditDetails.lastModifiedTime
-
-
-        - query: INSERT INTO health.project_address(id,tenantId,projectId,doorNo,latitude,longitude,locationAccuracy,type,addressLine1,addressLine2,landmark,city,pinCode,buildingName,street,boundaryType,boundary) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
-          basePath: $.Projects.*.address
-          jsonMaps:
-            - jsonPath: $.Projects.*.address.id
-
-            - jsonPath: $.Projects.*.address.tenantId
-
-            - jsonPath: $.Projects.*.id
-
-            - jsonPath: $.Projects.*.address.doorNo
-
-            - jsonPath: $.Projects.*.address.latitude
-
-            - jsonPath: $.Projects.*.address.longitude
-
-            - jsonPath: $.Projects.*.address.locationAccuracy
-
-            - jsonPath: $.Projects.*.address.type
-
-            - jsonPath: $.Projects.*.address.addressLine1
-
-            - jsonPath: $.Projects.*.address.addressLine2
-
-            - jsonPath: $.Projects.*.address.landmark
-
-            - jsonPath: $.Projects.*.address.city
-
-            - jsonPath: $.Projects.*.address.pincode
-
-            - jsonPath: $.Projects.*.address.buildingName
-
-            - jsonPath: $.Projects.*.address.street
-
-            - jsonPath: $.Projects.*.address.boundaryType
-
-            - jsonPath: $.Projects.*.address.boundary
-
-
-        - query: INSERT INTO health.project_target(id,projectId,beneficiaryType,totalNo,targetNo,isDeleted,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?);
-          basePath: $.Projects.*.targets.*
-          jsonMaps:
-            - jsonPath: $.Projects.*.targets.*.id
-
-            - jsonPath: $.Projects[*][?({id} in @.targets[*].id)].id
-
-            - jsonPath: $.Projects.*.targets.*.beneficiaryType
-
-            - jsonPath: $.Projects.*.targets.*.totalNo
-
-            - jsonPath: $.Projects.*.targets.*.targetNo
-
-            - jsonPath: $.Projects.*.targets.*.isDeleted
-
-            - jsonPath: $.Projects.*.targets.*.auditDetails.createdBy
-
-            - jsonPath: $.Projects.*.targets.*.auditDetails.lastModifiedBy
-
-            - jsonPath: $.Projects.*.targets.*.auditDetails.createdTime
-
-            - jsonPath: $.Projects.*.targets.*.auditDetails.lastModifiedTime
-
-
-        - query: INSERT INTO health.project_document(id,projectId,documentType,filestoreId,documentUid,additionalDetails,status,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?,?);
-          basePath: $.Projects.*.documents.*
-          jsonMaps:
-            - jsonPath: $.Projects.*.documents.*.id
-
-            - jsonPath: $.Projects[*][?({id} in @.documents[*].id)].id
-
-            - jsonPath: $.Projects.*.documents.*.documentType
-
-            - jsonPath: $.Projects.*.documents.*.fileStoreId
-
-            - jsonPath: $.Projects.*.documents.*.documentUid
-
-            - jsonPath: $.Projects.*.additionalDetails
-              type: JSON
-              dbType: JSONB
-
-            - jsonPath: $.Projects.*.documents.*.status
-
-            - jsonPath: $.Projects.*.documents.*.auditDetails.createdBy
-
-            - jsonPath: $.Projects.*.documents.*.auditDetails.lastModifiedBy
-
-            - jsonPath: $.Projects.*.documents.*.auditDetails.createdTime
-
-            - jsonPath: $.Projects.*.documents.*.auditDetails.lastModifiedTime
 
 
     - version: 1.0
-      name: Projects
-      description: Updates project details in project table
-      fromTopic: update-project-health
+      name: UpdateResourceDetails
+      description: Update resource details in the eg_cm_resource_details table
+      fromTopic: update-resource-details
       isTransaction: true
-      isAuditEnabled: true
-      module: PROJECT
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].auditDetails.createdBy
-      transactionCodeJsonPath: $.id
-      auditAttributeBasePath: $.*
       queryMaps:
-        - query: UPDATE health.project SET name = ?, projectType = ?, projectTypeId = ?, projectSubType = ?, department = ?, description = ?, referenceId = ?, startDate = ?, endDate = ?, isTaskEnabled = ?, natureOfWork = ?, additionalDetails = ?, isDeleted = ?, rowVersion = ?, lastModifiedBy = ?, lastModifiedTime = ? WHERE id = ?;
-          basePath: $.Projects.*
+        - query: UPDATE health.eg_cm_resource_details SET "status" = ?, processedFileStoreId = ?, lastModifiedBy = ?, lastModifiedTime = ?,additionalDetails = ? WHERE id = ?;
+          basePath: $.ResourceDetails
           jsonMaps:
-
-            - jsonPath: $.Projects.*.name
-
-            - jsonPath: $.Projects.*.projectType
-
-            - jsonPath: $.Projects.*.projectTypeId
-
-            - jsonPath: $.Projects.*.projectSubType
-
-            - jsonPath: $.Projects.*.department
-
-            - jsonPath: $.Projects.*.description
-
-            - jsonPath: $.Projects.*.referenceID
-
-            - jsonPath: $.Projects.*.startDate
-
-            - jsonPath: $.Projects.*.endDate
-
-            - jsonPath: $.Projects.*.isTaskEnabled
-
-            - jsonPath: $.Projects.*.natureOfWork
-
-            - jsonPath: $.Projects.*.additionalDetails
+            - jsonPath: $.ResourceDetails.status
+            - jsonPath: $.ResourceDetails.processedFileStoreId
+            - jsonPath: $.ResourceDetails.auditDetails.lastModifiedBy
+            - jsonPath: $.ResourceDetails.auditDetails.lastModifiedTime
+            - jsonPath: $.ResourceDetails.additionalDetails
               type: JSON
               dbType: JSONB
-
-            - jsonPath: $.Projects.*.isDeleted
-
-            - jsonPath: $.Projects.*.rowVersion
-
-            - jsonPath: $.Projects.*.auditDetails.lastModifiedBy
-
-            - jsonPath: $.Projects.*.auditDetails.lastModifiedTime
-
-            - jsonPath: $.Projects.*.id
-
-
-        - query: UPDATE health.project_address SET doorNo = ?, latitude=?, longitude=?, locationAccuracy=?, type=?, addressLine1=?, addressLine2=?, landmark=?, city=?, pinCode=?, buildingName=?, street=?, boundaryType=?, boundary=? WHERE id=?;
-          basePath: $.Projects.*.address
-          jsonMaps:
-
-            - jsonPath: $.Projects.*.address.doorNo
-
-            - jsonPath: $.Projects.*.address.latitude
-
-            - jsonPath: $.Projects.*.address.longitude
-
-            - jsonPath: $.Projects.*.address.locationAccuracy
-
-            - jsonPath: $.Projects.*.address.type
-
-            - jsonPath: $.Projects.*.address.addressLine1
-
-            - jsonPath: $.Projects.*.address.addressLine2
-
-            - jsonPath: $.Projects.*.address.landmark
-
-            - jsonPath: $.Projects.*.address.city
-
-            - jsonPath: $.Projects.*.address.pincode
-
-            - jsonPath: $.Projects.*.address.buildingName
-
-            - jsonPath: $.Projects.*.address.street
-
-            - jsonPath: $.Projects.*.address.boundaryType
-
-            - jsonPath: $.Projects.*.address.boundary
-
-            - jsonPath: $.Projects.*.address.id
-
-
-        - query: INSERT INTO health.project_target(id,projectId,beneficiaryType,totalNo,targetNo,isDeleted,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE SET beneficiaryType = ?, totalNo =?, targetNo=?, isDeleted=?, lastModifiedBy=?, lastModifiedTime=?;
-          basePath: $.Projects.*.targets.*
-          jsonMaps:
-
-            - jsonPath: $.Projects.*.targets.*.id
-
-            - jsonPath: $.Projects[*][?({id} in @.targets[*].id)].id
-
-            - jsonPath: $.Projects.*.targets.*.beneficiaryType
-
-            - jsonPath: $.Projects.*.targets.*.totalNo
-
-            - jsonPath: $.Projects.*.targets.*.targetNo
-
-            - jsonPath: $.Projects.*.targets.*.isDeleted
-
-            - jsonPath: $.Projects.*.targets.*.auditDetails.createdBy
-
-            - jsonPath: $.Projects.*.targets.*.auditDetails.lastModifiedBy
-
-            - jsonPath: $.Projects.*.targets.*.auditDetails.createdTime
-
-            - jsonPath: $.Projects.*.targets.*.auditDetails.lastModifiedTime
-
-            - jsonPath: $.Projects.*.targets.*.beneficiaryType
-
-            - jsonPath: $.Projects.*.targets.*.totalNo
-
-            - jsonPath: $.Projects.*.targets.*.targetNo
-
-            - jsonPath: $.Projects.*.targets.*.isDeleted
-
-            - jsonPath: $.Projects.*.targets.*.auditDetails.lastModifiedBy
-
-            - jsonPath: $.Projects.*.targets.*.auditDetails.lastModifiedTime
-
-
-        - query: INSERT INTO health.project_document(id,projectId,documentType,filestoreId,documentUid,additionalDetails,status,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE SET documentType=?, filestoreId=?, documentUid=?, additionalDetails=?, status=?, lastModifiedBy=?, lastModifiedTime=?;
-          basePath: $.Projects.*.documents.*
-          jsonMaps:
-
-            - jsonPath: $.Projects.*.documents.*.id
-
-            - jsonPath: $.Projects[*][?({id} in @.documents[*].id)].id
-
-            - jsonPath: $.Projects.*.documents.*.documentType
-
-            - jsonPath: $.Projects.*.documents.*.fileStoreId
-
-            - jsonPath: $.Projects.*.documents.*.documentUid
-
-            - jsonPath: $.Projects.*.additionalDetails
-              type: JSON
-              dbType: JSONB
-
-            - jsonPath: $.Projects.*.documents.*.status
-
-            - jsonPath: $.Projects.*.documents.*.auditDetails.createdBy
-
-            - jsonPath: $.Projects.*.documents.*.auditDetails.lastModifiedBy
-
-            - jsonPath: $.Projects.*.documents.*.auditDetails.createdTime
-
-            - jsonPath: $.Projects.*.documents.*.auditDetails.lastModifiedTime
-
-            - jsonPath: $.Projects.*.documents.*.documentType
-
-            - jsonPath: $.Projects.*.documents.*.fileStoreId
-
-            - jsonPath: $.Projects.*.documents.*.documentUid
-
-            - jsonPath: $.Projects.*.additionalDetails
-              type: JSON
-              dbType: JSONB
-
-            - jsonPath: $.Projects.*.documents.*.status
-
-            - jsonPath: $.Projects.*.documents.*.auditDetails.lastModifiedBy
-
-            - jsonPath: $.Projects.*.documents.*.auditDetails.lastModifiedTime
+            - jsonPath: $.ResourceDetails.id
 
 
     - version: 1.0
-      description: Saves a project resource
-      fromTopic: save-project-resource-health-topic
+      name: CreateResourceActivity
+      description: Create resource activity in the eg_cm_resource_activity table
+      fromTopic: create-resource-activity
       isTransaction: true
-      isAuditEnabled: true
-      module: PROJECT
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].auditDetails.createdBy
-      transactionCodeJsonPath: $.id
-      auditAttributeBasePath: $.*
       queryMaps:
-        - query: INSERT INTO health.project_resource (id, tenantId, projectId, productVariantId, isBaseUnitVariant, startDate, endDate, type, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);
-          basePath: $.*
+        - query: INSERT INTO health.eg_cm_resource_activity (id, "status", retryCount,tenantId, type, url, requestPayload, responsePayload, createdBy, createdTime, lastModifiedBy, lastModifiedTime, additionalDetails, resourceDetailsId) VALUES (?, ?,?, ?, ?,  ?, ?, ?, ?, ?, ?, ?, ?,?);
+          basePath: $.Activities.*
           jsonMaps:
-            - jsonPath: $.*.id
-            - jsonPath: $.*.tenantId
-            - jsonPath: $.*.projectId
-            - jsonPath: $.*.resource.productVariantId
-            - jsonPath: $.*.resource.isBaseUnitVariant
-            - jsonPath: $.*.startDate
-            - jsonPath: $.*.endDate
-            - jsonPath: $.*.resource.type
-            - jsonPath: $.*.auditDetails.createdBy
-            - jsonPath: $.*.auditDetails.lastModifiedBy
-            - jsonPath: $.*.auditDetails.createdTime
-            - jsonPath: $.*.auditDetails.lastModifiedTime
-            - jsonPath: $.*.rowVersion
-            - jsonPath: $.*.isDeleted
+            - jsonPath: $.Activities.*.id
+            - jsonPath: $.Activities.*.status
+            - jsonPath: $.Activities.*.retryCount
+            - jsonPath: $.Activities.*.tenantId
+            - jsonPath: $.Activities.*.type
+            - jsonPath: $.Activities.*.url
+            - jsonPath: $.Activities.*.requestPayload
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Activities.*.responsePayload
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Activities.*.auditDetails.createdBy
+            - jsonPath: $.Activities.*.auditDetails.createdTime
+            - jsonPath: $.Activities.*.auditDetails.lastModifiedBy
+            - jsonPath: $.Activities.*.auditDetails.lastModifiedTime
+            - jsonPath: $.Activities.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Activities.*.resourceDetailsId
+
 
     - version: 1.0
-      description: Update a project resourcce
-      fromTopic: update-project-resource-health-topic
+      name: CreateForGenerateApiResources
+      description: Create Api resource in the eg_cm_generated_resource_details table
+      fromTopic: create-generated-resource-details
       isTransaction: true
-      isAuditEnabled: true
-      module: PROJECT
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].auditDetails.createdBy
-      transactionCodeJsonPath: $.id
-      auditAttributeBasePath: $.*
       queryMaps:
-        - query: UPDATE health.project_resource SET tenantId=?, projectId=?, productVariantId=?, isBaseUnitVariant=?, startDate=?, endDate=?, type=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=? WHERE id = ?
-          basePath: $.*
+        - query: INSERT INTO health.eg_cm_generated_resource_details (id,filestoreid, type,"status",count,tenantid,hierarchyType, createdby, createdtime, lastmodifiedby, lastmodifiedtime, additionaldetails) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
+          basePath: generatedResource.*
           jsonMaps:
-            - jsonPath: $.*.tenantId
-            - jsonPath: $.*.projectId
-            - jsonPath: $.*.resource.productVariantId
-            - jsonPath: $.*.resource.isBaseUnitVariant
-            - jsonPath: $.*.startDate
-            - jsonPath: $.*.endDate
-            - jsonPath: $.*.resource.type
-            - jsonPath: $.*.auditDetails.lastModifiedBy
-            - jsonPath: $.*.auditDetails.lastModifiedTime
-            - jsonPath: $.*.rowVersion
-            - jsonPath: $.*.isDeleted
-            - jsonPath: $.*.id
-
-    - version: 1.0
-      description: Delete a project resourcce
-      fromTopic: delete-project-resource-health-topic
-      isTransaction: true
-      isAuditEnabled: true
-      module: PROJECT
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].auditDetails.createdBy
-      transactionCodeJsonPath: $.id
-      auditAttributeBasePath: $.*
-      queryMaps:
-        - query: UPDATE health.project_resource SET lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=? WHERE id = ?
-          basePath: $.*
-          jsonMaps:
-            - jsonPath: $.*.auditDetails.lastModifiedBy
-            - jsonPath: $.*.auditDetails.lastModifiedTime
-            - jsonPath: $.*.rowVersion
-            - jsonPath: $.*.isDeleted
-            - jsonPath: $.*.id
-
-    - version: 1.0
-      description: Saves a project facility
-      fromTopic: save-project-facility-health-topic
-      isTransaction: true
-      isAuditEnabled: true
-      module: PROJECT
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].auditDetails.createdBy
-      transactionCodeJsonPath: $.id
-      auditAttributeBasePath: $.*
-      queryMaps:
-
-        - query: INSERT INTO health.project_facility (id, tenantId, projectId, facilityId, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted) VALUES (?,?,?,?,?,?,?,?,?,?,?);
-          basePath: $.*
-          jsonMaps:
-            - jsonPath: $.*.id
-
-            - jsonPath: $.*.tenantId
-
-            - jsonPath: $.*.projectId
-
-            - jsonPath: $.*.facilityId
-
-            - jsonPath: $.*.additionalFields
+            - jsonPath: $.generatedResource.*.id
+            - jsonPath: $.generatedResource.*.fileStoreid
+            - jsonPath: $.generatedResource.*.type
+            - jsonPath: $.generatedResource.*.status
+            - jsonPath: $.generatedResource.*.count
+            - jsonPath: $.generatedResource.*.tenantId
+            - jsonPath: $.generatedResource.*.hierarchyType
+            - jsonPath: $.generatedResource.*.auditDetails.createdBy
+            - jsonPath: $.generatedResource.*.auditDetails.createdTime
+            - jsonPath: $.generatedResource.*.auditDetails.lastModifiedBy
+            - jsonPath: $.generatedResource.*.auditDetails.lastModifiedTime
+            - jsonPath: $.generatedResource.*.additionalDetails
               type: JSON
               dbType: JSONB
 
-            - jsonPath: $.*.auditDetails.createdBy
 
-            - jsonPath: $.*.auditDetails.lastModifiedBy
 
-            - jsonPath: $.*.auditDetails.createdTime
-
-            - jsonPath: $.*.auditDetails.lastModifiedTime
-
-            - jsonPath: $.*.rowVersion
-
-            - jsonPath: $.*.isDeleted
 
     - version: 1.0
-      description: Update Project Facility
-      fromTopic: update-project-facility-health-topic
+      name: UpdateForGenerateApiResources
+      description: Update Api resource in the eg_cm_generated_resource_details table
+      fromTopic: update-generated-resource-details
       isTransaction: true
-      isAuditEnabled: true
-      module: PROJECT
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].auditDetails.createdBy
-      transactionCodeJsonPath: $.id
-      auditAttributeBasePath: $.*
       queryMaps:
-
-        - query: UPDATE health.project_facility SET projectId=?, facilityId=?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=? WHERE id = ?
-          basePath: $.*
+        - query: UPDATE health.eg_cm_generated_resource_details SET status = ?,count=?, lastModifiedby =? , lastModifiedtime = ? , fileStoreid= ?, additionalDetails= ? WHERE id= ?;
+          basePath: generatedResource.*
           jsonMaps:
-            - jsonPath: $.*.projectId
+            - jsonPath: $.generatedResource.*.status
+            - jsonPath: $.generatedResource.*.count
+            - jsonPath: $.generatedResource.*.auditDetails.lastModifiedBy
+            - jsonPath: $.generatedResource.*.auditDetails.lastModifiedTime
+            - jsonPath: $.generatedResource.*.fileStoreid
+            - jsonPath: $.generatedResource.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.generatedResource.*.id
 
-            - jsonPath: $.*.facilityId
 
-            - jsonPath: $.*.additionalFields
+    - version: 1.0
+      name: CreateCampaignDetails
+      description: Create campaign details in the eg_cm_campaign_details table
+      fromTopic: save-project-campaign-details
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO health.eg_cm_campaign_details(id, tenantId, "status","action",campaignName,projectType, campaignNumber,hierarchyType,boundaryCode, projectId,startDate,endDate, createdBy, createdTime, lastModifiedBy, lastModifiedTime, additionalDetails,campaignDetails) VALUES (?,?,?,?,?, ?,?, ?,?, ?, ?, ?, ?, ?, ?, ?,?,?);
+          basePath: $.CampaignDetails
+          jsonMaps:
+            - jsonPath: $.CampaignDetails.id
+            - jsonPath: $.CampaignDetails.tenantId
+            - jsonPath: $.CampaignDetails.status
+            - jsonPath: $.CampaignDetails.action
+            - jsonPath: $.CampaignDetails.campaignName
+            - jsonPath: $.CampaignDetails.projectType
+            - jsonPath: $.CampaignDetails.campaignNumber
+            - jsonPath: $.CampaignDetails.hierarchyType
+            - jsonPath: $.CampaignDetails.boundaryCode
+            - jsonPath: $.CampaignDetails.projectId
+            - jsonPath: $.CampaignDetails.startDate
+            - jsonPath: $.CampaignDetails.endDate
+            - jsonPath: $.CampaignDetails.auditDetails.createdBy
+            - jsonPath: $.CampaignDetails.auditDetails.createdTime
+            - jsonPath: $.CampaignDetails.auditDetails.lastModifiedBy
+            - jsonPath: $.CampaignDetails.auditDetails.lastModifiedTime
+            - jsonPath: $.CampaignDetails.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.CampaignDetails.campaignDetails
               type: JSON
               dbType: JSONB
 
-            - jsonPath: $.*.auditDetails.lastModifiedBy
-
-            - jsonPath: $.*.auditDetails.lastModifiedTime
-
-            - jsonPath: $.*.rowVersion
-
-            - jsonPath: $.*.isDeleted
-
-            - jsonPath: $.*.id
 
     - version: 1.0
-      description: Deletes Project Facility
-      fromTopic: delete-project-facility-health-topic
+      name: UpdateCampaignDetails
+      description: Update campaign details in the eg_cm_campaign_details table
+      fromTopic: update-project-campaign-details
       isTransaction: true
-      isAuditEnabled: true
-      module: PROJECT
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].auditDetails.createdBy
-      transactionCodeJsonPath: $.id
-      auditAttributeBasePath: $.*
       queryMaps:
-        - query: UPDATE health.project_facility SET lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, additionalDetails=? WHERE id=?;
-          basePath: $.*
+        - query: UPDATE health.eg_cm_campaign_details SET campaignName = ?, "status" = ?, action = ?, projectType = ?, hierarchyType = ?, boundaryCode = ?, projectId = ?,startDate=?,endDate=?, lastModifiedBy = ?, lastModifiedTime = ?, additionalDetails = ?, campaignDetails = ? WHERE id = ?;
+          basePath: $.CampaignDetails
           jsonMaps:
-            - jsonPath: $.*.auditDetails.lastModifiedBy
-            - jsonPath: $.*.auditDetails.lastModifiedTime
-            - jsonPath: $.*.rowVersion
-            - jsonPath: $.*.isDeleted
-            - jsonPath: $.*.additionalFields
+            - jsonPath: $.CampaignDetails.campaignName
+            - jsonPath: $.CampaignDetails.status
+            - jsonPath: $.CampaignDetails.action
+            - jsonPath: $.CampaignDetails.projectType
+            - jsonPath: $.CampaignDetails.hierarchyType
+            - jsonPath: $.CampaignDetails.boundaryCode
+            - jsonPath: $.CampaignDetails.projectId
+            - jsonPath: $.CampaignDetails.startDate
+            - jsonPath: $.CampaignDetails.endDate
+            - jsonPath: $.CampaignDetails.auditDetails.lastModifiedBy
+            - jsonPath: $.CampaignDetails.auditDetails.lastModifiedTime
+            - jsonPath: $.CampaignDetails.additionalDetails
               type: JSON
               dbType: JSONB
-            - jsonPath: $.*.id
+            - jsonPath: $.CampaignDetails.campaignDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.CampaignDetails.id
