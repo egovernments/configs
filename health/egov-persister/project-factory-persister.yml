@@ -25,6 +25,27 @@ serviceMaps:
               type: JSON
               dbType: JSONB
 
+
+
+    - version: 1.0
+      name: UpdateResourceDetails
+      description: Update resource details in the eg_cm_resource_details table
+      fromTopic: update-resource-details
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE health.eg_cm_resource_details SET "status" = ?, processedFileStoreId = ?, lastModifiedBy = ?, lastModifiedTime = ?,additionalDetails = ? WHERE id = ?;
+          basePath: $.ResourceDetails
+          jsonMaps:
+            - jsonPath: $.ResourceDetails.status
+            - jsonPath: $.ResourceDetails.processedFileStoreId
+            - jsonPath: $.ResourceDetails.auditDetails.lastModifiedBy
+            - jsonPath: $.ResourceDetails.auditDetails.lastModifiedTime
+            - jsonPath: $.ResourceDetails.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.ResourceDetails.id
+
+
     - version: 1.0
       name: CreateResourceActivity
       description: Create resource activity in the eg_cm_resource_activity table
@@ -62,7 +83,7 @@ serviceMaps:
       fromTopic: create-generated-resource-details
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO health.eg_cm_generated_resource_details (id,filestoreid, type,"status",count,tenantid, createdby, createdtime, lastmodifiedby, lastmodifiedtime, additionaldetails) VALUES (?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO health.eg_cm_generated_resource_details (id,filestoreid, type,"status",count,tenantid,hierarchyType, createdby, createdtime, lastmodifiedby, lastmodifiedtime, additionaldetails) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: generatedResource.*
           jsonMaps:
             - jsonPath: $.generatedResource.*.id
@@ -71,6 +92,7 @@ serviceMaps:
             - jsonPath: $.generatedResource.*.status
             - jsonPath: $.generatedResource.*.count
             - jsonPath: $.generatedResource.*.tenantId
+            - jsonPath: $.generatedResource.*.hierarchyType
             - jsonPath: $.generatedResource.*.auditDetails.createdBy
             - jsonPath: $.generatedResource.*.auditDetails.createdTime
             - jsonPath: $.generatedResource.*.auditDetails.lastModifiedBy
@@ -88,7 +110,7 @@ serviceMaps:
       fromTopic: update-generated-resource-details
       isTransaction: true
       queryMaps:
-        - query: UPDATE health.eg_cm_generated_resource_details SET status = ?,count=?, lastModifiedby =? , lastModifiedtime = ? , fileStoreid= ? WHERE id= ?;
+        - query: UPDATE health.eg_cm_generated_resource_details SET status = ?,count=?, lastModifiedby =? , lastModifiedtime = ? , fileStoreid= ?, additionalDetails= ? WHERE id= ?;
           basePath: generatedResource.*
           jsonMaps:
             - jsonPath: $.generatedResource.*.status
@@ -96,6 +118,9 @@ serviceMaps:
             - jsonPath: $.generatedResource.*.auditDetails.lastModifiedBy
             - jsonPath: $.generatedResource.*.auditDetails.lastModifiedTime
             - jsonPath: $.generatedResource.*.fileStoreid
+            - jsonPath: $.generatedResource.*.additionalDetails
+              type: JSON
+              dbType: JSONB
             - jsonPath: $.generatedResource.*.id
 
 
@@ -105,17 +130,21 @@ serviceMaps:
       fromTopic: save-project-campaign-details
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO health.eg_cm_campaign_details(id, tenantId, "status","action", campaignNumber,hierarchyType,boundaryCode, projectId, createdBy, createdTime, lastModifiedBy, lastModifiedTime, additionalDetails,campaignDetails) VALUES (?, ?,?, ?,?, ?, ?, ?, ?, ?, ?, ?,?,?);
+        - query: INSERT INTO health.eg_cm_campaign_details(id, tenantId, "status","action",campaignName,projectType, campaignNumber,hierarchyType,boundaryCode, projectId,startDate,endDate, createdBy, createdTime, lastModifiedBy, lastModifiedTime, additionalDetails,campaignDetails) VALUES (?,?,?,?,?, ?,?, ?,?, ?, ?, ?, ?, ?, ?, ?,?,?);
           basePath: $.CampaignDetails
           jsonMaps:
             - jsonPath: $.CampaignDetails.id
             - jsonPath: $.CampaignDetails.tenantId
             - jsonPath: $.CampaignDetails.status
             - jsonPath: $.CampaignDetails.action
+            - jsonPath: $.CampaignDetails.campaignName
+            - jsonPath: $.CampaignDetails.projectType
             - jsonPath: $.CampaignDetails.campaignNumber
             - jsonPath: $.CampaignDetails.hierarchyType
             - jsonPath: $.CampaignDetails.boundaryCode
             - jsonPath: $.CampaignDetails.projectId
+            - jsonPath: $.CampaignDetails.startDate
+            - jsonPath: $.CampaignDetails.endDate
             - jsonPath: $.CampaignDetails.auditDetails.createdBy
             - jsonPath: $.CampaignDetails.auditDetails.createdTime
             - jsonPath: $.CampaignDetails.auditDetails.lastModifiedBy
@@ -126,3 +155,32 @@ serviceMaps:
             - jsonPath: $.CampaignDetails.campaignDetails
               type: JSON
               dbType: JSONB
+
+
+    - version: 1.0
+      name: UpdateCampaignDetails
+      description: Update campaign details in the eg_cm_campaign_details table
+      fromTopic: update-project-campaign-details
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE health.eg_cm_campaign_details SET campaignName = ?, "status" = ?, action = ?, projectType = ?, hierarchyType = ?, boundaryCode = ?, projectId = ?,startDate=?,endDate=?, lastModifiedBy = ?, lastModifiedTime = ?, additionalDetails = ?, campaignDetails = ? WHERE id = ?;
+          basePath: $.CampaignDetails
+          jsonMaps:
+            - jsonPath: $.CampaignDetails.campaignName
+            - jsonPath: $.CampaignDetails.status
+            - jsonPath: $.CampaignDetails.action
+            - jsonPath: $.CampaignDetails.projectType
+            - jsonPath: $.CampaignDetails.hierarchyType
+            - jsonPath: $.CampaignDetails.boundaryCode
+            - jsonPath: $.CampaignDetails.projectId
+            - jsonPath: $.CampaignDetails.startDate
+            - jsonPath: $.CampaignDetails.endDate
+            - jsonPath: $.CampaignDetails.auditDetails.lastModifiedBy
+            - jsonPath: $.CampaignDetails.auditDetails.lastModifiedTime
+            - jsonPath: $.CampaignDetails.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.CampaignDetails.campaignDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.CampaignDetails.id
