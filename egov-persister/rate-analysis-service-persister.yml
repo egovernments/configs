@@ -1,0 +1,60 @@
+serviceMaps:
+  serviceName: rate-analysis-service
+  mappings:
+    - version: 1.0
+      name: RateAnalysisService
+      description: Persists Scheduled Jobs to Rate Analysis
+      fromTopic: rate-analysis-job-create
+      isTransaction: true
+      module: MAS
+      queryMaps:
+        - query: INSERT INTO eg_rate_analysis_schedule (id,jobId,tenantId,rateEffectiveFrom,jobStatus,createdTime,lastModifiedTime,lastModifiedBy,createdBy) VALUES (?,?,?,?,?,?,?,?,?);
+          basePath: $.ScheduledJobs
+          jsonMaps:
+            - jsonPath: $.ScheduledJobs.id
+            - jsonPath: $.ScheduledJobs.jobId
+            - jsonPath: $.ScheduledJobs.tenantId
+            - jsonPath: $.ScheduledJobs.rateEffectiveFrom
+            - jsonPath: $.ScheduledJobs.status
+            - jsonPath: $.ScheduledJobs.auditDetails.createdTime
+            - jsonPath: $.ScheduledJobs.auditDetails.lastModifiedTime
+            - jsonPath: $.ScheduledJobs.auditDetails.lastModifiedBy
+            - jsonPath: $.ScheduledJobs.auditDetails.createdBy
+
+        - query: INSERT INTO eg_rate_analysis_schedule_details (id,sorId,ratesJobId,sorCode,status,failureReason,additionalDetails) VALUES (?,?,?,?,?,?,?);
+          basePath: $.ScheduledJobs.sorDetails.*
+          jsonMaps:
+            - jsonPath: $.ScheduledJobs.sorDetails.*.id
+            - jsonPath: $.ScheduledJobs.sorDetails.*.sorId
+            - jsonPath: $.ScheduledJobs.id
+            - jsonPath: $.ScheduledJobs.sorDetails.*.sorCode
+            - jsonPath: $.ScheduledJobs.sorDetails.*.status
+            - jsonPath: $.ScheduledJobs.sorDetails.*.failureReason
+            - jsonPath: $.ScheduledJobs.sorDetails.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+    - version: 1.0
+      name: RateAnalysisService
+      description: Persists Scheduled Jobs to Rate Analysis
+      fromTopic: rate-analysis-job-update
+      isTransaction: true
+      module: MAS
+      queryMaps:
+        - query: UPDATE eg_rate_analysis_schedule SET jobStatus = ?, lastModifiedTime = ?, lastModifiedBy = ? WHERE id = ?;
+          basePath: $.ScheduledJobs
+          jsonMaps:
+            - jsonPath: $.ScheduledJobs.status
+            - jsonPath: $.ScheduledJobs.auditDetails.lastModifiedTime
+            - jsonPath: $.ScheduledJobs.auditDetails.lastModifiedBy
+            - jsonPath: $.ScheduledJobs.id
+
+        - query: UPDATE eg_rate_analysis_schedule_details SET status = ?, failureReason = ?, additionalDetails = ? WHERE id = ?;
+          basePath: $.ScheduledJobs.sorDetails.*
+          jsonMaps:
+            - jsonPath: $.ScheduledJobs.sorDetails.*.status
+            - jsonPath: $.ScheduledJobs.sorDetails.*.failureReason
+            - jsonPath: $.ScheduledJobs.sorDetails.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.ScheduledJobs.sorDetails.*.id
