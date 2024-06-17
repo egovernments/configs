@@ -62,7 +62,7 @@ serviceMaps:
             - jsonPath: $.*.address.street
             - jsonPath: $.*.address.locality.code
 
-        - query: INSERT INTO health.TASK_RESOURCE(id, clientReferenceId, tenantid, productvariantid, taskid, quantity, isDelivered, reasonIfNotDelivered, createdBy, createdTime, lastModifiedBy, lastModifiedTime, isDeleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO health.TASK_RESOURCE(id, clientReferenceId, tenantid, productvariantid, taskid, quantity, isDelivered, reasonIfNotDelivered, createdBy, createdTime, lastModifiedBy, lastModifiedTime, isDeleted, additionalDetails) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.*.resources.*
           jsonMaps:
             - jsonPath: $.*.resources.*.id
@@ -78,6 +78,9 @@ serviceMaps:
             - jsonPath: $.*.resources.*.auditDetails.lastModifiedBy
             - jsonPath: $.*.resources.*.auditDetails.lastModifiedTime
             - jsonPath: $.*.resources.*.isDeleted
+            - jsonPath: $.*.resources.*.additionalFields
+              type: JSON
+              dbType: JSONB
 
     - version: 1.0
       description: Updates a project task
@@ -134,7 +137,7 @@ serviceMaps:
             - jsonPath: $.*.address.locality.code
             - jsonPath: $.*.address.id
 
-        - query: INSERT INTO health.TASK_RESOURCE(id, clientReferenceId, tenantid, productvariantid, taskid, quantity, isDelivered, reasonIfNotDelivered, createdBy, createdTime, lastModifiedBy, lastModifiedTime, isDeleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET tenantid = ?, taskid = ?, productvariantid = ?, quantity = ?, isDelivered = ?, reasonIfNotDelivered = ?, lastModifiedBy = ?, lastModifiedTime = ?;
+        - query: INSERT INTO health.TASK_RESOURCE(id, clientReferenceId, tenantid, productvariantid, taskid, quantity, isDelivered, reasonIfNotDelivered, createdBy, createdTime, lastModifiedBy, lastModifiedTime, isDeleted, additionalDetails) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET tenantid = ?, taskid = ?, productvariantid = ?, quantity = ?, isDelivered = ?, reasonIfNotDelivered = ?, lastModifiedBy = ?, lastModifiedTime = ?, additionalDetails = ?;
           basePath: $.*.resources.*
           jsonMaps:
             - jsonPath: $.*.resources.*.id
@@ -150,6 +153,9 @@ serviceMaps:
             - jsonPath: $.*.resources.*.auditDetails.lastModifiedBy
             - jsonPath: $.*.resources.*.auditDetails.lastModifiedTime
             - jsonPath: $.*.resources.*.isDeleted
+            - jsonPath: $.*.resources.*.additionalFields
+              type: JSON
+              dbType: JSONB
             - jsonPath: $.*.resources.*.tenantId
             - jsonPath: $.*.resources.*.taskId
             - jsonPath: $.*.resources.*.productVariantId
@@ -158,6 +164,9 @@ serviceMaps:
             - jsonPath: $.*.resources.*.deliveryComment
             - jsonPath: $.*.resources.*.auditDetails.lastModifiedBy
             - jsonPath: $.*.resources.*.auditDetails.lastModifiedTime
+            - jsonPath: $.*.resources.*.additionalFields
+              type: JSON
+              dbType: JSONB
 
     - version: 1.0
       description: Deletes a project task
@@ -184,12 +193,15 @@ serviceMaps:
               type: JSON
               dbType: JSONB
             - jsonPath: $.*.id
-        - query: UPDATE health.TASK_RESOURCE SET lastModifiedBy = ?, lastModifiedTime = ?, isDeleted = ? WHERE ID = ?;
+        - query: UPDATE health.TASK_RESOURCE SET lastModifiedBy = ?, lastModifiedTime = ?, isDeleted = ?, additionalDetails = ? WHERE ID = ?;
           basePath: $.*.resources.*
           jsonMaps:
             - jsonPath: $.*.auditDetails.lastModifiedBy
             - jsonPath: $.*.auditDetails.lastModifiedTime
             - jsonPath: $.*.isDeleted
+            - jsonPath: $.*.additionalFields
+              type: JSON
+              dbType: JSONB
             - jsonPath: $.*.id
 
     - version: 1.0
