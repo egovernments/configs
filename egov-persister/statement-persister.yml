@@ -32,7 +32,7 @@ serviceMaps:
       - jsonPath: $.statement.auditDetails.lastModifiedTime
 
 
-    - query: INSERT INTO eg_statement_sor_details(id,tenantid,statement_id,sorid,basic_sor_details,additional_details) VALUES (?,?,?,?,?,?);
+    - query: INSERT INTO eg_statement_sor_details(id,tenantid,statement_id,sorid,basic_sor_details,additional_details,is_active,createdby,lastmodifiedby,createdtime,lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?,?);
       basePath: $.statement.sorDetails.*
       jsonMaps:
       - jsonPath: $.sorDetails.*.id
@@ -45,8 +45,16 @@ serviceMaps:
       - jsonPath: $.sorDetails.*.additionalDetails
         type: JSON
         dbType: JSONB  
+      - jsonPath: $.sorDetails.isActive 
+      - jsonPath: $.statement.auditDetails.createdBy
 
-    - query: INSERT INTO eg_statement_sor_line_items(id,tenantid,sorid,sortype,reference_id,basic_sor_details,additional_details) VALUES (?,?,?,?,?,?,?);
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.createdTime
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime
+
+    - query: INSERT INTO eg_statement_sor_line_items(id,tenantid,sorid,sortype,reference_id,basic_sor_details,additional_details,createdby,lastmodifiedby,createdtime,lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?,?);
       basePath: $.statement.sorDetails.*.lineItems.*
       jsonMaps:
       - jsonPath: $.lineItems.*.id
@@ -59,7 +67,14 @@ serviceMaps:
         dbType: JSONB
       - jsonPath: $.lineItems.*.additionalDetails
         type: JSON
-        dbType: JSONB    
+        dbType: JSONB
+      - jsonPath: $.statement.auditDetails.createdBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.createdTime
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime    
 
   - version: 1.0
     name: statement
@@ -81,7 +96,7 @@ serviceMaps:
       
 
 
-    - query: INSERT INTO eg_statement_sor_details(id,tenantid,statement_id,sorid,basic_sor_details,additional_details) VALUES (?,?,?,?,?,?);
+    - query: INSERT INTO eg_statement_sor_details(id,tenantid,statement_id,sorid,basic_sor_details,additional_details,is_active,createdby,lastmodifiedby,createdtime,lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE SET basic_sor_details=?, additional_details=?,is_active=?,lastmodifiedby = ?, lastmodifiedtime = ?;
       basePath: $.statement.sorDetails.*
       jsonMaps:
       - jsonPath: $.sorDetails.*.id
@@ -93,9 +108,27 @@ serviceMaps:
         dbType: JSONB
       - jsonPath: $.sorDetails.*.additionalDetails
         type: JSON
-        dbType: JSONB   
+        dbType: JSONB
+      - jsonPath: $.sorDetails.isActive 
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
 
-    - query: INSERT INTO eg_statement_sor_line_items(id,tenantid,sorid,sortype,reference_id,basic_sor_details,additional_details) VALUES (?,?,?,?,?,?,?);
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime
+
+      - jsonPath: $.sorDetails.*.basicSorDetails
+        type: JSON
+        dbType: JSONB
+      - jsonPath: $.sorDetails.*.additionalDetails
+        type: JSON
+        dbType: JSONB 
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime    
+
+    - query: INSERT INTO eg_statement_sor_line_items(id,tenantid,sorid,sortype,reference_id,basic_sor_details,additional_details,createdby,lastmodifiedby,createdtime,lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE SET basic_sor_details=?, additional_details=?,lastmodifiedby = ?, lastmodifiedtime = ?;
       basePath: $.statement.sorDetails.*.lineItems.*
       jsonMaps:
       - jsonPath: $.lineItems.*.id
@@ -103,12 +136,28 @@ serviceMaps:
       - jsonPath: $.lineItems.*.sorId
       - jsonPath: $.lineItems.*.sorType
       - jsonPath: $.lineItems.*.referenceId
-      - jsonPath: $.lineItems.*.amountDetails
+      - jsonPath: $.lineItems.*.basicSorDetails
         type: JSON
         dbType: JSONB 
       - jsonPath: $.lineItems.*.additionalDetails
         type: JSON
         dbType: JSONB
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime 
+      - jsonPath: $.lineItems.*.basicSorDetails
+        type: JSON
+        dbType: JSONB 
+      - jsonPath: $.lineItems.*.additionalDetails
+        type: JSON
+        dbType: JSONB  
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime    
 
 
         
