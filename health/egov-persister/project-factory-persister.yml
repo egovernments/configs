@@ -27,7 +27,6 @@ serviceMaps:
               dbType: JSONB
 
 
-
     - version: 1.0
       name: UpdateResourceDetails
       description: Update resource details in the eg_cm_resource_details table
@@ -84,7 +83,7 @@ serviceMaps:
       fromTopic: create-generated-resource-details
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO health.eg_cm_generated_resource_details (id,filestoreid, type,"status",count,tenantid,hierarchyType, createdby, createdtime, lastmodifiedby, lastmodifiedtime, additionaldetails) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO health.eg_cm_generated_resource_details (id,filestoreid, type,"status",count,tenantid,hierarchyType, createdby, createdtime, lastmodifiedby, lastmodifiedtime, additionaldetails,campaignid,auditid) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: generatedResource.*
           jsonMaps:
             - jsonPath: $.generatedResource.*.id
@@ -101,6 +100,8 @@ serviceMaps:
             - jsonPath: $.generatedResource.*.additionalDetails
               type: JSON
               dbType: JSONB
+            - jsonPath: $.generatedResource.*.campaignId
+            - jsonPath: $.generatedResource.*.auditId
 
 
 
@@ -130,6 +131,12 @@ serviceMaps:
       description: Create campaign details in the eg_cm_campaign_details table
       fromTopic: save-project-campaign-details
       isTransaction: true
+      isAuditEnabled: true
+      module: HCM
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      transactionCodeJsonPath: $.campaignNumber
+      auditAttributeBasePath: $.CampaignDetails
       queryMaps:
         - query: INSERT INTO health.eg_cm_campaign_details(id, tenantId, "status","action",campaignName,projectType, campaignNumber,hierarchyType,boundaryCode, projectId,startDate,endDate, createdBy, createdTime, lastModifiedBy, lastModifiedTime, additionalDetails,campaignDetails) VALUES (?,?,?,?,?, ?,?, ?,?, ?, ?, ?, ?, ?, ?, ?,?,?);
           basePath: $.CampaignDetails
@@ -163,6 +170,12 @@ serviceMaps:
       description: Update campaign details in the eg_cm_campaign_details table
       fromTopic: update-project-campaign-details
       isTransaction: true
+      isAuditEnabled: true
+      module: HCM
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      transactionCodeJsonPath: $.campaignNumber
+      auditAttributeBasePath: $.CampaignDetails
       queryMaps:
         - query: UPDATE health.eg_cm_campaign_details SET campaignName = ?, "status" = ?, action = ?, projectType = ?, hierarchyType = ?, boundaryCode = ?, projectId = ?,startDate=?,endDate=?, lastModifiedBy = ?, lastModifiedTime = ?, additionalDetails = ?, campaignDetails = ? WHERE id = ?;
           basePath: $.CampaignDetails
