@@ -84,7 +84,7 @@ serviceMaps:
       fromTopic: create-generated-resource-details
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO health.eg_cm_generated_resource_details (id,filestoreid, type,"status",count,tenantid,hierarchyType, createdby, createdtime, lastmodifiedby, lastmodifiedtime, additionaldetails,campaignid,auditid) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO health.eg_cm_generated_resource_details (id,filestoreid, type,"status",count,tenantid,hierarchyType, createdby, createdtime, lastmodifiedby, lastmodifiedtime, additionaldetails) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: generatedResource.*
           jsonMaps:
             - jsonPath: $.generatedResource.*.id
@@ -101,8 +101,6 @@ serviceMaps:
             - jsonPath: $.generatedResource.*.additionalDetails
               type: JSON
               dbType: JSONB
-            - jsonPath: $.generatedResource.*.campaignId
-            - jsonPath: $.generatedResource.*.auditId  
 
 
 
@@ -199,47 +197,3 @@ serviceMaps:
               type: JSON
               dbType: JSONB
             - jsonPath: $.CampaignDetails.id
-
-    - version: 1.0
-      name: CreateProcessTrack
-      description: Create process track in the eg_cm_campaign_process table
-      fromTopic: save-process-track
-      isTransaction: true
-      queryMaps:
-        - query: INSERT INTO health.eg_cm_campaign_process(id, campaignId, "type","status",details,createdtime, lastmodifiedtime,additionaldetails) VALUES (?,?,?,?,?,?,?,?);
-          basePath: $.processDetails
-          jsonMaps:
-            - jsonPath: $.processDetails.id
-            - jsonPath: $.processDetails.campaignId
-            - jsonPath: $.processDetails.type
-            - jsonPath: $.processDetails.status
-            - jsonPath: $.processDetails.details
-              type: JSON
-              dbType: JSONB
-            - jsonPath: $.processDetails.createdTime
-            - jsonPath: $.processDetails.lastModifiedTime
-            - jsonPath: $.processDetails.additionalDetails
-              type: JSON
-              dbType: JSONB
-
-    - version: 1.0
-      name: UpdateProcessTrack
-      description: Update process track in the eg_cm_campaign_process table
-      fromTopic: update-process-track
-      isTransaction: true
-      queryMaps:
-        - query: UPDATE health.eg_cm_campaign_process SET campaignId = ?, "type" = ?, "status" = ?,details = ?,createdtime = ?,lastmodifiedtime = ?,additionaldetails = ? WHERE id = ?;
-          basePath: $.processDetails
-          jsonMaps:
-            - jsonPath: $.processDetails.campaignId
-            - jsonPath: $.processDetails.type
-            - jsonPath: $.processDetails.status
-            - jsonPath: $.processDetails.details
-              type: JSON
-              dbType: JSONB
-            - jsonPath: $.processDetails.createdTime
-            - jsonPath: $.processDetails.lastModifiedTime
-            - jsonPath: $.processDetails.additionalDetails
-              type: JSON
-              dbType: JSONB
-            - jsonPath: $.processDetails.id
