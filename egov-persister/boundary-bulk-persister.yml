@@ -1,0 +1,45 @@
+serviceMaps:
+  serviceName: Boundary Bulk Service
+  mappings:
+    - version: 1.0
+      name: CreateBulkBoundaries
+      description: Persist details for bulk boundary creation in table eg_boundary_bulk_details
+      fromTopic: save-boundary-details
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO health.eg_boundary_bulk_details(id, tenantId, hierarchyType, fileStoreId,"status",processedFileStoreId, additionalDetails,createdTime, lastModifiedTime, createdBy, lastModifiedBy) VALUES (?, ?,?, ?,?,?, ?, ?, ?, ?, ?);
+          basePath: $.boundaryDetails
+          jsonMaps:
+            - jsonPath: $.boundaryDetails.id
+            - jsonPath: $.boundaryDetails.tenantId
+            - jsonPath: $.boundaryDetails.hierarchyType
+            - jsonPath: $.boundaryDetails.fileStoreId
+            - jsonPath: $.boundaryDetails.status
+            - jsonPath: $.boundaryDetails.processedFileStoreId
+            - jsonPath: $.boundaryDetails.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.boundaryDetails.auditDetails.createdTime
+            - jsonPath: $.boundaryDetails.auditDetails.lastModifiedTime
+            - jsonPath: $.boundaryDetails.auditDetails.createdBy
+            - jsonPath: $.boundaryDetails.auditDetails.lastModifiedBy
+
+
+
+    - version: 1.0
+      name: UpdateBulkBoundaries
+      description: Update details for bulk boundary creation in table eg_boundary_bulk_details
+      fromTopic: update-boundary-details
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE health.eg_boundary_bulk_details SET "status" = ?, processedFileStoreId = ?, lastModifiedBy = ?, lastModifiedTime = ?,additionalDetails = ? WHERE id = ?;
+          basePath: $.boundaryDetails
+          jsonMaps:
+            - jsonPath: $.boundaryDetails.status
+            - jsonPath: $.boundaryDetails.processedFileStoreId
+            - jsonPath: $.boundaryDetails.auditDetails.lastModifiedBy
+            - jsonPath: $.boundaryDetails.auditDetails.lastModifiedTime
+            - jsonPath: $.boundaryDetails.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.boundaryDetails.id
