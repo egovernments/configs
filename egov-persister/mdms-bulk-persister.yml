@@ -1,0 +1,45 @@
+serviceMaps:
+  serviceName: MDMS Bulk Service
+  mappings:
+    - version: 1.0
+      name: CreateBulkMDMSData
+      description: Persist details for bulk MDMS data creation in table eg_mdms_bulk_details
+      fromTopic: save-mdms-bulk-details
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO eg_mdms_bulk_details("id", "tenantId", "schemaCode",   "fileStoreId","status","processedFileStoreId", "additionalDetails","createdTime", "lastModifiedTime", "createdBy", "lastModifiedBy") VALUES (?, ?,?, ?,?,?, ?, ?, ?, ?, ?);
+          basePath: $.mdmsDetails
+          jsonMaps:
+            - jsonPath: $.mdmsDetails.id
+            - jsonPath: $.mdmsDetails.tenantId
+            - jsonPath: $.mdmsDetails.schemaCode
+            - jsonPath: $.mdmsDetails.fileStoreId
+            - jsonPath: $.mdmsDetails.status
+            - jsonPath: $.mdmsDetails.processedFileStoreId
+            - jsonPath: $.mdmsDetails.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.mdmsDetails.auditDetails.createdTime
+            - jsonPath: $.mdmsDetails.auditDetails.lastModifiedTime
+            - jsonPath: $.mdmsDetails.auditDetails.createdBy
+            - jsonPath: $.mdmsDetails.auditDetails.lastModifiedBy
+
+
+
+    - version: 1.0
+      name: UpdateBulkMDMSData
+      description: Update details for bulk MDMS data creation in table eg_mdms_bulk_details
+      fromTopic: update-mdms-bulk-details
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE eg_mdms_bulk_details SET "status" = ?, "processedFileStoreId" = ?, "lastModifiedBy" = ?, "lastModifiedTime" = ?, "additionalDetails" = ? WHERE "id" = ?;
+          basePath: $.mdmsDetails
+          jsonMaps:
+            - jsonPath: $.mdmsDetails.status
+            - jsonPath: $.mdmsDetails.processedFileStoreId
+            - jsonPath: $.mdmsDetails.auditDetails.lastModifiedBy
+            - jsonPath: $.mdmsDetails.auditDetails.lastModifiedTime
+            - jsonPath: $.mdmsDetails.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.mdmsDetails.id
