@@ -1,0 +1,137 @@
+serviceMaps:
+  serviceName: mukta-ifix-adapter-service
+  mappings:
+    - version: 1.0
+      name: MuktaIFixAdapterService
+      description: Persists Payment details and status to Mukta
+      fromTopic: mukta-ifix-adapter-disburse-create
+      isTransaction: true
+      module: MAS
+      queryMaps:
+        - query: INSERT INTO eg_mukta_ifms_disburse (id, program_code, target_id, account_code, status, status_message, individual, net_amount, gross_amount, created_time, created_by, last_modified_time, last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);
+          basePath: $.message
+          jsonMaps:
+            - jsonPath: $.message.id
+            - jsonPath: $.message.program_code
+            - jsonPath: $.message.target_id
+            - jsonPath: $.message.account_code
+            - jsonPath: $.message.status.status_code
+            - jsonPath: $.message.status.status_message
+            - jsonPath: $.message.individual
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.message.net_amount
+            - jsonPath: $.message.gross_amount
+            - jsonPath: $.message.audit_details.createdTime
+            - jsonPath: $.message.audit_details.createdBy
+            - jsonPath: $.message.audit_details.lastModifiedTime
+            - jsonPath: $.message.audit_details.lastModifiedBy
+
+        - query: INSERT INTO eg_mukta_ifms_message_codes ( id, location_code, parent_id, function_code, administration_code, program_code, recipient_segment_code, economic_segment_code, source_of_fund_code, target_segment_code, additional_details, created_time, created_by, last_modified_time, last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+          basePath: $.message
+          jsonMaps:
+            - jsonPath: $.message.id
+            - jsonPath: $.message.location_code
+            - jsonPath: $.message.id
+            - jsonPath: $.message.function_code
+            - jsonPath: $.message.administration_code
+            - jsonPath: $.message.program_code
+            - jsonPath: $.message.recipient_segment_code
+            - jsonPath: $.message.economic_segment_code
+            - jsonPath: $.message.source_of_fund_code
+            - jsonPath: $.message.target_segment_code
+            - jsonPath: $.message.additional_details
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.message.audit_details.createdTime
+            - jsonPath: $.message.audit_details.createdBy
+            - jsonPath: $.message.audit_details.lastModifiedTime
+            - jsonPath: $.message.audit_details.lastModifiedBy
+
+        - query: INSERT INTO eg_mukta_ifms_disburse (id, program_code, target_id, parent_id, account_code, status, status_message, individual, net_amount, gross_amount, created_time, created_by, last_modified_time, last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+          basePath: $.message.children.*
+          jsonMaps:
+            - jsonPath: $.message.children.*.id
+            - jsonPath: $.message.children.*.program_code
+            - jsonPath: $.message.children.*.target_id
+            - jsonPath: $.message.id
+            - jsonPath: $.message.children.*.account_code
+            - jsonPath: $.message.children.*.status.status_code
+            - jsonPath: $.message.children.*.status.status_message
+            - jsonPath: $.message.children.*.individual
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.message.children.*.net_amount
+            - jsonPath: $.message.children.*.gross_amount
+            - jsonPath: $.message.children.*.audit_details.createdTime
+            - jsonPath: $.message.children.*.audit_details.createdBy
+            - jsonPath: $.message.children.*.audit_details.lastModifiedTime
+            - jsonPath: $.message.children.*.audit_details.lastModifiedBy
+
+        - query: INSERT INTO eg_mukta_ifms_message_codes ( id, location_code, parent_id, function_code, administration_code, program_code, recipient_segment_code, economic_segment_code, source_of_fund_code, target_segment_code, additional_details, created_time, created_by, last_modified_time, last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+          basePath: $.message.children.*
+          jsonMaps:
+            - jsonPath: $.message.children.*.id
+            - jsonPath: $.message.children.*.location_code
+            - jsonPath: $.message.children.*.id
+            - jsonPath: $.message.children.*.function_code
+            - jsonPath: $.message.children.*.administration_code
+            - jsonPath: $.message.children.*.program_code
+            - jsonPath: $.message.children.*.recipient_segment_code
+            - jsonPath: $.message.children.*.economic_segment_code
+            - jsonPath: $.message.children.*.source_of_fund_code
+            - jsonPath: $.message.children.*.target_segment_code
+            - jsonPath: $.message.children.*.additional_details
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.message.children.*.audit_details.createdTime
+            - jsonPath: $.message.children.*.audit_details.createdBy
+            - jsonPath: $.message.children.*.audit_details.lastModifiedTime
+            - jsonPath: $.message.children.*.audit_details.lastModifiedBy
+
+    - version: 1.0
+      name: MuktaIFixAdapterService
+      description: Updating Payment details and status to Mukta
+      fromTopic: mukta-ifix-adapter-disburse-update
+      isTransaction: true
+      module: MAS
+      queryMaps:
+        - query: UPDATE eg_mukta_ifms_disburse SET transaction_id = ?, status = ?, status_message = ?, last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
+          basePath: $.message
+          jsonMaps:
+            - jsonPath: $.message.transaction_id
+            - jsonPath: $.message.status.status_code
+            - jsonPath: $.message.status.status_message
+            - jsonPath: $.message.audit_details.lastModifiedTime
+            - jsonPath: $.message.audit_details.lastModifiedBy
+            - jsonPath: $.message.id
+
+        - query: UPDATE eg_mukta_ifms_message_codes SET additional_details = ?, last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
+          basePath: $.message
+          jsonMaps:
+            - jsonPath: $.message.additional_details
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.message.audit_details.lastModifiedTime
+            - jsonPath: $.message.audit_details.lastModifiedBy
+            - jsonPath: $.message.id
+
+        - query: UPDATE eg_mukta_ifms_disburse SET transaction_id = ?, status = ?, status_message = ?, last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
+          basePath: $.message.children.*
+          jsonMaps:
+            - jsonPath: $.message.children.*.transaction_id
+            - jsonPath: $.message.children.*.status.status_code
+            - jsonPath: $.message.children.*.status.status_message
+            - jsonPath: $.message.children.*.audit_details.lastModifiedTime
+            - jsonPath: $.message.children.*.audit_details.lastModifiedBy
+            - jsonPath: $.message.children.*.id
+
+        - query: UPDATE eg_mukta_ifms_message_codes SET additional_details = ?,last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
+          basePath: $.message.children.*
+          jsonMaps:
+            - jsonPath: $.message.children.*.additional_details
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.message.children.*.audit_details.lastModifiedTime
+            - jsonPath: $.message.children.*.audit_details.lastModifiedBy
+            - jsonPath: $.message.children.*.id
