@@ -26,7 +26,7 @@ serviceMaps:
             - jsonPath: $.*.address.*.street
             - jsonPath: $.*.address.*.locality.code
             - jsonPath: $.*.address.*.ward.code
-        - query: INSERT INTO individual(id, userId, userUuid, clientReferenceId, tenantId, givenName, familyName, otherNames, dateOfBirth, gender, bloodGroup, mobileNumber, altContactNumber, email, fatherName, husbandName, photo, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted, individualId, relationship, isSystemUser, isSystemUserActive, username, type, roles) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO individual(id, userId, userUuid, clientReferenceId, tenantId, givenName, familyName, otherNames, dateOfBirth, gender, bloodGroup, mobileNumber, altContactNumber, email, fatherName, husbandName, photo, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted, individualId, relationship, isSystemUser, isSystemUserActive, username, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.id
@@ -62,9 +62,6 @@ serviceMaps:
             - jsonPath: $.*.isSystemUserActive
             - jsonPath: $.*.userDetails.username
             - jsonPath: $.*.userDetails.type
-            - jsonPath: $.*.userDetails.roles
-              type: JSON
-              dbType: JSONB
         - query: INSERT INTO individual_address(individualId, addressId, type, createdBy, lastModifiedBy, createdTime, lastModifiedTime, isDeleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.*.address.*
           jsonMaps:
@@ -109,7 +106,7 @@ serviceMaps:
       fromTopic: update-individual-topic
       isTransaction: true
       queryMaps:
-        - query: UPDATE individual SET userId=?, userUuid=?, tenantId=?, givenName=?, familyName=?, otherNames=?, dateOfBirth=?, Gender=?, bloodGroup=?, mobileNumber=?, altContactNumber=?, email=?, fatherName=?, husbandName=?, relationship=?, photo=?, isSystemUserActive=?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, username = ?,  type = ?, roles = ? WHERE id=? AND isDeleted=false;
+        - query: UPDATE individual SET userId=?, userUuid=?, tenantId=?, givenName=?, familyName=?, otherNames=?, dateOfBirth=?, Gender=?, bloodGroup=?, mobileNumber=?, altContactNumber=?, email=?, fatherName=?, husbandName=?, relationship=?, photo=?, isSystemUserActive=?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, username = ?,  type = ?, WHERE id=? AND isDeleted=false;
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.userId
@@ -138,9 +135,6 @@ serviceMaps:
             - jsonPath: $.*.rowVersion
             - jsonPath: $.*.userDetails.username
             - jsonPath: $.*.userDetails.type
-            - jsonPath: $.*.userDetails.roles
-              type: JSON
-              dbType: JSONB
             - jsonPath: $.*.id
         - query: INSERT INTO address(id, clientReferenceId, tenantId, doorNo, latitude, longitude, locationAccuracy, type, addressLine1, addressLine2, landmark, city, pincode, buildingName, street, localityCode, wardCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET doorno=?, latitude=?, longitude=?, locationaccuracy=?, type=?, addressline1=?, addressline2=?, landmark=?, city=?, pincode=?, buildingname=?, street=?, localitycode=?, wardCode=?;
           basePath: $.*.address.*
