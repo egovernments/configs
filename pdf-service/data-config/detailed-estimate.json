@@ -1,0 +1,124 @@
+{
+  "key": "detailed-estimate",
+  "documentType":"ESTIMATE",
+  "DataConfigs": {
+    "moduleName": "rainmaker-common",
+    "version": "1.0.0",
+    "baseKeyPath": "$.pdfData",
+    "entityIdPath":"$.id",
+    "isCommonTableBorderRequired": true,
+    "mappings": [
+      {
+        "topic": "common-pdf-generation-3",
+        "mappings": [
+          {
+            "direct": [
+              {
+                "variable": "estimateId",
+                "value": {
+                  "path": "$.estimateNumber"
+                }
+              },
+              {
+                "variable": "projectId",
+                "value": {
+                  "path": "$.projectNumber"
+                }
+              },
+              {
+                "variable": "projectName",
+                "value": {
+                  "path": "$.projectName"
+                }
+              },
+              {
+                "variable": "projectLocation",
+                "value": {
+                  "path": "$.projectLocation"
+                }
+              },
+              {
+                "variable": "projectDescription",
+                "value": {
+                  "path": "$.description"
+                }
+              },
+              {
+                "variable": "tableData",
+                "value": {
+                  "path": "$.estimateDetails"
+                },
+                "type":"function",
+                "format": "var y = [],\n    a = [],\n    estimateDetails = arguments[0];\n    \nfunction rupeeFormat(amount) {\n    var flag = 0;\n    var count = 0;\n    var amount = amount.toString();\n    var len = amount.length;\n    var val = '';\n\n    for (var i = len - 1; i >= 0; i--) {\n        val = amount[i] + val;\n\n        if (amount[i] == '.') {\n            flag = 1;\n            count = -1;\n            val = amount.substring(i, len);\n        }\n\n        if (count % 2 == 0 && i != 0 && count != 0) {\n            val = ',' + val;\n        }\n\n        count += 1;\n    }\n\n    if (flag == 0) {\n        val += '.00';\n    }\n\n    return val;\n}\n\nfor (var i = 0; i < estimateDetails.length; i++) {\n    if(estimateDetails[i].category!='OVERHEAD'){\n        var x = {\n        Sno: i + 1,\n        uom: estimateDetails[i].uom,\n        unitRate: estimateDetails[i].unitRate,\n        estimateDescription: estimateDetails[i].name,\n        estimatedQuantity: estimateDetails[i].quantity,\n        estimatedAmount: estimateDetails[i].amount\n    };\n    y.push(x);\n    }\n}\nreturn y;\n"
+              },
+              {
+                "variable": "charges",
+                "value": {
+                  "path": "$.estimateDetails"
+                },
+                "type":"function",
+                "format": "var a = [],\n    estimateDetails = arguments[0];\n                 \nfunction rupeeFormat(amount) {\n    var flag = 0;\n    var count = 0;\n    var amount = amount.toString();\n    var len = amount.length;\n    var val = '';\n\n    for (var i = len - 1; i >= 0; i--) {\n        val = amount[i] + val;\n\n        if (amount[i] == '.') {\n            flag = 1;\n            count = -1;\n            val = amount.substring(i, len);\n        }\n\n        if (count % 2 == 0 && i != 0 && count != 0) {\n            val = ',' + val;\n        }\n\n        count += 1;\n    }\n\n    if (flag == 0) {\n        val += '.00';\n    }\n\n    return val;\n}\n\nfor (var i = 0; i < estimateDetails.length; i++) {\n    if (estimateDetails[i].category == 'OVERHEAD') {\n        var b = {\n            chargeDescription: estimateDetails[i].description,\n            percent: estimateDetails[i].additionalDetails.row.percentage,\n            charge: estimateDetails[i].amount\n        };\n        a.push(b);\n    }\n}\n\nreturn a;"
+              },
+              {
+                "variable": "totalSum",
+                "value": {
+                  "path": "$.totalEstimatedAmount"
+                }
+              }
+            ]
+          },
+          {
+            "externalAPI": [
+              {
+                "path": "http://egov-mdms-service:8080/egov-mdms-service/v1/_get",
+                "queryParam": "moduleName=tenant&masterName=tenants&tenantId=pg&filter=%5B?(@.code=='{$.tenantId}')%5D",
+                "apiRequest": null,
+                "responseMapping":[
+                  {
+                    "variable":"address",
+                    "value":"$.MdmsRes.tenant.tenants[0].address"
+                  },
+                  {
+                    "variable":"phoneNumber",
+                    "value":"$.MdmsRes.tenant.tenants[0].contactNumber"
+                  },
+                  {
+                    "variable":"website",
+                    "value":"$.MdmsRes.tenant.tenants[0].domainUrl"
+                  },
+                  {
+                    "variable":"email",
+                    "value":"$.MdmsRes.tenant.tenants[0].emailId"
+                  },
+                  {
+                    "variable": "logoImage",
+                    "value":"$.MdmsRes.tenant.tenants[0].logoId",
+                    "type":"image"
+                  },
+                  {
+                    "variable": "logo-header",
+                    "value":"$.MdmsRes.tenant.tenants[0].code",
+                    "localisation":{
+                      "required":true,
+                      "module":"rainmaker-common"
+                    }
+                  },
+                  {
+                    "variable": "subdivision",
+                    "value": "$.MdmsRes.tenant.tenants[0].city.ulbGrade",
+                    "localisation": {
+                      "required": true,
+                      "prefix": "COMMON_SUBDIVISION",
+                      "module": "rainmaker-common"
+                    }
+                  }
+                ]
+              }
+
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

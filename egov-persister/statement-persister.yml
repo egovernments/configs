@@ -1,0 +1,168 @@
+serviceMaps:
+  serviceName: statement
+  mappings:
+  - version: 1.0
+    name: statement
+    description: Persists statement details in eg_statement table
+    fromTopic: save-analysis-statement
+    isTransaction: true
+    isAuditEnabled: true
+    module: STATEMENT
+    objecIdJsonPath: $.id
+    tenantIdJsonPath: $.tenantId
+    transactionCodeJsonPath: $.id
+    auditAttributeBasePath: $.statement
+    queryMaps:
+    - query: INSERT INTO eg_statement(id,tenantid,target_id,statement_type,basic_sor_details,additional_details,createdby,lastmodifiedby,createdtime,lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?);
+      basePath: $.statement
+      jsonMaps:
+      - jsonPath: $.statement.id
+      - jsonPath: $.statement.tenantId
+      - jsonPath: $.statement.targetId
+      - jsonPath: $.statement.statementType
+      - jsonPath: $.statement.basicSorDetails
+        type: JSON
+        dbType: JSONB
+      - jsonPath: $.statement.additionalDetails
+        type: JSON
+        dbType: JSONB
+      - jsonPath: $.statement.auditDetails.createdBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.createdTime
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime
+
+
+    - query: INSERT INTO eg_statement_sor_details(id,tenantid,statement_id,sorid,basic_sor_details,additional_details,is_active,createdby,lastmodifiedby,createdtime,lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?,?);
+      basePath: $.statement.sorDetails.*
+      jsonMaps:
+      - jsonPath: $.sorDetails.*.id
+      - jsonPath: $.sorDetails.*.tenantId
+      - jsonPath: $.statement.id
+      - jsonPath: $.sorDetails.*.sorId
+      - jsonPath: $.sorDetails.*.basicSorDetails
+        type: JSON
+        dbType: JSONB
+      - jsonPath: $.sorDetails.*.additionalDetails
+        type: JSON
+        dbType: JSONB  
+      - jsonPath: $.sorDetails.*.isActive 
+      - jsonPath: $.statement.auditDetails.createdBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.createdTime
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime
+
+    - query: INSERT INTO eg_statement_sor_line_items(id,tenantid,sorid,sortype,reference_id,basic_sor_details,additional_details,createdby,lastmodifiedby,createdtime,lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?,?);
+      basePath: $.statement.sorDetails.*.lineItems.*
+      jsonMaps:
+      - jsonPath: $.lineItems.*.id
+      - jsonPath: $.statement.tenantId
+      - jsonPath: $.lineItems.*.sorId
+      - jsonPath: $.lineItems.*.sorType
+      - jsonPath: $.lineItems.*.referenceId
+      - jsonPath: $.lineItems.*.basicSorDetails
+        type: JSON
+        dbType: JSONB
+      - jsonPath: $.lineItems.*.additionalDetails
+        type: JSON
+        dbType: JSONB
+      - jsonPath: $.statement.auditDetails.createdBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.createdTime
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime    
+
+  - version: 1.0
+    name: statement
+    description: Update statement details in eg_statement table
+    fromTopic: update-analysis-statement
+    isTransaction: true
+    isAuditEnabled: true
+    module: STATEMENT
+    queryMaps:
+    - query: UPDATE eg_statement SET basic_sor_details = ?, lastmodifiedby = ?, lastmodifiedtime = ? WHERE id = ?;
+      basePath: $.statement
+      jsonMaps:
+      - jsonPath: $.statement.basicSorDetails
+        type: JSON
+        dbType: JSONB
+      - jsonPath: $.statement.auditDetails.lastModifiedBy 
+      - jsonPath: $.statement.auditDetails.lastModifiedTime 
+      - jsonPath: $.statement.id
+      
+
+
+    - query: INSERT INTO eg_statement_sor_details(id,tenantid,statement_id,sorid,basic_sor_details,additional_details,is_active,createdby,lastmodifiedby,createdtime,lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE SET basic_sor_details=?, additional_details=?,is_active=?,lastmodifiedby = ?, lastmodifiedtime = ?;
+      basePath: $.statement.sorDetails.*
+      jsonMaps:
+      - jsonPath: $.sorDetails.*.id
+      - jsonPath: $.sorDetails.*.tenantId
+      - jsonPath: $.statement.id
+      - jsonPath: $.sorDetails.*.sorId
+      - jsonPath: $.sorDetails.*.basicSorDetails
+        type: JSON
+        dbType: JSONB
+      - jsonPath: $.sorDetails.*.additionalDetails
+        type: JSON
+        dbType: JSONB
+      - jsonPath: $.sorDetails.*.isActive 
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime
+
+      - jsonPath: $.sorDetails.*.basicSorDetails
+        type: JSON
+        dbType: JSONB
+      - jsonPath: $.sorDetails.*.additionalDetails
+        type: JSON
+        dbType: JSONB 
+      - jsonPath: $.sorDetails.*.isActive   
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime    
+
+    - query: INSERT INTO eg_statement_sor_line_items(id,tenantid,sorid,sortype,reference_id,basic_sor_details,additional_details,createdby,lastmodifiedby,createdtime,lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE SET basic_sor_details=?, additional_details=?,lastmodifiedby = ?, lastmodifiedtime = ?;
+      basePath: $.statement.sorDetails.*.lineItems.*
+      jsonMaps:
+      - jsonPath: $.lineItems.*.id
+      - jsonPath: $.statement.tenantId
+      - jsonPath: $.lineItems.*.sorId
+      - jsonPath: $.lineItems.*.sorType
+      - jsonPath: $.lineItems.*.referenceId
+      - jsonPath: $.lineItems.*.basicSorDetails
+        type: JSON
+        dbType: JSONB 
+      - jsonPath: $.lineItems.*.additionalDetails
+        type: JSON
+        dbType: JSONB
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime 
+      - jsonPath: $.lineItems.*.basicSorDetails
+        type: JSON
+        dbType: JSONB 
+      - jsonPath: $.lineItems.*.additionalDetails
+        type: JSON
+        dbType: JSONB  
+      - jsonPath: $.statement.auditDetails.lastModifiedBy
+
+      - jsonPath: $.statement.auditDetails.lastModifiedTime  
+
+
+        
+        
