@@ -6,7 +6,7 @@ serviceMaps:
       fromTopic: save-project-staff-topic
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO project_staff (id, tenantId, projectId, staffId, startDate, endDate, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO health.project_staff (id, tenantId, projectId, staffId, startDate, endDate, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.id
@@ -30,7 +30,7 @@ serviceMaps:
       fromTopic: update-project-staff-topic
       isTransaction: true
       queryMaps:
-        - query: UPDATE project_staff SET projectId=?, staffId=?, startDate=?, endDate=?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=? WHERE id = ?
+        - query: UPDATE health.project_staff SET projectId=?, staffId=?, startDate=?, endDate=?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=? WHERE id = ?
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.projectId
@@ -51,7 +51,7 @@ serviceMaps:
       fromTopic: delete-project-staff-topic
       isTransaction: true
       queryMaps:
-        - query: UPDATE project_staff SET lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, additionalDetails=? WHERE id=?;
+        - query: UPDATE health.project_staff SET lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, additionalDetails=? WHERE id=?;
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.auditDetails.lastModifiedBy
@@ -68,7 +68,7 @@ serviceMaps:
       fromTopic: save-project-beneficiary-topic
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO project_beneficiary (id, tenantId, projectId, beneficiaryId, clientReferenceId, beneficiaryClientReferenceId, dateOfRegistration, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted, clientCreatedTime, clientLastModifiedTime, clientCreatedBy, clientLastModifiedBy) VALUES (?, ?, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO health.project_beneficiary (id, tenantId, projectId, beneficiaryId, clientReferenceId, beneficiaryClientReferenceId, dateOfRegistration, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted, clientCreatedTime, clientLastModifiedTime, clientCreatedBy, clientLastModifiedBy, tag) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.id
@@ -91,13 +91,14 @@ serviceMaps:
             - jsonPath: $.*.clientAuditDetails.lastModifiedTime
             - jsonPath: $.*.clientAuditDetails.createdBy
             - jsonPath: $.*.clientAuditDetails.lastModifiedBy
+            - jsonPath: $.*.tag
 
     - version: 1.0
       description: Update Project Beneficiary
       fromTopic: update-project-beneficiary-topic
       isTransaction: true
       queryMaps:
-        - query: UPDATE project_beneficiary SET projectId=?, beneficiaryId=?, clientReferenceId=?, beneficiaryClientReferenceId=?, dateOfRegistration=?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, clientLastModifiedTime = ?, clientLastModifiedBy = ?  WHERE id = ? AND isDeleted=false
+        - query: UPDATE health.project_beneficiary SET projectId=?, beneficiaryId=?, clientReferenceId=?, beneficiaryClientReferenceId=?, dateOfRegistration=?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, clientLastModifiedTime = ?, clientLastModifiedBy = ?, tag=?  WHERE id = ? AND isDeleted=false
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.projectId
@@ -114,6 +115,7 @@ serviceMaps:
             - jsonPath: $.*.isDeleted
             - jsonPath: $.*.clientAuditDetails.lastModifiedTime
             - jsonPath: $.*.clientAuditDetails.lastModifiedBy
+            - jsonPath: $.*.tag
             - jsonPath: $.*.id
 
     - version: 1.0
@@ -121,7 +123,7 @@ serviceMaps:
       fromTopic: delete-project-beneficiary-topic
       isTransaction: true
       queryMaps:
-        - query: UPDATE project_beneficiary SET lastModifiedBy=?, lastModifiedTime=?, clientLastModifiedTime = ?, clientLastModifiedBy = ?, rowVersion=?, isDeleted=?, additionalDetails=? WHERE id=?;
+        - query: UPDATE health.project_beneficiary SET lastModifiedBy=?, lastModifiedTime=?, clientLastModifiedTime = ?, clientLastModifiedBy = ?, rowVersion=?, isDeleted=?, additionalDetails=? WHERE id=?;
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.auditDetails.lastModifiedBy
@@ -141,7 +143,7 @@ serviceMaps:
       fromTopic: save-project
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO project(id,tenantId,projectNumber,name,projectType,projectTypeId,projectSubType,department,description,referenceId,startDate,endDate,isTaskEnabled,parent,projectHierarchy,natureOfWork,additionalDetails,isDeleted,rowVersion,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO health.project(id,tenantId,projectNumber,name,projectType,projectTypeId,projectSubType,department,description,referenceId,startDate,endDate,isTaskEnabled,parent,projectHierarchy,natureOfWork,additionalDetails,isDeleted,rowVersion,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: $.Projects.*
           jsonMaps:
             - jsonPath: $.Projects.*.id
@@ -193,7 +195,7 @@ serviceMaps:
             - jsonPath: $.Projects.*.auditDetails.lastModifiedTime
 
 
-        - query: INSERT INTO project_address(id,tenantId,projectId,doorNo,latitude,longitude,locationAccuracy,type,addressLine1,addressLine2,landmark,city,pinCode,buildingName,street,boundaryType,boundary) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO health.project_address(id,tenantId,projectId,doorNo,latitude,longitude,locationAccuracy,type,addressLine1,addressLine2,landmark,city,pinCode,buildingName,street,boundaryType,boundary) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: $.Projects.*.address
           jsonMaps:
             - jsonPath: $.Projects.*.address.id
@@ -231,7 +233,7 @@ serviceMaps:
             - jsonPath: $.Projects.*.address.boundary
 
 
-        - query: INSERT INTO project_target(id,projectId,beneficiaryType,totalNo,targetNo,isDeleted,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO health.project_target(id,projectId,beneficiaryType,totalNo,targetNo,isDeleted,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?);
           basePath: $.Projects.*.targets.*
           jsonMaps:
             - jsonPath: $.Projects.*.targets.*.id
@@ -255,7 +257,7 @@ serviceMaps:
             - jsonPath: $.Projects.*.targets.*.auditDetails.lastModifiedTime
 
 
-        - query: INSERT INTO project_document(id,projectId,documentType,filestoreId,documentUid,additionalDetails,status,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO health.project_document(id,projectId,documentType,filestoreId,documentUid,additionalDetails,status,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?,?);
           basePath: $.Projects.*.documents.*
           jsonMaps:
             - jsonPath: $.Projects.*.documents.*.id
@@ -264,7 +266,7 @@ serviceMaps:
 
             - jsonPath: $.Projects.*.documents.*.documentType
 
-            - jsonPath: $.Projects.*.documents.*.fileStore
+            - jsonPath: $.Projects.*.documents.*.fileStoreId
 
             - jsonPath: $.Projects.*.documents.*.documentUid
 
@@ -289,7 +291,7 @@ serviceMaps:
       fromTopic: update-project
       isTransaction: true
       queryMaps:
-        - query: UPDATE project SET name = ?, projectType = ?, projectTypeId = ?, projectSubType = ?, department = ?, description = ?, referenceId = ?, startDate = ?, endDate = ?, isTaskEnabled = ?, natureOfWork = ?, additionalDetails = ?, isDeleted = ?, rowVersion = ?, lastModifiedBy = ?, lastModifiedTime = ? WHERE id = ?;
+        - query: UPDATE health.project SET name = ?, projectType = ?, projectTypeId = ?, projectSubType = ?, department = ?, description = ?, referenceId = ?, startDate = ?, endDate = ?, isTaskEnabled = ?, natureOfWork = ?, additionalDetails = ?, isDeleted = ?, rowVersion = ?, lastModifiedBy = ?, lastModifiedTime = ? WHERE id = ?;
           basePath: $.Projects.*
           jsonMaps:
 
@@ -330,7 +332,7 @@ serviceMaps:
             - jsonPath: $.Projects.*.id
 
 
-        - query: UPDATE project_address SET doorNo = ?, latitude=?, longitude=?, locationAccuracy=?, type=?, addressLine1=?, addressLine2=?, landmark=?, city=?, pinCode=?, buildingName=?, street=?, boundaryType=?, boundary=? WHERE id=?;
+        - query: UPDATE health.project_address SET doorNo = ?, latitude=?, longitude=?, locationAccuracy=?, type=?, addressLine1=?, addressLine2=?, landmark=?, city=?, pinCode=?, buildingName=?, street=?, boundaryType=?, boundary=? WHERE id=?;
           basePath: $.Projects.*.address
           jsonMaps:
 
@@ -365,7 +367,7 @@ serviceMaps:
             - jsonPath: $.Projects.*.address.id
 
 
-        - query: UPDATE project_target(id,projectId,beneficiaryType,totalNo,targetNo,isDeleted,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE SET beneficiaryType = ?, totalNo =?, targetNo=?, isDeleted=?, lastModifiedBy=?, lastModifiedTime=?;
+        - query: INSERT INTO health.project_target(id,projectId,beneficiaryType,totalNo,targetNo,isDeleted,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE SET beneficiaryType = ?, totalNo =?, targetNo=?, isDeleted=?, lastModifiedBy=?, lastModifiedTime=?;
           basePath: $.Projects.*.targets.*
           jsonMaps:
 
@@ -402,7 +404,7 @@ serviceMaps:
             - jsonPath: $.Projects.*.targets.*.auditDetails.lastModifiedTime
 
 
-        - query: INSERT INTO project_document(id,projectId,documentType,filestoreId,documentUid,additionalDetails,status,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE SET documentType=?, filestoreId=?, documentUid=?, additionalDetails=?, status=?, lastModifiedBy=?, lastModifiedTime=?;
+        - query: INSERT INTO health.project_document(id,projectId,documentType,filestoreId,documentUid,additionalDetails,status,createdBy,lastModifiedBy,createdTime,lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE SET documentType=?, filestoreId=?, documentUid=?, additionalDetails=?, status=?, lastModifiedBy=?, lastModifiedTime=?;
           basePath: $.Projects.*.documents.*
           jsonMaps:
 
@@ -412,7 +414,7 @@ serviceMaps:
 
             - jsonPath: $.Projects.*.documents.*.documentType
 
-            - jsonPath: $.Projects.*.documents.*.fileStore
+            - jsonPath: $.Projects.*.documents.*.fileStoreId
 
             - jsonPath: $.Projects.*.documents.*.documentUid
 
@@ -432,7 +434,7 @@ serviceMaps:
 
             - jsonPath: $.Projects.*.documents.*.documentType
 
-            - jsonPath: $.Projects.*.documents.*.fileStore
+            - jsonPath: $.Projects.*.documents.*.fileStoreId
 
             - jsonPath: $.Projects.*.documents.*.documentUid
 
@@ -452,7 +454,7 @@ serviceMaps:
       fromTopic: save-project-resource-topic
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO project_resource (id, tenantId, projectId, productVariantId, isBaseUnitVariant, startDate, endDate, type, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO health.project_resource (id, tenantId, projectId, productVariantId, isBaseUnitVariant, startDate, endDate, type, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.id
@@ -475,7 +477,7 @@ serviceMaps:
       fromTopic: update-project-resource-topic
       isTransaction: true
       queryMaps:
-        - query: UPDATE project_resource SET tenantId=?, projectId=?, productVariantId=?, isBaseUnitVariant=?, startDate=?, endDate=?, type=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=? WHERE id = ?
+        - query: UPDATE health.project_resource SET tenantId=?, projectId=?, productVariantId=?, isBaseUnitVariant=?, startDate=?, endDate=?, type=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=? WHERE id = ?
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.tenantId
@@ -496,7 +498,7 @@ serviceMaps:
       fromTopic: delete-project-resource-topic
       isTransaction: true
       queryMaps:
-        - query: UPDATE project_resource SET lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, additionalDetails=?  WHERE id = ?
+        - query: UPDATE health.project_resource SET lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, additionalDetails=?  WHERE id = ?
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.auditDetails.lastModifiedBy
@@ -514,7 +516,7 @@ serviceMaps:
       isTransaction: true
       queryMaps:
 
-        - query: INSERT INTO project_facility (id, tenantId, projectId, facilityId, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted) VALUES (?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO health.project_facility (id, tenantId, projectId, facilityId, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted) VALUES (?,?,?,?,?,?,?,?,?,?,?);
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.id
@@ -547,7 +549,7 @@ serviceMaps:
       isTransaction: true
       queryMaps:
 
-        - query: UPDATE project_facility SET projectId=?, facilityId=?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=? WHERE id = ?
+        - query: UPDATE health.project_facility SET projectId=?, facilityId=?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=? WHERE id = ?
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.projectId
@@ -573,7 +575,7 @@ serviceMaps:
       fromTopic: delete-project-facility-topic
       isTransaction: true
       queryMaps:
-        - query: UPDATE project_facility SET lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, additionalDetails=? WHERE id=?;
+        - query: UPDATE health.project_facility SET lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, additionalDetails=? WHERE id=?;
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.auditDetails.lastModifiedBy
