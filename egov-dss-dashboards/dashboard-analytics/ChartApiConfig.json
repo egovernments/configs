@@ -26863,22 +26863,61 @@
     "hideHeaderDenomination": true,
     "_comment": " "
   },
-    "housesNotSprayedByReason": {
-    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON",
+  "housesNotSprayedByReasonProvince": {
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_PROVINCE",
     "queries": [
       {
         "module": "COMMON",
-        "dateRefField": "Data.lastModifiedTime",
-        "requestQueryMap": "{\"Provincia\": \"Data.Provincia.keyword\", \"Distrito\": \"Data.Distrito.keyword\"}",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\"}",
         "indexName": "project-task-index-v1",
-        "aggrQuery": "{\"query\":{\"bool\":{\"must\":[{\"terms\":{\"Data.deliveredTo.keyword\":[\"HOUSEHOLD\"]}},{\"exists\":{\"field\":\"Data.additionalDetails.reasonOfRefusal.keyword\"}},{\"exists\":{\"field\":\"Data.boundaryHierarchy.province.keyword\"}}]}},\"aggs\":{\"Funeralfilter\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.additionalDetails.reasonOfRefusal.keyword\":\"FUNERAL\"}},{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}}]}},\"aggs\":{\"FUNERAL\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500,\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"HouseholdsCount\":{\"value_count\":{\"field\":\"Data.lastModifiedTime\"}}}}}},\"Sickfilter\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.additionalDetails.reasonOfRefusal.keyword\":\"SICK\"}},{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}}]}},\"aggs\":{\"SICK\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.Distrito.keyword\",\"size\":500,\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"HouseholdsCount\":{\"value_count\":{\"field\":\"Data.lastModifiedTime\"}}}}}},\"Incompatiblefilter\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.additionalDetails.reasonOfRefusal.keyword\":\"INCOMPATIBLE\"}}]}},\"aggs\":{\"INCOMPATIBLE\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.Distrito.keyword\",\"size\":500,\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"HouseholdsCount\":{\"value_count\":{\"field\":\"Data.lastModifiedTime\"}}}}}},\"Refusedfilter\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.status.keyword\":\"BENEFICIARY_REFUSED\"}},{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}}]}},\"aggs\":{\"BENEFICIARY_REFUSED\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.Distrito.keyword\",\"size\":500,\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"HouseholdsCount\":{\"value_count\":{\"field\":\"Data.lastModifiedTime\"}}}}}}}}"
+        "aggrQuery": "{\n  \"size\": 0,\n  \"aggs\": {\n    \"Funeral filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"FUNERAL\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"FUNERAL\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.district.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Sick filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"SICK\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"SICK\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.district.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Incompatible filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"INCOMPATIBLE\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"INCOMPATIBLE\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.district.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Refused filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.status.keyword\": \"BENEFICIARY_REFUSED\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"BENEFICIARY_REFUSED\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.district.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
       }
     ],
     "chartType": "line",
     "isCumulative": false,
     "valueType": "number",
     "plotLabel": "none",
-    "drillChart": "householdsCoverageBarchartByAP",
+    "drillChart": "housesNotSprayedByReasonDistrict",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "FUNERAL",
+      "SICK",
+      "INCOMPATIBLE",
+      "BENEFICIARY_REFUSED"
+    ],
+    "filterKeys": [
+      {
+        "key": "district"
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "housesNotSprayedByReasonPercentProvincePercent": {
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_PROVINCE_PERCENT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\n  \"size\": 0,\n  \"aggs\": {\n    \"Funeral filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"FUNERAL\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"FUNERAL\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.district.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Sick filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"SICK\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"SICK\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.district.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Incompatible filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"INCOMPATIBLE\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"INCOMPATIBLE\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.district.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Refused filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.status.keyword\": \"BENEFICIARY_REFUSED\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"BENEFICIARY_REFUSED\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.district.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\"}",
+        "indexName": "project-index-v1",
+        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filters\": {\n        \"filters\": {\n          \"FILTERS\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"term\": {\n                    \"Data.targetType.keyword\": \"HOUSEHOLD\"\n                  }\n                },\n                {\n                  \"exists\": {\n                    \"field\": \"Data.district.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.administrativeProvince.keyword\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"aggs\": {\n        \"Households Targeted\": {\n          \"terms\": {\n            \"size\": 500, \n            \"field\": \"Data.district.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Overall Target\": {\n              \"sum\": {\n                \"field\": \"Data.overallTarget\"\n              }\n            },\n            \"target\": {\n              \"sum\": {\n                \"field\": \"Data.targetPerDay\"\n              }\n            },\n            \"Target for daterange\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"SUM\": \"target\"\n                },\n                \"script\": \"(params.SUM) * 365\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "percentage",
+    "plotLabel": "none",
+    "drillChart": "housesNotSprayedByReasonPercentDistrictPercent",
     "documentType": "_doc",
     "action": "percentage",
     "aggregationPaths": [
@@ -26890,6 +26929,265 @@
     "filterKeys": [
       {
         "key": "district"
+      }
+    ],
+    "isCappedByCampaignPeriod": [
+      "Overall Target"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "repsonseToDifferenceOfDates",
+        "actionName": "",
+        "fields": [
+          "Target for daterange"
+        ],
+        "newField": "Households for daterange",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "housesNotSprayedByReasonDistrict": {
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_DISTRICT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\n  \"size\": 0,\n  \"aggs\": {\n    \"Funeral filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"FUNERAL\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"FUNERAL\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.administrativeProvince.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Sick filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"SICK\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"SICK\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.administrativeProvince.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Incompatible filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"INCOMPATIBLE\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"INCOMPATIBLE\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.administrativeProvince.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Refused filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.status.keyword\": \"BENEFICIARY_REFUSED\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"BENEFICIARY_REFUSED\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.administrativeProvince.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "housesNotSprayedByReasonAP",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "FUNERAL",
+      "SICK",
+      "INCOMPATIBLE",
+      "BENEFICIARY_REFUSED"
+    ],
+    "filterKeys": [
+      {
+        "key": "administrativeProvince"
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "housesNotSprayedByReasonPercentDistrictPercent": {
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_DISTRICT_PERCENT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\n  \"size\": 0,\n  \"aggs\": {\n    \"Funeral filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"FUNERAL\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"FUNERAL\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.administrativeProvince.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Sick filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"SICK\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"SICK\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.administrativeProvince.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Incompatible filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"INCOMPATIBLE\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"INCOMPATIBLE\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.administrativeProvince.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Refused filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.status.keyword\": \"BENEFICIARY_REFUSED\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"BENEFICIARY_REFUSED\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.administrativeProvince.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "indexName": "project-index-v1",
+        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filters\": {\n        \"filters\": {\n          \"FILTERS\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"term\": {\n                    \"Data.targetType.keyword\": \"HOUSEHOLD\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                },\n                {\n                  \"exists\": {\n                    \"field\": \"Data.administrativeProvince.keyword\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.locality.keyword\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"aggs\": {\n        \"Households Targeted\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.administrativeProvince.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Overall Target\": {\n              \"sum\": {\n                \"field\": \"Data.overallTarget\"\n              }\n            },\n            \"target\": {\n              \"sum\": {\n                \"field\": \"Data.targetPerDay\"\n              }\n            },\n            \"Target for daterange\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"SUM\": \"target\"\n                },\n                \"script\": \"(params.SUM) * 365\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "percentage",
+    "plotLabel": "none",
+    "drillChart": "housesNotSprayedByReasonPercentAPPercent",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "FUNERAL",
+      "SICK",
+      "INCOMPATIBLE",
+      "BENEFICIARY_REFUSED"
+    ],
+    "filterKeys": [
+      {
+        "key": "administrativeProvince"
+      }
+    ],
+    "isCappedByCampaignPeriod": [
+      "Overall Target"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "repsonseToDifferenceOfDates",
+        "actionName": "",
+        "fields": [
+          "Target for daterange"
+        ],
+        "newField": "Households for daterange",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "housesNotSprayedByReasonAP": {
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_AP",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\n  \"size\": 0,\n  \"aggs\": {\n    \"Funeral filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"FUNERAL\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"FUNERAL\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.locality.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Sick filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"SICK\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"SICK\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.locality.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Incompatible filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"INCOMPATIBLE\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"INCOMPATIBLE\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.locality.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Refused filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.status.keyword\": \"BENEFICIARY_REFUSED\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"BENEFICIARY_REFUSED\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.locality.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "housesNotSprayedByReasonLocality",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "FUNERAL",
+      "SICK",
+      "INCOMPATIBLE",
+      "BENEFICIARY_REFUSED"
+    ],
+    "filterKeys": [
+      {
+        "key": "locality"
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "housesNotSprayedByReasonPercentAPPercent": {
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_AP_PERCENT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\n  \"size\": 0,\n  \"aggs\": {\n    \"Funeral filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"FUNERAL\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"FUNERAL\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.locality.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Sick filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"SICK\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"SICK\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.locality.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Incompatible filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"INCOMPATIBLE\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"INCOMPATIBLE\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.locality.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Refused filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.status.keyword\": \"BENEFICIARY_REFUSED\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"BENEFICIARY_REFUSED\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.locality.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\"}",
+        "indexName": "project-index-v1",
+        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filters\": {\n        \"filters\": {\n          \"FILTERS\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"term\": {\n                    \"Data.targetType.keyword\": \"HOUSEHOLD\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                },\n                {\n                  \"exists\": {\n                    \"field\": \"Data.locality.keyword\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.village.keyword\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"aggs\": {\n        \"Households Targeted\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.locality.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Overall Target\": {\n              \"sum\": {\n                \"field\": \"Data.overallTarget\"\n              }\n            },\n            \"target\": {\n              \"sum\": {\n                \"field\": \"Data.targetPerDay\"\n              }\n            },\n            \"Target for daterange\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"SUM\": \"target\"\n                },\n                \"script\": \"(params.SUM) * 365\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "percentage",
+    "plotLabel": "none",
+    "drillChart": "housesNotSprayedByReasonPercentLocalityPercent",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "FUNERAL",
+      "SICK",
+      "INCOMPATIBLE",
+      "BENEFICIARY_REFUSED"
+    ],
+    "filterKeys": [
+      {
+        "key": "locality"
+      }
+    ],
+    "isCappedByCampaignPeriod": [
+      "Overall Target"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "repsonseToDifferenceOfDates",
+        "actionName": "",
+        "fields": [
+          "Target for daterange"
+        ],
+        "newField": "Households for daterange",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "housesNotSprayedByReasonLocality": {
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_LOCALITY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\", \"locality\":\"Data.locality.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\n  \"size\": 0,\n  \"aggs\": {\n    \"Funeral filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"FUNERAL\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"FUNERAL\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.village.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Sick filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"SICK\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"SICK\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.village.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Incompatible filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"INCOMPATIBLE\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"INCOMPATIBLE\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.village.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Refused filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.status.keyword\": \"BENEFICIARY_REFUSED\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"BENEFICIARY_REFUSED\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.village.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "FUNERAL",
+      "SICK",
+      "INCOMPATIBLE",
+      "BENEFICIARY_REFUSED"
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "housesNotSprayedByReasonPercentLocalityPercent": {
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_LOCALITY_PERCENT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\", \"locality\":\"Data.locality.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\n  \"size\": 0,\n  \"aggs\": {\n    \"Funeral filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"FUNERAL\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"FUNERAL\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.village.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Sick filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"SICK\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"SICK\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.village.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Incompatible filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.additionalDetails.reasonOfRefusal.keyword\": \"INCOMPATIBLE\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"INCOMPATIBLE\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.village.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Refused filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.status.keyword\": \"BENEFICIARY_REFUSED\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"BENEFICIARY_REFUSED\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.village.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Households Count\": {\n              \"value_count\": {\n                \"field\": \"Data.createdTime\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\", \"locality\":\"Data.locality.keyword\"}",
+        "indexName": "project-index-v1",
+        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filters\": {\n        \"filters\": {\n          \"FILTERS\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"term\": {\n                    \"Data.targetType.keyword\": \"HOUSEHOLD\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                },\n                {\n                  \"exists\": {\n                    \"field\": \"Data.locality.keyword\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.village.keyword\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"aggs\": {\n        \"Households Targeted\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.locality.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Overall Target\": {\n              \"sum\": {\n                \"field\": \"Data.overallTarget\"\n              }\n            },\n            \"target\": {\n              \"sum\": {\n                \"field\": \"Data.targetPerDay\"\n              }\n            },\n            \"Target for daterange\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"SUM\": \"target\"\n                },\n                \"script\": \"(params.SUM) * 365\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "percentage",
+    "plotLabel": "none",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "FUNERAL",
+      "SICK",
+      "INCOMPATIBLE",
+      "BENEFICIARY_REFUSED"
+    ],
+    "isCappedByCampaignPeriod": [
+      "Overall Target"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "repsonseToDifferenceOfDates",
+        "actionName": "",
+        "fields": [
+          "Target for daterange"
+        ],
+        "newField": "Households for daterange",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
       }
     ],
     "insight": {},
