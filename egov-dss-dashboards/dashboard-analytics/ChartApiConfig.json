@@ -27996,5 +27996,322 @@
     "filterKeys": [{"key": "village"}],
     "insight": { },
     "_comment": " "
+  },
+  "housesNotSprayedDistrict": {
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_DISTRICT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\n\"size\":0,\n\"query\":{\n\"bool\":{\n\"should\":[\n{\n\"bool\":{\n\"must\":[\n{\n\"terms\":{\n\"Data.administrationStatus.keyword\":[\n\"BENEFICIARY_REFUSED\",\n\"CLOSED_HOUSEHOLD\"\n]\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n}\n]\n}\n},\n{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.administrationStatus.keyword\":\"ADMINISTRATION_FAILED\"\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"terms\":{\n\"Data.additionalDetails.reasonOfRefusal.keyword\":[\n\"SICK\",\n\"FUNERAL\",\n\"INCOMPATIBLE\"\n]\n}\n}\n]\n}\n}\n]\n}\n},\n\"aggs\":{\n\"Households_not_sprayed\":{\n\"terms\":{\n\"field\":\"Data.boundaryHierarchy.district.keyword\",\n\"size\":1000\n}\n}\n}\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "housesNotSprayedAP",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "Households_not_sprayed"
+    ],
+    "filterKeys": [
+      {
+        "key": "district"
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "housesNotSprayedDistrictPercent": {
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_DISTRICT_PERCENT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\n\"size\":0,\n\"query\":{\n\"bool\":{\n\"should\":[\n{\n\"bool\":{\n\"must\":[\n{\n\"terms\":{\n\"Data.administrationStatus.keyword\":[\n\"BENEFICIARY_REFUSED\",\n\"CLOSED_HOUSEHOLD\"\n]\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n}\n]\n}\n},\n{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.administrationStatus.keyword\":\"ADMINISTRATION_FAILED\"\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"terms\":{\n\"Data.additionalDetails.reasonOfRefusal.keyword\":[\n\"SICK\",\n\"FUNERAL\",\n\"INCOMPATIBLE\"\n]\n}\n}\n]\n}\n}\n]\n}\n},\n\"aggs\":{\n\"Households_not_sprayed\":{\n\"terms\":{\n\"field\":\"Data.boundaryHierarchy.district.keyword\",\n\"size\":1000\n}\n}\n}\n}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "indexName": "project-index-v1",
+        "aggrQuery": "{\n\"aggs\":{\n\"AGGS\":{\n\"filter\":{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.targetType.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"match_phrase\":{\n\"Data.productVariant\":\"PVAR\"\n}\n},\n{\n\"exists\":{\n\"field\":\"Data.district.keyword\"\n}\n}\n],\n\"must_not\":[\n{\n\"exists\":{\n\"field\":\"Data.administrativeProvince.keyword\"\n}\n}\n]\n}\n},\n\"aggs\":{\n\"HouseholdsTarget\":{\n\"terms\":{\n\"size\":500,\n\"field\":\"Data.district.keyword\",\n\"order\":{\n\"_key\":\"asc\"\n}\n},\n\"aggs\":{\n\"OverallTarget\":{\n\"sum\":{\n\"field\":\"Data.overallTarget\"\n}\n},\n\"TargetHouseholds\":{\n\"sum\":{\n\"field\":\"Data.targetPerDay\"\n}\n\n},\n\"Target\":{\n\"bucket_script\":{\n\"buckets_path\":{\n\"tpd\":\"TargetHouseholds\"\n},\n\"script\":\"(params.tpd)*365\"\n}\n}\n}\n}\n}\n}\n}\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "percentage",
+    "plotLabel": "none",
+    "drillChart": "housesNotSprayedAPPercent",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "Households_not_sprayed",
+       "Households Target"
+    ],
+    "filterKeys": [
+      {
+        "key": "district"
+      }
+    ],
+    "isCappedByCampaignPeriod": [
+      "Overall Target"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "repsonseToDifferenceOfDates",
+        "actionName": "",
+        "fields": [
+          "Target for daterange"
+        ],
+        "newField": "Households for daterange",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "housesNotSprayedAP": {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_AP",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\n\"size\":0,\n\"query\":{\n\"bool\":{\n\"should\":[\n{\n\"bool\":{\n\"must\":[\n{\n\"terms\":{\n\"Data.administrationStatus.keyword\":[\n\"BENEFICIARY_REFUSED\",\n\"CLOSED_HOUSEHOLD\"\n]\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n}\n]\n}\n},\n{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.administrationStatus.keyword\":\"ADMINISTRATION_FAILED\"\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"terms\":{\n\"Data.additionalDetails.reasonOfRefusal.keyword\":[\n\"SICK\",\n\"FUNERAL\",\n\"INCOMPATIBLE\"\n]\n}\n}\n]\n}\n}\n]\n}\n},\n\"aggs\":{\n\"Households_not_sprayed\":{\n\"terms\":{\n\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\n\"size\":1000\n}\n}\n}\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "housesNotSprayedLocality",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "Households_not_sprayed",
+      "BENEFICIARY_REFUSED"
+    ],
+    "filterKeys": [
+      {
+        "key": "administrativeProvince"
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "housesNotSprayedAPPercent": {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_AP_PERCENT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\n\"size\":0,\n\"query\":{\n\"bool\":{\n\"should\":[\n{\n\"bool\":{\n\"must\":[\n{\n\"terms\":{\n\"Data.administrationStatus.keyword\":[\n\"BENEFICIARY_REFUSED\",\n\"CLOSED_HOUSEHOLD\"\n]\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n}\n]\n}\n},\n{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.administrationStatus.keyword\":\"ADMINISTRATION_FAILED\"\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"terms\":{\n\"Data.additionalDetails.reasonOfRefusal.keyword\":[\n\"SICK\",\n\"FUNERAL\",\n\"INCOMPATIBLE\"\n]\n}\n}\n]\n}\n}\n]\n}\n},\n\"aggs\":{\n\"Households_not_sprayed\":{\n\"terms\":{\n\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\n\"size\":1000\n}\n}\n}\n}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "indexName": "project-index-v1",
+        "aggrQuery": "{\n\"aggs\":{\n\"AGGS\":{\n\"filter\":{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.targetType.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"match_phrase\":{\n\"Data.productVariant\":\"PVAR\"\n}\n},\n{\n\"exists\":{\n\"field\":\"Data.administrativeProvince.keyword\"\n}\n}\n],\n\"must_not\":[\n{\n\"exists\":{\n\"field\":\"Data.locality.keyword\"\n}\n}\n]\n}\n},\n\"aggs\":{\n\"HouseholdsTarget\":{\n\"terms\":{\n\"size\":500,\n\"field\":\"Data.administrativeProvince.keyword\",\n\"order\":{\n\"_key\":\"asc\"\n}\n},\n\"aggs\":{\n\"OverallTarget\":{\n\"sum\":{\n\"field\":\"Data.overallTarget\"\n}\n},\n\"TargetHouseholds\":{\n\"sum\":{\n\"field\":\"Data.targetPerDay\"\n}\n\n},\n\"Target\":{\n\"bucket_script\":{\n\"buckets_path\":{\n\"tpd\":\"TargetHouseholds\"\n},\n\"script\":\"(params.tpd)*365\"\n}\n}\n}\n}\n}\n}\n}\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "percentage",
+    "plotLabel": "none",
+    "drillChart": "housesNotSprayedLocalityPercent",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "Households_not_sprayed",
+       "Households Target"
+    ],
+    "filterKeys": [
+      {
+        "key": "administrativeProvince"
+      }
+    ],
+    "isCappedByCampaignPeriod": [
+      "Overall Target"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "repsonseToDifferenceOfDates",
+        "actionName": "",
+        "fields": [
+          "Target for daterange"
+        ],
+        "newField": "Households for daterange",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "housesNotSprayedLocality": {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_LOCALITY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\n\"size\":0,\n\"query\":{\n\"bool\":{\n\"should\":[\n{\n\"bool\":{\n\"must\":[\n{\n\"terms\":{\n\"Data.administrationStatus.keyword\":[\n\"BENEFICIARY_REFUSED\",\n\"CLOSED_HOUSEHOLD\"\n]\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n}\n]\n}\n},\n{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.administrationStatus.keyword\":\"ADMINISTRATION_FAILED\"\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"terms\":{\n\"Data.additionalDetails.reasonOfRefusal.keyword\":[\n\"SICK\",\n\"FUNERAL\",\n\"INCOMPATIBLE\"\n]\n}\n}\n]\n}\n}\n]\n}\n},\n\"aggs\":{\n\"Households_not_sprayed\":{\n\"terms\":{\n\"field\":\"Data.boundaryHierarchy.locality.keyword\",\n\"size\":1000\n}\n}\n}\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "housesNotSprayedVillage",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+       "Households_not_sprayed"
+    ],
+    "filterKeys": [
+      {
+        "key": "locality"
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "housesNotSprayedLocalityPercent": {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_LOCALITY_PERCENT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\n\"size\":0,\n\"query\":{\n\"bool\":{\n\"should\":[\n{\n\"bool\":{\n\"must\":[\n{\n\"terms\":{\n\"Data.administrationStatus.keyword\":[\n\"BENEFICIARY_REFUSED\",\n\"CLOSED_HOUSEHOLD\"\n]\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n}\n]\n}\n},\n{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.administrationStatus.keyword\":\"ADMINISTRATION_FAILED\"\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"terms\":{\n\"Data.additionalDetails.reasonOfRefusal.keyword\":[\n\"SICK\",\n\"FUNERAL\",\n\"INCOMPATIBLE\"\n]\n}\n}\n]\n}\n}\n]\n}\n},\n\"aggs\":{\n\"Households_not_sprayed\":{\n\"terms\":{\n\"field\":\"Data.boundaryHierarchy.locality.keyword\",\n\"size\":1000\n}\n}\n}\n}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\", \"administrativeProvince\": \"Data.administrativeProvince.keyword\"}",
+        "indexName": "project-index-v1",
+        "aggrQuery": "{\n\"aggs\":{\n\"AGGS\":{\n\"filter\":{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.targetType.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"match_phrase\":{\n\"Data.productVariant\":\"PVAR\"\n}\n},\n{\n\"exists\":{\n\"field\":\"Data.locality.keyword\"\n}\n}\n],\n\"must_not\":[\n{\n\"exists\":{\n\"field\":\"Data.village.keyword\"\n}\n}\n]\n}\n},\n\"aggs\":{\n\"HouseholdsTarget\":{\n\"terms\":{\n\"size\":500,\n\"field\":\"Data.locality.keyword\",\n\"order\":{\n\"_key\":\"asc\"\n}\n},\n\"aggs\":{\n\"OverallTarget\":{\n\"sum\":{\n\"field\":\"Data.overallTarget\"\n}\n},\n\"TargetHouseholds\":{\n\"sum\":{\n\"field\":\"Data.targetPerDay\"\n}\n\n},\n\"Target\":{\n\"bucket_script\":{\n\"buckets_path\":{\n\"tpd\":\"TargetHouseholds\"\n},\n\"script\":\"(params.tpd)*365\"\n}\n}\n}\n}\n}\n}\n}\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "percentage",
+    "plotLabel": "none",
+    "drillChart": "housesNotSprayedVillagePercent",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "Households_not_sprayed",
+      "Households Target"
+    ],
+    "filterKeys": [
+      {
+        "key": "locality"
+      }
+    ],
+    "isCappedByCampaignPeriod": [
+      "Overall Target"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "repsonseToDifferenceOfDates",
+        "actionName": "",
+        "fields": [
+          "Target for daterange"
+        ],
+        "newField": "Households for daterange",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "housesNotSprayedVillage": {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_VILLAGE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\", \"locality\":\"Data.locality.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery":"{\n\"size\":0,\n\"query\":{\n\"bool\":{\n\"should\":[\n{\n\"bool\":{\n\"must\":[\n{\n\"terms\":{\n\"Data.administrationStatus.keyword\":[\n\"BENEFICIARY_REFUSED\",\n\"CLOSED_HOUSEHOLD\"\n]\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n}\n]\n}\n},\n{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.administrationStatus.keyword\":\"ADMINISTRATION_FAILED\"\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"terms\":{\n\"Data.additionalDetails.reasonOfRefusal.keyword\":[\n\"SICK\",\n\"FUNERAL\",\n\"INCOMPATIBLE\"\n]\n}\n}\n]\n}\n}\n]\n}\n},\n\"aggs\":{\n\"Households_not_sprayed\":{\n\"terms\":{\n\"field\":\"Data.boundaryHierarchy.village.keyword\",\n\"size\":1000\n}\n}\n}\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+       "Households_not_sprayed"
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "housesNotSprayedVillagePercent": {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_VILLAGE_PERCENT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\", \"locality\":\"Data.locality.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery":"{\n\"size\":0,\n\"query\":{\n\"bool\":{\n\"should\":[\n{\n\"bool\":{\n\"must\":[\n{\n\"terms\":{\n\"Data.administrationStatus.keyword\":[\n\"BENEFICIARY_REFUSED\",\n\"CLOSED_HOUSEHOLD\"\n]\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n}\n]\n}\n},\n{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.administrationStatus.keyword\":\"ADMINISTRATION_FAILED\"\n}\n},\n{\n\"term\":{\n\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"terms\":{\n\"Data.additionalDetails.reasonOfRefusal.keyword\":[\n\"SICK\",\n\"FUNERAL\",\n\"INCOMPATIBLE\"\n]\n}\n}\n]\n}\n}\n]\n}\n},\n\"aggs\":{\n\"Households_not_sprayed\":{\n\"terms\":{\n\"field\":\"Data.boundaryHierarchy.village.keyword\",\n\"size\":1000\n}\n}\n}\n}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\", \"administrativeProvince\": \"Data.administrativeProvince.keyword\", \"locality\": \"Data.locality.keyword\"}",
+        "indexName": "project-index-v1",
+        "aggrQuery": "{\n\"aggs\":{\n\"AGGS\":{\n\"filter\":{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.targetType.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"match_phrase\":{\n\"Data.productVariant\":\"PVAR\"\n}\n},\n{\n\"exists\":{\n\"field\":\"Data.village.keyword\"\n}\n}\n]\n}\n},\n\"aggs\":{\n\"HouseholdsTarget\":{\n\"terms\":{\n\"size\":500,\n\"field\":\"Data.village.keyword\",\n\"order\":{\n\"_key\":\"asc\"\n}\n},\n\"aggs\":{\n\"OverallTarget\":{\n\"sum\":{\n\"field\":\"Data.overallTarget\"\n}\n},\n\"TargetHouseholds\":{\n\"sum\":{\n\"field\":\"Data.targetPerDay\"\n}\n\n},\n\"Target\":{\n\"bucket_script\":{\n\"buckets_path\":{\n\"tpd\":\"TargetHouseholds\"\n},\n\"script\":\"(params.tpd)*365\"\n}\n}\n}\n}\n}\n}\n}\n}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "percentage",
+    "plotLabel": "none",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "Households_not_sprayed",
+      "Households Target"
+    ],
+    "isCappedByCampaignPeriod": [
+      "Overall Target"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "repsonseToDifferenceOfDates",
+        "actionName": "",
+        "fields": [
+          "Target for daterange"
+        ],
+        "newField": "Households for daterange",
+        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
+      }
+    ],
+    "insight": {},
+    "_comment": " "
   }
 }
