@@ -27969,10 +27969,10 @@
       },
       {
         "module": "COMMON",
-        "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
-        "indexName": "project-index-v1",
-        "aggrQuery": "{\n\"size\":0,\n\"aggs\":{\n\"AGGS\":{\n\"filter\":{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.targetType.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"match_phrase\":{\n\"Data.productVariant\":\"PVAR\"\n}\n},\n{\n\"exists\":{\n\"field\":\"Data.district.keyword\"\n}\n}\n],\n\"must_not\":[\n{\n\"exists\":{\n\"field\":\"Data.administrativeProvince.keyword\"\n}\n}\n]\n}\n},\n\"aggs\":{\n\"HouseholdsTarget\":{\n\"terms\":{\n\"size\":500,\n\"field\":\"Data.district.keyword\",\n\"order\":{\n\"_key\":\"asc\"\n}\n},\n\"aggs\":{\n\"OverallTarget\":{\n\"sum\":{\n\"field\":\"Data.overallTarget\"\n}\n},\n\"TargetHouseholds\":{\n\"sum\":{\n\"field\":\"Data.targetPerDay\"\n}\n\n},\n\"Target\":{\n\"bucket_script\":{\n\"buckets_path\":{\n\"tpd\":\"TargetHouseholds\"\n},\n\"script\":\"(params.tpd)*365\"\n}\n}\n}\n}\n}\n}\n}\n}"
+        "dateRefField": "Data.household.auditDetails.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}]}},\"aggs\":{\"Total Households\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
       }
     ],
     "chartType": "line",
@@ -27984,29 +27984,15 @@
     "action": "percentage",
     "aggregationPaths": [
       "Households_not_sprayed",
-       "Households Target"
+      "Total Households"
     ],
+    "insight": {},
+    "_comment": " ",
     "filterKeys": [
       {
         "key": "district"
       }
-    ],
-    "isCappedByCampaignPeriod": [
-      "Overall Target"
-    ],
-    "computedFields": [
-      {
-        "postAggregationTheory": "repsonseToDifferenceOfDates",
-        "actionName": "",
-        "fields": [
-          "Target for daterange"
-        ],
-        "newField": "Households for daterange",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
-    ],
-    "insight": {},
-    "_comment": " "
+    ]
   },
   "housesNotSprayedAP": {
     "kind": "drillDown",
@@ -28052,10 +28038,10 @@
       },
       {
         "module": "COMMON",
-        "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
-        "indexName": "project-index-v1",
-        "aggrQuery": "{\n\"size\":0,\n\"aggs\":{\n\"AGGS\":{\n\"filter\":{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.targetType.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"match_phrase\":{\n\"Data.productVariant\":\"PVAR\"\n}\n},\n{\n\"exists\":{\n\"field\":\"Data.administrativeProvince.keyword\"\n}\n}\n],\n\"must_not\":[\n{\n\"exists\":{\n\"field\":\"Data.locality.keyword\"\n}\n}\n]\n}\n},\n\"aggs\":{\n\"HouseholdsTarget\":{\n\"terms\":{\n\"size\":500,\n\"field\":\"Data.administrativeProvince.keyword\",\n\"order\":{\n\"_key\":\"asc\"\n}\n},\n\"aggs\":{\n\"OverallTarget\":{\n\"sum\":{\n\"field\":\"Data.overallTarget\"\n}\n},\n\"TargetHouseholds\":{\n\"sum\":{\n\"field\":\"Data.targetPerDay\"\n}\n\n},\n\"Target\":{\n\"bucket_script\":{\n\"buckets_path\":{\n\"tpd\":\"TargetHouseholds\"\n},\n\"script\":\"(params.tpd)*365\"\n}\n}\n}\n}\n}\n}\n}\n}"
+        "dateRefField": "Data.household.auditDetails.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}}]}},\"aggs\":{\"Total Households\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
       }
     ],
     "chartType": "line",
@@ -28067,29 +28053,15 @@
     "action": "percentage",
     "aggregationPaths": [
       "Households_not_sprayed",
-       "Households Target"
-    ],
-    "filterKeys": [
-      {
-        "key": "administrativeProvince"
-      }
-    ],
-    "isCappedByCampaignPeriod": [
-      "Overall Target"
-    ],
-    "computedFields": [
-      {
-        "postAggregationTheory": "repsonseToDifferenceOfDates",
-        "actionName": "",
-        "fields": [
-          "Target for daterange"
-        ],
-        "newField": "Households for daterange",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
+      "Total Households"
     ],
     "insight": {},
-    "_comment": " "
+    "_comment": " ",
+    "filterKeys": [
+      {
+        "key": "district"
+      }
+    ]
   },
   "housesNotSprayedLocality": {
     "kind": "drillDown",
@@ -28134,44 +28106,30 @@
       },
       {
         "module": "COMMON",
-        "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\", \"administrativeProvince\": \"Data.administrativeProvince.keyword\"}",
-        "indexName": "project-index-v1",
-        "aggrQuery": "{\n\"size\":0,\n\"aggs\":{\n\"AGGS\":{\n\"filter\":{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.targetType.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"match_phrase\":{\n\"Data.productVariant\":\"PVAR\"\n}\n},\n{\n\"exists\":{\n\"field\":\"Data.locality.keyword\"\n}\n}\n],\n\"must_not\":[\n{\n\"exists\":{\n\"field\":\"Data.village.keyword\"\n}\n}\n]\n}\n},\n\"aggs\":{\n\"HouseholdsTarget\":{\n\"terms\":{\n\"size\":500,\n\"field\":\"Data.locality.keyword\",\n\"order\":{\n\"_key\":\"asc\"\n}\n},\n\"aggs\":{\n\"OverallTarget\":{\n\"sum\":{\n\"field\":\"Data.overallTarget\"\n}\n},\n\"TargetHouseholds\":{\n\"sum\":{\n\"field\":\"Data.targetPerDay\"\n}\n\n},\n\"Target\":{\n\"bucket_script\":{\n\"buckets_path\":{\n\"tpd\":\"TargetHouseholds\"\n},\n\"script\":\"(params.tpd)*365\"\n}\n}\n}\n}\n}\n}\n}\n}"
+        "dateRefField": "Data.household.auditDetails.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}}]}},\"aggs\":{\"Total Households\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
       }
     ],
     "chartType": "line",
     "isCumulative": false,
     "valueType": "percentage",
     "plotLabel": "none",
-    "drillChart": "housesNotSprayedVillagePercent",
+    "drillChart": "housesNotSprayedLocalityPercent",
     "documentType": "_doc",
     "action": "percentage",
     "aggregationPaths": [
       "Households_not_sprayed",
-      "Households Target"
-    ],
-    "filterKeys": [
-      {
-        "key": "locality"
-      }
-    ],
-    "isCappedByCampaignPeriod": [
-      "Overall Target"
-    ],
-    "computedFields": [
-      {
-        "postAggregationTheory": "repsonseToDifferenceOfDates",
-        "actionName": "",
-        "fields": [
-          "Target for daterange"
-        ],
-        "newField": "Households for daterange",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
+      "Total Households"
     ],
     "insight": {},
-    "_comment": " "
+    "_comment": " ",
+    "filterKeys": [
+      {
+        "key": "district"
+      }
+    ]
   },
   "housesNotSprayedVillage": {
     "kind": "drillDown",
@@ -28211,39 +28169,30 @@
       },
       {
         "module": "COMMON",
-        "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\", \"administrativeProvince\": \"Data.administrativeProvince.keyword\", \"locality\": \"Data.locality.keyword\"}",
-        "indexName": "project-index-v1",
-        "aggrQuery": "{\n\"size\":0,\n\"aggs\":{\n\"AGGS\":{\n\"filter\":{\n\"bool\":{\n\"must\":[\n{\n\"term\":{\n\"Data.targetType.keyword\":\"HOUSEHOLD\"\n}\n},\n{\n\"match_phrase\":{\n\"Data.productVariant\":\"PVAR\"\n}\n},\n{\n\"exists\":{\n\"field\":\"Data.village.keyword\"\n}\n}\n]\n}\n},\n\"aggs\":{\n\"HouseholdsTarget\":{\n\"terms\":{\n\"size\":500,\n\"field\":\"Data.village.keyword\",\n\"order\":{\n\"_key\":\"asc\"\n}\n},\n\"aggs\":{\n\"OverallTarget\":{\n\"sum\":{\n\"field\":\"Data.overallTarget\"\n}\n},\n\"TargetHouseholds\":{\n\"sum\":{\n\"field\":\"Data.targetPerDay\"\n}\n\n},\n\"Target\":{\n\"bucket_script\":{\n\"buckets_path\":{\n\"tpd\":\"TargetHouseholds\"\n},\n\"script\":\"(params.tpd)*365\"\n}\n}\n}\n}\n}\n}\n}\n}"
+        "dateRefField": "Data.household.auditDetails.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}}]}},\"aggs\":{\"Total Households\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.village.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
       }
     ],
     "chartType": "line",
     "isCumulative": false,
     "valueType": "percentage",
     "plotLabel": "none",
-    "drillChart": "none",
+    "drillChart": "housesNotSprayedLocalityPercent",
     "documentType": "_doc",
     "action": "percentage",
     "aggregationPaths": [
       "Households_not_sprayed",
-      "Households Target"
-    ],
-    "isCappedByCampaignPeriod": [
-      "Overall Target"
-    ],
-    "computedFields": [
-      {
-        "postAggregationTheory": "repsonseToDifferenceOfDates",
-        "actionName": "",
-        "fields": [
-          "Target for daterange"
-        ],
-        "newField": "Households for daterange",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      }
+      "Total Households"
     ],
     "insight": {},
-    "_comment": " "
+    "_comment": " ",
+    "filterKeys": [
+      {
+        "key": "district"
+      }
+    ]
   },
   "totalHousesNotSprayedByReasonProvince": {
     "chartName": "DSS_HEALTH_TOTAL_HOUSEHOLDS_NOT_SPRAYED_BY_REASON_PROVINCE",
