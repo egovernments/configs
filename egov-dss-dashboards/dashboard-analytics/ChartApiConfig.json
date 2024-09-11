@@ -22634,14 +22634,21 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
         "indexName": "project-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGS\": {\n      \"filter\": {\n        \"bool\":{\n          \"must\": [\n              {\n                \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                }\n              },\n              {\n                \"term\": {\n                    \"Data.targetType.keyword\": \"INDIVIDUAL\"\n                }\n              },\n              {\n                \"exists\": {\n                    \"field\": \"Data.district.keyword\"\n                }\n              }\n              \n            ],\n            \"must_not\":[\n            {\n              \"exists\": {\n                \"field\": \"Data.administrativeProvince.keyword\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Population Target\": {\n          \"terms\": {\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }, \n            \"field\": \"Data.district.keyword\"\n          },\n          \"aggs\": {\n            \"Overall Population target\": {\n              \"sum\": {\n                \"field\": \"Data.overallTarget\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGS\": {\n      \"filter\": {\n        \"bool\":{\n          \"must\": [\n              {\n                \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                }\n              },\n              {\n                \"term\": {\n                    \"Data.targetType.keyword\": \"PRODUCT\"\n                }\n              },\n              {\n                \"exists\": {\n                    \"field\": \"Data.district.keyword\"\n                }\n              }\n              \n            ],\n            \"must_not\":[\n            {\n              \"exists\": {\n                \"field\": \"Data.administrativeProvince.keyword\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Bednets Target\": {\n          \"terms\": {\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }, \n            \"field\": \"Data.district.keyword\"\n          },\n          \"aggs\": {\n            \"Overall Bednets target\": {\n              \"sum\": {\n                \"field\": \"Data.overallTarget\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "indexName": "project-index-v1",
+        "aggrQuery":"{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"HOUSEHOLD\"}},{\"exists\":{\"field\":\"Data.district.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.administrativeProvince.keyword\"}}]}},\"aggs\":{\"Population Target\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.district.keyword\"},\"aggs\":{\"Overall Population target\":{\"sum\":{\"field\":\"Data.overallTarget\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
         "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "project-task-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGS\": {\n      \"filter\": {\n        \"bool\":{\n          \"must\": [\n              {\n                \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                }\n              },\n              {\n                \"term\": {\n                    \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n                }\n              },\n              {\n                \"term\": {\n                    \"Data.isDelivered\": true\n                }\n              }\n              \n            ]\n        }\n      },\n      \"aggs\": {\n        \"Population Total\": {\n          \"terms\": {\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }, \n            \"field\": \"Data.district.keyword\"\n          },\n          \"aggs\": {\n            \"Quantity\": {\n              \"sum\": {\n                \"field\": \"Data.quantity\"\n              }\n            },\n            \"Total Population covered\":{\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"target\": \"Quantity\"\n                },\n                \"script\": \"params.target * 1.8\"\n              }\n            }\n          }\n          \n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.isDelivered\":true}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Population Total\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.district.keyword\"},\"aggs\":{\"Quantity\":{\"sum\":{\"field\":\"Data.quantity\"}},\"Total Population covered\":{\"bucket_script\":{\"buckets_path\":{\"target\":\"Quantity\"},\"script\":\"params.target * 1.8\"}}}}}}}}"
       },
       {
         "module": "COMMON",
@@ -22715,9 +22722,7 @@
       "Total Households sprayed",
       "Overall Household target",
       "Total Population covered",
-      "Overall Population target",
-      "Total Bednets distributed",
-      "Overall Bednets target"
+      "Overall Population target"
     ],
     "computedFields": [
       {
@@ -22738,16 +22743,6 @@
           "Overall Population target"
         ],
         "newField": "Target Achievement Population",
-        "_comments": ""
-      },
-      {
-        "postAggregationTheory": "",
-        "actionName": "PercentageComputedField",
-        "fields": [
-          "Total Households sprayed",
-          "Overall Bednets target"
-        ],
-        "newField": "Target Achievement Bednets",
         "_comments": ""
       },
       {
