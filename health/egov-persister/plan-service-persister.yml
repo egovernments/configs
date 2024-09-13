@@ -14,7 +14,7 @@ serviceMaps:
       transactionCodeJsonPath: $.id
       auditAttributeBasePath: $.PlanConfiguration
       queryMaps:
-        - query: INSERT INTO health.plan_configuration(id, tenant_id, name, campaign_id, status, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO health.plan_configuration(id, tenant_id, name, campaign_id, status, created_by, created_time, last_modified_by, last_modified_time, additional_details) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.PlanConfiguration
           jsonMaps:
             - jsonPath: $.PlanConfiguration.id
@@ -26,6 +26,9 @@ serviceMaps:
             - jsonPath: $.PlanConfiguration.auditDetails.createdTime
             - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
             - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+            - jsonPath: $.PlanConfiguration.additionalDetails
+              type: JSON
+              dbType: JSONB
 
         - query: INSERT INTO health.plan_configuration_files(id, plan_configuration_id, filestore_id, input_file_type, template_identifier, active, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.PlanConfiguration.files.*
@@ -99,7 +102,7 @@ serviceMaps:
       transactionCodeJsonPath: $.id
       auditAttributeBasePath: $.PlanConfiguration
       queryMaps:
-        - query: UPDATE health.plan_configuration SET tenant_id = ?, name = ?, campaign_id = ?, status = ?, last_modified_by = ?, last_modified_time = ? WHERE id = ?;
+        - query: UPDATE health.plan_configuration SET tenant_id = ?, name = ?, campaign_id = ?, status = ?, last_modified_by = ?, last_modified_time = ?, additional_details = ? WHERE id = ?;
           basePath: $.PlanConfiguration
           jsonMaps:
             - jsonPath: $.PlanConfiguration.tenantId
@@ -108,6 +111,9 @@ serviceMaps:
             - jsonPath: $.PlanConfiguration.status
             - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
             - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
+            - jsonPath: $.PlanConfiguration.additionalDetails
+              type: JSON
+              dbType: JSONB
             - jsonPath: $.PlanConfiguration.id
 
         - query: INSERT INTO health.plan_configuration_files(id, plan_configuration_id, filestore_id, input_file_type, template_identifier,  active, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET filestore_id =?, input_file_type = ?, template_identifier = ?, active = ?, last_modified_by = ?, last_modified_time = ?;
