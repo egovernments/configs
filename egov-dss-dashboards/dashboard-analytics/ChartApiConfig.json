@@ -26305,6 +26305,73 @@
     "insight": {},
     "_comment": " "
   },
+  "checklistCompletionRateBySupervisorsDaySummary": {
+    "chartName": "DSS_HEALTH_SUPERVISION_SUPERVISORS_CHECKLISTS_DAY_SUMMARY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\", \"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "service-task-v1",
+        "aggrQuery": "{\n  \"size\": 0, \n  \"aggs\": {\n    \"National Supervisors filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"terms\": {\n                \"Data.supervisorLevel.keyword\": [\n                  \"NATIONAL_SUPERVISOR\"\n                ]\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Supervisor Checklists\": {\n          \"date_histogram\": {\n            \"field\": \"Data.@timestamp\",\n            \"fixed_interval\": \"1d\",\n            \"min_doc_count\": 1,\n            \"format\": \"dd MMM yyyy\"\n          },\n          \"aggs\": {\n            \"National Supervisors Count\": {\n              \"value_count\": {\n                \"field\": \"Data.id.keyword\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Provincial Supervisors filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"terms\": {\n                \"Data.supervisorLevel.keyword\": [\n                  \"PROVINCIAL_SUPERVISOR\"\n                ]\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Supervisor Checklists\": {\n          \"date_histogram\": {\n            \"field\": \"Data.@timestamp\",\n            \"fixed_interval\": \"1d\",\n            \"min_doc_count\": 1,\n            \"format\": \"dd MMM yyyy\"\n          },\n          \"aggs\": {\n            \"Provincial Supervisors Count\": {\n              \"value_count\": {\n                \"field\": \"Data.id.keyword\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"District Supervisors filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"terms\": {\n                \"Data.supervisorLevel.keyword\": [\n                  \"DISTRICT_SUPERVISOR\"\n                ]\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Supervisor Checklists\": {\n          \"date_histogram\": {\n            \"field\": \"Data.@timestamp\",\n            \"fixed_interval\": \"1d\",\n            \"min_doc_count\": 1,\n            \"format\": \"dd MMM yyyy\"\n          },\n          \"aggs\": {\n            \"District Supervisors Count\": {\n              \"value_count\": {\n                \"field\": \"Data.id.keyword\"\n              }\n            }\n          }\n        }\n      }\n    },\n    \"Team Supervisors filter\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"terms\": {\n                \"Data.supervisorLevel.keyword\": [\n                  \"TEAM_SUPERVISOR\"\n                ]\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Supervisor Checklists\": {\n          \"date_histogram\": {\n            \"field\": \"Data.@timestamp\",\n            \"fixed_interval\": \"1d\",\n            \"min_doc_count\": 1,\n            \"format\": \"dd MMM yyyy\"\n          },\n          \"aggs\": {\n            \"Team Supervisors Count\": {\n              \"value_count\": {\n                \"field\": \"Data.id.keyword\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+      }
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "showFooter": true,
+    "plotLabel": "Summary Daywise",
+    "excludedColumns": [
+      "National Supervisors Count",
+      "Provincial Supervisors Count",
+      "District Supervisors Count",
+      "Team Supervisors Count"
+    ],
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "computedFields": [
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "National Supervisors Count"
+        ],
+        "newField": "National Supervisors Checklist Fill Rate",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Provincial Supervisors Count"
+        ],
+        "newField": "Provincial Supervisors Checklist Fill Rate",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "District Supervisors Count"
+        ],
+        "newField": "District Supervisors Checklist Fill Rate",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Team Supervisors Count"
+        ],
+        "newField": "Team Supervisors Checklist Fill Rate",
+        "_comments": ""
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
   "checklistCompletionRateBySupervisorsBoundarySummaryDistrict": {
     "chartName": "DSS_HEALTH_SUPERVISION_SUPERVISORS_CHECKLISTS_BOUNDARY_SUMMARY_DISTRICT",
     "queries": [
@@ -26318,8 +26385,8 @@
     ],
     "filterKeys": [
       {
-        "key": "administrativeProvince",
-        "column": "APs"
+        "key": "district",
+        "column": "Districts"
       }
     ],
     "chartType": "xtable",
@@ -26328,7 +26395,7 @@
     "documentType": "_doc",
     "action": "",
     "showFooter": true,
-    "plotLabel": "APs",
+    "plotLabel": "Districts",
     "excludedColumns": [
       "National Supervisors Count",
       "Provincial Supervisors Count",
@@ -26393,8 +26460,8 @@
     ],
     "filterKeys": [
       {
-        "key": "locality",
-        "column": "Locality"
+        "key": "administrativeProvince",
+        "column": "APs"
       }
     ],
     "chartType": "xtable",
@@ -26403,7 +26470,7 @@
     "documentType": "_doc",
     "action": "",
     "showFooter": true,
-    "plotLabel": "Locality",
+    "plotLabel": "APs",
     "excludedColumns": [
       "National Supervisors Count",
       "Provincial Supervisors Count",
@@ -26468,8 +26535,8 @@
     ],
     "filterKeys": [
       {
-        "key": "village",
-        "column": "Village"
+        "key": "locality",
+        "column": "Locality"
       }
     ],
     "chartType": "xtable",
@@ -26478,7 +26545,7 @@
     "documentType": "_doc",
     "action": "",
     "showFooter": true,
-    "plotLabel": "Village",
+    "plotLabel": "Locality",
     "excludedColumns": [
       "National Supervisors Count",
       "Provincial Supervisors Count",
@@ -26554,6 +26621,7 @@
     ],
     "hideInsights": true,
     "hideHeaderDenomination": true,
+    "plotLabel": "Village",
     "computedFields": [
       {
         "postAggregationTheory": "",
