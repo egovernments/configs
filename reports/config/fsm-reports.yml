@@ -273,83 +273,166 @@ ReportDefinitions:
     orderby: ORDER BY fsm.applicationNo
     
   - reportName: FSMVehicleLogReport
-    summary: Report is used for check FSM Vehicle log report.
+    summary: FSM Vehicle Trip.
     version: 1.0.0
     moduleName: fsm
     sourceColumns:
-      - name: applicationno
-        label: REPORT_FSM_RESULT_APPLICATIONNO
+      - name: tenantid
+        label: Ulb Name
         type: string
         source: fsm
         total: false
-      - name: vehiclelogno
-        label: REPORT_FSM_RESULT_VEHICLELOGNO
+      - name: ApplicationId
+        label: Application Number
         type: string
         source: fsm
         total: false
-      - name: dsoname
-        label: REPORT_FSM_RESULT_DSONAME
+      - name: VehicleTripId
+        label: Vehicle Trip Id
         type: string
         source: fsm
         total: false
-      - name: vehicleno
-        label: REPORT_FSM_RESULT_VEHICLENO
+      - name: Vehicle_Application_Status
+        label: Vehicle Application Status
         type: string
         source: fsm
         total: false
-      - name: vehicleentrytime
-        label: REPORT_FSM_RESULT_VEHICLEENTRYTIME
+      - name: urbanRuralFlag
+        label: Urban Rural Flag
         type: string
         source: fsm
         total: false
-      - name: vehicleexittime
-        label: REPORT_FSM_RESULT_VEHICLEEXITTIME
+      - name: DesludgingVehicleNumber
+        label: Desludging Vehicle Number
         type: string
         source: fsm
         total: false
-      - name: septagedumped
-        label: REPORT_FSM_RESULT_SEPTAGEDUMPED
+      - name: VehicleType
+        label: Vehicle Type
+        type: string
+        source: fsm
+        total: false
+      - name: vehicleowner
+        label: Vehicle Owner
+        type: string
+        source: fsm
+        total: false
+      - name: VehicleCapacity
+        label: Vehicle Capacity
+        type: string
+        source: fsm
+        total: false
+      - name: WasteCollected
+        label: Waste Collected
         type: string
         source: fsm
         total: true
-    searchParams:
-      - name: fstpcode
-        label: REPORTS_FSM_PARAM_FSTPNAME
-        type: multivaluelist
-        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=FSM&masterName=FSTPPlantInfo|$.MdmsRes.FSM.FSTPPlantInfo.*.PlantCode|$.MdmsRes.FSM.FSTPPlantInfo.*.PlantName
+      - name: WasteDumped
+        label: Waste Dumped
+        type: string
         source: fsm
-        wrapper: true
-        isMandatory: true
-        searchClause: AND vhtrip.additionaldetails ::json ->>'plantCode ' in ($fstpcode)
+        total: true  
+      - name: VehicleOutDateTime
+        label: Vehicle Out Date Time
+        type: string
+        source: fsm
+        total: false  
+      - name: ApplicationSubmitDate
+        label: Application Submit Date
+        type: string
+        source: fsm
+        total: false
+      - name: slaInDay
+        label: SLA In Day
+        type: string
+        source: fsm
+        total: false
+      - name: slaInHourss
+        label: SLA In Hours
+        type: string
+        source: fsm
+        total: false    
+    searchParams:
       - name: fromDate
         label: REPORTS_FSM_PARAM_FROMDATE
         type: epoch
         source: fsm
         isMandatory: true
-        searchClause: AND app.createdtime >= $fromDate
+        searchClause: AND fsmvehicleTrip.createdtime >= $fromDate
       - name: toDate
         label: REPORTS_FSM_PARAM_TODATE
         type: epoch
         source: fsm
         isMandatory: true
-        searchClause: AND app.createdtime <= $toDate
-      - name: dsoId
-        label: REPORTS_FSM_PARAM_DSONAME
-        type: singlevaluelist
-        pattern: http://vendor.sanitation:8080/vendor/v1/_search?tenantId=$tenantid|$.vendor.*.id|$.vendor.*.name
-        source: fsm
-        wrapper: true
-        isMandatory: false
-        searchClause: AND app.dso_id = $dsoId
+        searchClause: AND fsmvehicleTrip.createdtime <= $toDate
       - name: vehicleNo
         label: REPORTS_FSM_PARAM_VEHICLENUMBER
         type: string
         source: fsm
         isMandatory: false
-        searchClause: AND vehicle.registrationnumber ilike '%'||$vehicleNo||'%'
+        searchClause: AND fsmvehicle.registrationnumber ilike '%'||$vehicleNo||'%'
+      - name: vehicleCapacity
+        label: REPORTS_FSM_PARAM_VEHICLECAPACITY
+        type: number
+        source: fsm
+        isMandatory: false
+        searchClause: AND fsmvehicle.tankcapicity = $vehicleCapacity
+      - name: applicationStatus
+        label: REPORTS_FSM_PARAM_APPLICATIONSTATUS
+        type: string
+        source: fsm
+        isMandatory: false
+        searchClause: AND fsmvehicleTrip.applicationstatus = $applicationStatus
     query: |
-          select  app.applicationno as applicationno, vhtrip.applicationno as vehiclelogno, vendor.name as dsoname, vehicle.registrationnumber as vehicleno, to_char((to_timestamp(vhtrip.tripstarttime)::timestamp  at time zone 'utc' at time Zone 'Asia/Kolkata'), 'dd/mm/yyyy HH24:MI:SS') as vehicleentrytime, to_char((to_timestamp(vhtrip.tripendtime)::timestamp at time zone 'utc' at time Zone 'Asia/Kolkata'), 'dd/mm/yyyy HH24:MI:SS') as vehicleexittime, vhtrip.volumecarried as septagedumped from eg_fsm_application app join eg_vehicle_trip_detail vhtripdtl  on app.applicationno=vhtripdtl.referenceno join eg_vehicle_trip vhtrip on vhtripdtl.trip_id=vhtrip.id left join eg_vehicle vehicle on vhtrip.vehicle_id=vehicle.id left join eg_vendor vendor ON  app.dso_id =vendor.id where app.tenantid=$tenantid
-    orderby: order by app.applicationno  desc
+          SELECT INITCAP(SPLIT_PART(fsm.tenantid,'.',2)) as tenantid, 
+          fsm.applicationno::TEXT AS ApplicationId,
+          fsmvehicleTrip.applicationno::TEXT AS VehicleTripId,
+          INITCAP(REPLACE(fsmvehicleTrip.applicationstatus, '_', ' ')) AS Vehicle_Application_Status,
+          CASE WHEN fsmaddress.additionaldetails->>'boundaryType'='GP' THEN 'Rural' ELSE 'Urban' END AS urbanRuralFlag,
+          COALESCE(fsmvehicle.registrationNumber, 'N/A')::TEXT AS DesludgingVehicleNumber,
+          COALESCE(INITCAP(REPLACE(REPLACE(fsmvehicle.type, '_', ' '), '.', ' ')), 'N/A') AS VehicleType,
+          fsmvehicle.vehicleowner::TEXT AS vehicleowner,
+          COALESCE(fsmvehicle.tankcapicity, 0) AS VehicleCapacity,
+          COALESCE(fsmvehicleTripdetail.volume, 0) AS WasteCollected,
+          COALESCE(fsmvehicleTrip.volumeCarried, 0) AS WasteDumped,
+          CASE
+              WHEN length(cast(tripendtime AS varchar)) = 13 THEN
+                  to_char((to_timestamp(fsmvehicleTrip.tripendtime / 1000)::timestamp AT TIME ZONE 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS')
+              WHEN length(cast(tripendtime AS varchar)) = 10 THEN
+                  to_char((to_timestamp(fsmvehicleTrip.tripendtime)::timestamp AT TIME ZONE 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS')
+              ELSE '0'
+          END AS VehicleOutDateTime,
+          to_char((to_timestamp(fsm.createdtime / 1000)::timestamp AT TIME ZONE 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS')::TEXT AS ApplicationSubmitDate,
+          CASE
+              WHEN length(cast(tripendtime AS varchar)) = 13 THEN ((fsmvehicleTrip.tripendtime - fsm.createdtime) / (1000 * 60 * 60 * 24))::TEXT
+              WHEN length(cast(tripendtime AS varchar)) = 10 THEN ((fsmvehicleTrip.tripendtime - fsm.createdtime / 1000) / (60 * 60 * 24))::TEXT
+              ELSE '0'
+          END AS slaInDay,
+          CASE
+              WHEN length(cast(tripendtime AS varchar)) = 13 THEN ((fsmvehicleTrip.tripendtime - fsm.createdtime) / (1000 * 60 * 60) + 1)::TEXT
+              WHEN length(cast(tripendtime AS varchar)) = 10 THEN ((fsmvehicleTrip.tripendtime - fsm.createdtime / 1000) / (60 * 60) + 1)::TEXT
+              ELSE '0'
+          END AS slaInHours,
+          CASE
+              WHEN length(cast(tripendtime AS varchar)) = 13 THEN  
+                  CASE WHEN ((fsmvehicleTrip.tripendtime - fsm.createdtime) / (1000 * 60 * 60)) > 72 THEN '>72 hrs'::TEXT
+                       ELSE '<72 hrs'::TEXT
+                  END  
+              WHEN length(cast(tripendtime AS varchar)) = 10 THEN  
+                  CASE WHEN ((fsmvehicleTrip.tripendtime - fsm.createdtime / 1000) / (60 * 60)) > 72 THEN '>72 hrs'::TEXT
+                       ELSE '<72 hrs'::TEXT
+                  END
+              ELSE '0'
+          END AS slaInHourss
+          FROM eg_fsm_application AS fsm
+          JOIN eg_fsm_address AS fsmaddress ON (fsmaddress.fsm_id = fsm.id)
+          LEFT JOIN eg_vendor AS fsmdso ON (fsmdso.id = fsm.dso_id)  
+          LEFT JOIN eg_vehicle AS fsmvehicle ON (fsm.vehicle_id = fsmvehicle.id)
+          LEFT JOIN eg_vehicle_trip_detail AS fsmvehicleTripdetail ON (fsmvehicleTripdetail.referenceNo = fsm.applicationNo)
+          LEFT JOIN eg_vehicle_trip AS fsmvehicleTrip ON (fsmvehicleTripdetail.trip_id = fsmvehicleTrip.id) 
+          WHERE fsmvehicleTrip.tenantid=$tenantid 
+    orderby: ORDER BY fsm.applicationno ASC
+    
   - reportName: FSMDailyDesludingReport
     summary: Report is used to  check FSM daily desludging request 
     version: 1.0.0
