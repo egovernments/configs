@@ -2,7 +2,7 @@ ServiceMaps:
   serviceName: Project Service
   version: 1.0.0
   mappings:
-    - topic: transformer-producer-bulk-project-index-v1-health-topic
+    - topic: save-project-health
       configKey: INDEX
       indexes:
         - name: project-index-v1
@@ -25,20 +25,58 @@ ServiceMaps:
             indexMapping: { "Data": { } }
             fieldMapping:
               - inJsonPath: $.createdBy
-                outJsonPath: $.Data.userId
+                outJsonPath: $.Data.syncedUserId
               - inJsonPath: $.createdTime
                 outJsonPath: $.Data.createdTime
-              - inJsonPath: $.boundaryHierarchy.province
-                outJsonPath: $.Data.province
-              - inJsonPath: $.boundaryHierarchy.district
-                outJsonPath: $.Data.district
-              - inJsonPath: $.boundaryHierarchy.administrativeProvince
-                outJsonPath: $.Data.administrativeProvince
-              - inJsonPath: $.boundaryHierarchy.locality
-                outJsonPath: $.Data.locality
-              - inJsonPath: $.boundaryHierarchy.village
-                outJsonPath: $.Data.village
+              - inJsonPath: $.province
+                outJsonPath: $.Data.boundaryHierarchy.province
+              - inJsonPath: $.district
+                outJsonPath: $.Data.boundaryHierarchy.district
+              - inJsonPath: $.administrativeProvince
+                outJsonPath: $.Data.boundaryHierarchy.administrativeProvince
+              - inJsonPath: $.locality
+                outJsonPath: $.Data.boundaryHierarchy.locality
+              - inJsonPath: $.village
+                outJsonPath: $.Data.boundaryHierarchy.village
           timeStampField: $.createdTime
+
+    - topic: update-project-health
+      configKey: INDEX
+      indexes:
+        - name: project-index-v1
+          type: projects
+          id: $.id
+          isBulk: true
+          jsonPath: $
+          customJsonMapping:
+            indexMapping: { "Data": { } }
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data
+          timeStampField: $.createdTime
+        - name: user-sync-index-v1
+          type: users
+          id: $.id
+          isBulk: true
+          jsonPath: $
+          customJsonMapping:
+            indexMapping: { "Data": { } }
+            fieldMapping:
+              - inJsonPath: $.lastModifiedBy
+                outJsonPath: $.Data.syncedUserId
+              - inJsonPath: $.createdTime
+                outJsonPath: $.Data.lastModifiedTime
+              - inJsonPath: $.province
+                outJsonPath: $.Data.boundaryHierarchy.province
+              - inJsonPath: $.district
+                outJsonPath: $.Data.boundaryHierarchy.district
+              - inJsonPath: $.administrativeProvince
+                outJsonPath: $.Data.boundaryHierarchy.administrativeProvince
+              - inJsonPath: $.locality
+                outJsonPath: $.Data.boundaryHierarchy.locality
+              - inJsonPath: $.village
+                outJsonPath: $.Data.boundaryHierarchy.village
+          timeStampField: $.lastModifiedTime
 
     - topic: save-project-beneficiary-health-topic
       configKey: INDEX
