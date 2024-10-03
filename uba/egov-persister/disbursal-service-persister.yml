@@ -1,0 +1,81 @@
+serviceMaps:
+ serviceName: disbursal-service
+ mappings:
+ - version: 1.0
+   name: disbursal
+   description: Persists disbursal details in eg_ubp_disbursal table
+   fromTopic: ubp-disbursal-create
+   isTransaction: true
+   isAuditEnabled: true
+   module: UBP
+   objecIdJsonPath: $.id
+   tenantIdJsonPath: $.tenantId
+   transactionCodeJsonPath: $.disbursalNumber
+   auditAttributeBasePath: $.Disbursal
+   queryMaps:
+    - query: INSERT INTO eg_ubp_disbursal (id, tenant_id, disbursal_number, reference_id, total_amount, total_paid_amount, payment_status, status, wf_status, additional_details, created_by, last_modified_by, created_time, last_modified_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+      basePath: $.Disbursal
+      jsonMaps:
+       - jsonPath: $.Disbursal.id
+
+       - jsonPath: $.Disbursal.tenantId
+
+       - jsonPath: $.Disbursal.disbursalNumber
+
+       - jsonPath: $.Disbursal.referenceId
+
+       - jsonPath: $.Disbursal.totalAmount
+
+       - jsonPath: $.Disbursal.totalPaidAmount
+       
+       - jsonPath: $.Disbursal.paymentStatus
+
+       - jsonPath: $.Disbursal.status
+
+       - jsonPath: $.Disbursal.wfStatus
+
+       - jsonPath: $.Disbursal.additionalDetails
+         type: JSON
+         dbType: JSONB
+
+       - jsonPath: $.Disbursal.auditDetails.createdBy
+
+       - jsonPath: $.Disbursal.auditDetails.lastModifiedBy
+
+       - jsonPath: $.Disbursal.auditDetails.createdTime
+
+       - jsonPath: $.Disbursal.auditDetails.lastModifiedTime
+
+    
+
+ - version: 1.0
+   name: disbursal
+   description: Update disbursal details in eg_ubp_disbursal table
+   fromTopic: ubp-disbursal-update
+   isTransaction: true
+   module: CT
+   objecIdJsonPath: $.id
+   tenantIdJsonPath: $.tenantId
+   transactionCodeJsonPath: $.disbursalNumber
+   auditAttributeBasePath: $.Disbursal
+   queryMaps:
+     - query: UPDATE eg_ubp_disbursal set  wf_status = ?, status = ?, total_paid_amount = ?, payment_status = ?, additional_details = ?, last_modified_by = ?, last_modified_time = ? where id = ? ;
+       basePath: $.Disbursal
+       jsonMaps:
+         - jsonPath: $.Disbursal.wfStatus
+
+         - jsonPath: $.Disbursal.status
+
+         - jsonPath: $.Disbursal.totalPaidAmount
+       
+         - jsonPath: $.Disbursal.paymentStatus
+
+         - jsonPath: $.Disbursal.additionalDetails
+           type: JSON
+           dbType: JSONB
+
+         - jsonPath: $.Disbursal.auditDetails.lastModifiedBy
+
+         - jsonPath: $.Disbursal.auditDetails.lastModifiedTime
+
+         - jsonPath: $.Disbursal.id
