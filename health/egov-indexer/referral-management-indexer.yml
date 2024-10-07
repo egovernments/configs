@@ -22,43 +22,31 @@ ServiceMaps:
           isBulk: true
           jsonPath: $
           customJsonMapping:
-            indexMapping: { "Data": {} }
+            indexMapping: { "Data": { } }
             fieldMapping:
-              - inJsonPath: $.lastModifiedBy
-                outJsonPath: $.Data.userId
-              - inJsonPath: $.createdTime
+              - inJsonPath: $.referral.clientAuditDetails.createdBy
+                outJsonPath: $.Data.syncedUserId
+              - inJsonPath: $.userName
+                outJsonPath: $.Data.syncedUserName
+              - inJsonPath: $.role
+                outJsonPath: $.Data.role
+              - inJsonPath: $.boundaryHierarchy
+                outJsonPath: $.Data.boundaryHierarchy
+              - inJsonPath: $.referral.clientAuditDetails.createdTime
+                outJsonPath: $.Data.clientCreatedTime
+              - inJsonPath: $.referral.auditDetails.lastModifiedTime
                 outJsonPath: $.Data.createdTime
-              - inJsonPath: $.province
-                outJsonPath: $.Data.province
-              - inJsonPath: $.district
-                outJsonPath: $.Data.district
-              - inJsonPath: $.administrativeProvince
-                outJsonPath: $.Data.administrativeProvince
-              - inJsonPath: $.locality
-                outJsonPath: $.Data.locality
-              - inJsonPath: $.village
-                outJsonPath: $.Data.village
-          timeStampField: $.lastModifiedTime
-
-    - topic: save-referral-health-topic
-      configKey: INDEX
-      indexes:
-        - name: referral-index-v1
-          type: referral
-          id: $.id
-          isBulk: true
-          jsonPath: $.*
-          timeStampField: $.auditDetails.createdTime
-
-    - topic: update-referral-health-topic
-      configKey: INDEX
-      indexes:
-        - name: referral-index-v1
-          type: referral
-          id: $.id
-          isBulk: true
-          jsonPath: $.*
-          timeStampField: $.auditDetails.lastModifiedTime
+              - inJsonPath: $.@timestamp
+                outJsonPath: $.Data.syncedTimeStamp
+              - inJsonPath: $.@timestamp
+                outJsonPath: $.Data.@timestamp
+              - inJsonPath: $.taskDates
+                outJsonPath: $.Data.taskDates
+              - inJsonPath: $.syncedDate
+                outJsonPath: $.Data.syncedDate
+              - inJsonPath: $.userAddress
+                outJsonPath: $.Data.userAddress
+          timeStampField: $.referral.auditDetails.lastModifiedTime
 
     - topic: delete-referral-health-topic
       configKey: INDEX
@@ -70,25 +58,53 @@ ServiceMaps:
           jsonPath: $.*
           timeStampField: $.auditDetails.lastModifiedTime
 
-    - topic: save-side-effect-health-topic
+    - topic: transformer-producer-side-effect-index-v1-health-topic
       configKey: INDEX
       indexes:
         - name: side-effect-index-v1
           type: side-effect
-          id: $.id
+          id: $.sideEffect.id
           isBulk: true
-          jsonPath: $.*
-          timeStampField: $.auditDetails.createdTime
-
-    - topic: update-side-effect-health-topic
-      configKey: INDEX
-      indexes:
-        - name: side-effect-index-v1
-          type: side-effect
-          id: $.id
+          jsonPath: $
+          customJsonMapping:
+            indexMapping: { "Data": { } }
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data
+          timeStampField: $.sideEffect.auditDetails.createdTime
+        - name: user-sync-index-v1
+          type: users
+          id: $.sideEffect.id,$.sideEffect.tenantId
           isBulk: true
-          jsonPath: $.*
-          timeStampField: $.auditDetails.lastModifiedTime
+          jsonPath: $
+          customJsonMapping:
+            indexMapping: { "Data": { } }
+            fieldMapping:
+              - inJsonPath: $.sideEffect.clientAuditDetails.createdBy
+                outJsonPath: $.Data.syncedUserId
+              - inJsonPath: $.userName
+                outJsonPath: $.Data.syncedUserName
+              - inJsonPath: $.role
+                outJsonPath: $.Data.role
+              - inJsonPath: $.boundaryHierarchy
+                outJsonPath: $.Data.boundaryHierarchy
+              - inJsonPath: $.sideEffect.clientAuditDetails.createdTime
+                outJsonPath: $.Data.clientCreatedTime
+              - inJsonPath: $.sideEffect.auditDetails.lastModifiedTime
+                outJsonPath: $.Data.createdTime
+              - inJsonPath: $.@timestamp
+                outJsonPath: $.Data.syncedTimeStamp
+              - inJsonPath: $.@timestamp
+                outJsonPath: $.Data.@timestamp
+              - inJsonPath: $.taskDates
+                outJsonPath: $.Data.taskDates
+              - inJsonPath: $.syncedDate
+                outJsonPath: $.Data.syncedDate
+              - inJsonPath: $.userAddress
+                outJsonPath: $.Data.userAddress
+              - inJsonPath: $.additionalDetails
+                outJsonPath: $.Data.additionalDetails
+          timeStampField: $.sideEffect.auditDetails.lastModifiedTime
 
     - topic: delete-side-effect-health-topic
       configKey: INDEX
@@ -100,25 +116,20 @@ ServiceMaps:
           jsonPath: $.*
           timeStampField: $.auditDetails.lastModifiedTime
 
-    - topic: save-hfreferral-health-topic
+    - topic: transformer-producer-hfreferral-index-v1-health-topic
       configKey: INDEX
       indexes:
         - name: hf-referral-index-v1
           type: hfreferral
-          id: $.id
+          id: $.hfReferral.id
           isBulk: true
           jsonPath: $.*
-          timeStampField: $.auditDetails.createdTime
-
-    - topic: update-hfreferral-health-topic
-      configKey: INDEX
-      indexes:
-        - name: hf-referral-index-v1
-          type: hfreferral
-          id: $.id
-          isBulk: true
-          jsonPath: $.*
-          timeStampField: $.auditDetails.lastModifiedTime
+          customJsonMapping:
+            indexMapping: { "Data": { } }
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data
+          timeStampField: $.hfReferral.clientAuditDetails.lastModifiedTime
 
     - topic: delete-hfreferral-health-topic
       configKey: INDEX
