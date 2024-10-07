@@ -26606,6 +26606,73 @@
     "hideHeaderDenomination": true,
     "_comment": " "
   },
+  "warehouseManagerUserSync": {
+    "chartName": "DSS_HEALTH_WAREHOUSE_MANAGER_USER_SYNC_RATE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "project-staff-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"NAME\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.role.keyword\":\"WAREHOUSE_MANAGER\"}}]}},\"aggs\":{\"AGGS\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.province.keyword\",\"size\":500},\"aggs\":{\"Total Users Created\":{\"value_count\":{\"field\":\"Data.userId.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "user-sync-index-v1",
+        "aggrQuery": "{\n  \"size\": 0, \n  \"aggs\": {\n    \"NAME\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"terms\": {\n                \"Data.role.keyword\": [\n                  \"WAREHOUSE_MANAGER\"\n                ]\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"AGGS\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.province.keyword\",\n            \"size\": 500\n          },\n          \"aggs\": {\n            \"Unique Users Synced\": {\n              \"scripted_metric\": {\n                \"params\": {\n                  \"fieldName\": \"Data.syncedUserId.keyword\"\n                },\n                \"init_script\": \"state.list = []\",\n                \"map_script\": \"if(doc[params.fieldName] != null) \\nstate.list.add(doc[params.fieldName].value);\",\n                \"combine_script\": \"return state.list;\",\n                \"reduce_script\": \"Map uniqueValueMap = new HashMap(); \\n        int count = 0;\\n        for(shardList in states) {\\n          if(shardList != null) { \\n            for(key in shardList) {\\n              if(!uniqueValueMap.containsKey(key)) {\\n                count +=1;\\n                uniqueValueMap.put(key, key);\\n              }\\n            }\\n          }\\n        } \\n        return count;\"\n              }\n            }\n          }\n        }\n      } \n    }\n  }\n}"
+      }
+    ],
+    "filterKeys": [],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "DATA SYNC",
+    "filterForCurrentDay": true,
+    "excludedColumns": [
+      "S.N.",
+      "DATA SYNC",
+      "Total Users Created",
+      "Unique Users Synced"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Total Users Created"
+        ],
+        "newField": "Total_WMs",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Unique Users Synced"
+        ],
+        "newField": "Total_WMs_Synced_At_Least_Once",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "PercentageComputedField",
+        "fields": [
+          "Total_WMs_Synced_At_Least_Once",
+          "Total_WMs"
+        ],
+        "newField": "User_Sync_Rate",
+        "_comments": ""
+      }
+    ],
+    "insight": {},
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "_comment": " "
+  },
   "userSyncRateByDistrict": {
     "chartName": "DSS_HEALTH_SUPERVISION_USER_SYNC_RATE_BY_DISTRICT",
     "queries": [
