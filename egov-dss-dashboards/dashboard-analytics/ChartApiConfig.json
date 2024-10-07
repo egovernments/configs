@@ -24077,6 +24077,157 @@
     "insight": {},
     "_comment": " "
   },
+  "inventoryTheoreticalVsManualStockDistrict": {
+    "chartName": "DSS_HEALTH_THEORETICAL_VS_MANUAL_STOCK_DISTRICT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\"}",
+        "indexName": "stock-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}}]}}}},\"aggs\":{\"Theoretical Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Outgoing Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Total Stock\":{\"bucket_script\":{\"buckets_path\":{\"IS\":\"Incoming Stock>SUM\",\"OS\":\"Outgoing Stock>SUM\"},\"script\":\"params.IS-params.OS\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.stockReconciliation.clientAuditDetails.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\"}",
+        "indexName": "stock-reconciliation-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}}]}}}},\"aggs\":{\"Manual Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"latest_docs\":{\"terms\":{\"field\":\"Data.stockReconciliation.facilityId.keyword\",\"size\":10000},\"aggs\":{\"latest\":{\"top_hits\":{\"sort\":[{\"Data.stockReconciliation.clientAuditDetails.lastModifiedTime\":{\"order\":\"desc\"}}],\"size\":1}},\"sum_calculatedCount\":{\"sum\":{\"field\":\"Data.stockReconciliation.calculatedCount\"}}}},\"Total Stock\":{\"sum_bucket\":{\"buckets_path\":\"latest_docs>sum_calculatedCount\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "inventoryTheoreticalVsManualStockAp",
+    "filterKeys": [
+      {
+        "key": "district"
+      }
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "Theoretical Stock",
+      "Manual Stock"
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "inventoryTheoreticalVsManualStockAp": {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_THEORETICAL_VS_MANUAL_STOCK_AP",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "stock-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}}]}}}},\"aggs\":{\"Theoretical Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Outgoing Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Total Stock\":{\"bucket_script\":{\"buckets_path\":{\"IS\":\"Incoming Stock>SUM\",\"OS\":\"Outgoing Stock>SUM\"},\"script\":\"params.IS-params.OS\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.stockReconciliation.clientAuditDetails.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "stock-reconciliation-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}}]}}}},\"aggs\":{\"Manual Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"latest_docs\":{\"terms\":{\"field\":\"Data.stockReconciliation.facilityId.keyword\",\"size\":10000},\"aggs\":{\"latest\":{\"top_hits\":{\"sort\":[{\"Data.stockReconciliation.clientAuditDetails.lastModifiedTime\":{\"order\":\"desc\"}}],\"size\":1}},\"sum_calculatedCount\":{\"sum\":{\"field\":\"Data.stockReconciliation.calculatedCount\"}}}},\"Total Stock\":{\"sum_bucket\":{\"buckets_path\":\"latest_docs>sum_calculatedCount\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "inventoryTheoreticalVsManualStockLocality",
+    "filterKeys": [
+      {
+        "key": "administrativeProvince"
+      }
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "Theoretical Stock",
+      "Manual Stock"
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "inventoryTheoreticalVsManualStockLocality": {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_THEORETICAL_VS_MANUAL_STOCK_LOCALITY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\": \"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+        "indexName": "stock-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}}]}}}},\"aggs\":{\"Theoretical Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Outgoing Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Total Stock\":{\"bucket_script\":{\"buckets_path\":{\"IS\":\"Incoming Stock>SUM\",\"OS\":\"Outgoing Stock>SUM\"},\"script\":\"params.IS-params.OS\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.stockReconciliation.clientAuditDetails.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\": \"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+        "indexName": "stock-reconciliation-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}}]}}}},\"aggs\":{\"Manual Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"latest_docs\":{\"terms\":{\"field\":\"Data.stockReconciliation.facilityId.keyword\",\"size\":10000},\"aggs\":{\"latest\":{\"top_hits\":{\"sort\":[{\"Data.stockReconciliation.clientAuditDetails.lastModifiedTime\":{\"order\":\"desc\"}}],\"size\":1}},\"sum_calculatedCount\":{\"sum\":{\"field\":\"Data.stockReconciliation.calculatedCount\"}}}},\"Total Stock\":{\"sum_bucket\":{\"buckets_path\":\"latest_docs>sum_calculatedCount\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "inventoryTheoreticalVsManualStockVillage",
+    "filterKeys": [
+      {
+        "key": "locality"
+      }
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "Theoretical Stock",
+      "Manual Stock"
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "inventoryTheoreticalVsManualStockVillage": {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_THEORETICAL_VS_MANUAL_STOCK_VILLAGE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\": \"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\": \"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "stock-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}}]}}}},\"aggs\":{\"Theoretical Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.village.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Outgoing Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Total Stock\":{\"bucket_script\":{\"buckets_path\":{\"IS\":\"Incoming Stock>SUM\",\"OS\":\"Outgoing Stock>SUM\"},\"script\":\"params.IS-params.OS\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.stockReconciliation.clientAuditDetails.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\": \"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\": \"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "stock-reconciliation-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}}]}}}},\"aggs\":{\"Manual Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.village.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"latest_docs\":{\"terms\":{\"field\":\"Data.stockReconciliation.facilityId.keyword\",\"size\":10000},\"aggs\":{\"latest\":{\"top_hits\":{\"sort\":[{\"Data.stockReconciliation.clientAuditDetails.lastModifiedTime\":{\"order\":\"desc\"}}],\"size\":1}},\"sum_calculatedCount\":{\"sum\":{\"field\":\"Data.stockReconciliation.calculatedCount\"}}}},\"Total Stock\":{\"sum_bucket\":{\"buckets_path\":\"latest_docs>sum_calculatedCount\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "none",
+    "filterKeys": [
+      {
+        "key": "village"
+      }
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "Theoretical Stock",
+      "Manual Stock"
+    ],
+    "insight": {},
+    "_comment": " "
+  },
   "householdsCoverageHeatMap": {
     "chartName": "DSS_HEALTH_HOUSEHOLDS_COVERAGE_HEATMAP",
     "queries": [
