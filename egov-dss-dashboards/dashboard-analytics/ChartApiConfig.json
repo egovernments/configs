@@ -19788,8 +19788,39 @@
     "queries": [
       {
         "module": "COMMON",
-        "dateRefField": "",
+        "dateRefField": "Data.createdTime",
         "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"total houses sprayed\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "total houses sprayed"
+    ],
+    "isCappedTillToday": true,
+    "insight": {
+      "chartResponseMap": "totalSprayed",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "dateRange"
+    },
+    "_comment": " "
+  },
+  "totalSprayedNational": {
+    "chartName": "DSS_HEALTH_NATIONAL_TOTAL_HOUSEHOLD_SPRAYED_NATIONAL",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"total houses sprayed\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}"
       }
@@ -19919,7 +19950,7 @@
         "dateRefField": "Data.createdTime",
         "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "project-task-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"DateRange Sprayed\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"DateRange Sprayed\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}"
       }
     ],
     "chartType": "metric",
@@ -19967,7 +19998,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\"}",
         "indexName": "project-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"Campaign Filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"HOUSEHOLD\"}},{\"exists\":{\"field\":\"Data.district.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.administrativeProvince.keyword\"}}]}}}},\"aggs\":{\"Target per day\":{\"sum\":{\"field\":\"Data.targetPerDay\"}},\"Target Households per Day\":{\"bucket_script\":{\"buckets_path\":{\"tpd\":\"Target per day\"},\"script\":\"(params.tpd)*365\"}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"Campaign Filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"HOUSEHOLD\"}},{\"exists\":{\"field\":\"Data.district.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.administrativeProvince.keyword\"}}]}}}},\"aggs\":{\"Overall Target\":{\"sum\":{\"field\":\"Data.overallTarget\"}},\"Target per day\":{\"sum\":{\"field\":\"Data.targetPerDay\"}},\"Target Households per Day\":{\"bucket_script\":{\"buckets_path\":{\"tpd\":\"Target per day\"},\"script\":\"(params.tpd)*365\"}}}}}}"
       }
     ],
     "chartType": "metric",
@@ -19979,7 +20010,9 @@
       "Target Households per Day"
     ],
     "postAggregationTheory": "repsonseToDifferenceOfDates",
-    "isCappedByCampaignPeriod": true,
+    "isCappedByCampaignPeriod": [
+      "Overall Target"
+    ],
     "insight": {},
     "_comment": " "
   },
@@ -20090,7 +20123,7 @@
     "queries": [
       {
         "module": "COMMON",
-        "dateRefField": "",
+        "dateRefField": "Data.createdTime",
         "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"Total Distributions\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}}]}},\"aggs\":{\"distributions\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}"
@@ -20104,7 +20137,16 @@
     "aggregationPaths": [
       "Total Distributions"
     ],
-    "insight": {},
+    "isCappedTillToday": true,
+    "insight": {
+      "chartResponseMap": "totalDistributionsTillToday",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "dateRange"
+    },
     "_comment": " "
   },
   "userSyncSummaryProvince": {
@@ -20320,7 +20362,7 @@
       "Distribution Target"
     ],
     "insight": {
-      "chartResponseMap": "distributionCoverage",
+      "chartResponseMap": "distributionCoverageProvince",
       "action": "differenceOfNumbers",
       "upwardIndicator": "positive",
       "downwardIndicator": "negative",
@@ -20359,7 +20401,7 @@
       "Distribution Target"
     ],
     "insight": {
-      "chartResponseMap": "distributionCoverage",
+      "chartResponseMap": "distributionCoverageDistrict",
       "action": "differenceOfNumbers",
       "upwardIndicator": "positive",
       "downwardIndicator": "negative",
@@ -20396,7 +20438,7 @@
     "queries": [
       {
         "module": "COMMON",
-        "dateRefField": "",
+        "dateRefField": "Data.createdTime",
         "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGG\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total Population Covered\":{\"sum\":{\"field\":\"Data.memberCount\"}}}}}}"
@@ -20410,7 +20452,16 @@
     "aggregationPaths": [
       "Total Population Covered"
     ],
-    "insight": {},
+    "isCappedTillToday": true,
+    "insight": {
+      "chartResponseMap": "overviewTotalPopulationCovered",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "dateRange"
+    },
     "_comment": " "
   },
   "overviewPopulationTargetedProvince": {
@@ -20492,7 +20543,7 @@
       "Overall Population Target"
     ],
     "insight": {
-      "chartResponseMap": "provincialOrDistrictPopulationCoverageAchieved",
+      "chartResponseMap": "overviewPopulationCoverageAchievedProvince",
       "action": "differenceOfNumbers",
       "upwardIndicator": "positive",
       "downwardIndicator": "negative",
@@ -20531,7 +20582,7 @@
       "Overall Population Target"
     ],
     "insight": {
-      "chartResponseMap": "provincialOrDistrictPopulationCoverageAchieved",
+      "chartResponseMap": "overviewPopulationCoverageAchievedDistrict",
       "action": "differenceOfNumbers",
       "upwardIndicator": "positive",
       "downwardIndicator": "negative",
@@ -23043,84 +23094,84 @@
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\"}",
         "indexName": "project-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"HOUSEHOLD\"}},{\"exists\":{\"field\":\"Data.locality.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.village.keyword\"}}]}},\"aggs\":{\"Household Target\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.locality.keyword\"},\"aggs\":{\"Overall Household target\":{\"sum\":{\"field\":\"Data.overallTarget\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Household Total\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Total Households sprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\"}",
         "indexName": "project-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"INDIVIDUAL\"}},{\"exists\":{\"field\":\"Data.locality.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.village.keyword\"}}]}},\"aggs\":{\"Population Target\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.locality.keyword\"},\"aggs\":{\"Overall Population target\":{\"sum\":{\"field\":\"Data.overallTarget\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.isDelivered\":true}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Population Total\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.locality.keyword\"},\"aggs\":{\"Total Population covered\":{\"sum\":{\"field\":\"Data.memberCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\"}",
         "indexName": "project-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"INDIVIDUAL\"}},{\"exists\":{\"field\":\"Data.locality.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.village.keyword\"}}]}},\"aggs\":{\"Population Target\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.locality.keyword\"},\"aggs\":{\"Overall Population target\":{\"sum\":{\"field\":\"Data.overallTarget\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}},{\"term\":{\"Data.isDelivered\":true}}]}},\"aggs\":{\"Population Total\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.locality.keyword\"},\"aggs\":{\"Total Population covered\":{\"sum\":{\"field\":\"Data.memberCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}}]}},\"aggs\":{\"Household Total\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Households distributed count\":{\"value_count\":{\"field\":\"Data.projectBeneficiaryClientReferenceId.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "Data.createdTime",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}},{\"term\":{\"Data.isDelivered\":true}}]}},\"aggs\":{\"Population Total\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.locality.keyword\"},\"aggs\":{\"Total Population covered\":{\"sum\":{\"field\":\"Data.memberCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "Data.createdTime",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.isDelivered\":true}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Population Total\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.locality.keyword\"},\"aggs\":{\"Population covered count\":{\"sum\":{\"field\":\"Data.memberCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "Data.createdTime",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.isDelivered\":true}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Insecticides Total\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.locality.keyword\"},\"aggs\":{\"Insecticides sprayed count\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "Data.createdTime",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"BENEFICIARY_REFUSED\"}}]}},\"aggs\":{\"household count\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.locality.keyword\"},\"aggs\":{\"Household Refused delivery count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "Data.createdTime",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"CLOSED_HOUSEHOLD\"}}]}},\"aggs\":{\"household count\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Household Closed delivery count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       }
@@ -23229,84 +23280,84 @@
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\",\"locality\":\"Data.locality.keyword\"}",
         "indexName": "project-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"HOUSEHOLD\"}},{\"exists\":{\"field\":\"Data.village.keyword\"}}]}},\"aggs\":{\"Household Target\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.village.keyword\"},\"aggs\":{\"Overall Household target\":{\"sum\":{\"field\":\"Data.overallTarget\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Household Total\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.village.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Total Households sprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\",\"locality\":\"Data.locality.keyword\"}",
         "indexName": "project-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"INDIVIDUAL\"}},{\"exists\":{\"field\":\"Data.village.keyword\"}}]}},\"aggs\":{\"Population Target\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.village.keyword\"},\"aggs\":{\"Overall Population target\":{\"sum\":{\"field\":\"Data.overallTarget\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.isDelivered\":true}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Population Total\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.village.keyword\"},\"aggs\":{\"Total Population covered\":{\"sum\":{\"field\":\"Data.memberCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\",\"locality\":\"Data.locality.keyword\"}",
         "indexName": "project-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"INDIVIDUAL\"}},{\"exists\":{\"field\":\"Data.village.keyword\"}}]}},\"aggs\":{\"Population Target\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.village.keyword\"},\"aggs\":{\"Overall Population target\":{\"sum\":{\"field\":\"Data.overallTarget\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}},{\"term\":{\"Data.isDelivered\":true}}]}},\"aggs\":{\"Population Total\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.village.keyword\"},\"aggs\":{\"Total Population covered\":{\"sum\":{\"field\":\"Data.memberCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}}]}},\"aggs\":{\"Household Total\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.village.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Households distributed count\":{\"value_count\":{\"field\":\"Data.projectBeneficiaryClientReferenceId.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "Data.createdTime",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}},{\"term\":{\"Data.isDelivered\":true}}]}},\"aggs\":{\"Population Total\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.village.keyword\"},\"aggs\":{\"Total Population covered\":{\"sum\":{\"field\":\"Data.memberCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "Data.createdTime",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.isDelivered\":true}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Population Total\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.village.keyword\"},\"aggs\":{\"Population covered count\":{\"sum\":{\"field\":\"Data.memberCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "Data.createdTime",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.isDelivered\":true}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Insecticides Total\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.village.keyword\"},\"aggs\":{\"Insecticides sprayed count\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "Data.createdTime",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"BENEFICIARY_REFUSED\"}}]}},\"aggs\":{\"household count\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.village.keyword\"},\"aggs\":{\"Household Refused delivery count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "Data.createdTime",
-        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"CLOSED_HOUSEHOLD\"}}]}},\"aggs\":{\"household count\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.village.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Household Closed delivery count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       }
@@ -25283,28 +25334,35 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"Data.province.keyword\"}",
         "indexName": "project-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGS\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.targetType.keyword\": \"PRODUCT\"\n              }\n            },\n            {\n              \"match_phrase\": {\n                \"Data.productVariant\": \"PVAR\"\n              }\n            },\n            {\n              \"exists\": {\n                \"field\": \"Data.district.keyword\"\n              }\n            }\n          ],\n          \"must_not\": [\n            {\n              \"exists\": {\n                \"field\": \"Data.administrativeProvince.keyword\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Product Target\": {\n          \"terms\": {\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            },\n            \"field\": \"Data.district.keyword\"\n          },\n          \"aggs\": {\n            \"Target per day\": {\n              \"sum\": {\n                \"field\": \"Data.targetPerDay\"\n              }\n            },\n            \"Target for range\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"target\": \"Target per day\"\n                },\n                \"script\": \"(params.target)*365\"\n              }\n            },\n            \"Target for days to last\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"target\": \"Target per day\"\n                },\n                \"script\": \"(params.target)*100\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"PRODUCT\"}},{\"exists\":{\"field\":\"Data.district.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.administrativeProvince.keyword\"}}]}},\"aggs\":{\"Product Target\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.district.keyword\"},\"aggs\":{\"Target per day\":{\"sum\":{\"field\":\"Data.targetPerDay\"}},\"Target for range\":{\"bucket_script\":{\"buckets_path\":{\"target\":\"Target per day\"},\"script\":\"(params.target)*365\"}},\"Target for days to last\":{\"bucket_script\":{\"buckets_path\":{\"target\":\"Target per day\"},\"script\":\"(params.target)*100\"}}}}}}}}"
       },
       {
         "module": "COMMON",
-        "dateRefField": "Data.eventTimeStamp",
-        "requestQueryMap": "{\"province\":\"Data.province.keyword\"}",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.district.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                },\n                {\n                  \"term\": {\n                    \"Data.eventType.keyword\": \"RECEIVED\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.administrativeProvince.keyword\"\n                  }\n                }\n              ]\n            }\n          },\n      \"aggs\": {\n        \"Available Stock\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.district.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Incoming\": {\n              \"sum\": {\n                \"field\": \"Data.physicalCount\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}},{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
-        "dateRefField": "Data.eventTimeStamp",
-        "requestQueryMap": "{\"province\":\"Data.province.keyword\"}",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.district.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                },\n                {\n                  \"term\": {\n                    \"Data.eventType.keyword\": \"DISPATCHED\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.administrativeProvince.keyword\"\n                  }\n                }\n              ]\n            }\n          },\n      \"aggs\": {\n        \"Available Stock\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.district.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Outgoing\": {\n              \"sum\": {\n                \"field\": \"Data.physicalCount\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}},{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Outgoing\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\"}",
+        "indexName": "stock-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}},{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},{\"term\":{\"Data.reason.keyword\":\"RETURNED\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}}]}},\"aggs\":{\"Returned Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Returned\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\":\"Data.province.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.district.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.administrativeProvince.keyword\"\n                  }\n                }\n              ]\n            }\n          },\n      \"aggs\": {\n        \"Available Stock\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.district.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Incoming Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"RECEIVED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Outgoing Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"DISPATCHED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Total Stock\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"IS\": \"Incoming Stock>SUM\",\n                  \"OS\": \"Outgoing Stock>SUM\"\n                },\n                \"script\": \"params.IS-params.OS\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Outgoing Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Total Stock\":{\"bucket_script\":{\"buckets_path\":{\"IS\":\"Incoming Stock>SUM\",\"OS\":\"Outgoing Stock>SUM\"},\"script\":\"params.IS-params.OS\"}}}}}}}}"
       }
     ],
     "chartType": "xtable",
@@ -25315,7 +25373,7 @@
     "plotLabel": "Inventory summary By District",
     "filterKeys": [
       {
-        "key": "Data.district.keyword",
+        "key": "Data.boundaryHierarchy.district.keyword",
         "column": "Inventory summary By District"
       }
     ],
@@ -25330,6 +25388,7 @@
       "Target for days to last",
       "Incoming",
       "Outgoing",
+      "Returned",
       "Total Stock"
     ],
     "computedFields": [
@@ -25339,7 +25398,7 @@
         "fields": [
           "Target for range"
         ],
-        "newField": "Nets Target",
+        "newField": "Product Target To Receive",
         "_comments": ""
       },
       {
@@ -25358,6 +25417,15 @@
           "Outgoing"
         ],
         "newField": "Outgoing Stock",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Returned"
+        ],
+        "newField": "Returned Stock",
         "_comments": ""
       },
       {
@@ -25393,28 +25461,35 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\"}",
         "indexName": "project-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGS\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.targetType.keyword\": \"PRODUCT\"\n              }\n            },\n            {\n              \"match_phrase\": {\n                \"Data.productVariant\": \"PVAR\"\n              }\n            },\n            {\n              \"exists\": {\n                \"field\": \"Data.administrativeProvince.keyword\"\n              }\n            }\n          ],\n          \"must_not\": [\n            {\n              \"exists\": {\n                \"field\": \"Data.locality.keyword\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Product Target\": {\n          \"terms\": {\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            },\n            \"field\": \"Data.administrativeProvince.keyword\"\n          },\n          \"aggs\": {\n            \"Target per day\": {\n              \"sum\": {\n                \"field\": \"Data.targetPerDay\"\n              }\n            },\n            \"Target for range\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"target\": \"Target per day\"\n                },\n                \"script\": \"(params.target)*365\"\n              }\n            },\n            \"Target for days to last\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"target\": \"Target per day\"\n                },\n                \"script\": \"(params.target)*100\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"PRODUCT\"}},{\"exists\":{\"field\":\"Data.administrativeProvince.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.locality.keyword\"}}]}},\"aggs\":{\"Product Target\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.administrativeProvince.keyword\"},\"aggs\":{\"Target per day\":{\"sum\":{\"field\":\"Data.targetPerDay\"}},\"Target for range\":{\"bucket_script\":{\"buckets_path\":{\"target\":\"Target per day\"},\"script\":\"(params.target)*365\"}},\"Target for days to last\":{\"bucket_script\":{\"buckets_path\":{\"target\":\"Target per day\"},\"script\":\"(params.target)*100\"}}}}}}}}"
       },
       {
         "module": "COMMON",
-        "dateRefField": "Data.eventTimeStamp",
-        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\"}",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.administrativeProvince.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                },\n                {\n                  \"term\": {\n                    \"Data.eventType.keyword\": \"RECEIVED\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.locality.keyword\"\n                  }\n                }\n              ]\n            }\n          },\n      \"aggs\": {\n        \"Available Stock\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.administrativeProvince.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Incoming\": {\n              \"sum\": {\n                \"field\": \"Data.physicalCount\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}},{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
-        "dateRefField": "Data.eventTimeStamp",
-        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\"}",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.administrativeProvince.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                },\n                {\n                  \"term\": {\n                    \"Data.eventType.keyword\": \"DISPATCHED\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.locality.keyword\"\n                  }\n                }\n              ]\n            }\n          },\n      \"aggs\": {\n        \"Available Stock\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.administrativeProvince.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Outgoing\": {\n              \"sum\": {\n                \"field\": \"Data.physicalCount\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}},{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Outgoing\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "stock-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}},{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},{\"term\":{\"Data.reason.keyword\":\"RETURNED\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Returned\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.administrativeProvince.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.locality.keyword\"\n                  }\n                }\n              ]\n            }\n          },\n      \"aggs\": {\n        \"Available Stock\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.administrativeProvince.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Incoming Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"RECEIVED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Outgoing Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"DISPATCHED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Total Stock\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"IS\": \"Incoming Stock>SUM\",\n                  \"OS\": \"Outgoing Stock>SUM\"\n                },\n                \"script\": \"params.IS-params.OS\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Outgoing Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Total Stock\":{\"bucket_script\":{\"buckets_path\":{\"IS\":\"Incoming Stock>SUM\",\"OS\":\"Outgoing Stock>SUM\"},\"script\":\"params.IS-params.OS\"}}}}}}}}"
       }
     ],
     "chartType": "xtable",
@@ -25425,7 +25500,7 @@
     "plotLabel": "Inventory summary By AP",
     "filterKeys": [
       {
-        "key": "Data.administrativeProvince.keyword",
+        "key": "Data.boundaryHierarchy.administrativeProvince.keyword",
         "column": "Inventory summary By AP"
       }
     ],
@@ -25440,6 +25515,7 @@
       "Target for days to last",
       "Incoming",
       "Outgoing",
+      "Returned",
       "Total Stock"
     ],
     "computedFields": [
@@ -25449,7 +25525,7 @@
         "fields": [
           "Target for range"
         ],
-        "newField": "Nets Target",
+        "newField": "Product Target To Receive",
         "_comments": ""
       },
       {
@@ -25468,6 +25544,15 @@
           "Outgoing"
         ],
         "newField": "Outgoing Stock",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Returned"
+        ],
+        "newField": "Returned Stock",
         "_comments": ""
       },
       {
@@ -25503,28 +25588,35 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\"}",
         "indexName": "project-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGS\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.targetType.keyword\": \"PRODUCT\"\n              }\n            },\n            {\n              \"match_phrase\": {\n                \"Data.productVariant\": \"PVAR\"\n              }\n            },\n            {\n              \"exists\": {\n                \"field\": \"Data.locality.keyword\"\n              }\n            }\n          ],\n          \"must_not\": [\n            {\n              \"exists\": {\n                \"field\": \"Data.village.keyword\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Product Target\": {\n          \"terms\": {\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            },\n            \"field\": \"Data.locality.keyword\"\n          },\n          \"aggs\": {\n            \"Target per day\": {\n              \"sum\": {\n                \"field\": \"Data.targetPerDay\"\n              }\n            },\n            \"Target for range\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"target\": \"Target per day\"\n                },\n                \"script\": \"(params.target)*365\"\n              }\n            },\n            \"Target for days to last\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"target\": \"Target per day\"\n                },\n                \"script\": \"(params.target)*100\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"PRODUCT\"}},{\"exists\":{\"field\":\"Data.locality.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.village.keyword\"}}]}},\"aggs\":{\"Product Target\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.locality.keyword\"},\"aggs\":{\"Target per day\":{\"sum\":{\"field\":\"Data.targetPerDay\"}},\"Target for range\":{\"bucket_script\":{\"buckets_path\":{\"target\":\"Target per day\"},\"script\":\"(params.target)*365\"}},\"Target for days to last\":{\"bucket_script\":{\"buckets_path\":{\"target\":\"Target per day\"},\"script\":\"(params.target)*100\"}}}}}}}}"
       },
       {
         "module": "COMMON",
-        "dateRefField": "Data.eventTimeStamp",
-        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\"}",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.locality.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                },\n                {\n                  \"term\": {\n                    \"Data.eventType.keyword\": \"RECEIVED\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.village.keyword\"\n                  }\n                }\n              ]\n            }\n          },\n      \"aggs\": {\n        \"Available Stock\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.locality.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Incoming\": {\n              \"sum\": {\n                \"field\": \"Data.physicalCount\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}},{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
-        "dateRefField": "Data.eventTimeStamp",
-        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\"}",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.locality.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                },\n                {\n                  \"term\": {\n                    \"Data.eventType.keyword\": \"DISPATCHED\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.village.keyword\"\n                  }\n                }\n              ]\n            }\n          },\n      \"aggs\": {\n        \"Available Stock\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.locality.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Outgoing\": {\n              \"sum\": {\n                \"field\": \"Data.physicalCount\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}},{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Outgoing\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+        "indexName": "stock-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}},{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},{\"term\":{\"Data.reason.keyword\":\"RETURNED\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Returned\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.locality.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.village.keyword\"\n                  }\n                }\n              ]\n            }\n          },\n      \"aggs\": {\n        \"Available Stock\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.locality.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Incoming Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"RECEIVED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Outgoing Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"DISPATCHED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Total Stock\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"IS\": \"Incoming Stock>SUM\",\n                  \"OS\": \"Outgoing Stock>SUM\"\n                },\n                \"script\": \"params.IS-params.OS\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Outgoing Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Total Stock\":{\"bucket_script\":{\"buckets_path\":{\"IS\":\"Incoming Stock>SUM\",\"OS\":\"Outgoing Stock>SUM\"},\"script\":\"params.IS-params.OS\"}}}}}}}}"
       }
     ],
     "chartType": "xtable",
@@ -25535,7 +25627,7 @@
     "plotLabel": "Inventory summary By Locality",
     "filterKeys": [
       {
-        "key": "Data.locality.keyword",
+        "key": "Data.boundaryHierarchy.locality.keyword",
         "column": "Inventory summary By Locality"
       }
     ],
@@ -25550,6 +25642,7 @@
       "Target for days to last",
       "Incoming",
       "Outgoing",
+      "Returned",
       "Total Stock"
     ],
     "computedFields": [
@@ -25559,7 +25652,7 @@
         "fields": [
           "Target for range"
         ],
-        "newField": "Nets Target",
+        "newField": "Product Target To Receive",
         "_comments": ""
       },
       {
@@ -25584,6 +25677,15 @@
         "postAggregationTheory": "",
         "actionName": "AdditiveComputedField",
         "fields": [
+          "Returned"
+        ],
+        "newField": "Returned Stock",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
           "Total Stock"
         ],
         "newField": "Stock Left",
@@ -25601,6 +25703,7 @@
       }
     ],
     "insight": {},
+    "sort": "sortKeyAsc",
     "_comment": " "
   },
   "InventorySummaryByVillage": {
@@ -25612,28 +25715,35 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\",\"locality\":\"Data.locality.keyword\"}",
         "indexName": "project-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGS\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.targetType.keyword\": \"PRODUCT\"\n              }\n            },\n            {\n              \"match_phrase\": {\n                \"Data.productVariant\": \"PVAR\"\n              }\n            },\n            {\n              \"exists\": {\n                \"field\": \"Data.village.keyword\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Product Target\": {\n          \"terms\": {\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            },\n            \"field\": \"Data.village.keyword\"\n          },\n          \"aggs\": {\n            \"Target per day\": {\n              \"sum\": {\n                \"field\": \"Data.targetPerDay\"\n              }\n            },\n            \"Target for range\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"target\": \"Target per day\"\n                },\n                \"script\": \"(params.target)*365\"\n              }\n            },\n            \"Target for days to last\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"target\": \"Target per day\"\n                },\n                \"script\": \"(params.target)*100\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"PRODUCT\"}},{\"exists\":{\"field\":\"Data.village.keyword\"}}]}},\"aggs\":{\"Product Target\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.village.keyword\"},\"aggs\":{\"Target per day\":{\"sum\":{\"field\":\"Data.targetPerDay\"}},\"Target for range\":{\"bucket_script\":{\"buckets_path\":{\"target\":\"Target per day\"},\"script\":\"(params.target)*365\"}},\"Target for days to last\":{\"bucket_script\":{\"buckets_path\":{\"target\":\"Target per day\"},\"script\":\"(params.target)*100\"}}}}}}}}"
       },
       {
         "module": "COMMON",
-        "dateRefField": "Data.eventTimeStamp",
-        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\",\"locality\":\"Data.locality.keyword\"}",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"match_phrase\": {\n                \"Data.productVariant\": \"PVAR\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.eventType.keyword\": \"RECEIVED\"\n              }\n            },\n            {\n              \"exists\": {\n                \"field\": \"Data.village.keyword\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Available Stock\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.village.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Incoming\": {\n              \"sum\": {\n                \"field\": \"Data.physicalCount\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}},{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.village.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
-        "dateRefField": "Data.eventTimeStamp",
-        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\",\"locality\":\"Data.locality.keyword\"}",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"match_phrase\": {\n                \"Data.productVariant\": \"PVAR\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.eventType.keyword\": \"DISPATCHED\"\n              }\n            },\n            {\n              \"exists\": {\n                \"field\": \"Data.village.keyword\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Available Stock\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.village.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Outgoing\": {\n              \"sum\": {\n                \"field\": \"Data.physicalCount\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}},{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.village.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Outgoing\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "stock-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}},{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},{\"term\":{\"Data.reason.keyword\":\"RETURNED\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.village.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Returned\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\":\"Data.province.keyword\",\"district\":\"Data.district.keyword\",\"administrativeProvince\":\"Data.administrativeProvince.keyword\",\"locality\":\"Data.locality.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"match_phrase\": {\n                \"Data.productVariant\": \"PVAR\"\n              }\n            },\n            {\n              \"exists\": {\n                \"field\": \"Data.village.keyword\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Available Stock\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.village.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Incoming Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"RECEIVED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Outgoing Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"DISPATCHED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Total Stock\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"IS\": \"Incoming Stock>SUM\",\n                  \"OS\": \"Outgoing Stock>SUM\"\n                },\n                \"script\": \"params.IS-params.OS\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.village.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Outgoing Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Total Stock\":{\"bucket_script\":{\"buckets_path\":{\"IS\":\"Incoming Stock>SUM\",\"OS\":\"Outgoing Stock>SUM\"},\"script\":\"params.IS-params.OS\"}}}}}}}}"
       }
     ],
     "chartType": "xtable",
@@ -25644,7 +25754,7 @@
     "plotLabel": "Inventory summary By Village",
     "filterKeys": [
       {
-        "key": "village",
+        "key": "Data.boundaryHierarchy.village.keyword",
         "column": "Inventory summary By Village"
       }
     ],
@@ -25659,6 +25769,7 @@
       "Target for days to last",
       "Incoming",
       "Outgoing",
+      "Returned",
       "Total Stock"
     ],
     "computedFields": [
@@ -25668,7 +25779,7 @@
         "fields": [
           "Target for range"
         ],
-        "newField": "Nets Target",
+        "newField": "Product Target To Receive",
         "_comments": ""
       },
       {
@@ -25693,6 +25804,15 @@
         "postAggregationTheory": "",
         "actionName": "AdditiveComputedField",
         "fields": [
+          "Returned"
+        ],
+        "newField": "Returned Stock",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
           "Total Stock"
         ],
         "newField": "Stock Left",
@@ -25710,6 +25830,7 @@
       }
     ],
     "insight": {},
+    "sort": "sortKeyAsc",
     "_comment": " "
   },
   "complaintsByTypeBreakdownProvincial": {
@@ -26986,16 +27107,16 @@
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"locationKey\": \"Data.province.keyword\", \"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "requestQueryMap": "{\"locationKey\": \"Data.boundaryHierarchy.province.keyword\", \"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"exists\": {\n                \"field\": \"Data.district.keyword\"\n              }\n            },\n            {\n              \"match_phrase\": {\n                \"Data.productVariant\": \"PVAR\"\n              }\n            }\n          ],\n          \"must_not\": [\n            {\n              \"exists\": {\n                \"field\": \"Data.administrativeProvince.keyword\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"POINTS\": {\n          \"terms\": {\n            \"field\": \"Data.district.keyword\",\n            \"size\": 100\n          },\n          \"aggs\": {\n            \"LATITUDE\": {\n              \"avg\": {\n                \"field\": \"Data.latitude\"\n              }\n            },\n            \"LONGITUDE\": {\n              \"avg\": {\n                \"field\": \"Data.longitude\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}]}},\"aggs\":{\"POINTS\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":100},\"aggs\":{\"LATITUDE\":{\"avg\":{\"field\":\"Data.latitude\"}},\"LONGITUDE\":{\"avg\":{\"field\":\"Data.longitude\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"locationKey\": \"Data.province.keyword\", \"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "requestQueryMap": "{\"locationKey\": \"Data.boundaryHierarchy.province.keyword\", \"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"match_phrase\": {\n                \"Data.productVariant\": \"PVAR\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"POINTS\": {\n          \"terms\": {\n            \"field\": \"Data.facilityName.keyword\",\n            \"size\": 1000000\n          },\n          \"aggs\": {\n            \"LATITUDE\": {\n              \"avg\": {\n                \"field\": \"Data.latitude\"\n              }\n            },\n            \"LONGITUDE\": {\n              \"avg\": {\n                \"field\": \"Data.longitude\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.latitude\"}}]}},\"aggs\":{\"POINTS\":{\"terms\":{\"field\":\"Data.facilityName.keyword\",\"size\":1000000},\"aggs\":{\"LATITUDE\":{\"avg\":{\"field\":\"Data.latitude\"}},\"LONGITUDE\":{\"avg\":{\"field\":\"Data.longitude\"}}}}}}}}"
       }
     ],
     "filterKeys": [],
@@ -27041,16 +27162,16 @@
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filters\": {\n        \"filters\": {\n          \"FILTERS\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.district.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.administrativeProvince.keyword\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"aggs\": {\n        \"Will last for\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.district.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Incoming Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"RECEIVED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Outgoing Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"DISPATCHED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Total Stock\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"IS\": \"Incoming Stock>SUM\",\n                  \"OS\": \"Outgoing Stock>SUM\"\n                },\n                \"script\": \"params.IS-params.OS\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}]}}}},\"aggs\":{\"Will last for\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Outgoing Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Total Stock\":{\"bucket_script\":{\"buckets_path\":{\"IS\":\"Incoming Stock>SUM\",\"OS\":\"Outgoing Stock>SUM\"},\"script\":\"params.IS-params.OS\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
         "requestQueryMap": "{\"province\": \"Data.province.keyword\"}",
         "indexName": "project-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filters\": {\n        \"filters\": {\n          \"FILTERS\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"term\": {\n                    \"Data.targetType.keyword\": \"PRODUCT\"\n                  }\n                },\n                {\n                  \"exists\": {\n                    \"field\": \"Data.district.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.administrativeProvince.keyword\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"aggs\": {\n        \"Target Per Day\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.district.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"SUM\": {\n              \"sum\": {\n                \"field\": \"Data.targetPerDay\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"PRODUCT\"}},{\"exists\":{\"field\":\"Data.district.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.administrativeProvince.keyword\"}}]}}}},\"aggs\":{\"Target Per Day\":{\"terms\":{\"size\":500,\"field\":\"Data.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.targetPerDay\"}}}}}}}}"
       }
     ],
     "filterKeys": [],
@@ -27076,16 +27197,16 @@
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filters\": {\n        \"filters\": {\n          \"FILTERS\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.district.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.administrativeProvince.keyword\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"aggs\": {\n        \"Stock Received Filter\": {\n          \"filter\": {\n            \"term\": {\n              \"Data.eventType.keyword\": \"RECEIVED\"\n            }\n          },\n          \"aggs\": {\n            \"Stock Received\": {\n              \"terms\": {\n                \"field\": \"Data.district.keyword\",\n                \"size\": 1000\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            }\n          }\n        },\n        \"Stock Dispatched Filter\": {\n          \"filter\": {\n            \"term\": {\n              \"Data.eventType.keyword\": \"DISPATCHED\"\n            }\n          },\n          \"aggs\": {\n            \"Stock Dispatched\": {\n              \"terms\": {\n                \"field\": \"Data.district.keyword\",\n                \"size\": 1000\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}]}}}},\"aggs\":{\"Stock Received Filter\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"Stock Received\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":1000},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}},\"Stock Dispatched Filter\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"Stock Dispatched\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":1000},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filters\": {\n        \"filters\": {\n          \"FILTERS\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.district.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.administrativeProvince.keyword\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"aggs\": {\n        \"Stock in Hand\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.district.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Incoming Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"RECEIVED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Outgoing Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"DISPATCHED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Total Stock\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"IS\": \"Incoming Stock>SUM\",\n                  \"OS\": \"Outgoing Stock>SUM\"\n                },\n                \"script\": \"params.IS-params.OS\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}]}}}},\"aggs\":{\"Stock in Hand\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Outgoing Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Total Stock\":{\"bucket_script\":{\"buckets_path\":{\"IS\":\"Incoming Stock>SUM\",\"OS\":\"Outgoing Stock>SUM\"},\"script\":\"params.IS-params.OS\"}}}}}}}}"
       }
     ],
     "filterKeys": [],
@@ -27112,16 +27233,16 @@
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filters\": {\n        \"filters\": {\n          \"FILTERS\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"aggs\": {\n        \"Stock in Hand\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.facilityName.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Incoming Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"RECEIVED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Outgoing Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"DISPATCHED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Total Stock\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"IS\": \"Incoming Stock>SUM\",\n                  \"OS\": \"Outgoing Stock>SUM\"\n                },\n                \"script\": \"params.IS-params.OS\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.facilityName.keyword\"}}]}}}},\"aggs\":{\"Stock in Hand\":{\"terms\":{\"size\":500,\"field\":\"Data.facilityName.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Outgoing Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Total Stock\":{\"bucket_script\":{\"buckets_path\":{\"IS\":\"Incoming Stock>SUM\",\"OS\":\"Outgoing Stock>SUM\"},\"script\":\"params.IS-params.OS\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filters\": {\n        \"filters\": {\n          \"FILTERS\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"aggs\": {\n        \"Stock Received Filter\": {\n          \"filter\": {\n            \"term\": {\n              \"Data.eventType.keyword\": \"RECEIVED\"\n            }\n          },\n          \"aggs\": {\n            \"Stock Received\": {\n              \"terms\": {\n                \"field\": \"Data.facilityName.keyword\",\n                \"size\": 1000\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            }\n          }\n        },\n        \"Stock Dispatched Filter\": {\n          \"filter\": {\n            \"term\": {\n              \"Data.eventType.keyword\": \"DISPATCHED\"\n            }\n          },\n          \"aggs\": {\n            \"Stock Dispatched\": {\n              \"terms\": {\n                \"field\": \"Data.facilityName.keyword\",\n                \"size\": 1000\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.facilityName.keyword\"}}]}}}},\"aggs\":{\"Stock Received Filter\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"Stock Received\":{\"terms\":{\"field\":\"Data.facilityName.keyword\",\"size\":1000},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}},\"Stock Dispatched Filter\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"Stock Dispatched\":{\"terms\":{\"field\":\"Data.facilityName.keyword\",\"size\":1000},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}}}"
       }
     ],
     "filterKeys": [],
@@ -27148,23 +27269,23 @@
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filters\": {\n        \"filters\": {\n          \"FILTERS\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.district.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.administrativeProvince.keyword\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"aggs\": {\n        \"Stock in Hand\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.district.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Incoming Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"RECEIVED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Outgoing Stock\": {\n              \"filter\": {\n                \"term\": {\n                  \"Data.eventType.keyword\": \"DISPATCHED\"\n                }\n              },\n              \"aggs\": {\n                \"SUM\": {\n                  \"sum\": {\n                    \"field\": \"Data.physicalCount\"\n                  }\n                }\n              }\n            },\n            \"Total Stock\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"IS\": \"Incoming Stock>SUM\",\n                  \"OS\": \"Outgoing Stock>SUM\"\n                },\n                \"script\": \"params.IS-params.OS\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filters\":{\"filters\":{\"FILTERS\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}]}}}},\"aggs\":{\"Stock in Hand\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Outgoing Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Total Stock\":{\"bucket_script\":{\"buckets_path\":{\"IS\":\"Incoming Stock>SUM\",\"OS\":\"Outgoing Stock>SUM\"},\"script\":\"params.IS-params.OS\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
         "requestQueryMap": "{\"province\": \"Data.province.keyword\"}",
         "indexName": "project-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.targetType.keyword\": \"PRODUCT\"\n              }\n            },\n            {\n              \"exists\": {\n                \"field\": \"Data.district.keyword\"\n              }\n            },\n            {\n              \"match_phrase\": {\n                \"Data.productVariant\": \"PVAR\"\n              }\n            }\n          ],\n          \"must_not\": [\n            {\n              \"exists\": {\n                \"field\": \"Data.administrativeProvince.keyword\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Overall Target\": {\n          \"terms\": {\n            \"size\": 500,\n            \"field\": \"Data.district.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"SUM\": {\n              \"sum\": {\n                \"field\": \"Data.overallTarget\"\n              }\n            },\n            \"Overall Target\": {\n              \"bucket_script\": {\n                \"buckets_path\": {\n                  \"ot\": \"SUM\"\n                },\n                \"script\": \"params.ot * (-1)\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"PRODUCT\"}},{\"exists\":{\"field\":\"Data.district.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.administrativeProvince.keyword\"}}]}},\"aggs\":{\"Overall Target\":{\"terms\":{\"size\":500,\"field\":\"Data.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.overallTarget\"}},\"Overall Target\":{\"bucket_script\":{\"buckets_path\":{\"ot\":\"SUM\"},\"script\":\"params.ot * (-1)\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\"}",
         "indexName": "project-task-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"Total Distributions\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            },\n            {\n              \"match_phrase\": {\n                \"Data.productVariant\": \"PVAR\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Distributions by district\": {\n          \"terms\": {\n            \"field\": \"Data.district.keyword\",\n            \"size\": 500,\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"Distributions\": {\n              \"sum\": {\n                \"script\": {\n                  \"source\": \"doc['Data.quantity']\"\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Total Distributions\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}}]}},\"aggs\":{\"Distributions by district\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500,\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Distributions\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}}}"
       }
     ],
     "filterKeys": [],
@@ -27205,9 +27326,9 @@
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\": \"Data.province.keyword\", \"district\": \"Data.district.keyword\"}",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "stock-index-v1",
-        "aggrQuery": "{\n  \"aggs\": {\n    \"AGGR\": {\n      \"filters\": {\n        \"filters\": {\n          \"FILTERS\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.district.keyword\"\n                  }\n                },\n                {\n                  \"match_phrase\": {\n                    \"Data.productVariant\": \"PVAR\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.administrativeProvince.keyword\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"aggs\": {\n        \"No. of Warehouses\": {\n          \"terms\": {\n            \"size\": 50000,\n            \"field\": \"Data.district.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"CARDINALITY\": {\n              \"scripted_metric\": {\n                \"params\": {\n                  \"fieldName\": \"Data.facilityName.keyword\"\n                }, \n                \"init_script\": \"state.list=[]\",\n                \"map_script\": \"if(doc[params.fieldName] != null) \\nstate.list.add(doc[params.fieldName].value);\",\n                \"combine_script\": \"return state.list;\",\n                \"reduce_script\": \"Map uniqueValueMap = new HashMap(); \\n        int count = 0;\\n        for(shardList in states) {\\n          if(shardList != null) { \\n            for(key in shardList) {\\n              if(!uniqueValueMap.containsKey(key)) {\\n                count +=1;\\n                uniqueValueMap.put(key, key);\\n              }\\n            }\\n          }\\n        } \\n        return count;\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\n  \"size\": 0, \n  \"aggs\": {\n    \"AGGR\": {\n      \"filters\": {\n        \"filters\": {\n          \"FILTERS\": {\n            \"bool\": {\n              \"must\": [\n                {\n                  \"exists\": {\n                    \"field\": \"Data.boundaryHierarchy.district.keyword\"\n                  }\n                }\n              ],\n              \"must_not\": [\n                {\n                  \"match_phrase\": {\n                    \"Data.facilityType.keyword\": \"Monitor Local\"\n                  }\n                }\n              ]\n            }\n          }\n        }\n      },\n      \"aggs\": {\n        \"No. of Warehouses\": {\n          \"terms\": {\n            \"size\": 50000,\n            \"field\": \"Data.boundaryHierarchy.district.keyword\",\n            \"order\": {\n              \"_key\": \"asc\"\n            }\n          },\n          \"aggs\": {\n            \"CARDINALITY\": {\n              \"scripted_metric\": {\n                \"params\": {\n                  \"fieldName\": \"Data.facilityId.keyword\"\n                }, \n                \"init_script\": \"state.list=[]\",\n                \"map_script\": \"if(doc[params.fieldName] != null) \\nstate.list.add(doc[params.fieldName].value);\",\n                \"combine_script\": \"return state.list;\",\n                \"reduce_script\": \"Map uniqueValueMap = new HashMap(); \\n        int count = 0;\\n        for(shardList in states) {\\n          if(shardList != null) { \\n            for(key in shardList) {\\n              if(!uniqueValueMap.containsKey(key)) {\\n                count +=1;\\n                uniqueValueMap.put(key, key);\\n              }\\n            }\\n          }\\n        } \\n        return count;\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
       }
     ],
     "filterKeys": [],
@@ -27217,11 +27338,10 @@
     "documentType": "_doc",
     "action": "",
     "plotLabel": "District",
-    "isCumulative": false,
-    "aggregationPaths": [
-      "No. of Warehouses"
-    ],
-    "insight": {},
+    "isCumulative" : false,
+    "aggregationPaths": ["No. of Warehouses"],
+    "insight": {
+    },
     "hideInsights": false,
     "hideHeaderDenomination": true,
     "_comment": " "
@@ -27708,7 +27828,7 @@
         "dateRefField": "Data.createdTime",
         "requestQueryMap": "{\"uuid\":\"Data.createdBy.keyword\"}",
         "indexName": "project-task-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"totalHouseholdSprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}},\"query\":{\"match\":{\"Data.status\":\"ADMINISTERED_SUCCESS\"}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"totalHouseholdSprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}},\"query\":{\"match\":{\"Data.status.keyword\":\"ADMINISTRATION_SUCCESS\"}}}"
       },
       {
         "module": "COMMON",
@@ -27773,7 +27893,7 @@
         "dateRefField": "Data.createdTime",
         "requestQueryMap": "{\"uuid\":\"Data.syncedUserId.keyword\"}",
         "indexName": "user-sync-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.syncedUserName.keyword\"},\"aggs\":{\"Lastsyncedtime\":{\"max\":{\"field\":\"Data.syncedTimeStamp\"}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.syncedNameOfUser.keyword\"},\"aggs\":{\"Lastsyncedtime\":{\"max\":{\"field\":\"Data.syncedTimeStamp\"}}}}}}"
       }
     ],
     "filterKeys": [],
@@ -27851,7 +27971,7 @@
         "dateRefField": "Data.createdTime",
         "requestQueryMap": "{\"uuid\":\"Data.createdBy.keyword\"}",
         "indexName": "project-task-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.status.keyword\":\"ADMINISTERED_SUCCESS\"}}]}},\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.nameOfUser.keyword\"},\"aggs\":{\"Total houses sprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.status.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.nameOfUser.keyword\"},\"aggs\":{\"Total houses sprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
@@ -29672,6 +29792,308 @@
     "aggregationPaths": [
       "Children U5 Percent",
       "Total Children U5 Percent"
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "houseCoverageRatioByDistrict" : {
+    "chartName": "DSS_HEALTH_HOUSE_COVERAGE_BY_DISTRICT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total houses sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.household.auditDetails.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Houses Visited\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":1000},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "houseCoverageRatioByAP",
+    "documentType": "_doc",
+    "action": "divisionbyconstant",
+    "aggregationPaths": [
+      "Total houses sprayed",
+      "Houses Visited"
+    ],
+    "filterKeys": [
+      {
+        "key": "district"
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "houseCoverageRatioByAP" : {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_HOUSE_COVERAGE_BY_AP",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total houses sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.household.auditDetails.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Houses Visited\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":1000},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "houseCoverageRatioByLocality",
+    "documentType": "_doc",
+    "action": "divisionbyconstant",
+    "aggregationPaths": [
+      "Total houses sprayed",
+      "Houses Visited"
+    ],
+    "filterKeys": [
+      {
+        "key": "administrativeProvince"
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "houseCoverageRatioByLocality" : {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_HOUSE_COVERAGE_BY_LOCALITY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total houses sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.household.auditDetails.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Houses Visited\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":1000},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "houseCoverageRatioByVillage",
+    "documentType": "_doc",
+    "action": "divisionbyconstant",
+    "aggregationPaths": [
+      "Total houses sprayed",
+      "Houses Visited"
+    ],
+    "filterKeys": [
+      {
+        "key": "locality"
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "houseCoverageRatioByVillage" : {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_HOUSE_COVERAGE_BY_VILLAGE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total houses sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.household.auditDetails.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Houses Visited\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":1000},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "divisionbyconstant",
+    "aggregationPaths": [
+      "Total houses sprayed",
+      "Houses Visited"
+    ],
+    "filterKeys": [
+      {
+        "key": "village"
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "insecticideUsageEfficiencyByDistrict" : {
+    "chartName" : "DSS_HEALTH_INSECTICIDE_USAGE_EFFICIENCY_BY_DISTRICT",
+    "queries" : [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery" : "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total rooms sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"Data.additionalDetails.noOfRoomsSprayedKey\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery" : "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total bottles used\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "insecticideUsageEfficiencyByAP",
+    "documentType": "_doc",
+    "action": "divisionbyconstant",
+    "aggregationPaths": [
+      "Total rooms sprayed",
+      "Total bottles used"
+    ],
+    "filterKeys": [
+      {
+        "key": "district"
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "insecticideUsageEfficiencyByAP" : {
+    "kind": "drillDown",
+    "chartName" : "DSS_HEALTH_INSECTICIDE_USAGE_EFFICIENCY_BY_AP",
+    "queries" : [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery" : "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total rooms sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"Data.additionalDetails.noOfRoomsSprayedKey\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery" : "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total bottles used\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "insecticideUsageEfficiencyByLocality",
+    "documentType": "_doc",
+    "action": "divisionbyconstant",
+    "aggregationPaths": [
+      "Total rooms sprayed",
+      "Total bottles used"
+    ],
+    "filterKeys": [
+      {
+        "key": "administrativeProvince"
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "insecticideUsageEfficiencyByLocality" : {
+    "kind": "drillDown",
+    "chartName" : "DSS_HEALTH_INSECTICIDE_USAGE_EFFICIENCY_BY_LOCALITY",
+    "queries" : [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery" : "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total rooms sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"Data.additionalDetails.noOfRoomsSprayedKey\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery" : "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total bottles used\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "insecticideUsageEfficiencyByVillage",
+    "documentType": "_doc",
+    "action": "divisionbyconstant",
+    "aggregationPaths": [
+      "Total rooms sprayed",
+      "Total bottles used"
+    ],
+    "filterKeys": [
+      {
+        "key": "locality"
+      }
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "insecticideUsageEfficiencyByVillage" : {
+    "kind": "drillDown",
+    "chartName" : "DSS_HEALTH_INSECTICIDE_USAGE_EFFICIENCY_BY_VILLAGE",
+    "queries" : [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery" : "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total rooms sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"Data.additionalDetails.noOfRoomsSprayedKey\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery" : "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total bottles used\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "divisionbyconstant",
+    "aggregationPaths": [
+      "Total rooms sprayed",
+      "Total bottles used"
+    ],
+    "filterKeys": [
+      {
+        "key": "village"
+      }
     ],
     "insight": {},
     "_comment": " "
