@@ -237,15 +237,21 @@ ReportDefinitions:
         isMandatory: false
         searchClause: AND address.locality = $locality
     query: |
-          SELECT INITCAP(SPLIT_PART(fsm.tenantid,'.',2)) as tenantid, 
+          WITH RankedApplications AS (
+          SELECT 
+          INITCAP(SPLIT_PART(fsm.tenantid, '.', 2)) as tenantid, 
           fsm.applicationno AS ApplicationId, 
           COALESCE(fsm.applicationStatus, 'N/A') AS ApplicationStatus, 
           COALESCE(fsm.nooftrips, 0) AS Nooftrips,  
-          split_part(fsm.propertyusage::TEXT, '.', 1) AS PropertyType, 
-          CASE WHEN split_part(fsm.propertyusage::TEXT, '.', 2) != '' THEN split_part(fsm.propertyusage::TEXT, '.', 2) ELSE 'N/A' END AS PropertySubType, 
-          CAST(COALESCE(fsmaddress.additionaldetails->>'boundaryType', '{}') AS TEXT) as UrbanRuralFlag, 
+          INITCAP(SPLIT_PART(fsm.propertyusage::TEXT, '.', 1)) AS PropertyType, 
+          CASE 
+              WHEN SPLIT_PART(fsm.propertyusage::TEXT, '.', 2) != '' 
+              THEN INITCAP(REPLACE(SPLIT_PART(fsm.propertyusage::TEXT, '.', 2), '_', ' '))
+              ELSE 'N/A' 
+          END AS PropertySubType, 
+          CAST(COALESCE(fsmaddress.additionaldetails->>'boundaryType', '{}') AS TEXT) AS UrbanRuralFlag, 
           COALESCE(fsmaddress.locality, 'N/A') AS Locality, 
-          CAST(COALESCE(fsmaddress.additionaldetails->'gramPanchayat'->>'name', '{}') AS TEXT) as GP, 
+          CAST(COALESCE(fsmaddress.additionaldetails->'gramPanchayat'->>'name', '{}') AS TEXT) AS GP, 
           COALESCE(fsmaddress.slumname, 'N/A') AS SlumName, 
           COALESCE(fsmvehicle.registrationNumber, 'N/A') AS DesludgingVehicleNumber, 
           COALESCE(fsmvehicle.vehicleowner, 'N/A') AS VehicleOwner,  
@@ -254,8 +260,9 @@ ReportDefinitions:
           COALESCE(fsm.advanceamount, 0) AS AdvanceAmount, 
           COALESCE(fsmpayment.totalamountpaid, 0) AS PaymentAmount, 
           TO_CHAR(TO_TIMESTAMP(fsm.createdtime / 1000)::timestamp AT TIME ZONE 'Asia/Kolkata', 'MM/DD/YYYY HH24:MI:SS') AS ApplicationSubmitDate, 
-          COALESCE(pirating.rating, 0 ) AS Rating, 
-          COALESCE(picomment.comment, 'N/A') AS Comment 
+          COALESCE(pirating.rating, 0) AS Rating, 
+          COALESCE(picomment.comment, 'N/A') AS Comment, 
+          ROW_NUMBER() OVER (PARTITION BY fsm.applicationno ORDER BY fsm.createdtime DESC) AS row_num
           FROM eg_fsm_application AS fsm 
           JOIN eg_fsm_address AS fsmaddress ON (fsmaddress.fsm_id = fsm.id) 
           JOIN eg_fsm_geolocation AS fsmgeolocation ON (fsmaddress.id = fsmgeolocation.address_id) 
@@ -268,8 +275,12 @@ ReportDefinitions:
           LEFT JOIN egcl_payment AS fsmpayment ON (fsmpayment.id = paymentdl.paymentid) 
           LEFT JOIN (SELECT pi.rating, pi.businessId FROM eg_wf_processinstance_v2 pi JOIN eg_wf_state_v2 status ON (status.uuid = pi.status) WHERE status.state = 'COMPLETED') pirating ON (pirating.businessId = fsm.applicationno) 
           LEFT JOIN (SELECT pi.comment, pi.businessId FROM eg_wf_processinstance_v2 pi JOIN eg_wf_state_v2 status ON (status.uuid = pi.status) WHERE status.state IN ('REJECTED', 'CANCELED', 'DSO_REJECTED')) picomment ON (picomment.businessId = fsm.applicationno) 
-          WHERE fsm.tenantid=$tenantid 
+          WHERE fsm.tenantid = $tenantid 
           AND fsm.additionaldetails->>'tripAmount' NOT IN ('', '[]')
+        )
+        SELECT *
+        FROM RankedApplications
+        WHERE row_num = 1
     orderby: ORDER BY fsm.applicationNo
     
   - reportName: FSMVehicleLogReport
