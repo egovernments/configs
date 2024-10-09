@@ -30957,5 +30957,96 @@
     "filterKeys": [{"key": "village"}],
     "insight": { },
     "_comment": " "
+  },
+  "suspectedFraudsByDistrict" : {
+    "chartName": "DSS_HEALTH_SUSPECTED_FRAUDS_DISTRICT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Suspected Frauds\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"},\"aggs\":{\"daily_users\":{\"date_histogram\":{\"field\":\"Data.@timestamp\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"Data.createdBy.keyword\"},\"aggs\":{\"house_sprayed_count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}},\"users_with_more_than_15\":{\"bucket_selector\":{\"buckets_path\":{\"houseSprayed\":\"house_sprayed_count\"},\"script\":\"params.houseSprayed > 15\"}}}},\"number_of_users_sprayed_more_than_15\":{\"bucket_script\":{\"buckets_path\":{\"count_users\":\"users._bucket_count\"},\"script\":\"params.count_users\"}}}},\"total_users_sprayed_more_than_15\":{\"sum_bucket\":{\"buckets_path\":\"daily_users>number_of_users_sprayed_more_than_15\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "drillChart": "suspectedFraudsByAP",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": ["Suspected Frauds"],
+    "filterKeys": [{ "key": "district" }],
+    "insight": {},
+    "_comment": " "
+  },
+  "suspectedFraudsByAP" : {
+    "kind" : "drillDown",
+    "chartName": "DSS_HEALTH_SUSPECTED_FRAUDS_AP",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Suspected Frauds\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"},\"aggs\":{\"daily_users\":{\"date_histogram\":{\"field\":\"Data.@timestamp\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"Data.createdBy.keyword\"},\"aggs\":{\"house_sprayed_count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}},\"users_with_more_than_15\":{\"bucket_selector\":{\"buckets_path\":{\"houseSprayed\":\"house_sprayed_count\"},\"script\":\"params.houseSprayed > 15\"}}}},\"number_of_users_sprayed_more_than_15\":{\"bucket_script\":{\"buckets_path\":{\"count_users\":\"users._bucket_count\"},\"script\":\"params.count_users\"}}}},\"total_users_sprayed_more_than_15\":{\"sum_bucket\":{\"buckets_path\":\"daily_users>number_of_users_sprayed_more_than_15\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "drillChart": "suspectedFraudsByLocality",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": ["Suspected Frauds"],
+    "filterKeys": [{ "key": "administrativeProvince" }],
+    "insight": {},
+    "_comment": " "
+  },
+  "suspectedFraudsByLocality" : {
+    "kind" : "drillDown",
+    "chartName": "DSS_HEALTH_SUSPECTED_FRAUDS_LOCALITY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Suspected Frauds\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"},\"aggs\":{\"daily_users\":{\"date_histogram\":{\"field\":\"Data.@timestamp\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"Data.createdBy.keyword\"},\"aggs\":{\"house_sprayed_count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}},\"users_with_more_than_15\":{\"bucket_selector\":{\"buckets_path\":{\"houseSprayed\":\"house_sprayed_count\"},\"script\":\"params.houseSprayed > 15\"}}}},\"number_of_users_sprayed_more_than_15\":{\"bucket_script\":{\"buckets_path\":{\"count_users\":\"users._bucket_count\"},\"script\":\"params.count_users\"}}}},\"total_users_sprayed_more_than_15\":{\"sum_bucket\":{\"buckets_path\":\"daily_users>number_of_users_sprayed_more_than_15\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "drillChart": "suspectedFraudsByVillage",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": ["Suspected Frauds"],
+    "filterKeys": [{ "key": "locality" }],
+    "insight": {},
+    "_comment": " "
+  },
+  "suspectedFraudsByVillage" : {
+    "kind" : "drillDown",
+    "chartName": "DSS_HEALTH_SUSPECTED_FRAUDS_VILLAGE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Suspected Frauds\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"},\"aggs\":{\"daily_users\":{\"date_histogram\":{\"field\":\"Data.@timestamp\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"Data.createdBy.keyword\"},\"aggs\":{\"house_sprayed_count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}},\"users_with_more_than_15\":{\"bucket_selector\":{\"buckets_path\":{\"houseSprayed\":\"house_sprayed_count\"},\"script\":\"params.houseSprayed > 15\"}}}},\"number_of_users_sprayed_more_than_15\":{\"bucket_script\":{\"buckets_path\":{\"count_users\":\"users._bucket_count\"},\"script\":\"params.count_users\"}}}},\"total_users_sprayed_more_than_15\":{\"sum_bucket\":{\"buckets_path\":\"daily_users>number_of_users_sprayed_more_than_15\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": ["Suspected Frauds"],
+    "filterKeys": [{ "key": "village" }],
+    "insight": {},
+    "_comment": " "
   }
 }
