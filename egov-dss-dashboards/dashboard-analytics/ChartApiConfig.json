@@ -31571,5 +31571,247 @@
     ],
     "insight": {},
     "_comment": " "
+  },
+  "attendanceSprayOperatorsDistrictPercent" : {
+    "chartName": "DSS_HEALTH_ATTENDANCE_SPRAY_OPERATOR_DISTRICT_PERCENT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "attendanceLog.time",
+        "requestQueryMap": "{\"province\": \"boundaryHierarchy.province.keyword\", \"district\": \"boundaryHierarchy.district.keyword\"}",
+        "indexName": "attendance-log-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.district.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\",\"format\":\"yyyy-MM-dd\"},\"aggs\":{\"individuals_with_both_logs\":{\"scripted_metric\":{\"init_script\":\"state.individuals = new HashMap();\",\"map_script\":\"\\n                  def individualId = doc['attendanceLog.individualId.keyword'].value;\\n                  def type = doc['attendanceLog.type.keyword'].value;\\n                  \\n                  if (!state.individuals.containsKey(individualId)) {\\n                    state.individuals.put(individualId, ['entry': false, 'exit': false]);\\n                  }\\n                  \\n                  if (type == 'ENTRY') {\\n                    state.individuals.get(individualId).entry = true;\\n                  } else if (type == 'EXIT') {\\n                    state.individuals.get(individualId).exit = true;\\n                  }\\n                \",\"combine_script\":\"\\n                  int count = 0;\\n                  for (entry in state.individuals.values()) {\\n                    if (entry.entry && entry.exit) {\\n                      count++;\\n                    }\\n                  }\\n                  return count;\\n                \",\"reduce_script\":\"\\n                  int totalCount = 0;\\n                  for (state in states) {\\n                    if (state != null) {\\n                      totalCount += state;\\n                    }\\n                  }\\n                  return totalCount;\\n                \"}},\"total_individuals_with_both_logs_per_day\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"individuals_with_both_logs.value\"},\"script\":\"params.count\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_both_logs_per_day\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "project-staff-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.role.keyword\":\"REGISTRAR\"}},{\"term\":{\"Data.projectTypeId.keyword\":\"192a20d1-0edd-4108-925a-f37bf544d6c4\"}}]}},\"aggs\":{\"Total spray operators\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "percentage",
+    "plotLabel": "none",
+    "drillChart": "attendanceSprayOperatorsAPPercent",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "Spray Operators Marked Present",
+      "Total spray operators"
+    ],
+    "insight": {},
+    "_comment": " ",
+    "filterKeys": [
+      {
+        "key": "district"
+      }
+    ]
+  },
+  "attendanceSprayOperatorsAPPercent" : {
+    "kind" :"drillDown",
+    "chartName": "DSS_HEALTH_ATTENDANCE_SPRAY_OPERATOR_AP_PERCENT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "attendanceLog.time",
+        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\"}",
+        "indexName": "attendance-log-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.administrativeProvince.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\",\"format\":\"yyyy-MM-dd\"},\"aggs\":{\"individuals_with_both_logs\":{\"scripted_metric\":{\"init_script\":\"state.individuals = new HashMap();\",\"map_script\":\"\\n                  def individualId = doc['attendanceLog.individualId.keyword'].value;\\n                  def type = doc['attendanceLog.type.keyword'].value;\\n                  \\n                  if (!state.individuals.containsKey(individualId)) {\\n                    state.individuals.put(individualId, ['entry': false, 'exit': false]);\\n                  }\\n                  \\n                  if (type == 'ENTRY') {\\n                    state.individuals.get(individualId).entry = true;\\n                  } else if (type == 'EXIT') {\\n                    state.individuals.get(individualId).exit = true;\\n                  }\\n                \",\"combine_script\":\"\\n                  int count = 0;\\n                  for (entry in state.individuals.values()) {\\n                    if (entry.entry && entry.exit) {\\n                      count++;\\n                    }\\n                  }\\n                  return count;\\n                \",\"reduce_script\":\"\\n                  int totalCount = 0;\\n                  for (state in states) {\\n                    if (state != null) {\\n                      totalCount += state;\\n                    }\\n                  }\\n                  return totalCount;\\n                \"}},\"total_individuals_with_both_logs_per_day\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"individuals_with_both_logs.value\"},\"script\":\"params.count\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_both_logs_per_day\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "project-staff-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.role.keyword\":\"REGISTRAR\"}},{\"term\":{\"Data.projectTypeId.keyword\":\"192a20d1-0edd-4108-925a-f37bf544d6c4\"}}]}},\"aggs\":{\"Total spray operators\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "percentage",
+    "plotLabel": "none",
+    "drillChart": "attendanceSprayOperatorsLocalityPercent",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "Spray Operators Marked Present",
+      "Total spray operators"
+    ],
+    "insight": {},
+    "_comment": " ",
+    "filterKeys": [
+      {
+        "key": "administrativeProvince"
+      }
+    ]
+  },
+  "attendanceSprayOperatorsLocalityPercent" : {
+    "kind" :"drillDown",
+    "chartName": "DSS_HEALTH_ATTENDANCE_SPRAY_OPERATOR_LOCALITY_PERCENT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "attendanceLog.time",
+        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\"}",
+        "indexName": "attendance-log-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.locality.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\",\"format\":\"yyyy-MM-dd\"},\"aggs\":{\"individuals_with_both_logs\":{\"scripted_metric\":{\"init_script\":\"state.individuals = new HashMap();\",\"map_script\":\"\\n                  def individualId = doc['attendanceLog.individualId.keyword'].value;\\n                  def type = doc['attendanceLog.type.keyword'].value;\\n                  \\n                  if (!state.individuals.containsKey(individualId)) {\\n                    state.individuals.put(individualId, ['entry': false, 'exit': false]);\\n                  }\\n                  \\n                  if (type == 'ENTRY') {\\n                    state.individuals.get(individualId).entry = true;\\n                  } else if (type == 'EXIT') {\\n                    state.individuals.get(individualId).exit = true;\\n                  }\\n                \",\"combine_script\":\"\\n                  int count = 0;\\n                  for (entry in state.individuals.values()) {\\n                    if (entry.entry && entry.exit) {\\n                      count++;\\n                    }\\n                  }\\n                  return count;\\n                \",\"reduce_script\":\"\\n                  int totalCount = 0;\\n                  for (state in states) {\\n                    if (state != null) {\\n                      totalCount += state;\\n                    }\\n                  }\\n                  return totalCount;\\n                \"}},\"total_individuals_with_both_logs_per_day\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"individuals_with_both_logs.value\"},\"script\":\"params.count\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_both_logs_per_day\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+        "indexName": "project-staff-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.role.keyword\":\"REGISTRAR\"}},{\"term\":{\"Data.projectTypeId.keyword\":\"192a20d1-0edd-4108-925a-f37bf544d6c4\"}}]}},\"aggs\":{\"Total spray operators\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "percentage",
+    "plotLabel": "none",
+    "drillChart": "attendanceSprayOperatorsVillagePercent",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "Spray Operators Marked Present",
+      "Total spray operators"
+    ],
+    "insight": {},
+    "_comment": " ",
+    "filterKeys": [
+      {
+        "key": "locality"
+      }
+    ]
+  },
+  "attendanceSprayOperatorsVillagePercent" : {
+    "kind" :"drillDown",
+    "chartName": "DSS_HEALTH_ATTENDANCE_SPRAY_OPERATOR_VILLAGE_PERCENT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "attendanceLog.time",
+        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
+        "indexName": "attendance-log-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.village.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\",\"format\":\"yyyy-MM-dd\"},\"aggs\":{\"individuals_with_both_logs\":{\"scripted_metric\":{\"init_script\":\"state.individuals = new HashMap();\",\"map_script\":\"\\n                  def individualId = doc['attendanceLog.individualId.keyword'].value;\\n                  def type = doc['attendanceLog.type.keyword'].value;\\n                  \\n                  if (!state.individuals.containsKey(individualId)) {\\n                    state.individuals.put(individualId, ['entry': false, 'exit': false]);\\n                  }\\n                  \\n                  if (type == 'ENTRY') {\\n                    state.individuals.get(individualId).entry = true;\\n                  } else if (type == 'EXIT') {\\n                    state.individuals.get(individualId).exit = true;\\n                  }\\n                \",\"combine_script\":\"\\n                  int count = 0;\\n                  for (entry in state.individuals.values()) {\\n                    if (entry.entry && entry.exit) {\\n                      count++;\\n                    }\\n                  }\\n                  return count;\\n                \",\"reduce_script\":\"\\n                  int totalCount = 0;\\n                  for (state in states) {\\n                    if (state != null) {\\n                      totalCount += state;\\n                    }\\n                  }\\n                  return totalCount;\\n                \"}},\"total_individuals_with_both_logs_per_day\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"individuals_with_both_logs.value\"},\"script\":\"params.count\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_both_logs_per_day\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "project-staff-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.role.keyword\":\"REGISTRAR\"}},{\"term\":{\"Data.projectTypeId.keyword\":\"192a20d1-0edd-4108-925a-f37bf544d6c4\"}}]}},\"aggs\":{\"Total spray operators\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "percentage",
+    "plotLabel": "none",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "percentage",
+    "aggregationPaths": [
+      "Spray Operators Marked Present",
+      "Total spray operators"
+    ],
+    "insight": {},
+    "_comment": " ",
+    "filterKeys": [
+      {
+        "key": "village"
+      }
+    ]
+  },
+  "attendanceSprayOperatorsDistrict" : {
+    "chartName": "DSS_HEALTH_ATTENDANCE_SPRAY_OPERATOR_DISTRICT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "attendanceLog.time",
+        "requestQueryMap": "{\"province\": \"boundaryHierarchy.province.keyword\", \"district\": \"boundaryHierarchy.district.keyword\"}",
+        "indexName": "attendance-log-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.district.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\",\"format\":\"yyyy-MM-dd\"},\"aggs\":{\"individuals_with_both_logs\":{\"scripted_metric\":{\"init_script\":\"state.individuals = new HashMap();\",\"map_script\":\"\\n                  def individualId = doc['attendanceLog.individualId.keyword'].value;\\n                  def type = doc['attendanceLog.type.keyword'].value;\\n                  \\n                  if (!state.individuals.containsKey(individualId)) {\\n                    state.individuals.put(individualId, ['entry': false, 'exit': false]);\\n                  }\\n                  \\n                  if (type == 'ENTRY') {\\n                    state.individuals.get(individualId).entry = true;\\n                  } else if (type == 'EXIT') {\\n                    state.individuals.get(individualId).exit = true;\\n                  }\\n                \",\"combine_script\":\"\\n                  int count = 0;\\n                  for (entry in state.individuals.values()) {\\n                    if (entry.entry && entry.exit) {\\n                      count++;\\n                    }\\n                  }\\n                  return count;\\n                \",\"reduce_script\":\"\\n                  int totalCount = 0;\\n                  for (state in states) {\\n                    if (state != null) {\\n                      totalCount += state;\\n                    }\\n                  }\\n                  return totalCount;\\n                \"}},\"total_individuals_with_both_logs_per_day\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"individuals_with_both_logs.value\"},\"script\":\"params.count\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_both_logs_per_day\"}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "drillChart": "attendanceSprayOperatorsAP",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": ["Spray Operators Marked Present"],
+    "filterKeys": [{ "key": "district" }],
+    "insight": {},
+    "_comment": " "
+  },
+  "attendanceSprayOperatorsAP" : {
+    "kind" : "drillDown",
+    "chartName": "DSS_HEALTH_ATTENDANCE_SPRAY_OPERATOR_AP",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "attendanceLog.time",
+        "requestQueryMap": "{\"province\": \"boundaryHierarchy.province.keyword\", \"district\": \"boundaryHierarchy.district.keyword\"}",
+        "indexName": "attendance-log-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.administrativeProvince.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\",\"format\":\"yyyy-MM-dd\"},\"aggs\":{\"individuals_with_both_logs\":{\"scripted_metric\":{\"init_script\":\"state.individuals = new HashMap();\",\"map_script\":\"\\n                  def individualId = doc['attendanceLog.individualId.keyword'].value;\\n                  def type = doc['attendanceLog.type.keyword'].value;\\n                  \\n                  if (!state.individuals.containsKey(individualId)) {\\n                    state.individuals.put(individualId, ['entry': false, 'exit': false]);\\n                  }\\n                  \\n                  if (type == 'ENTRY') {\\n                    state.individuals.get(individualId).entry = true;\\n                  } else if (type == 'EXIT') {\\n                    state.individuals.get(individualId).exit = true;\\n                  }\\n                \",\"combine_script\":\"\\n                  int count = 0;\\n                  for (entry in state.individuals.values()) {\\n                    if (entry.entry && entry.exit) {\\n                      count++;\\n                    }\\n                  }\\n                  return count;\\n                \",\"reduce_script\":\"\\n                  int totalCount = 0;\\n                  for (state in states) {\\n                    if (state != null) {\\n                      totalCount += state;\\n                    }\\n                  }\\n                  return totalCount;\\n                \"}},\"total_individuals_with_both_logs_per_day\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"individuals_with_both_logs.value\"},\"script\":\"params.count\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_both_logs_per_day\"}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "drillChart": "attendanceSprayOperatorsLocality",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": ["Spray Operators Marked Present"],
+    "filterKeys": [{ "key": "administrativeProvince" }],
+    "insight": {},
+    "_comment": " "
+  },
+  "attendanceSprayOperatorsLocality" : {
+    "kind" : "drillDown",
+    "chartName": "DSS_HEALTH_ATTENDANCE_SPRAY_OPERATOR_LOCALITY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "attendanceLog.time",
+        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\"}",
+        "indexName": "attendance-log-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.locality.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\",\"format\":\"yyyy-MM-dd\"},\"aggs\":{\"individuals_with_both_logs\":{\"scripted_metric\":{\"init_script\":\"state.individuals = new HashMap();\",\"map_script\":\"\\n                  def individualId = doc['attendanceLog.individualId.keyword'].value;\\n                  def type = doc['attendanceLog.type.keyword'].value;\\n                  \\n                  if (!state.individuals.containsKey(individualId)) {\\n                    state.individuals.put(individualId, ['entry': false, 'exit': false]);\\n                  }\\n                  \\n                  if (type == 'ENTRY') {\\n                    state.individuals.get(individualId).entry = true;\\n                  } else if (type == 'EXIT') {\\n                    state.individuals.get(individualId).exit = true;\\n                  }\\n                \",\"combine_script\":\"\\n                  int count = 0;\\n                  for (entry in state.individuals.values()) {\\n                    if (entry.entry && entry.exit) {\\n                      count++;\\n                    }\\n                  }\\n                  return count;\\n                \",\"reduce_script\":\"\\n                  int totalCount = 0;\\n                  for (state in states) {\\n                    if (state != null) {\\n                      totalCount += state;\\n                    }\\n                  }\\n                  return totalCount;\\n                \"}},\"total_individuals_with_both_logs_per_day\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"individuals_with_both_logs.value\"},\"script\":\"params.count\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_both_logs_per_day\"}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "drillChart": "attendanceSprayOperatorsVillage",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": ["Spray Operators Marked Present"],
+    "filterKeys": [{ "key": "locality" }],
+    "insight": {},
+    "_comment": " "
+  },
+  "attendanceSprayOperatorsVillage" : {
+    "kind" : "drillDown",
+    "chartName": "DSS_HEALTH_ATTENDANCE_SPRAY_OPERATOR_VILLAGE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "attendanceLog.time",
+        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
+        "indexName": "attendance-log-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.village.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\",\"format\":\"yyyy-MM-dd\"},\"aggs\":{\"individuals_with_both_logs\":{\"scripted_metric\":{\"init_script\":\"state.individuals = new HashMap();\",\"map_script\":\"\\n                  def individualId = doc['attendanceLog.individualId.keyword'].value;\\n                  def type = doc['attendanceLog.type.keyword'].value;\\n                  \\n                  if (!state.individuals.containsKey(individualId)) {\\n                    state.individuals.put(individualId, ['entry': false, 'exit': false]);\\n                  }\\n                  \\n                  if (type == 'ENTRY') {\\n                    state.individuals.get(individualId).entry = true;\\n                  } else if (type == 'EXIT') {\\n                    state.individuals.get(individualId).exit = true;\\n                  }\\n                \",\"combine_script\":\"\\n                  int count = 0;\\n                  for (entry in state.individuals.values()) {\\n                    if (entry.entry && entry.exit) {\\n                      count++;\\n                    }\\n                  }\\n                  return count;\\n                \",\"reduce_script\":\"\\n                  int totalCount = 0;\\n                  for (state in states) {\\n                    if (state != null) {\\n                      totalCount += state;\\n                    }\\n                  }\\n                  return totalCount;\\n                \"}},\"total_individuals_with_both_logs_per_day\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"individuals_with_both_logs.value\"},\"script\":\"params.count\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_both_logs_per_day\"}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": ["Spray Operators Marked Present"],
+    "filterKeys": [{ "key": "village" }],
+    "insight": {},
+    "_comment": " "
   }
 }
