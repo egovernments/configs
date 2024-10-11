@@ -31284,5 +31284,189 @@
     "filterKeys": [{ "key": "village" }],
     "insight": {},
     "_comment": " "
+  },
+  "incompleteRecordsByDistrict":{
+    "chartName": "DSS_HEALTH_INCOMPLETE_HOUSES",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district\"}}]}},\"aggs\":{\"Incomplete record\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500},\"aggs\":{\"Houses registered\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"terms\":{\"Data.administrationStatus.keyword\":[\"ADMINISTRATION_SUCCESS\",\"ADMINISTRATION_FAILED\",\"BENEFICIARY_REFUSED\",\"CLOSED_HOUSEHOLD\"]}}]}},\"aggs\":{\"Incomplete record\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"},\"aggs\":{\"HouseholdsSprayDetailsRecorded\":{\"value_count\":{\"field\":\"Data.id.keyword\"}},\"NegativeHouseholdsSprayDetailsRecorded\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"HouseholdsSprayDetailsRecorded\"},\"script\":\"params.count*-1\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "drillChart": "incompleteRecordsByAP",
+    "documentType": "_doc",
+    "action": "",
+    "filterKeys": [{ "key": "district" }],
+    "plotLabel" : "Incomplete record",
+    "excludedColumns": [
+      "NegativeHouseholdsSprayDetailsRecorded",
+      "Houses registered",
+      "HouseholdsSprayDetailsRecorded"
+    ],
+    "computedFields" : [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Houses registered","NegativeHouseholdsSprayDetailsRecorded"],
+        "newField" : "Incomplete Houses",
+        "_comments": ""
+      }
+    ],
+    "sort": "sortKeyAsc",
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "insight": {},
+    "_comment": " "
+  },
+  "incompleteRecordsByAP":{
+    "chartName": "DSS_HEALTH_INCOMPLETE_HOUSES",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\n  \"province\": \"Data.boundaryHierarchy.province.keyword\",\n  \"district\": \"Data.boundaryHierarchy.district.keyword\",\n\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"\n}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince\"}}]}},\"aggs\":{\"Incomplete record\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":500},\"aggs\":{\"Houses registered\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\n  \"province\": \"Data.boundaryHierarchy.province.keyword\",\n  \"district\": \"Data.boundaryHierarchy.district.keyword\",\n\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"\n}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"terms\":{\"Data.administrationStatus.keyword\":[\"ADMINISTRATION_SUCCESS\",\"ADMINISTRATION_FAILED\",\"BENEFICIARY_REFUSED\",\"CLOSED_HOUSEHOLD\"]}}]}},\"aggs\":{\"Incomplete record\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"},\"aggs\":{\"HouseholdsSprayDetailsRecorded\":{\"value_count\":{\"field\":\"Data.id.keyword\"}},\"NegativeHouseholdsSprayDetailsRecorded\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"HouseholdsSprayDetailsRecorded\"},\"script\":\"params.count*-1\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "drillChart": "incompleteRecordsByLocality",
+    "documentType": "_doc",
+    "action": "",
+    "filterKeys": [{ "key": "administrativeProvince" }],
+    "plotLabel" : "Incomplete record",
+    "excludedColumns": [
+      "NegativeHouseholdsSprayDetailsRecorded",
+      "Houses registered",
+      "HouseholdsSprayDetailsRecorded"
+    ],
+    "computedFields" : [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Houses registered","NegativeHouseholdsSprayDetailsRecorded"],
+        "newField" : "Incomplete Houses",
+        "_comments": ""
+      }
+    ],
+    "sort": "sortKeyAsc",
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "insight": {},
+    "_comment": " "
+  },
+  "incompleteRecordsByLocality":{
+    "chartName": "DSS_HEALTH_INCOMPLETE_HOUSES",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\n  \"province\": \"Data.boundaryHierarchy.province.keyword\",\n  \"district\": \"Data.boundaryHierarchy.district.keyword\",\n\"administrativeProvince\": \"Data.boundaryHierarchy.administrativeProvince.keyword\",\n\"locality\": \"Data.boundaryHierarchy.locality.keyword\"\n}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality\"}}]}},\"aggs\":{\"Incomplete record\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Houses registered\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap":"{\n  \"province\": \"Data.boundaryHierarchy.province.keyword\",\n  \"district\": \"Data.boundaryHierarchy.district.keyword\",\n\"administrativeProvince\": \"Data.boundaryHierarchy.administrativeProvince.keyword\",\n\"locality\": \"Data.boundaryHierarchy.locality.keyword\"\n}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"terms\":{\"Data.administrationStatus.keyword\":[\"ADMINISTRATION_SUCCESS\",\"ADMINISTRATION_FAILED\",\"BENEFICIARY_REFUSED\",\"CLOSED_HOUSEHOLD\"]}}]}},\"aggs\":{\"Incomplete record\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"},\"aggs\":{\"HouseholdsSprayDetailsRecorded\":{\"value_count\":{\"field\":\"Data.id.keyword\"}},\"NegativeHouseholdsSprayDetailsRecorded\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"HouseholdsSprayDetailsRecorded\"},\"script\":\"params.count*-1\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "drillChart": "incompleteRecordsByVillage",
+    "documentType": "_doc",
+    "action": "",
+    "filterKeys": [{ "key": "locality" }],
+    "plotLabel" : "Incomplete record",
+    "excludedColumns": [
+      "NegativeHouseholdsSprayDetailsRecorded",
+      "Houses registered",
+      "HouseholdsSprayDetailsRecorded"
+    ],
+    "computedFields" : [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Houses registered","NegativeHouseholdsSprayDetailsRecorded"],
+        "newField" : "Incomplete Houses",
+        "_comments": ""
+      }
+    ],
+    "sort": "sortKeyAsc",
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "insight": {},
+    "_comment": " "
+  },
+  "incompleteRecordsByVillage":{
+    "chartName": "DSS_HEALTH_INCOMPLETE_HOUSES",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\n  \"province\": \"Data.boundaryHierarchy.province.keyword\",\n  \"district\": \"Data.boundaryHierarchy.district.keyword\",\n\"administrativeProvince\": \"Data.boundaryHierarchy.administrativeProvince.keyword\",\n\"locality\": \"Data.boundaryHierarchy.locality.keyword\"\n}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village\"}}]}},\"aggs\":{\"Incomplete record\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Houses registered\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap":"{\n  \"province\": \"Data.boundaryHierarchy.province.keyword\",\n  \"district\": \"Data.boundaryHierarchy.district.keyword\",\n\"administrativeProvince\": \"Data.boundaryHierarchy.administrativeProvince.keyword\",\n\"locality\": \"Data.boundaryHierarchy.locality.keyword\"\n}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"terms\":{\"Data.administrationStatus.keyword\":[\"ADMINISTRATION_SUCCESS\",\"ADMINISTRATION_FAILED\",\"BENEFICIARY_REFUSED\",\"CLOSED_HOUSEHOLD\"]}}]}},\"aggs\":{\"Incomplete record\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"},\"aggs\":{\"HouseholdsSprayDetailsRecorded\":{\"value_count\":{\"field\":\"Data.id.keyword\"}},\"NegativeHouseholdsSprayDetailsRecorded\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"HouseholdsSprayDetailsRecorded\"},\"script\":\"params.count*-1\"}}}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "filterKeys": [{ "key": "locality" }],
+    "plotLabel" : "Incomplete record",
+    "excludedColumns": [
+      "NegativeHouseholdsSprayDetailsRecorded",
+      "Houses registered",
+      "HouseholdsSprayDetailsRecorded"
+    ],
+    "computedFields" : [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Houses registered","NegativeHouseholdsSprayDetailsRecorded"],
+        "newField" : "Incomplete Houses",
+        "_comments": ""
+      }
+    ],
+    "sort": "sortKeyAsc",
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "insight": {},
+    "_comment": " "
   }
 }
