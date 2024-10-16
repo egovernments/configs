@@ -31964,14 +31964,14 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total houses sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":500},\"aggs\":{\"Total houses sprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total houses sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":500},\"aggs\":{\"Total houses sprayed Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
-        "aggrQuery" : "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total rooms sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":500},\"aggs\":{\"Total rooms sprayed\":{\"sum\":{\"field\":\"Data.additionalDetails.noOfRoomsSprayedKey\"}}}}}}}}"
+        "aggrQuery" : "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total rooms sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":500},\"aggs\":{\"Total rooms sprayed Count\":{\"sum\":{\"field\":\"Data.additionalDetails.noOfRoomsSprayedKey\"}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -32050,14 +32050,14 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-task-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total houses sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Total houses sprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total houses sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Total houses sprayed Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-task-index-v1",
-        "aggrQuery" : "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total rooms sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Total rooms sprayed\":{\"sum\":{\"field\":\"Data.additionalDetails.noOfRoomsSprayedKey\"}}}}}}}}"
+        "aggrQuery" : "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total rooms sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Total rooms sprayed Count\":{\"sum\":{\"field\":\"Data.additionalDetails.noOfRoomsSprayedKey\"}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -32078,8 +32078,9 @@
     "excludedColumns": [
       "S.N.",
       "Spray Operators Marked Present",
-      "Total spray operators"
-     ],
+      "Total houses sprayed Count",
+      "Total rooms sprayed Count"
+    ],
      "computedFields": [
        {
          "postAggregationTheory": "",
@@ -32090,14 +32091,22 @@
          ],
          "newField": "ATTENDANCE_PERCENT",
          "_comments": ""
-       }
+       },
+       {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Total houses sprayed Count"],
+        "newField" : "Total Houses Sprayed",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Total rooms sprayed Count"],
+        "newField" : "Total Rooms Sprayed",
+        "_comments": ""
+      }
      ],
-     "aggregationPaths": [
-      "Total houses sprayed",
-      "Total rooms sprayed",
-      "Spray Operators Marked Present",
-      "Total spray operators"
-    ],
     "insight": {},
     "sort": "sortKeyAsc",
     "hideInsights": true,
@@ -32127,14 +32136,14 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total houses sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Total houses sprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total houses sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Total houses sprayed Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
-        "aggrQuery" : "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total rooms sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Total rooms sprayed\":{\"sum\":{\"field\":\"Data.additionalDetails.noOfRoomsSprayedKey\"}}}}}}}}"
+        "aggrQuery" : "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total rooms sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Total rooms sprayed Count\":{\"sum\":{\"field\":\"Data.additionalDetails.noOfRoomsSprayedKey\"}}}}}}}}"
       }
     ],
     "filterKeys": [
@@ -32155,8 +32164,9 @@
     "excludedColumns": [
       "S.N.",
       "Spray Operators Marked Present",
-      "Total spray operators"
-     ],
+      "Total houses sprayed Count",
+      "Total rooms sprayed Count"
+    ],
      "computedFields": [
        {
          "postAggregationTheory": "",
@@ -32167,14 +32177,22 @@
          ],
          "newField": "ATTENDANCE_PERCENT",
          "_comments": ""
-       }
+       },
+       {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Total houses sprayed Count"],
+        "newField" : "Total Houses Sprayed",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Total rooms sprayed Count"],
+        "newField" : "Total Rooms Sprayed",
+        "_comments": ""
+      }
      ],
-     "aggregationPaths": [
-      "Total houses sprayed",
-      "Total rooms sprayed",
-      "Spray Operators Marked Present",
-      "Total spray operators"
-    ],
     "insight": {},
     "sort": "sortKeyAsc",
     "hideInsights": true,
