@@ -106,12 +106,11 @@ serviceMaps:
       transactionCodeJsonPath: $.id
       auditAttributeBasePath: $.PlanConfiguration
       queryMaps:
-        - query: UPDATE health.plan_configuration SET tenant_id = ?, name = ?, campaign_id = ?, status = ?, last_modified_by = ?, last_modified_time = ?, additional_details = ? WHERE id = ?;
+        - query: UPDATE health.plan_configuration SET tenant_id = ?, name = ?, status = ?, last_modified_by = ?, last_modified_time = ?, additional_details = ? WHERE id = ?;
           basePath: $.PlanConfiguration
           jsonMaps:
             - jsonPath: $.PlanConfiguration.tenantId
             - jsonPath: $.PlanConfiguration.name
-            - jsonPath: $.PlanConfiguration.campaignId
             - jsonPath: $.PlanConfiguration.status
             - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
             - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
@@ -211,7 +210,7 @@ serviceMaps:
       fromTopic: plan-employee-assignment-create-topic
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO health.plan_employee_assignment(id, tenant_id, plan_configuration_id, employee_id, role, jurisdiction, additional_details, active, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO health.plan_employee_assignment(id, tenant_id, plan_configuration_id, employee_id, role, hierarchy_level, jurisdiction, additional_details, active, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.PlanEmployeeAssignment
           jsonMaps:
             - jsonPath: $.PlanEmployeeAssignment.id
@@ -223,6 +222,8 @@ serviceMaps:
             - jsonPath: $.PlanEmployeeAssignment.employeeId
 
             - jsonPath: $.PlanEmployeeAssignment.role
+
+            - jsonPath: $.PlanEmployeeAssignment.hierarchyLevel
 
             - jsonPath: $.PlanEmployeeAssignment.jurisdiction
 
@@ -246,10 +247,12 @@ serviceMaps:
       fromTopic: plan-employee-assignment-update-topic
       isTransaction: true
       queryMaps:
-        - query: UPDATE health.plan_employee_assignment SET jurisdiction = ?, additional_details = ?, active = ?, last_modified_by = ?, last_modified_time = ? WHERE id = ?;
+        - query: UPDATE health.plan_employee_assignment SET jurisdiction = ?, hierarchy_level = ?, additional_details = ?, active = ?, last_modified_by = ?, last_modified_time = ? WHERE id = ?;
           basePath: $.PlanEmployeeAssignment
           jsonMaps:
             - jsonPath: $.PlanEmployeeAssignment.jurisdiction
+
+            - jsonPath: $.PlanEmployeeAssignment.hierarchyLevel
 
             - jsonPath: $.PlanEmployeeAssignment.additionalDetails
               type: JSON
