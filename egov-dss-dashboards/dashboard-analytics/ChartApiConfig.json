@@ -32416,6 +32416,103 @@
     "sort": "sortKeyAsc",
     "_comment": " "
   },
+  "dataQualityRecordsSummaryDistrictTest": {
+    "chartName": "DSS_HEALTH_DATA_QUALITY_RECORDS_SUMMARY_DISTRICT",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "stock-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.role.keyword\":{\"value\":\"WAREHOUSE_MANAGER\"}}}]}},\"aggs\":{\"WM Stock Entries\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"},\"aggs\":{\"WM Stock Entries Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district\"}}]}},\"aggs\":{\"Total Houses Registered\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500},\"aggs\":{\"Total Houses Registered Count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"terms\":{\"Data.administrationStatus.keyword\":[\"ADMINISTRATION_SUCCESS\",\"ADMINISTRATION_FAILED\",\"BENEFICIARY_REFUSED\",\"CLOSED_HOUSEHOLD\"]}}]}},\"aggs\":{\"Total Houses Visited\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"},\"aggs\":{\"HouseholdsSprayDetailsRecorded\":{\"filter\":{\"exists\":{\"field\":\"Data.id.keyword\"}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}},\"NegativeHouseholdsSprayDetailsRecorded\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"HouseholdsSprayDetailsRecorded>Count\"},\"script\":\"params.count*-1\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must_not\":{\"exists\":{\"field\":\"Data.geoPoint\"}}}},\"aggs\":{\"Location Not Enabled\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500},\"aggs\":{\"Location Not Enabled Count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\n  \"size\": 0,\n  \"aggs\": {\n    \"FILTER\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"Data.deliveredTo.keyword\": \"HOUSEHOLD\"\n              }\n            },\n            {\n              \"term\": {\n                \"Data.administrationStatus.keyword\": \"ADMINISTRATION_SUCCESS\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Suspected Frauds\": {\n          \"terms\": {\n            \"field\": \"Data.boundaryHierarchy.district.keyword\",\n            \"size\": 5000\n          },\n          \"aggs\": {\n            \"daily_users\": {\n              \"date_histogram\": {\n                \"field\": \"Data.@timestamp\",\n                \"calendar_interval\": \"day\"\n              },\n              \"aggs\": {\n                \"users\": {\n                  \"terms\": {\n                    \"field\": \"Data.createdBy.keyword\",\n                    \"size\": 1000\n                  },\n                  \"aggs\": {\n                    \"house_sprayed_count\": {\n                      \"value_count\": {\n                        \"field\": \"Data.id.keyword\"\n                      }\n                    },\n                    \"users_with_more_than_15\": {\n                      \"bucket_selector\": {\n                        \"buckets_path\": {\n                          \"houseSprayed\": \"house_sprayed_count\"\n                        },\n                        \"script\": \"params.houseSprayed > 15\"\n                      }\n                    }\n                  }\n                },\n                \"number_of_users_sprayed_more_than_15\": {\n                  \"bucket_script\": {\n                    \"buckets_path\": {\n                      \"count_users\": \"users._bucket_count\"\n                    },\n                    \"script\": \"params.count_users\"\n                  }\n                }\n              }\n            },\n            \"total_users_sprayed_more_than_15\": {\n              \"sum_bucket\": {\n                \"buckets_path\": \"daily_users>number_of_users_sprayed_more_than_15\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+      }
+    ],
+    "filterKeys": [
+      {
+        "key": "district",
+        "column": "Districts"
+      }
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "dataQualityRecordsSummaryAP",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Districts",
+    "excludedColumns": [
+      "Count",
+      "daily_users",
+      "Location Not Enabled Count",
+      "WM Stock Entries Count",
+      "Total Houses Registered Count",
+      "NegativeHouseholdsSprayDetailsRecorded",
+      "total_users_sprayed_more_than_15"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["WM Stock Entries Count"],
+        "newField" : "WM Stock Entries",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Total Houses Registered Count","NegativeHouseholdsSprayDetailsRecorded"],
+        "newField" : "Incomplete Houses",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Location Not Enabled Count"],
+        "newField" : "Geo Coordinates not enabled",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["total_users_sprayed_more_than_15"],
+        "newField" : "Users Sprayed More Than 15 Times",
+        "_comments": ""
+      }
+    ],
+    "hideInsights": true,
+    "showFooter": true,
+    "hideHeaderDenomination": true,
+    "insight": {},
+    "sort": "sortKeyAsc",
+    "_comment": " "
+  },
   "dataQualityRecordsSummaryDistrict": {
     "chartName": "DSS_HEALTH_DATA_QUALITY_RECORDS_SUMMARY_DISTRICT",
     "queries": [
