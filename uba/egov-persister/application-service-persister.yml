@@ -1,0 +1,140 @@
+serviceMaps:
+ serviceName: application-service
+ mappings:
+ - version: 1.0
+   name: application
+   description: Persists application details in eg_ubp_application table
+   fromTopic: ubp-application-create
+   isTransaction: true
+   isAuditEnabled: true
+   module: CT
+   objecIdJsonPath: $.id
+   tenantIdJsonPath: $.tenantId
+   transactionCodeJsonPath: $.applicationNumber
+   auditAttributeBasePath: $.Application
+   queryMaps:
+    - query: INSERT INTO eg_ubp_application (id, tenant_id, application_number, individual_id, program_code, status, wf_status, additional_details, created_by, created_time, last_modified_by, last_modified_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
+      basePath: $.Application
+      jsonMaps:
+       - jsonPath: $.Application.id
+
+       - jsonPath: $.Application.tenantId
+
+       - jsonPath: $.Application.applicationNumber
+
+       - jsonPath: $.Application.individualId
+
+       - jsonPath: $.Application.programCode
+
+       - jsonPath: $.Application.status
+
+       - jsonPath: $.Application.wfStatus
+
+       - jsonPath: $.Application.additionalDetails
+         type: JSON
+         dbType: JSONB
+
+       - jsonPath: $.Application.auditDetails.createdBy
+
+       - jsonPath: $.Application.auditDetails.createdTime
+
+       - jsonPath: $.Application.auditDetails.lastModifiedBy
+
+       - jsonPath: $.Application.auditDetails.lastModifiedTime
+
+    - query: INSERT INTO eg_ubp_application_documents (id, filestore_id, document_type, document_uid, status, application_id, additional_details, created_by, last_modified_by, created_time, last_modified_time) VALUES (?,?,?,?,?,?,?,?,?,?,?);
+      basePath: $.Application.documents.*
+      jsonMaps:
+        - jsonPath: $.Application.documents.*.id
+
+        - jsonPath: $.Application.documents.*.fileStore
+
+        - jsonPath: $.Application.documents.*.documentType
+
+        - jsonPath: $.Application.documents.*.documentUid
+
+        - jsonPath: $.Application.documents.*.status
+
+        - jsonPath: $.Application[?({id} in @.documents[*].id)].id
+
+        - jsonPath: $.Application.documents.*.additionalDetails
+          type: JSON
+          dbType: JSONB
+
+        - jsonPath: $.Application[?({id} in @.documents[*].id)].auditDetails.createdBy
+
+        - jsonPath: $.Application[?({id} in @.documents[*].id)].auditDetails.lastModifiedBy
+
+        - jsonPath: $.Application[?({id} in @.documents[*].id)].auditDetails.createdTime
+
+        - jsonPath: $.Application[?({id} in @.documents[*].id)].auditDetails.lastModifiedTime
+
+
+ - version: 1.0
+   name: application
+   description: Update application details in eg_ubp_application table
+   fromTopic: ubp-application-update
+   isTransaction: true
+   module: CT
+   objecIdJsonPath: $.id
+   tenantIdJsonPath: $.tenantId
+   transactionCodeJsonPath: $.applicationNumber
+   auditAttributeBasePath: $.Application
+   queryMaps:
+     - query: UPDATE eg_ubp_application set wf_status = ?, status = ?, additional_details = ?, last_modified_by = ?, last_modified_time = ? where id = ? ;
+       basePath: $.Application
+       jsonMaps:
+         - jsonPath: $.Application.wfStatus
+
+         - jsonPath: $.Application.status
+
+         - jsonPath: $.Application.additionalDetails
+           type: JSON
+           dbType: JSONB
+
+         - jsonPath: $.Application.auditDetails.lastModifiedBy
+
+         - jsonPath: $.Application.auditDetails.lastModifiedTime
+
+         - jsonPath: $.Application.id
+
+     - query: INSERT INTO eg_ubp_application_documents (id, filestore_id, document_type, document_uid, status, application_id, additional_details, created_by, last_modified_by, created_time, last_modified_time) VALUES (?,?,?,?,?,?,?,?,?,?,?)  ON CONFLICT (id) DO UPDATE SET filestore_id = ?, document_type = ? , additional_details = ? ,last_modified_by = ? ,last_modified_time = ?, status = ?;
+       basePath: $.Application.documents.*
+       jsonMaps:
+         - jsonPath: $.Application.documents.*.id
+
+         - jsonPath: $.Application.documents.*.fileStore
+
+         - jsonPath: $.Application.documents.*.documentType
+
+         - jsonPath: $.Application.documents.*.documentUid
+
+         - jsonPath: $.Application.documents.*.status
+
+         - jsonPath: $.Application[?({id} in @.documents[*].id)].id
+
+         - jsonPath: $.Application.documents.*.additionalDetails
+           type: JSON
+           dbType: JSONB
+
+         - jsonPath: $.Application[?({id} in @.documents[*].id)].auditDetails.createdBy
+
+         - jsonPath: $.Application[?({id} in @.documents[*].id)].auditDetails.lastModifiedBy
+
+         - jsonPath: $.Application[?({id} in @.documents[*].id)].auditDetails.createdTime
+
+         - jsonPath: $.Application[?({id} in @.documents[*].id)].auditDetails.lastModifiedTime
+
+         - jsonPath: $.Application.documents.*.fileStore
+
+         - jsonPath: $.Application.documents.*.documentType
+
+         - jsonPath: $.Application.documents.*.additionalDetails
+           type: JSON
+           dbType: JSONB
+
+         - jsonPath: $.Application[?({id} in @.documents[*].id)].auditDetails.lastModifiedBy
+
+         - jsonPath: $.Application[?({id} in @.documents[*].id)].auditDetails.lastModifiedTime
+
+         - jsonPath: $.Application.documents.*.status
