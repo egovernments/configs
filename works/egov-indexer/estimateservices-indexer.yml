@@ -12,7 +12,7 @@ ServiceMaps:
         timeStampField: $.auditDetails.createdTime
         isBulk: false
         customJsonMapping:
-          indexMapping: { "Data":{"id":"","tenantId":"","estimateNumber":"","revisionNumber":"","businessService":"","versionNumber":"","oldUuid":"","projectId":"","proposalDate":"","status":"","wfStatus":"","name":"","referenceNumber":"","description":"","executingDepartment":"","address":{},"estimateDetails":[],"@timestamp":"timestamp","auditDetails":{},"additionalDetails":{},"project":{},"currentProcessInstance":[],"history":{}}}
+          indexMapping: { "Data":{"id":"","tenantId":"","estimateNumber":"","revisionNumber":"","businessService":"","versionNumber":"","oldUuid":"","projectId":"","proposalDate":"","status":"","wfStatus":"","name":"","referenceNumber":"","description":"","executingDepartment":"","address":{},"estimateDetails":[],"@timestamp":"timestamp","auditDetails":{},"additionalDetails":{},"project":{},"currentProcessInstance":[],"history":{}, "userDetails": {}}}
           fieldMapping:
           - inJsonPath: $.id
             outJsonPath: $.Data.id
@@ -63,6 +63,15 @@ ServiceMaps:
             uriResponseMapping:
             - inJsonPath: $.ProcessInstances
               outJsonPath: $.Data.history
+          externalUriMapping:
+          - path: http://egov-accesscontrol.egov:8080/egov-hrms/employees/_search
+            queryParam: id=$.auditDetails.createdBy,tenantId=$.tenantId
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pb.jalandhar","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pb.jalandhar"}]}}}
+            uriResponseMapping:
+            - inJsonPath: $.Employees[0].user.name
+              outJsonPath: $.Data.userDetails.name
+            - inJsonPath: $.Employees[0].assignments[0].designation
+              outJsonPath: $.Data.userDetails.designation
 
   - topic: update-estimate
     configKey: INDEX
