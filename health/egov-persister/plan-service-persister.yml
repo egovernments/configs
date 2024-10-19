@@ -253,7 +253,7 @@ serviceMaps:
       fromTopic: save-plan
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO health.plan(id, tenant_id, locality, campaign_id, plan_configuration_id, additional_details, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO health.plan(id, tenant_id, locality, campaign_id, plan_configuration_id, status, assignee, boundary_ancestral_path, additional_details, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.Plan
           jsonMaps:
             - jsonPath: $.Plan.id
@@ -265,6 +265,12 @@ serviceMaps:
             - jsonPath: $.Plan.campaignId
 
             - jsonPath: $.Plan.planConfigurationId
+
+            - jsonPath: $.Plan.status
+
+            - jsonPath: $.Plan.assignee
+
+            - jsonPath: $.Plan.boundaryAncestralPath
 
             - jsonPath: $.Plan.additionalDetails
               type: JSON
@@ -379,12 +385,16 @@ serviceMaps:
       fromTopic: update-plan
       isTransaction: true
       queryMaps:
-        - query: UPDATE health.plan SET campaign_id = ?, plan_configuration_id = ?, last_modified_by=?, last_modified_time=? WHERE id = ?;
+        - query: UPDATE health.plan SET status = ?, assignee = ?, additional_details = ?, last_modified_by=?, last_modified_time=? WHERE id = ?;
           basePath: $.Plan
           jsonMaps:
-            - jsonPath: $.Plan.campaignId
+            - jsonPath: $.Plan.status
 
-            - jsonPath: $.Plan.planConfigurationId
+            - jsonPath: $.Plan.assignee
+
+            - jsonPath: $.Plan.additionalDetails
+              type: JSON
+              dbType: JSONB
 
             - jsonPath: $.Plan.auditDetails.lastModifiedBy
 
