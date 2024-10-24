@@ -25153,7 +25153,7 @@
     ],
     "chartType": "xtable",
     "valueType": "number",
-    "drillChart": "none",
+    "drillChart": "dataQualityExcessSummaryByDistributor",
     "documentType": "_doc",
     "action": "",
     "plotLabel": "Villages",
@@ -25168,6 +25168,44 @@
     "hideHeaderDenomination": true,
     "computedFields": [],
     "insight": {},
+    "sort": "sortKeyAsc",
+    "_comment": " "
+  },
+  "dataQualityExcessSummaryByDistributor": {
+    "chartName": "DSS_HEALTH_DATA_QUALITY_EXCESS_SUMMARY_VILLAGE_BY_DISTRIBUTOR",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"More than 10 rooms filter\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.additionalDetails.noOfRooms\":{\"gt\":10}}}]}},\"aggs\":{\"Household with more than 10 rooms\":{\"terms\":{\"field\":\"Data.userName.keyword\",\"size\":500},\"aggs\":{\"Household with more than 10 rooms count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}},\"More than 20 members filter\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.household.memberCount\":{\"gt\":20}}}]}},\"aggs\":{\"Household with more than 20 members\":{\"terms\":{\"field\":\"Data.userName.keyword\",\"size\":500},\"aggs\":{\"Household with more than 20 members count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"More than 2 bottles used filter\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.quantity\":{\"gt\":2}}},{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Household with more than 2 bottles used\":{\"terms\":{\"field\":\"Data.userName.keyword\",\"size\":500},\"aggs\":{\"Household with more than 2 bottles used count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      }
+    ],
+    "action": "",
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "plotLabel": "Summary Distributor",
+    "showFooter": true,
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "excludedColumns": [],
+    "aggregationPaths": [
+      "Household with more than 10 rooms count",
+      "Household with more than 20 members count",
+      "Household with more than 2 bottles used count"
+    ],
+    "insight": {},
+    "computedFields": [],
     "sort": "sortKeyAsc",
     "_comment": " "
   },
@@ -33101,7 +33139,7 @@
     ],
     "chartType": "xtable",
     "valueType": "number",
-    "drillChart": "none",
+    "drillChart": "dataQualityRecordsSummaryByDistributor",
     "documentType": "_doc",
     "action": "",
     "plotLabel": "Village",
@@ -33163,7 +33201,7 @@
     "_comment": " "
   },
   "dataQualityRecordsSummaryByDistributor": {
-    "chartName": "DSS_HEALTH_SUMMARY_TEAM_PERFORMANCE_PROVINCIAL_BY_DISTRIBUTOR",
+    "chartName": "DSS_HEALTH_DATA_QUALITY_RECORDS_SUMMARY_VILLAGE_BY_DISTRIBUTOR",
     "queries": [
       {
         "module": "COMMON",
@@ -33191,7 +33229,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Suspected Frauds\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":5000},\"aggs\":{\"daily_users\":{\"date_histogram\":{\"field\":\"Data.@timestamp\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"Data.createdBy.keyword\",\"size\":1000},\"aggs\":{\"house_sprayed_count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}},\"users_with_more_than_15\":{\"bucket_selector\":{\"buckets_path\":{\"houseSprayed\":\"house_sprayed_count\"},\"script\":\"params.houseSprayed > 15\"}}}},\"number_of_users_sprayed_more_than_15\":{\"bucket_script\":{\"buckets_path\":{\"count_users\":\"users._bucket_count\"},\"script\":\"params.count_users\"}}}},\"total_users_sprayed_more_than_15\":{\"sum_bucket\":{\"buckets_path\":\"daily_users>number_of_users_sprayed_more_than_15\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Suspected Frauds\":{\"terms\":{\"field\":\"Data.userName.keyword\",\"size\":5000},\"aggs\":{\"daily_count\":{\"date_histogram\":{\"field\":\"Data.@timestamp\",\"calendar_interval\":\"day\"},\"aggs\":{\"house_sprayed_count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}},\"users_with_more_than_15\":{\"bucket_selector\":{\"buckets_path\":{\"houseSprayed\":\"house_sprayed_count\"},\"script\":\"params.houseSprayed > 15\"}}}},\"total_users_sprayed_more_than_15\":{\"bucket_script\":{\"buckets_path\":{\"count_users\":\"daily_count._bucket_count\"},\"script\":\"params.count_users\"}}}}}}}}"
       }
     ],
     "action": "",
@@ -33206,24 +33244,14 @@
     "excludedColumns": [
       "Count",
       "Location Not Enabled Count",
-      "WM Stock Entries Count",
       "Total Houses Registered Count",
       "NegativeHouseholdsSprayDetailsRecorded",
       "total_users_sprayed_more_than_15"
     ],
     "excludedBucketKeys": [
-      "daily_users"
+      "daily_count"
     ],
     "computedFields": [
-      {
-        "postAggregationTheory": "",
-        "actionName": "AdditiveComputedField",
-        "fields": [
-          "WM Stock Entries Count"
-        ],
-        "newField": "WM Stock Entries",
-        "_comments": ""
-      },
       {
         "postAggregationTheory": "",
         "actionName": "AdditiveComputedField",
