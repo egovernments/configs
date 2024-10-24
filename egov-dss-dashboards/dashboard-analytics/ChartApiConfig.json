@@ -32541,7 +32541,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
         "indexName": "attendance-log-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Attend Daily Count\":{\"date_histogram\":{\"field\":\"@timestamp\",\"fixed_interval\":\"1d\",\"min_doc_count\":1,\"format\":\"dd-MM-yyyy\"},\"aggs\":{\"Spray Operators Attendance\":{\"cardinality\":{\"field\":\"attendanceLog.individualId.keyword\"}}}}}}}}"
+        "aggrQuery": "{\n  \"size\": 0,\n  \"aggs\": {\n    \"AGGS\": {\n      \"filter\": {\n        \"bool\": {\n          \"must\": [\n            {\n              \"term\": {\n                \"attendanceLog.type.keyword\": \"EXIT\"\n              }\n            },\n            {\n              \"term\": {\n                \"attendanceLog.status.keyword\": \"ACTIVE\"\n              }\n            }\n          ]\n        }\n      },\n      \"aggs\": {\n        \"Attend Daily Count\": {\n          \"date_histogram\": {\n            \"field\": \"@timestamp\",\n            \"fixed_interval\": \"1d\",\n            \"min_doc_count\": 1,\n            \"format\": \"dd-MM-yyyy\"\n          },\n          \"aggs\": {\n            \"per_user_attendance\": {\n              \"terms\": {\n                \"field\": \"attendanceLog.individualId.keyword\"\n              },\n              \"aggs\": {\n                \"Count\": {\n                  \"bucket_script\": {\n                    \"buckets_path\": {},\n                    \"script\": \"1\"\n                  }\n                }\n              }\n            },\n            \"Spray Operators Attendance\": {\n                  \"sum_bucket\": {\n                    \"buckets_path\": \"per_user_attendance>Count\"\n                  }\n                }\n          }\n        }\n      }\n    }\n  }\n}"
       }
     ],
     "action": "",
@@ -32560,6 +32560,9 @@
       "Spray Operators Attendance",
       "Total houses visited",
       "Insecticides sprayed"
+    ],
+    "excludedBucketKeys" : [
+      "per_user_attendance"
     ],
     "computedFields": [
       {
