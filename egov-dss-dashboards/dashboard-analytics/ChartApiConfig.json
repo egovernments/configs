@@ -6300,18 +6300,7 @@
         "key": "province"
       }
     ],
-    "computedFields": [
-      {
-        "postAggregationTheory": "repsonseToDifferenceOfDates",
-        "actionName": "",
-        "sort": "sortValueDesc",
-        "fields": [
-          "Count"
-        ],
-        "newField": "Count_Sorted",
-        "_comments": ""
-      }
-    ],
+    "sort": "sortValueDesc",
     "insight": {},
     "_comment": " "
   },
@@ -6336,18 +6325,6 @@
     "action": "",
     "aggregationPaths": [
       "Households Refused"
-    ],
-    "computedFields": [
-      {
-        "postAggregationTheory": "repsonseToDifferenceOfDates",
-        "actionName": "",
-        "sort": "sortValueDesc",
-        "fields": [
-          "Count"
-        ],
-        "newField": "Count_Sorted",
-        "_comments": ""
-      }
     ],
     "insight": {},
     "_comment": " "
@@ -9214,6 +9191,84 @@
     "hideHeaderDenomination": true,
     "_comment": " "
   },
+  "InventorySummaryByWarehouse": {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_INVENTORY_SUMMARY_BY_WAREHOUSE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+        "indexName": "stock-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}},{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.facilityName.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+        "indexName": "stock-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}},{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.facilityName.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Outgoing\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+        "indexName": "stock-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}]}},\"aggs\":{\"Available Stock\":{\"terms\":{\"size\":500,\"field\":\"Data.facilityName.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Outgoing Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Total Stock\":{\"bucket_script\":{\"buckets_path\":{\"IS\":\"Incoming Stock>SUM\",\"OS\":\"Outgoing Stock>SUM\"},\"script\":\"params.IS-params.OS\"}}}}}}}}"
+      }
+    ],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "Inventory summary By Warehouse",
+    "divisorFields": [],
+    "showFooter": false,
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "excludedColumns": [
+      "SUM",
+      "Target for range",
+      "Target per day",
+      "Target for days to last",
+      "Incoming",
+      "Outgoing",
+      "Total Stock"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Incoming"
+        ],
+        "newField": "Incoming Stock",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Outgoing"
+        ],
+        "newField": "Outgoing Stock",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Total Stock"
+        ],
+        "newField": "Stock Left",
+        "_comments": ""
+      }
+    ],
+    "insight": {},
+    "sort": "sortKeyAsc",
+    "_comment": " "
+  },
   "InventorySummaryByDistrict": {
     "chartName": "DSS_HEALTH_INVENTORY_SUMMARY_BY_DISTRICT",
     "queries": [
@@ -9255,13 +9310,13 @@
     ],
     "chartType": "xtable",
     "valueType": "number",
-    "drillChart": "none",
+    "drillChart": "InventorySummaryByWarehouse",
     "documentType": "_doc",
     "action": "",
     "plotLabel": "Inventory summary By District",
     "filterKeys": [
       {
-        "key": "Data.boundaryHierarchy.district.keyword",
+        "key": "district",
         "column": "Inventory summary By District"
       }
     ],
@@ -9341,7 +9396,6 @@
     "_comment": " "
   },
   "InventorySummaryByAP": {
-    "kind": "drillDown",
     "chartName": "DSS_HEALTH_INVENTORY_SUMMARY_BY_AP",
     "queries": [
       {
@@ -9382,13 +9436,13 @@
     ],
     "chartType": "xtable",
     "valueType": "number",
-    "drillChart": "none",
+    "drillChart": "InventorySummaryByWarehouse",
     "documentType": "_doc",
     "action": "",
     "plotLabel": "Inventory summary By AP",
     "filterKeys": [
       {
-        "key": "Data.boundaryHierarchy.administrativeProvince.keyword",
+        "key": "administrativeProvince",
         "column": "Inventory summary By AP"
       }
     ],
@@ -9886,7 +9940,7 @@
         "dateRefField": "attendanceLog.time",
         "requestQueryMap": "{\"province\": \"boundaryHierarchy.province.keyword\", \"district\": \"boundaryHierarchy.district.keyword\"}",
         "indexName": "attendance-log-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.district.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"total_individuals_with_exit_logs_per_day\":{\"value_count\":{\"field\":\"attendanceLog.individualId.keyword\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_exit_logs_per_day\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.district.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Count\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Spray Operators Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
       },
       {
         "module": "COMMON",
@@ -9924,7 +9978,7 @@
         "dateRefField": "attendanceLog.time",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\"}",
         "indexName": "attendance-log-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.administrativeProvince.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"total_individuals_with_exit_logs_per_day\":{\"value_count\":{\"field\":\"attendanceLog.individualId.keyword\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_exit_logs_per_day\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.administrativeProvince.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Count\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Spray Operators Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
       },
       {
         "module": "COMMON",
@@ -9962,7 +10016,7 @@
         "dateRefField": "attendanceLog.time",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "attendance-log-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.locality.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"total_individuals_with_exit_logs_per_day\":{\"value_count\":{\"field\":\"attendanceLog.individualId.keyword\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_exit_logs_per_day\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.locality.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Count\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Spray Operators Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
       },
       {
         "module": "COMMON",
@@ -10000,7 +10054,7 @@
         "dateRefField": "attendanceLog.time",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
         "indexName": "attendance-log-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.village.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"total_individuals_with_exit_logs_per_day\":{\"value_count\":{\"field\":\"attendanceLog.individualId.keyword\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_exit_logs_per_day\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.village.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Count\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Spray Operators Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
       },
       {
         "module": "COMMON",
@@ -10037,7 +10091,7 @@
         "dateRefField": "attendanceLog.time",
         "requestQueryMap": "{\"province\": \"boundaryHierarchy.province.keyword\", \"district\": \"boundaryHierarchy.district.keyword\"}",
         "indexName": "attendance-log-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.district.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"total_individuals_with_exit_logs_per_day\":{\"value_count\":{\"field\":\"attendanceLog.individualId.keyword\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_exit_logs_per_day\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.district.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Count\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Spray Operators Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
       }
     ],
     "chartType": "line",
@@ -10066,7 +10120,7 @@
         "dateRefField": "attendanceLog.time",
         "requestQueryMap": "{\"province\": \"boundaryHierarchy.province.keyword\", \"district\": \"boundaryHierarchy.district.keyword\"}",
         "indexName": "attendance-log-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.administrativeProvince.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"total_individuals_with_exit_logs_per_day\":{\"value_count\":{\"field\":\"attendanceLog.individualId.keyword\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_exit_logs_per_day\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.administrativeProvince.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Count\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Spray Operators Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
       }
     ],
     "chartType": "line",
@@ -10095,7 +10149,7 @@
         "dateRefField": "attendanceLog.time",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "attendance-log-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.locality.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"total_individuals_with_exit_logs_per_day\":{\"value_count\":{\"field\":\"attendanceLog.individualId.keyword\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_exit_logs_per_day\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.locality.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Count\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Spray Operators Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
       }
     ],
     "chartType": "line",
@@ -10124,7 +10178,7 @@
         "dateRefField": "attendanceLog.time",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
         "indexName": "attendance-log-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.village.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"total_individuals_with_exit_logs_per_day\":{\"value_count\":{\"field\":\"attendanceLog.individualId.keyword\"}}}},\"Count\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_exit_logs_per_day\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Spray Operators Marked Present\":{\"terms\":{\"field\":\"boundaryHierarchy.village.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Count\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Spray Operators Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
       }
     ],
     "chartType": "line",
@@ -10152,7 +10206,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\": \"boundaryHierarchy.province.keyword\", \"district\": \"boundaryHierarchy.district.keyword\"}",
         "indexName": "attendance-log-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"boundaryHierarchy.district.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"total_individuals_with_exit_logs_per_day\":{\"value_count\":{\"field\":\"attendanceLog.individualId.keyword\"}}}},\"Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_exit_logs_per_day\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"boundaryHierarchy.district.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Avg Spray Operators Marked Present\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Spray Operators Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
       },
       {
         "module": "COMMON",
@@ -10204,14 +10258,15 @@
     "plotLabel": "District",
     "excludedColumns": [
       "S.N.",
-      "Spray Operators Marked Present",
+      "Total Spray Operators Marked Present",
+      "Avg Spray Operators Marked Present",
       "Total spray operators",
       "Total houses sprayed Count",
       "Total rooms sprayed Count",
       "Total houses visited Count",
       "Insecticides sprayed count"
     ],
-    "excludedBucketKeys" : [
+    "excludedBucketKeys": [
       "per_day"
     ],
     "computedFields": [
@@ -10219,7 +10274,7 @@
         "postAggregationTheory": "",
         "actionName": "PercentageComputedField",
         "fields": [
-          "Spray Operators Marked Present",
+          "Avg Spray Operators Marked Present",
           "Total spray operators"
         ],
         "newField": "ATTENDANCE_PERCENT",
@@ -10279,7 +10334,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\": \"boundaryHierarchy.province.keyword\", \"district\": \"boundaryHierarchy.district.keyword\"}",
         "indexName": "attendance-log-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"boundaryHierarchy.administrativeProvince.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"total_individuals_with_exit_logs_per_day\":{\"value_count\":{\"field\":\"attendanceLog.individualId.keyword\"}}}},\"Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_exit_logs_per_day\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"boundaryHierarchy.administrativeProvince.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Avg Spray Operators Marked Present\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Spray Operators Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
       },
       {
         "module": "COMMON",
@@ -10331,14 +10386,15 @@
     "plotLabel": "AdministrativeProvince",
     "excludedColumns": [
       "S.N.",
-      "Spray Operators Marked Present",
+      "Total Spray Operators Marked Present",
+      "Avg Spray Operators Marked Present",
       "Total spray operators",
       "Total houses sprayed Count",
       "Total rooms sprayed Count",
       "Total houses visited Count",
       "Insecticides sprayed count"
     ],
-    "excludedBucketKeys" : [
+    "excludedBucketKeys": [
       "per_day"
     ],
     "computedFields": [
@@ -10346,7 +10402,7 @@
         "postAggregationTheory": "",
         "actionName": "PercentageComputedField",
         "fields": [
-          "Spray Operators Marked Present",
+          "Avg Spray Operators Marked Present",
           "Total spray operators"
         ],
         "newField": "ATTENDANCE_PERCENT",
@@ -10406,33 +10462,33 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "attendance-log-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"boundaryHierarchy.locality.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"total_individuals_with_exit_logs_per_day\":{\"value_count\":{\"field\":\"attendanceLog.individualId.keyword\"}}}},\"Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_exit_logs_per_day\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"boundaryHierarchy.locality.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Avg Spray Operators Marked Present\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Spray Operators Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-staff-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.role.keyword\":[\"REGISTRAR\",\"DISTRIBUTOR\"]}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Total spray operators\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total houses sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Total houses sprayed Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total rooms sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Total rooms sprayed Count\":{\"sum\":{\"field\":\"Data.additionalDetails.noOfRoomsSprayedKey\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "household-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"Total houses visited\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Total houses visited Count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}"
       },
@@ -10458,14 +10514,15 @@
     "plotLabel": "Locality",
     "excludedColumns": [
       "S.N.",
-      "Spray Operators Marked Present",
+      "Total Spray Operators Marked Present",
+      "Avg Spray Operators Marked Present",
       "Total spray operators",
       "Total houses sprayed Count",
       "Total rooms sprayed Count",
       "Total houses visited Count",
       "Insecticides sprayed count"
     ],
-    "excludedBucketKeys" : [
+    "excludedBucketKeys": [
       "per_day"
     ],
     "computedFields": [
@@ -10473,7 +10530,7 @@
         "postAggregationTheory": "",
         "actionName": "PercentageComputedField",
         "fields": [
-          "Spray Operators Marked Present",
+          "Avg Spray Operators Marked Present",
           "Total spray operators"
         ],
         "newField": "ATTENDANCE_PERCENT",
@@ -10533,33 +10590,33 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
         "indexName": "attendance-log-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"boundaryHierarchy.village.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"total_individuals_with_exit_logs_per_day\":{\"value_count\":{\"field\":\"attendanceLog.individualId.keyword\"}}}},\"Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_individuals_with_exit_logs_per_day\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"boundaryHierarchy.village.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Spray Operators Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Avg Spray Operators Marked Present\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Spray Operators Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-staff-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.role.keyword\":[\"REGISTRAR\",\"DISTRIBUTOR\"]}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Total spray operators\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total houses sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Total houses sprayed Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total rooms sprayed\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Total rooms sprayed Count\":{\"sum\":{\"field\":\"Data.additionalDetails.noOfRoomsSprayedKey\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "household-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"Total houses visited\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Total houses visited Count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}"
       },
@@ -10579,20 +10636,21 @@
     ],
     "chartType": "xtable",
     "valueType": "number",
-    "drillChart": "none",
+    "drillChart": "summaryTeamPerformanceProvincialByDistributor",
     "documentType": "_doc",
     "action": "",
     "plotLabel": "Village",
     "excludedColumns": [
       "S.N.",
-      "Spray Operators Marked Present",
+      "Total Spray Operators Marked Present",
+      "Avg Spray Operators Marked Present",
       "Total spray operators",
       "Total houses sprayed Count",
       "Total rooms sprayed Count",
       "Total houses visited Count",
       "Insecticides sprayed count"
     ],
-    "excludedBucketKeys" : [
+    "excludedBucketKeys": [
       "per_day"
     ],
     "computedFields": [
@@ -10600,7 +10658,7 @@
         "postAggregationTheory": "",
         "actionName": "PercentageComputedField",
         "fields": [
-          "Spray Operators Marked Present",
+          "Avg Spray Operators Marked Present",
           "Total spray operators"
         ],
         "newField": "ATTENDANCE_PERCENT",
@@ -10657,16 +10715,30 @@
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"Houses Filter\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Houses Daily Count\":{\"date_histogram\":{\"field\":\"Data.@timestamp\",\"fixed_interval\":\"1d\",\"min_doc_count\":1,\"format\":\"dd-MM-yyyy\"},\"aggs\":{\"Total houses sprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}},\"Rooms Filter\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Rooms Daily Count\":{\"date_histogram\":{\"field\":\"Data.@timestamp\",\"fixed_interval\":\"1d\",\"min_doc_count\":1,\"format\":\"dd-MM-yyyy\"},\"aggs\":{\"Total rooms sprayed\":{\"sum\":{\"field\":\"Data.additionalDetails.noOfRoomsSprayedKey\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Houses Visited Daily Count\":{\"date_histogram\":{\"field\":\"Data.@timestamp\",\"fixed_interval\":\"1d\",\"min_doc_count\":1,\"format\":\"dd-MM-yyyy\"},\"aggs\":{\"Total houses visited\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.isDelivered\":true}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Insecticides Daily Count\":{\"date_histogram\":{\"field\":\"Data.@timestamp\",\"fixed_interval\":\"1d\",\"min_doc_count\":1,\"format\":\"dd-MM-yyyy\"},\"aggs\":{\"Insecticides sprayed\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
         "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
         "indexName": "attendance-log-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Attend Daily Count\":{\"date_histogram\":{\"field\":\"@timestamp\",\"fixed_interval\":\"1d\",\"min_doc_count\":1,\"format\":\"dd-MM-yyyy\"},\"aggs\":{\"Spray Operators Attendance\":{\"cardinality\":{\"field\":\"attendanceLog.individualId.keyword\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Attend Daily Count\":{\"date_histogram\":{\"field\":\"@timestamp\",\"fixed_interval\":\"1d\",\"min_doc_count\":1,\"format\":\"dd-MM-yyyy\"},\"aggs\":{\"per_user_attendance\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1\"}}}},\"Spray Operators Attendance\":{\"sum_bucket\":{\"buckets_path\":\"per_user_attendance>Count\"}}}}}}}}"
       }
     ],
     "action": "",
@@ -10679,9 +10751,15 @@
     "hideInsights": true,
     "hideHeaderDenomination": true,
     "excludedColumns": [
+      "S.N.",
       "Total houses sprayed",
       "Total rooms sprayed",
-      "Spray Operators Attendance"
+      "Spray Operators Attendance",
+      "Total houses visited",
+      "Insecticides sprayed"
+    ],
+    "excludedBucketKeys": [
+      "per_user_attendance"
     ],
     "computedFields": [
       {
@@ -10709,6 +10787,132 @@
           "Spray Operators Attendance"
         ],
         "newField": "Spray Operators Attendance count",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "PercentageComputedField",
+        "fields": [
+          "Total houses sprayed",
+          "Total houses visited"
+        ],
+        "newField": "Houses Coverage Ratio",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "PercentageComputedField",
+        "fields": [
+          "Total rooms sprayed",
+          "Insecticides sprayed"
+        ],
+        "newField": "Insecticide usage efficiency",
+        "_comments": ""
+      }
+    ],
+    "insight": {},
+    "sort": "sortKeyAsc",
+    "_comment": " "
+  },
+  "summaryTeamPerformanceProvincialByDistributor": {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_SUMMARY_TEAM_PERFORMANCE_PROVINCIAL_BY_DISTRIBUTOR",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"village\":\"Data.boundaryHierarchy.village.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Houses Filter\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Houses Count\":{\"terms\":{\"field\":\"Data.userName.keyword\"},\"aggs\":{\"Total houses sprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}},\"Rooms Filter\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Rooms Count\":{\"terms\":{\"field\":\"Data.userName.keyword\"},\"aggs\":{\"Total rooms sprayed\":{\"sum\":{\"field\":\"Data.additionalDetails.noOfRoomsSprayedKey\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"village\":\"Data.boundaryHierarchy.village.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Houses Visited Count\":{\"terms\":{\"field\":\"Data.userName.keyword\"},\"aggs\":{\"Total houses visited\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"village\":\"Data.boundaryHierarchy.village.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.isDelivered\":true}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Insecticides Count\":{\"terms\":{\"field\":\"Data.userName.keyword\"},\"aggs\":{\"Insecticides sprayed\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\",\"village\":\"boundaryHierarchy.village.keyword\"}",
+        "indexName": "attendance-log-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Attend Daily Count\":{\"terms\":{\"field\":\"attendanceLog.userName.keyword\"},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"@timestamp\",\"fixed_interval\":\"1d\",\"min_doc_count\":1,\"format\":\"dd-MM-yyyy\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1\"}}}},\"Spray Operators Attendance\":{\"sum_bucket\":{\"buckets_path\":\"per_day>Count\"}}}}}}}}"
+      }
+    ],
+    "action": "",
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "plotLabel": "Summary Distributor",
+    "showFooter": true,
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "excludedColumns": [
+      "S.N.",
+      "Total houses sprayed",
+      "Total rooms sprayed",
+      "Spray Operators Attendance",
+      "Total houses visited",
+      "Insecticides sprayed"
+    ],
+    "excludedBucketKeys": [
+      "per_day"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Total houses sprayed"
+        ],
+        "newField": "Total houses sprayed count",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Total rooms sprayed"
+        ],
+        "newField": "Total rooms sprayed count",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Spray Operators Attendance"
+        ],
+        "newField": "Spray Operators Attendance count",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "PercentageComputedField",
+        "fields": [
+          "Total houses sprayed",
+          "Total houses visited"
+        ],
+        "newField": "Houses Coverage Ratio",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "PercentageComputedField",
+        "fields": [
+          "Total rooms sprayed",
+          "Insecticides sprayed"
+        ],
+        "newField": "Insecticide usage efficiency",
         "_comments": ""
       }
     ],
@@ -11768,7 +11972,7 @@
     ],
     "chartType": "xtable",
     "valueType": "number",
-    "drillChart": "none",
+    "drillChart": "dataQualityExcessSummaryByDistributor",
     "documentType": "_doc",
     "action": "",
     "plotLabel": "Villages",
@@ -11783,6 +11987,45 @@
     "hideHeaderDenomination": true,
     "computedFields": [],
     "insight": {},
+    "sort": "sortKeyAsc",
+    "_comment": " "
+  },
+  "dataQualityExcessSummaryByDistributor": {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_DATA_QUALITY_EXCESS_SUMMARY_VILLAGE_BY_DISTRIBUTOR",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"village\":\"Data.boundaryHierarchy.village.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"More than 10 rooms filter\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.additionalDetails.noOfRooms\":{\"gt\":10}}}]}},\"aggs\":{\"Household with more than 10 rooms\":{\"terms\":{\"field\":\"Data.userName.keyword\",\"size\":500},\"aggs\":{\"Household with more than 10 rooms count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}},\"More than 20 members filter\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.household.memberCount\":{\"gt\":20}}}]}},\"aggs\":{\"Household with more than 20 members\":{\"terms\":{\"field\":\"Data.userName.keyword\",\"size\":500},\"aggs\":{\"Household with more than 20 members count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"village\":\"Data.boundaryHierarchy.village.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"More than 2 bottles used filter\":{\"filter\":{\"bool\":{\"must\":[{\"range\":{\"Data.quantity\":{\"gt\":2}}},{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Household with more than 2 bottles used\":{\"terms\":{\"field\":\"Data.userName.keyword\",\"size\":500},\"aggs\":{\"Household with more than 2 bottles used count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      }
+    ],
+    "action": "",
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "plotLabel": "Summary Distributor",
+    "showFooter": true,
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "excludedColumns": [],
+    "aggregationPaths": [
+      "Household with more than 10 rooms count",
+      "Household with more than 20 members count",
+      "Household with more than 2 bottles used count"
+    ],
+    "insight": {},
+    "computedFields": [],
     "sort": "sortKeyAsc",
     "_comment": " "
   },
@@ -12160,7 +12403,7 @@
     ],
     "chartType": "xtable",
     "valueType": "number",
-    "drillChart": "none",
+    "drillChart": "dataQualityRecordsSummaryByDistributor",
     "documentType": "_doc",
     "action": "",
     "plotLabel": "Village",
@@ -12217,6 +12460,92 @@
     "hideInsights": true,
     "showFooter": true,
     "hideHeaderDenomination": true,
+    "insight": {},
+    "sort": "sortKeyAsc",
+    "_comment": " "
+  },
+  "dataQualityRecordsSummaryByDistributor": {
+    "kind": "drillDown",
+    "chartName": "DSS_HEALTH_DATA_QUALITY_RECORDS_SUMMARY_VILLAGE_BY_DISTRIBUTOR",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"village\":\"Data.boundaryHierarchy.village.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.userName\"}}]}},\"aggs\":{\"Total Houses Registered\":{\"terms\":{\"field\":\"Data.userName.keyword\",\"size\":500},\"aggs\":{\"Total Houses Registered Count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"village\":\"Data.boundaryHierarchy.village.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"terms\":{\"Data.administrationStatus.keyword\":[\"ADMINISTRATION_SUCCESS\",\"ADMINISTRATION_FAILED\",\"BENEFICIARY_REFUSED\",\"CLOSED_HOUSEHOLD\"]}}]}},\"aggs\":{\"Total Houses Visited\":{\"terms\":{\"field\":\"Data.userName.keyword\"},\"aggs\":{\"HouseholdsSprayDetailsRecorded\":{\"filter\":{\"exists\":{\"field\":\"Data.id.keyword\"}},\"aggs\":{\"Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}},\"NegativeHouseholdsSprayDetailsRecorded\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"HouseholdsSprayDetailsRecorded>Count\"},\"script\":\"params.count*-1\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"village\":\"Data.boundaryHierarchy.village.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must_not\":{\"exists\":{\"field\":\"Data.geoPoint\"}}}},\"aggs\":{\"Location Not Enabled\":{\"terms\":{\"field\":\"Data.userName.keyword\",\"size\":500},\"aggs\":{\"Location Not Enabled Count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"village\":\"Data.boundaryHierarchy.village.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Suspected Frauds\":{\"terms\":{\"field\":\"Data.userName.keyword\",\"size\":5000},\"aggs\":{\"daily_count\":{\"date_histogram\":{\"field\":\"Data.@timestamp\",\"calendar_interval\":\"day\"},\"aggs\":{\"house_sprayed_count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}},\"users_with_more_than_15\":{\"bucket_selector\":{\"buckets_path\":{\"houseSprayed\":\"house_sprayed_count\"},\"script\":\"params.houseSprayed > 15\"}}}},\"total_users_sprayed_more_than_15\":{\"bucket_script\":{\"buckets_path\":{\"count_users\":\"daily_count._bucket_count\"},\"script\":\"params.count_users\"}}}}}}}}"
+      }
+    ],
+    "action": "",
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "plotLabel": "Summary Distributor",
+    "showFooter": true,
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "excludedColumns": [
+      "Count",
+      "Location Not Enabled Count",
+      "Total Houses Registered Count",
+      "NegativeHouseholdsSprayDetailsRecorded",
+      "total_users_sprayed_more_than_15"
+    ],
+    "excludedBucketKeys": [
+      "daily_count"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Total Houses Registered Count",
+          "NegativeHouseholdsSprayDetailsRecorded"
+        ],
+        "newField": "Incomplete Houses",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Location Not Enabled Count"
+        ],
+        "newField": "Geo Coordinates not enabled",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "total_users_sprayed_more_than_15"
+        ],
+        "newField": "Users Sprayed More Than 15 Times",
+        "_comments": ""
+      }
+    ],
     "insight": {},
     "sort": "sortKeyAsc",
     "_comment": " "
