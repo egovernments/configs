@@ -35781,5 +35781,32 @@
     "hideInsights": true,
     "hideHeaderDenomination": true,
     "_comment": " "
+  },
+  "stockTransactionsBreakdownProvincialSMC": {
+    "chartName": "DSS_HEALTH_STOCK_TRANSACTIONS_PROVINCIAL",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.lastModifiedTime",
+        "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\", \"selectedStack\": \"Data.service.serviceCode.keyword\"}",
+        "indexName": "stock-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"StockReceived\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},{\"term\":{\"Data.reason.keyword\":\"RECEIVED\"}}]}},\"aggs\":{\"StockReceived Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"},\"aggs\":{\"Received Stock Count\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}},\"StockIssued\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},{\"bool\":{\"must_not\":{\"exists\":{\"field\":\"Data.reason\"}}}}]}},\"aggs\":{\"StockIssued Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"},\"aggs\":{\"Issued Stock Count\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}},\"StockReturned\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},{\"term\":{\"Data.reason.keyword\":\"RETURNED\"}}]}},\"aggs\":{\"StockReturned Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"},\"aggs\":{\"Returned Stock Count\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}},\"StockLost\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},{\"terms\":{\"Data.reason.keyword\":[\"LOST_IN_TRANSIT\",\"LOST_IN_STORAGE\"]}}]}},\"aggs\":{\"StockLost Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"},\"aggs\":{\"Lost Stock Count\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}},\"StockDamaged\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},{\"terms\":{\"Data.reason.keyword\":[\"DAMAGED_IN_TRANSIT\",\"DAMAGED_IN_STORAGE\"]}}]}},\"aggs\":{\"StockDamaged Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"},\"aggs\":{\"Damaged Stock Count\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}},\"Stock in Hand\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"Incoming Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"Outgoing Stock\":{\"filter\":{\"term\":{\"Data.eventType.keyword\":\"DISPATCHED\"}},\"aggs\":{\"SUM\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}},\"In Hand Stock Count\":{\"bucket_script\":{\"buckets_path\":{\"IS\":\"Incoming Stock>SUM\",\"OS\":\"Outgoing Stock>SUM\"},\"script\":\"params.IS-params.OS\"}}}}}}"
+      }
+    ],
+    "chartType": "line",
+    "isCumulative": false,
+    "valueType": "number",
+    "plotLabel": "none",
+    "drillChart": "none",
+    "filterKeys": [
+      {
+        "key": "district"
+      }
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": ["Received Stock Count", "Issued Stock Count", "Returned Stock Count", "Lost Stock Count", "Damaged Stock Count", "In Hand Stock Count"],
+    "insight": {},
+    "_comment": " "
   }
 }
