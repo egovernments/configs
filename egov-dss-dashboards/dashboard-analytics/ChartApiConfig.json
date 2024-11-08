@@ -33814,7 +33814,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "project-staff-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.role.keyword\":[\"REGISTRAR\",\"DISTRIBUTOR\"]}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500},\"aggs\":{\"Total spray operators\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.role.keyword\":[\"REGISTRAR\",\"DISTRIBUTOR\"]}},{\"match_phrase\":{\"Data.projectType\":\"IRS\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500},\"aggs\":{\"Total spray operators\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
@@ -33942,7 +33942,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "project-staff-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.role.keyword\":[\"REGISTRAR\",\"DISTRIBUTOR\"]}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":500},\"aggs\":{\"Total spray operators\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.role.keyword\":[\"REGISTRAR\",\"DISTRIBUTOR\"]}},{\"match_phrase\":{\"Data.projectType\":\"IRS\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":500},\"aggs\":{\"Total spray operators\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
@@ -34070,7 +34070,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
         "indexName": "project-staff-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.role.keyword\":[\"REGISTRAR\",\"DISTRIBUTOR\"]}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Total spray operators\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.role.keyword\":[\"REGISTRAR\",\"DISTRIBUTOR\"]}},{\"match_phrase\":{\"Data.projectType\":\"IRS\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Total spray operators\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
@@ -34198,7 +34198,7 @@
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
         "indexName": "project-staff-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.role.keyword\":[\"REGISTRAR\",\"DISTRIBUTOR\"]}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Total spray operators\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.role.keyword\":[\"REGISTRAR\",\"DISTRIBUTOR\"]}},{\"match_phrase\":{\"Data.projectType\":\"IRS\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Total spray operators\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
       },
       {
         "module": "COMMON",
@@ -36121,5 +36121,376 @@
     "filterKeys": [{"key": "village"}],
     "insight": { },
     "_comment": " "
-  }
+  },
+  "summaryTeamPerformanceByDistrictSMC": {
+  "chartName": "DSS_HEALTH_SUMMARY_TEAM_PERFORMANCE_BY_DISTRICT",
+  "queries": [
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\": \"boundaryHierarchy.province.keyword\", \"district\": \"boundaryHierarchy.district.keyword\"}",
+      "indexName": "attendance-log-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"boundaryHierarchy.district.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Distributors Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Avg Distributors Marked Present\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Distributors Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+      "indexName": "project-staff-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.role.keyword\":[\"REGISTRAR\",\"DISTRIBUTOR\"]}},{\"match_phrase\":{\"Data.projectType\":\"MR-DN\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500},\"aggs\":{\"Total distributors\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+      "indexName": "project-task-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"INDIVIDUAL\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total children administered\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500},\"aggs\":{\"Total children administered Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+      "indexName": "household-member-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"Total children registered\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500},\"aggs\":{\"Total children registered Count\":{\"value_count\":{\"field\":\"Data.householdMember.id.keyword\"}}}}}}"
+    }
+  ],
+  "filterKeys": [
+    {
+      "key": "district",
+      "column": "District"
+    }
+  ],
+  "chartType": "xtable",
+  "valueType": "number",
+  "drillChart": "summaryTeamPerformanceByAPSMC",
+  "documentType": "_doc",
+  "action": "",
+  "plotLabel": "District",
+  "excludedColumns": [
+    "S.N.",
+    "Total Distributors Marked Present",
+    "Avg Distributors Marked Present",
+    "Total distributors",
+    "Total children administered Count",
+    "Total children registered Count"
+    ],
+  "excludedBucketKeys": [
+    "per_day"
+  ],
+  "computedFields": [
+    {
+      "postAggregationTheory": "",
+      "actionName": "PercentageComputedField",
+      "fields": [
+        "Avg Distributors Marked Present",
+        "Total distributors"
+      ],
+      "newField": "ATTENDANCE_PERCENT",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "Total children administered Count"
+      ],
+      "newField": "Total Children Administered",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "PercentageComputedField",
+      "fields": [
+        "Total children administered Count",
+        "Total children registered Count"
+      ],
+      "newField": "Administration Coverage Ratio",
+      "_comments": ""
+    }
+  ],
+  "insight": {},
+  "sort": "sortKeyAsc",
+  "hideInsights": true,
+  "hideHeaderDenomination": true,
+  "_comment": " "
+},
+"summaryTeamPerformanceByAPSMC": {
+  "kind": "drillDown",
+  "chartName": "DSS_HEALTH_SUMMARY_TEAM_PERFORMANCE_BY_AP",
+  "queries": [
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\": \"boundaryHierarchy.province.keyword\", \"district\": \"boundaryHierarchy.district.keyword\"}",
+      "indexName": "attendance-log-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"boundaryHierarchy.administrativeProvince.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Distributors Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Avg Distributors Marked Present\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Distributors Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+      "indexName": "project-staff-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.role.keyword\":[\"REGISTRAR\",\"DISTRIBUTOR\"]}},{\"match_phrase\":{\"Data.projectType\":\"MR-DN\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":500},\"aggs\":{\"Total distributors\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+      "indexName": "project-task-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"INDIVIDUAL\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total children administered\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":500},\"aggs\":{\"Total children administered Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\"}",
+      "indexName": "household-member-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"Total children registered\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"size\":500},\"aggs\":{\"Total children registered Count\":{\"value_count\":{\"field\":\"Data.householdMember.id.keyword\"}}}}}}"
+    }
+  ],
+  "filterKeys": [
+    {
+      "key": "administrativeProvince",
+      "column": "AdministrativeProvince"
+    }
+  ],
+  "action": "",
+  "chartType": "xtable",
+  "valueType": "number",
+  "drillChart": "summaryTeamPerformanceByLocalitySMC",
+  "documentType": "_doc",
+  "plotLabel": "AdministrativeProvince",
+  "excludedColumns": [
+    "S.N.",
+    "Total Distributors Marked Present",
+    "Avg Distributors Marked Present",
+    "Total distributors",
+    "Total children administered Count",
+    "Total children registered Count"
+  ],
+  "excludedBucketKeys": [
+    "per_day"
+  ],
+  "computedFields": [
+    {
+      "postAggregationTheory": "",
+      "actionName": "PercentageComputedField",
+      "fields": [
+        "Avg Distributors Marked Present",
+        "Total distributors"
+      ],
+      "newField": "ATTENDANCE_PERCENT",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "Total children administered Count"
+      ],
+      "newField": "Total Children Administered",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "PercentageComputedField",
+      "fields": [
+        "Total children administered Count",
+        "Total children registered Count"
+      ],
+      "newField": "Administration Coverage Ratio",
+      "_comments": ""
+    }
+  ],
+  "insight": {},
+  "sort": "sortKeyAsc",
+  "hideInsights": true,
+  "hideHeaderDenomination": true,
+  "_comment": " "
+},
+"summaryTeamPerformanceByLocalitySMC": {
+  "kind": "drillDown",
+  "chartName": "DSS_HEALTH_SUMMARY_TEAM_PERFORMANCE_BY_LOCALITY",
+  "queries": [
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\"}",
+      "indexName": "attendance-log-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"boundaryHierarchy.locality.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Distributors Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Avg Distributors Marked Present\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Distributors Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+      "indexName": "project-staff-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.role.keyword\":[\"REGISTRAR\",\"DISTRIBUTOR\"]}},{\"match_phrase\":{\"Data.projectType\":\"MR-DN\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Total distributors\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+      "indexName": "project-task-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"INDIVIDUAL\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total children administered\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Total children administered Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}",
+      "indexName": "household-member-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"Total children registered\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\",\"size\":500},\"aggs\":{\"Total children registered Count\":{\"value_count\":{\"field\":\"Data.householdMember.id.keyword\"}}}}}}"
+    }
+  ],
+  "filterKeys": [
+    {
+      "key": "locality",
+      "column": "Locality"
+    }
+  ],
+  "chartType": "xtable",
+  "valueType": "number",
+  "drillChart": "summaryTeamPerformanceByVillageSMC",
+  "documentType": "_doc",
+  "action": "",
+  "plotLabel": "Locality",
+  "excludedColumns": [
+    "S.N.",
+    "Total Distributors Marked Present",
+    "Avg Distributors Marked Present",
+    "Total distributors",
+    "Total children administered Count",
+    "Total children registered Count"
+  ],
+  "excludedBucketKeys": [
+    "per_day"
+  ],
+  "computedFields": [
+    {
+      "postAggregationTheory": "",
+      "actionName": "PercentageComputedField",
+      "fields": [
+        "Avg Distributors Marked Present",
+        "Total distributors"
+      ],
+      "newField": "ATTENDANCE_PERCENT",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "Total children administered Count"
+      ],
+      "newField": "Total Children Administered",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "PercentageComputedField",
+      "fields": [
+        "Total children administered Count",
+        "Total children registered Count"
+      ],
+      "newField": "Administration Coverage Ratio",
+      "_comments": ""
+    }
+  ],
+  "insight": {},
+  "sort": "sortKeyAsc",
+  "hideInsights": true,
+  "hideHeaderDenomination": true,
+  "_comment": " "
+},
+"summaryTeamPerformanceByVillageSMC": {
+  "kind": "drillDown",
+  "chartName": "DSS_HEALTH_SUMMARY_TEAM_PERFORMANCE_BY_VILLAGE",
+  "queries": [
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\":\"boundaryHierarchy.province.keyword\",\"district\":\"boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"boundaryHierarchy.locality.keyword\"}",
+      "indexName": "attendance-log-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"attendanceLog.type.keyword\":\"EXIT\"}},{\"term\":{\"attendanceLog.status.keyword\":\"ACTIVE\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"boundaryHierarchy.village.keyword\",\"size\":100},\"aggs\":{\"per_day\":{\"date_histogram\":{\"field\":\"attendanceLog.time\",\"calendar_interval\":\"day\"},\"aggs\":{\"users\":{\"terms\":{\"field\":\"attendanceLog.individualId.keyword\"},\"aggs\":{\"Count\":{\"bucket_script\":{\"buckets_path\":{},\"script\":\"1.0\"}}}},\"total_unique_individuals_with_exit_logs_per_day\":{\"sum_bucket\":{\"buckets_path\":\"users>Count\"}}}},\"Total Distributors Marked Present\":{\"sum_bucket\":{\"buckets_path\":\"per_day>total_unique_individuals_with_exit_logs_per_day\"}},\"Avg Distributors Marked Present\":{\"bucket_script\":{\"buckets_path\":{\"num\":\"Total Distributors Marked Present\",\"denom\":\"per_day._bucket_count\"},\"script\":\"params.num / params.denom\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+      "indexName": "project-staff-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.role.keyword\":[\"REGISTRAR\",\"DISTRIBUTOR\"]}},{\"match_phrase\":{\"Data.projectType\":\"MR-DN\"}}]}},\"aggs\":{\"Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Total distributors\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+      "indexName": "project-task-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"INDIVIDUAL\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"Total children administered\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Total children administered Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\"}",
+      "indexName": "household-member-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"Total children registered\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\",\"size\":500},\"aggs\":{\"Total children registered Count\":{\"value_count\":{\"field\":\"Data.householdMember.id.keyword\"}}}}}}"
+    }
+  ],
+  "filterKeys": [
+    {
+      "key": "village",
+      "column": "Village"
+    }
+  ],
+  "chartType": "xtable",
+  "valueType": "number",
+  "drillChart": "none",
+  "documentType": "_doc",
+  "action": "",
+  "plotLabel": "Village",
+  "excludedColumns": [
+    "S.N.",
+    "Total Distributors Marked Present",
+    "Avg Distributors Marked Present",
+    "Total distributors",
+    "Total children administered Count",
+    "Total children registered Count"
+  ],
+  "excludedBucketKeys": [
+    "per_day"
+  ],
+  "computedFields": [
+    {
+      "postAggregationTheory": "",
+      "actionName": "PercentageComputedField",
+      "fields": [
+        "Avg Distributors Marked Present",
+        "Total distributors"
+      ],
+      "newField": "ATTENDANCE_PERCENT",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "Total children administered Count"
+      ],
+      "newField": "Total Children Administered",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "PercentageComputedField",
+      "fields": [
+        "Total children administered Count",
+        "Total children registered Count"
+      ],
+      "newField": "Administration Coverage Ratio",
+      "_comments": ""
+    }
+  ],
+  "insight": {},
+  "sort": "sortKeyAsc",
+  "hideInsights": true,
+  "hideHeaderDenomination": true,
+  "_comment": " "
+}
 }
