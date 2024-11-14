@@ -123,6 +123,11 @@ ReportDefinitions:
     summary: Report gives the highlevel information of FSM Requests
     version: 1.0.0
     moduleName: fsm
+    externalService:
+      - entity: $.TenantBoundary[0].boundary
+        apiURL: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantId
+        keyOrder: name,code
+        tableName: fsm_boundary
     sourceColumns:
       - name: tenantid
         label: Tenant
@@ -156,7 +161,7 @@ ReportDefinitions:
         label: Urban Rural Flag
         type: string
         source: fsm
-      - name: Locality
+      - name: locality
         label: Locality
         type: string
         source: fsm
@@ -237,21 +242,19 @@ ReportDefinitions:
         isMandatory: false
         searchClause: AND address.locality = $locality
     query: |
-          WITH RankedApplications AS (
-          SELECT 
-          INITCAP(SPLIT_PART(fsm.tenantid, '.', 2)) as tenantid, 
+          SELECT INITCAP(SPLIT_PART(fsm.tenantid,'.',2)) as tenantid, 
           fsm.applicationno AS ApplicationId, 
-          COALESCE(fsm.applicationStatus, 'N/A') AS ApplicationStatus, 
+          COALESCE(INITCAP(REPLACE(fsm.applicationStatus, '_', ' ')), 'N/A') AS ApplicationStatus,
           COALESCE(fsm.nooftrips, 0) AS Nooftrips,  
-          INITCAP(SPLIT_PART(fsm.propertyusage::TEXT, '.', 1)) AS PropertyType, 
+          INITCAP(split_part(fsm.propertyusage::TEXT, '.', 1)) AS PropertyType, 
           CASE 
-              WHEN SPLIT_PART(fsm.propertyusage::TEXT, '.', 2) != '' 
-              THEN INITCAP(REPLACE(SPLIT_PART(fsm.propertyusage::TEXT, '.', 2), '_', ' '))
-              ELSE 'N/A' 
+                WHEN split_part(fsm.propertyusage::TEXT, '.', 2) != '' 
+                THEN INITCAP(REPLACE(split_part(fsm.propertyusage::TEXT, '.', 2), '_', ' '))
+                ELSE 'N/A' 
           END AS PropertySubType, 
-          CAST(COALESCE(fsmaddress.additionaldetails->>'boundaryType', '{}') AS TEXT) AS UrbanRuralFlag, 
-          COALESCE(fsmaddress.locality, 'N/A') AS Locality, 
-          CAST(COALESCE(fsmaddress.additionaldetails->'gramPanchayat'->>'name', '{}') AS TEXT) AS GP, 
+          CAST(COALESCE(fsmaddress.additionaldetails->>'boundaryType', '{}') AS TEXT) as UrbanRuralFlag, 
+          boundary.name as locality, 
+          CAST(COALESCE(fsmaddress.additionaldetails->'gramPanchayat'->>'name', '{}') AS TEXT) as GP, 
           COALESCE(fsmaddress.slumname, 'N/A') AS SlumName, 
           COALESCE(fsmvehicle.registrationNumber, 'N/A') AS DesludgingVehicleNumber, 
           COALESCE(fsmvehicle.vehicleowner, 'N/A') AS VehicleOwner,  
@@ -260,27 +263,21 @@ ReportDefinitions:
           COALESCE(fsm.advanceamount, 0) AS AdvanceAmount, 
           COALESCE(fsmpayment.totalamountpaid, 0) AS PaymentAmount, 
           TO_CHAR(TO_TIMESTAMP(fsm.createdtime / 1000)::timestamp AT TIME ZONE 'Asia/Kolkata', 'MM/DD/YYYY HH24:MI:SS') AS ApplicationSubmitDate, 
-          COALESCE(pirating.rating, 0) AS Rating, 
-          COALESCE(picomment.comment, 'N/A') AS Comment, 
-          ROW_NUMBER() OVER (PARTITION BY fsm.applicationno ORDER BY fsm.createdtime DESC) AS row_num
+          COALESCE(pirating.rating, 0 ) AS Rating, 
+          COALESCE(picomment.comment, 'N/A') AS Comment 
           FROM eg_fsm_application AS fsm 
           JOIN eg_fsm_address AS fsmaddress ON (fsmaddress.fsm_id = fsm.id) 
           JOIN eg_fsm_geolocation AS fsmgeolocation ON (fsmaddress.id = fsmgeolocation.address_id) 
           LEFT JOIN eg_vendor AS fsmdso ON (fsmdso.id = fsm.dso_id) 
           LEFT JOIN eg_vehicle AS fsmvehicle ON (fsm.vehicle_id = fsmvehicle.id) 
-          LEFT JOIN eg_vehicle_trip_detail AS fsmvehicleTripdetail ON (fsmvehicleTripdetail.referenceNo = fsm.applicationno) 
-          LEFT JOIN eg_vehicle_trip AS fsmvehicleTrip ON (fsmvehicleTripdetail.trip_id = fsmvehicleTrip.id) 
           LEFT JOIN egcl_bill AS egbill ON (egbill.consumercode = fsm.applicationno) 
           LEFT JOIN egcl_paymentdetail AS paymentdl ON (paymentdl.billid = egbill.id) 
           LEFT JOIN egcl_payment AS fsmpayment ON (fsmpayment.id = paymentdl.paymentid) 
           LEFT JOIN (SELECT pi.rating, pi.businessId FROM eg_wf_processinstance_v2 pi JOIN eg_wf_state_v2 status ON (status.uuid = pi.status) WHERE status.state = 'COMPLETED') pirating ON (pirating.businessId = fsm.applicationno) 
           LEFT JOIN (SELECT pi.comment, pi.businessId FROM eg_wf_processinstance_v2 pi JOIN eg_wf_state_v2 status ON (status.uuid = pi.status) WHERE status.state IN ('REJECTED', 'CANCELED', 'DSO_REJECTED')) picomment ON (picomment.businessId = fsm.applicationno) 
-          WHERE fsm.tenantid = $tenantid 
+          LEFT  JOIN (VALUES fsm_boundary) AS boundary(name,code) ON (boundary.code = fsmaddress.locality)
+          WHERE fsm.tenantid=$tenantid 
           AND fsm.additionaldetails->>'tripAmount' NOT IN ('', '[]')
-        )
-        SELECT *
-        FROM RankedApplications
-        WHERE row_num = 1
     orderby: ORDER BY fsm.applicationNo
     
   - reportName: FSMVehicleLogReport
