@@ -39823,13 +39823,6 @@
       "requestQueryMap": "{\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"projectTypeId\":\"Data.projectTypeId.keyword\" }",
       "indexName": "service-task-v1",
       "aggrQuery": "{\"size\":0,\"aggs\":{\"TestedPositiveForMalaria\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}},{\"terms\":{\"Data.attributes.value.value.keyword\":[\"POSITIVE\"]}},{\"term\":{\"Data.checklistName.keyword\":\"HF_RF_FEVER\"}},{\"term\":{\"Data.role.keyword\":\"HEALTH_FACILITY_WORKER\"}}]}},\"aggs\":{\"TestedPositiveForMalaria Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"},\"aggs\":{\"PositiveForMalaria Children Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
-    },
-    {
-      "module": "COMMON",
-      "dateRefField": "",
-      "requestQueryMap": "{\"projectTypeId\":\"Data.projectTypeId.keyword\",\"province\": \"Data.boundaryHierarchy.province.keyword\", \"district\": \"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\": \"Data.boundaryHierarchy.administrativeProvince.keyword\", \"locality\": \"Data.boundaryHierarchy.locality.keyword\"}",
-      "indexName": "household-member-index-v1",
-      "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}]}},\"aggs\":{\"Total Administered Children\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\",\"size\":500},\"aggs\":{\"Total children administered count\":{\"value_count\":{\"field\":\"Data.householdMember.id.keyword\"}}}}}}}}"
     }
   ],
   "filterKeys": [
@@ -39840,7 +39833,7 @@
   ],
   "chartType": "xtable",
   "valueType": "number",
-  "drillChart": "none",
+  "drillChart": "summaryOfReferredChildrenByAPs",
   "documentType": "_doc",
   "action": "",
   "plotLabel": "District",
@@ -39851,9 +39844,8 @@
     "Referred Children Count",
     "Referred Children By HFCount",
     "Referred Children With Fever Count",
-    "PositiveForMalaria Children Count",
-    "Total children administered count"
-  ],
+    "PositiveForMalaria Children Count"
+    ],
   "computedFields": [
     {
       "postAggregationTheory": "",
@@ -39878,7 +39870,7 @@
       "actionName": "PercentageComputedField",
       "fields": [
         "Referred Children By HFCount",
-        "Total children administered count"
+        "Referred Children Count"
       ],
       "newField": "% Children present at Health Facility",
       "_comments": ""
@@ -39906,7 +39898,340 @@
       "actionName": "PercentageComputedField",
       "fields": [
         "PositiveForMalaria Children Count",
-        "Total children administered count"
+        "Referred Children Count"
+      ],
+      "newField": "% of children Tested +ve for Malaria",
+      "_comments": ""
+    }
+  ],
+  "insight": {},
+  "sort": "sortKeyAsc",
+  "hideInsights": true,
+  "hideHeaderDenomination": true,
+  "_comment": " "
+},
+"summaryOfReferredChildrenByAPs": {
+  "kind": "drillDown",
+  "chartName": "DSS_HEALTH_SUMMARY_REFERRED_CHILDREN_BY_APS",
+  "queries": [
+    {
+      "module": "COMMON",
+      "dateRefField": "Data.referral.auditDetails.lastModifiedTime",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"projectTypedId\":\"Data.projectTypeId.keyword\"}",
+      "indexName": "referral-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"ChildrenReferred\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}}]}},\"aggs\":{\"ChildrenReferred Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"},\"aggs\":{\"Referred Children Count\":{\"scripted_metric\":{\"params\":{\"fieldName\":\"Data.referral.projectBeneficiaryClientReferenceId.keyword\"},\"init_script\":\"state.list = []\",\"map_script\":\"if(doc[params.fieldName] != null) \\nstate.list.add(doc[params.fieldName].value);\",\"combine_script\":\"return state.list;\",\"reduce_script\":\"Map uniqueValueMap = new HashMap(); \\n        int count = 0;\\n        for(shardList in states) {\\n          if(shardList != null) { \\n            for(key in shardList) {\\n              if(!uniqueValueMap.containsKey(key)) {\\n                count +=1;\\n                uniqueValueMap.put(key, key);\\n              }\\n            }\\n          }\\n        } \\n        return count;\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "Data.hfReferral.auditDetails.lastModifiedTime",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"projectTypedId\":\"Data.projectTypeId.keyword\"}",
+      "indexName": "hf-referral-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"ChildrenReferredByHF\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}}]}},\"aggs\":{\"ChildrenReferredByHF Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"},\"aggs\":{\"Referred Children By HFCount\":{\"value_count\":{\"field\":\"Data.hfReferral.id.keyword\"}}}}}},\"ChildrenReferredWithFever\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.hfReferral.symptom.keyword\":\"FEVER\"}}]}},\"aggs\":{\"ChildrenReferredWithFever Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"},\"aggs\":{\"Referred Children With Fever Count\":{\"scripted_metric\":{\"params\":{\"fieldName\":\"Data.hfReferral.id.keyword\"},\"init_script\":\"state.list = []\",\"map_script\":\"if(doc[params.fieldName] != null) \\nstate.list.add(doc[params.fieldName].value);\",\"combine_script\":\"return state.list;\",\"reduce_script\":\"Map uniqueValueMap = new HashMap(); \\n        int count = 0;\\n        for(shardList in states) {\\n          if(shardList != null) { \\n            for(key in shardList) {\\n              if(!uniqueValueMap.containsKey(key)) {\\n                count +=1;\\n                uniqueValueMap.put(key, key);\\n              }\\n            }\\n          }\\n        } \\n        return count;\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "Data.createdTime",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"projectTypedId\":\"Data.projectTypeId.keyword\"}",
+      "indexName": "service-task-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"TestedPositiveForMalaria\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}},{\"terms\":{\"Data.attributes.value.value.keyword\":[\"POSITIVE\"]}},{\"term\":{\"Data.checklistName.keyword\":\"HF_RF_FEVER\"}},{\"term\":{\"Data.role.keyword\":\"HEALTH_FACILITY_WORKER\"}}]}},\"aggs\":{\"TestedPositiveForMalaria Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"},\"aggs\":{\"PositiveForMalaria Children Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+    }
+  ],
+  "filterKeys": [
+    {
+      "key": "administrativeProvince",
+      "column": "AdministrativeProvince"
+    }
+  ],
+  "chartType": "xtable",
+  "valueType": "number",
+  "drillChart": "summaryOfReferredChildrenByLocality",
+  "documentType": "_doc",
+  "action": "",
+  "plotLabel": "AdministrativeProvince",
+  "excludedColumns": [
+    "S.N.",
+    "Start Date",
+    "End Date",
+    "Referred Children Count",
+    "Referred Children By HFCount",
+    "Referred Children With Fever Count",
+    "PositiveForMalaria Children Count"
+    ],
+  "computedFields": [
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "Referred Children Count"
+      ],
+      "newField": "Children Referred",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "Referred Children By HFCount"
+      ],
+      "newField": "Children present at Health Facility",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "PercentageComputedField",
+      "fields": [
+        "Referred Children By HFCount",
+        "Referred Children Count"
+      ],
+      "newField": "% Children present at Health Facility",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "Referred Children With Fever Count"
+      ],
+      "newField": "Referred for fever",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "PositiveForMalaria Children Count"
+      ],
+      "newField": "Tested +ve for Malaria",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "PercentageComputedField",
+      "fields": [
+        "PositiveForMalaria Children Count",
+        "Referred Children Count"
+      ],
+      "newField": "% of children Tested +ve for Malaria",
+      "_comments": ""
+    }
+  ],
+  "insight": {},
+  "sort": "sortKeyAsc",
+  "hideInsights": true,
+  "hideHeaderDenomination": true,
+  "_comment": " "
+},
+"summaryOfReferredChildrenByLocality": {
+  "kind": "drillDown",
+  "chartName": "DSS_HEALTH_SUMMARY_REFERRED_CHILDREN_BY_LOCALITY",
+  "queries": [
+    {
+      "module": "COMMON",
+      "dateRefField": "Data.referral.auditDetails.lastModifiedTime",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"projectTypedId\":\"Data.projectTypeId.keyword\"}",
+      "indexName": "referral-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"ChildrenReferred\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}}]}},\"aggs\":{\"ChildrenReferred Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"},\"aggs\":{\"Referred Children Count\":{\"scripted_metric\":{\"params\":{\"fieldName\":\"Data.referral.projectBeneficiaryClientReferenceId.keyword\"},\"init_script\":\"state.list = []\",\"map_script\":\"if(doc[params.fieldName] != null) \\nstate.list.add(doc[params.fieldName].value);\",\"combine_script\":\"return state.list;\",\"reduce_script\":\"Map uniqueValueMap = new HashMap(); \\n        int count = 0;\\n        for(shardList in states) {\\n          if(shardList != null) { \\n            for(key in shardList) {\\n              if(!uniqueValueMap.containsKey(key)) {\\n                count +=1;\\n                uniqueValueMap.put(key, key);\\n              }\\n            }\\n          }\\n        } \\n        return count;\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "Data.hfReferral.auditDetails.lastModifiedTime",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"projectTypedId\":\"Data.projectTypeId.keyword\"}",
+      "indexName": "hf-referral-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"ChildrenReferredByHF\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}}]}},\"aggs\":{\"ChildrenReferredByHF Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"},\"aggs\":{\"Referred Children By HFCount\":{\"value_count\":{\"field\":\"Data.hfReferral.id.keyword\"}}}}}},\"ChildrenReferredWithFever\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.hfReferral.symptom.keyword\":\"FEVER\"}}]}},\"aggs\":{\"ChildrenReferredWithFever Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"},\"aggs\":{\"Referred Children With Fever Count\":{\"scripted_metric\":{\"params\":{\"fieldName\":\"Data.hfReferral.id.keyword\"},\"init_script\":\"state.list = []\",\"map_script\":\"if(doc[params.fieldName] != null) \\nstate.list.add(doc[params.fieldName].value);\",\"combine_script\":\"return state.list;\",\"reduce_script\":\"Map uniqueValueMap = new HashMap(); \\n        int count = 0;\\n        for(shardList in states) {\\n          if(shardList != null) { \\n            for(key in shardList) {\\n              if(!uniqueValueMap.containsKey(key)) {\\n                count +=1;\\n                uniqueValueMap.put(key, key);\\n              }\\n            }\\n          }\\n        } \\n        return count;\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "Data.createdTime",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"projectTypedId\":\"Data.projectTypeId.keyword\"}",
+      "indexName": "service-task-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"TestedPositiveForMalaria\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"}},{\"terms\":{\"Data.attributes.value.value.keyword\":[\"POSITIVE\"]}},{\"term\":{\"Data.checklistName.keyword\":\"HF_RF_FEVER\"}},{\"term\":{\"Data.role.keyword\":\"HEALTH_FACILITY_WORKER\"}}]}},\"aggs\":{\"TestedPositiveForMalaria Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.locality.keyword\"},\"aggs\":{\"PositiveForMalaria Children Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+    }
+  ],
+  "filterKeys": [
+    {
+      "key": "locality",
+      "column": "Locality"
+    }
+  ],
+  "chartType": "xtable",
+  "valueType": "number",
+  "drillChart": "summaryOfReferredChildrenByVillage",
+  "documentType": "_doc",
+  "action": "",
+  "plotLabel": "Village",
+  "excludedColumns": [
+    "S.N.",
+    "Start Date",
+    "End Date",
+    "Referred Children Count",
+    "Referred Children By HFCount",
+    "Referred Children With Fever Count",
+    "PositiveForMalaria Children Count"
+    ],
+  "computedFields": [
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "Referred Children Count"
+      ],
+      "newField": "Children Referred",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "Referred Children By HFCount"
+      ],
+      "newField": "Children present at Health Facility",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "PercentageComputedField",
+      "fields": [
+        "Referred Children By HFCount",
+        "Referred Children Count"
+      ],
+      "newField": "% Children present at Health Facility",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "Referred Children With Fever Count"
+      ],
+      "newField": "Referred for fever",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "PositiveForMalaria Children Count"
+      ],
+      "newField": "Tested +ve for Malaria",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "PercentageComputedField",
+      "fields": [
+        "PositiveForMalaria Children Count",
+        "Referred Children Count"
+      ],
+      "newField": "% of children Tested +ve for Malaria",
+      "_comments": ""
+    }
+  ],
+  "insight": {},
+  "sort": "sortKeyAsc",
+  "hideInsights": true,
+  "hideHeaderDenomination": true,
+  "_comment": " "
+},
+"summaryOfReferredChildrenByVillage": {
+  "kind": "drillDown",
+  "chartName": "DSS_HEALTH_SUMMARY_REFERRED_CHILDREN_BY_VILLAGE",
+  "queries": [
+    {
+      "module": "COMMON",
+      "dateRefField": "Data.referral.auditDetails.lastModifiedTime",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"projectTypedId\":\"Data.projectTypeId.keyword\"}",
+      "indexName": "referral-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"ChildrenReferred\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}}]}},\"aggs\":{\"ChildrenReferred Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"},\"aggs\":{\"Referred Children Count\":{\"scripted_metric\":{\"params\":{\"fieldName\":\"Data.referral.projectBeneficiaryClientReferenceId.keyword\"},\"init_script\":\"state.list = []\",\"map_script\":\"if(doc[params.fieldName] != null) \\nstate.list.add(doc[params.fieldName].value);\",\"combine_script\":\"return state.list;\",\"reduce_script\":\"Map uniqueValueMap = new HashMap(); \\n        int count = 0;\\n        for(shardList in states) {\\n          if(shardList != null) { \\n            for(key in shardList) {\\n              if(!uniqueValueMap.containsKey(key)) {\\n                count +=1;\\n                uniqueValueMap.put(key, key);\\n              }\\n            }\\n          }\\n        } \\n        return count;\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "Data.hfReferral.auditDetails.lastModifiedTime",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"projectTypedId\":\"Data.projectTypeId.keyword\"}",
+      "indexName": "hf-referral-index-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"ChildrenReferredByHF\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}}]}},\"aggs\":{\"ChildrenReferredByHF Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"},\"aggs\":{\"Referred Children By HFCount\":{\"value_count\":{\"field\":\"Data.hfReferral.id.keyword\"}}}}}},\"ChildrenReferredWithFever\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.hfReferral.symptom.keyword\":\"FEVER\"}}]}},\"aggs\":{\"ChildrenReferredWithFever Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"},\"aggs\":{\"Referred Children With Fever Count\":{\"scripted_metric\":{\"params\":{\"fieldName\":\"Data.hfReferral.id.keyword\"},\"init_script\":\"state.list = []\",\"map_script\":\"if(doc[params.fieldName] != null) \\nstate.list.add(doc[params.fieldName].value);\",\"combine_script\":\"return state.list;\",\"reduce_script\":\"Map uniqueValueMap = new HashMap(); \\n        int count = 0;\\n        for(shardList in states) {\\n          if(shardList != null) { \\n            for(key in shardList) {\\n              if(!uniqueValueMap.containsKey(key)) {\\n                count +=1;\\n                uniqueValueMap.put(key, key);\\n              }\\n            }\\n          }\\n        } \\n        return count;\"}}}}}}}}"
+    },
+    {
+      "module": "COMMON",
+      "dateRefField": "Data.createdTime",
+      "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"district\":\"Data.boundaryHierarchy.district.keyword\",\"administrativeProvince\":\"Data.boundaryHierarchy.administrativeProvince.keyword\",\"locality\":\"Data.boundaryHierarchy.locality.keyword\",\"projectTypedId\":\"Data.projectTypeId.keyword\"}",
+      "indexName": "service-task-v1",
+      "aggrQuery": "{\"size\":0,\"aggs\":{\"TestedPositiveForMalaria\":{\"filter\":{\"bool\":{\"must\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"}},{\"terms\":{\"Data.attributes.value.value.keyword\":[\"POSITIVE\"]}},{\"term\":{\"Data.checklistName.keyword\":\"HF_RF_FEVER\"}},{\"term\":{\"Data.role.keyword\":\"HEALTH_FACILITY_WORKER\"}}]}},\"aggs\":{\"TestedPositiveForMalaria Count\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.village.keyword\"},\"aggs\":{\"PositiveForMalaria Children Count\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+    }
+  ],
+  "filterKeys": [
+    {
+      "key": "village",
+      "column": "Village"
+    }
+  ],
+  "chartType": "xtable",
+  "valueType": "number",
+  "drillChart": "none",
+  "documentType": "_doc",
+  "action": "",
+  "plotLabel": "Village",
+  "excludedColumns": [
+    "S.N.",
+    "Start Date",
+    "End Date",
+    "Referred Children Count",
+    "Referred Children By HFCount",
+    "Referred Children With Fever Count",
+    "PositiveForMalaria Children Count"
+    ],
+  "computedFields": [
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "Referred Children Count"
+      ],
+      "newField": "Children Referred",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "Referred Children By HFCount"
+      ],
+      "newField": "Children present at Health Facility",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "PercentageComputedField",
+      "fields": [
+        "Referred Children By HFCount",
+        "Referred Children Count"
+      ],
+      "newField": "% Children present at Health Facility",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "Referred Children With Fever Count"
+      ],
+      "newField": "Referred for fever",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "AdditiveComputedField",
+      "fields": [
+        "PositiveForMalaria Children Count"
+      ],
+      "newField": "Tested +ve for Malaria",
+      "_comments": ""
+    },
+    {
+      "postAggregationTheory": "",
+      "actionName": "PercentageComputedField",
+      "fields": [
+        "PositiveForMalaria Children Count",
+        "Referred Children Count"
       ],
       "newField": "% of children Tested +ve for Malaria",
       "_comments": ""
