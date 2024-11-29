@@ -41700,6 +41700,13 @@
         "module": "COMMON",
         "dateRefField": "",
         "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"Household Total\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.province.keyword\"},\"aggs\":{\"Total Count Household Registered Cumulative\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"province\":\"Data.boundaryHierarchy.province.keyword\",\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
         "indexName": "project-task-index-v1",
         "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"INDIVIDUAL\"}}]}},\"aggs\":{\"Children Total\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.province.keyword\"},\"aggs\":{\"Total Count Children Administered Cumulative\":{\"scripted_metric\":{\"params\":{\"fieldName\":\"Data.projectBeneficiaryClientReferenceId.keyword\"},\"init_script\":\"state.list = []\",\"map_script\":\"if(doc[params.fieldName].size() > 0 && doc[params.fieldName].value != null) { state.list.add(doc[params.fieldName].value); }\",\"combine_script\":\"return state.list;\",\"reduce_script\":\"Map uniqueValueMap = new HashMap(); int count = 0; for (shardList in states) { if (shardList != null) { for (key in shardList) { if (!uniqueValueMap.containsKey(key)) { count += 1; uniqueValueMap.put(key, key); } } } } return count;\"}}}}}}}}"
       },
@@ -41740,8 +41747,10 @@
     "plotLabel": "Provinces",
     "excludedColumns": [
       "Total Count Children Administered Cumulative",
+      "Total Household Registered Cumulative",
       "Total Count Children Administered Today",
       "Overall Population Target",
+      "Overall Household Target",
       "Overall Children Target",
       "Quantity",
       "Total Population Covered",
@@ -41755,15 +41764,6 @@
         "postAggregationTheory": "",
         "actionName": "AdditiveComputedField",
         "fields": [
-          "Total Count Children Administered Today"
-        ],
-        "newField": "Total Children Administered Today",
-        "_comments": ""
-      },
-      {
-        "postAggregationTheory": "",
-        "actionName": "AdditiveComputedField",
-        "fields": [
           "Total Count Children Administered Cumulative"
         ],
         "newField": "Total Children Administered Cumulative",
@@ -41773,20 +41773,20 @@
         "postAggregationTheory": "",
         "actionName": "PercentageComputedField",
         "fields": [
-          "Total Children Administered Cumulative",
-          "Overall Children Target"
+          "Total Household Registered Cumulative",
+          "Overall Household Target"
         ],
-        "newField": "Children Coverage",
+        "newField": "Household Coverage",
         "_comments": ""
       },
       {
         "postAggregationTheory": "",
         "actionName": "PercentageComputedField",
         "fields": [
-          "Total Population Covered",
-          "Overall Population Target"
+          "Total Children Administered Cumulative",
+          "Overall Children Target"
         ],
-        "newField": "Population Coverage",
+        "newField": "Administration Coverage",
         "_comments": ""
       },
       {
