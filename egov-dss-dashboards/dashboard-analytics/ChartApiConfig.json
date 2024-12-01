@@ -44037,5 +44037,164 @@
     ],
     "insight": {},
     "_comment": "Microplan Total number of Facilities"
+  },
+  "todayRegisteredHouses": {
+    "chartName": "DSS_HEALTH_NATIONAL_HOUSEHOLDS_REGISTERED_TODAY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.household.auditDetails.createdTime",
+        "requestQueryMap": "{\"projectTypeId\":\"Data.additionalDetails.projectTypeId.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"houses registered today\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "filterForCurrentDay": true,
+    "action": "",
+    "aggregationPaths": [
+      "houses registered today"
+    ],
+    "insight": {
+      "chartResponseMap": "todayRegisteredHouses",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "day"
+    },
+    "_comment": " "
+  },
+  "totalRegisteredNational": {
+    "chartName": "DSS_HEALTH_NATIONAL_TOTAL_HOUSEHOLD_REGISTERED_NATIONAL",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"projectTypeId\":\"Data.additionalDetails.projectTypeId.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"houses registered today\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "houses registered today"
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "todayChildrenAdministered": {
+    "chartName": "DSS_HEALTH_NATIONAL_CHILDREN_ADMINISTERED_TODAY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.lastModifiedTime",
+        "requestQueryMap": "{\"projectTypeId\":\"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"children administered today\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"INDIVIDUAL\"}}]}},\"aggs\":{\"Count\":{\"scripted_metric\":{\"params\":{\"fieldName\":\"Data.projectBeneficiaryClientReferenceId.keyword\"},\"init_script\":\"state.list = []\",\"map_script\":\"if(doc[params.fieldName].size() > 0 && doc[params.fieldName].value != null) { state.list.add(doc[params.fieldName].value); }\",\"combine_script\":\"return state.list;\",\"reduce_script\":\"Map uniqueValueMap = new HashMap(); int count = 0; for (shardList in states) { if (shardList != null) { for (key in shardList) { if (!uniqueValueMap.containsKey(key)) { count += 1; uniqueValueMap.put(key, key); } } } } return count;\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "filterForCurrentDay": true,
+    "action": "",
+    "aggregationPaths": [
+      "children administered today"
+    ],
+    "insight": {
+      "chartResponseMap": "todayChildrenAdministered",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "day"
+    },
+    "_comment": " "
+  },
+  "totalChildrenAdministeredNational": {
+    "chartName": "DSS_HEALTH_NATIONAL_TOTAL_CHILDREN_ADMINISTERED_NATIONAL",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"projectTypeId\":\"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"children administered total\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"INDIVIDUAL\"}}]}},\"aggs\":{\"Count\":{\"scripted_metric\":{\"params\":{\"fieldName\":\"Data.projectBeneficiaryClientReferenceId.keyword\"},\"init_script\":\"state.list = []\",\"map_script\":\"if(doc[params.fieldName].size() > 0 && doc[params.fieldName].value != null) { state.list.add(doc[params.fieldName].value); }\",\"combine_script\":\"return state.list;\",\"reduce_script\":\"Map uniqueValueMap = new HashMap(); int count = 0; for (shardList in states) { if (shardList != null) { for (key in shardList) { if (!uniqueValueMap.containsKey(key)) { count += 1; uniqueValueMap.put(key, key); } } } } return count;\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "children administered total"
+    ],
+    "insight": {},
+    "_comment": " "
+  },
+  "todayDistributionsSMC": {
+    "chartName": "DSS_HEALTH_NATIONAL_TODAY_DRUGS_USED_QUANTITY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\":\"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"aggs\":{\"Today Distributions\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"INDIVIDUAL\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"distributions\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "filterForCurrentDay": true,
+    "action": "",
+    "aggregationPaths": [
+      "Today Distributions"
+    ],
+    "insight": {
+      "chartResponseMap": "todayDistributionsSMC",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "day"
+    },
+    "_comment": " "
+  },
+  "totalDistributionsSMC": {
+    "chartName": "DSS_HEALTH_NATIONAL_TOTAL_DRUDS_USED_QUANTITY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"projectTypeId\":\"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"aggs\":{\"Total Distributions\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"INDIVIDUAL\"}},{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"distributions\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "Total Distributions"
+    ],
+    "insight": {},
+    "_comment": " "
   }
 }
