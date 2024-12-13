@@ -43038,43 +43038,55 @@
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "requestQueryMap": "{\"projectTypeId\":\"Data.projectTypeId.keyword\",\"province\": \"Data.boundaryHierarchy.province.keyword\",\"district\": \"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "project-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"HOUSEHOLD\"}},{\"exists\":{\"field\":\"Data.boundaryHierarchy.province.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}]}},\"aggs\":{\"Household Target\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.province.keyword\"},\"aggs\":{\"Overall Household Target\":{\"sum\":{\"field\":\"Data.overallTarget\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"HOUSEHOLD\"}},{\"exists\":{\"field\":\"Data.boundaryHierarchy.province.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}]}},\"aggs\":{\"Household Target\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.province.keyword\"},\"aggs\":{\"Overall Target\":{\"sum\":{\"field\":\"Data.overallTarget\"}},\"target\":{\"sum\":{\"field\":\"Data.targetPerDay\"}},\"Target for daterange\":{\"bucket_script\":{\"buckets_path\":{\"SUM\":\"target\"},\"script\":\"(params.SUM) * 365\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
-        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "requestQueryMap": "{\"projectTypeId\":\"Data.projectTypeId.keyword\",\"province\": \"Data.boundaryHierarchy.province.keyword\",\"district\": \"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "household-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"Total Households Registered\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.province.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"total_count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"exists\":{\"field\":\"Data.household.id.keyword\"}},\"aggs\":{\"Total Households registered\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.province.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"total_count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
       }
     ],
     "filterKeys": [],
     "chartType": "xtable",
     "valueType": "number",
-    "drillChart": "householdsCoverageHeatMapProvinceSMC",
+    "drillChart": "householdsCoverageHeatMapDrilldownSMC",
     "documentType": "_doc",
     "action": "",
-    "plotLabel": "Province",
+    "plotLabel": "Provinces",
+    "isCappedByCampaignPeriod": [
+      "Overall Target"
+    ],
     "excludedColumns": [
       "S.N.",
-      "Overall Household target"
+      "Target for daterange"
     ],
     "computedFields": [
+      {
+        "postAggregationTheory": "repsonseToDifferenceOfDates",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Target for daterange"
+        ],
+        "newField": "Household Target",
+        "_comments": ""
+      },
       {
         "postAggregationTheory": "",
         "actionName": "PercentageComputedField",
         "fields": [
           "total_count",
-          "Overall Household target"
+          "Household Target"
         ],
         "newField": "percentage_value",
         "_comments": ""
       }
     ],
     "insight": {},
-    "hideInsights": true,
+    "hideInsights": false,
     "hideHeaderDenomination": true,
     "_comment": " "
   },
@@ -43087,14 +43099,14 @@
         "dateRefField": "",
         "requestQueryMap": "{\"projectTypeId\":\"Data.projectTypeId.keyword\",\"province\": \"Data.boundaryHierarchy.province.keyword\",\"district\": \"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "project-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"HOUSEHOLD\"}},{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}}]}},\"aggs\":{\"Household Target\":{\"terms\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"},\"aggs\":{\"Overall Household Target\":{\"sum\":{\"field\":\"Data.overallTarget\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":\"HOUSEHOLD\"}},{\"exists\":{\"field\":\"Data.boundaryHierarchy.district.keyword\"}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.administrativeProvince.keyword\"}}]}},\"aggs\":{\"Household Target\":{\"terms\":{\"size\":500,\"order\":{\"_key\":\"asc\"},\"field\":\"Data.boundaryHierarchy.district.keyword\"},\"aggs\":{\"Overall Target\":{\"sum\":{\"field\":\"Data.overallTarget\"}},\"target\":{\"sum\":{\"field\":\"Data.targetPerDay\"}},\"Target for daterange\":{\"bucket_script\":{\"buckets_path\":{\"SUM\":\"target\"},\"script\":\"(params.SUM) * 365\"}}}}}}}}"
       },
       {
         "module": "COMMON",
         "dateRefField": "",
         "requestQueryMap": "{\"projectTypeId\":\"Data.projectTypeId.keyword\",\"province\": \"Data.boundaryHierarchy.province.keyword\",\"district\": \"Data.boundaryHierarchy.district.keyword\"}",
         "indexName": "household-index-v1",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"Total Households Registered\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"total_count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGS\":{\"filter\":{\"exists\":{\"field\":\"Data.household.id.keyword\"}},\"aggs\":{\"Total Households registered\":{\"terms\":{\"size\":500,\"field\":\"Data.boundaryHierarchy.district.keyword\",\"order\":{\"_key\":\"asc\"}},\"aggs\":{\"total_count\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}}}"
       }
     ],
     "filterKeys": [],
@@ -43103,25 +43115,37 @@
     "drillChart": "none",
     "documentType": "_doc",
     "action": "",
-    "plotLabel": "Province",
+    "plotLabel": "Districts",
+    "isCappedByCampaignPeriod": [
+      "Overall Target"
+    ],
     "excludedColumns": [
       "S.N.",
-      "Overall Household target"
+      "Target for daterange"
     ],
     "computedFields": [
+      {
+        "postAggregationTheory": "repsonseToDifferenceOfDates",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Target for daterange"
+        ],
+        "newField": "Household Target",
+        "_comments": ""
+      },
       {
         "postAggregationTheory": "",
         "actionName": "PercentageComputedField",
         "fields": [
           "total_count",
-          "Overall Household target"
+          "Household Target"
         ],
         "newField": "percentage_value",
         "_comments": ""
       }
     ],
     "insight": {},
-    "hideInsights": true,
+    "hideInsights": false,
     "hideHeaderDenomination": true,
     "_comment": " "
   },
@@ -43205,7 +43229,7 @@
     "drillChart": "none",
     "documentType": "_doc",
     "action": "",
-    "plotLabel": "Provinces",
+    "plotLabel": "Districts",
     "excludedColumns": [
       "S.N.",
       "Target for daterange"
