@@ -25,7 +25,14 @@ ReportDefinitions:
     label: report.obps.applicationtype
     type: string
     source: obps
+    isLocalisationRequired: true
     total: false
+  - name: username
+    label: report.obps.username
+    type: string
+    source: obps
+    total: false
+    showColumn: false
   - name: name
     label: report.obps.name
     type: string
@@ -40,6 +47,7 @@ ReportDefinitions:
     label: report.obps.instrumenttype
     type: string
     source: obps
+    isLocalisationRequired: true
     total: false
   - name: chequedate
     label: report.obps.chequedate
@@ -75,17 +83,9 @@ ReportDefinitions:
     label: report.obps.instrumentstatus
     type: string
     source: obps
+    isLocalisationRequired: true
     total: false
   searchParams:
-  - name: ulb
-    label: REPORTS_OBPS_PARAM_ULB
-    type: multivaluelist
-    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
-    source: obps
-    wrapper: true
-    isMandatory: false
-    showColumn: false
-    searchClause: AND bpa.tenantId IN ($ulb)
   - name: fromDate
     label: REPORTS_OBPS_PARAM_FROMDATE
     type: epoch
@@ -97,7 +97,7 @@ ReportDefinitions:
     type: epoch
     source: obps
     isMandatory: true
-    searchClause: AND bpa.createdtime  <= $toDate 
+    searchClause: AND bpa.createdtime  <= $toDate
   - name: instrumentType
     label: REPORTS_OBPS_PARAM_INSTRUMENTTYPE
     type: singlevaluelist
@@ -109,20 +109,19 @@ ReportDefinitions:
   - name: instrumentStatus
     label: REPORTS_OBPS_PARAM_INSTRUMENTSTATUS
     type: singlevaluelist
-    pattern: 'list://NEW:NEW,DEPOSITED:DEPOSITED,CANCELLED:CANCELLED,DISHONOURED:DISHONOURED'
-    source: obps
+    pattern: 'list://APPROVED:APPROVED,REMITTED:REMITTED,CANCELLED:CANCELLED,ACTIVE:ACTIVE'
     wrapper: true
     isMandatory: false
     searchClause: AND instrumentstatus = $instrumentStatus
   - name: collectionOperator
     label: REPORTS_OBPS_PARAM_COLLECTIONOPERATOR
     type: singlevaluelist
-    pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=EMPLOYEE,CEMP|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.username
+    pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=CEMP,BPA_APPROVER|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.userName
     source: obps
     wrapper: true
     isMandatory: false
     searchClause: AND egcl_payment.createdby = $collectionOperator
-  query: select to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, receiptnumber,bpa.applicationno as applicationnumber,bpa.additionaldetails->>'applicationType' as applicationtype, eg_user.name as name, eg_user.uuid as uuid, paymentmode as instrumenttype, CASE WHEN paymentmode='CHEQUE' THEN  to_char(To_timestamp(instrumentdate/ 1000), 'DD/MM/YYYY') ELSE null END as chequedate, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno, egcl_payment.additionaldetails->'bankDetails'->'BANK' as bankname,  CASE WHEN paymentmode='ONLINE' THEN transactionnumber ELSE null END as transactionid ,CASE WHEN paymentmode='CARD' THEN substring(instrumentnumber,1,4) ELSE null END as lastfourdigits, totalamountpaid, instrumentstatus from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_bpa_buildingplan bpa on consumercode=bpa.applicationno LEFT OUTER JOIN eg_land_unit land ON land.landinfoid = bpa.landid INNER JOIN eg_land_landinfo landinfo ON land.landinfoid = landinfo.id INNER JOIN eg_land_ownerinfo owner ON owner.landinfoid = landinfo.id LEFT OUTER JOIN eg_user  ON eg_user.uuid =owner.uuid where egcl_paymentdetail.businessservice IN ('BPA.NC_OC_APP_FEE','BPA.NC_SAN_FEE','BPA.LOW_RISK_PERMIT_FEE','BPAREG','BPA.NC_OC_SAN_FEE','BPA.NC_APP_FEE') and bpa.tenantid= $tenantid
+  query: select to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, receiptnumber,bpa.applicationno as applicationnumber,bpa.additionaldetails->>'applicationType' as applicationtype, eg_user.name as name, eg_user.username as username, eg_user.uuid as uuid, paymentmode as instrumenttype, CASE WHEN paymentmode='CHEQUE' THEN  to_char(To_timestamp(instrumentdate/ 1000), 'DD/MM/YYYY') ELSE null END as chequedate, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE null END as chequeno, TRIM('"' FROM ((egcl_payment.additionaldetails->'bankDetails'->'BANK') ::json::text)) as bankname,  CASE WHEN paymentmode='ONLINE' THEN transactionnumber ELSE null END as transactionid ,CASE WHEN paymentmode='CARD' THEN substring(instrumentnumber,1,4) ELSE null END as lastfourdigits, totalamountpaid, instrumentstatus from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_bpa_buildingplan bpa on consumercode=bpa.applicationno LEFT OUTER JOIN eg_land_landinfo landinfo ON bpa.landid = landinfo.id LEFT OUTER JOIN eg_land_ownerinfo owner ON owner.landinfoid = landinfo.id LEFT OUTER JOIN eg_user  ON eg_user.uuid =owner.uuid LEFT OUTER JOIN eg_land_unit land ON land.landinfoid = bpa.landid where egcl_paymentdetail.businessservice IN ('BPA.NC_OC_APP_FEE','BPA.NC_SAN_FEE','BPA.LOW_RISK_PERMIT_FEE','BPAREG','BPA.NC_OC_SAN_FEE','BPA.NC_APP_FEE') and bpa.tenantid= $tenantid
 
 - reportName: ObpsApplicationStatusReport
   decryptionPathId: ObpsApplicationStatusReport
@@ -145,6 +144,8 @@ ReportDefinitions:
       type: string
       source: obps
       total: false
+      isLocalisationRequired: true
+      localisationPrefix: WF_BPA_
     - name: uuid
       label: reports.obps.uuid
       type: string
@@ -160,21 +161,28 @@ ReportDefinitions:
       type: string
       source: obps
       total: false
+      isLocalisationRequired: true
+      localisationPrefix: WF_BPA_
     - name: servicetype
       label: reports.obps.servicetype
       type: string
       source: obps
       total: false
+      isLocalisationRequired: true
     - name: occupancytype
       label: reports.obps.occupancytype
       type: string
       source: obps
       total: false
+      isLocalisationRequired: true
+      localisationPrefix: BPA_OCCUPANCY_TYPE_
     - name: status
       label: reports.obps.status
       type: string
       source: obps
       total: false
+      isLocalisationRequired: true
+      localisationPrefix: WF_BPA_
     - name: currentowner
       label: reports.obps.currentowner
       type: string
@@ -190,13 +198,13 @@ ReportDefinitions:
       label: FromDate
       type: epoch
       source: obps
-      isMandatory: false
+      isMandatory: true
       searchClause: AND applicationdate >= $fromDate
     - name: toDate
       label: ToDate
       type: epoch
       source: obps
-      isMandatory: false
+      isMandatory: true
       searchClause: AND applicationdate  <= $toDate
     - name: applicationChannel
       label: reports.obps.applicationchannel
@@ -206,7 +214,7 @@ ReportDefinitions:
       searchClause: AND landinfo.channel in ( $applicationChannel )
       pattern: 'list://SYSTEM:SYSTEM'
       isLocalisationRequired: true
-      localisationPrefix: REPORT_OBPS_
+      localisationPrefix: WF_BPA_
     - name: applicationType
       label: reports.obps.applicationtype
       type: multivaluelist
@@ -215,7 +223,7 @@ ReportDefinitions:
       pattern: 'list://BUILDING_OC_PLAN_SCRUTINY:BUILDING_OC_PLAN_SCRUTINY,BUILDING_PLAN_SCRUTINY:BUILDING_PLAN_SCRUTINY'
       searchClause: AND bp.additionaldetails->>'applicationType' in ( $applicationType )
       isLocalisationRequired: true
-      localisationPrefix: REPORT_OBPS_
+      localisationPrefix: WF_BPA_
     - name: serviceType
       label: reports.obps.servicetype
       type: multivaluelist
@@ -224,7 +232,6 @@ ReportDefinitions:
       pattern: 'list://NEW_CONSTRUCTION:NEW_CONSTRUCTION'
       searchClause: AND bp.additionaldetails->> 'serviceType' in ( $serviceType )
       isLocalisationRequired: true
-      localisationPrefix: REPORT_OBPS_
     - name: status
       label: reports.obps.status
       type: multivaluelist
@@ -233,7 +240,7 @@ ReportDefinitions:
       pattern: 'list://CITIZEN_ACTION_PENDING_AT_DOC_VERIF:CITIZEN_ACTION_PENDING_AT_DOC_VERIF,INPROGRESS:INPROGRESS,PENDING_APPL_FEE:PENDING_APPL_FEE,PENDING_SANC_FEE_PAYMENT:PENDING_SANC_FEE_PAYMENT,DOC_VERIFICATION_INPROGRESS:DOC_VERIFICATION_INPROGRESS,CITIZEN_ACTION_PENDING_AT_NOC_VERIF:CITIZEN_ACTION_PENDING_AT_NOC_VERIF,PERMIT REVOCATION:PERMIT REVOCATION,FIELDINSPECTION_INPROGRESS:FIELDINSPECTION_INPROGRESS,PENDING_FEE:PENDING_FEE,NOC_VERIFICATION_INPROGRESS:NOC_VERIFICATION_INPROGRESS,INITIATED:INITIATED,CITIZEN_APPROVAL_INPROCESS:CITIZEN_APPROVAL_INPROCESS,REJECTED:REJECTED,APPROVED:APPROVED,CITIZEN_ACTION_PENDING_AT_FI_VERIF:CITIZEN_ACTION_PENDING_AT_FI_VERIF,APPROVAL_INPROGRESS:APPROVAL_INPROGRESS'
       searchClause: AND bp.status in ( $status )
       isLocalisationRequired: true
-      localisationPrefix: REPORT_OBPS_
+      localisationPrefix: WF_BPA_
 
-  query: select applicationno,to_char(To_timestamp(bp.applicationdate / 1000), 'DD/MM/YYYY') as applicationdate, landinfo.channel as applicationchannel, usr.name as name,  usr.uuid as uuid, bp.additionaldetails->>'applicationType' as applicationtype, bp.additionaldetails->> 'serviceType' as servicetype, land.occupancytype, bp.status, case when isterminatestate=true then null else userassignee.name end as currentowner, bp.approvalno as permitno FROM eg_wf_state_v2 st inner join eg_wf_processinstance_v2 pi on pi.status=st.uuid inner join eg_bpa_buildingplan bp on pi.businessid=bp.applicationno inner join eg_user usr ON bp.createdby = usr.uuid  inner join eg_land_unit land ON land.landinfoid = bp.landid inner join eg_land_landinfo landinfo ON land.landinfoid = landinfo.id inner join eg_land_address adr ON adr.landinfoid = landinfo.id inner join eg_user userassignee ON assigner = userassignee.uuid WHERE 1=1
-  orderby: ORDER BY applicationdate asc
+  query: select applicationno, bp.applicationdate as normalappdate, to_char(To_timestamp(bp.applicationdate / 1000), 'DD/MM/YYYY') as applicationdate, landinfo.channel as applicationchannel, usr.name as name,  usr.uuid as uuid, bp.additionaldetails->>'applicationType' as applicationtype, bp.additionaldetails->> 'serviceType' as servicetype, land.occupancytype, bp.status, case when isterminatestate=true then null else userassignee.name end as currentowner, bp.approvalno as permitno FROM eg_bpa_buildingplan bp inner join eg_wf_processinstance_v2 pi on pi.businessid=bp.applicationno inner join (select businessid, max(createdtime) as maxtime from eg_wf_processinstance_v2 group by businessid) wfg ON pi.businessid=wfg.businessid and maxtime=pi.createdtime inner join eg_wf_state_v2 st on pi.status=st.uuid inner join eg_user usr ON bp.createdby = usr.uuid  inner join eg_land_unit land ON land.landinfoid = bp.landid inner join eg_land_landinfo landinfo ON land.landinfoid = landinfo.id inner join eg_land_address adr ON adr.landinfoid = landinfo.id inner join eg_user userassignee ON assigner = userassignee.uuid WHERE 1=1
+  orderby: ORDER BY normalappdate asc

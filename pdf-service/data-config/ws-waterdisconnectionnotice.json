@@ -155,7 +155,12 @@
 								"variable": "applicationType",
 								"value": {
 									"path": "$.applicationType"
-								}
+								},
+				                "localisation":{
+				                  "required":true,
+				                  "prefix": "WATER_APPLICATIONTYPE",
+				                  "module": "rainmaker-common"
+				               }	
 							},
 							{
 								"variable": "application_of_label",
@@ -475,6 +480,18 @@
 									"prefix": null,
 									"module": "rainmaker-common"
 								}
+							},
+							{
+								"variable": "footer_message",
+								"value": {
+									"path": "PDF_STATIC_LABEL_WS_CONSOLIDATED_ACKNOWELDGMENT_FOOTER"
+								},
+								"type": "label",
+								"localisation": {
+									"required": true,
+									"prefix": null,
+									"module": "rainmaker-common"
+								}
 							}
 						]
 					},
@@ -488,20 +505,17 @@
 									{
 										"variable": "billingFromPeriod",
 										"value": "$.Bill[0].billDetails[0].fromPeriod",
-										"type": "date",
-										"format": "mm-dd-YYYY"
+										"type": "date"
 									},
 									{
 										"variable": "billingToPeriod",
 										"value": "$.Bill[0].billDetails[0].fromPeriod",
-										"type": "date",
-										"format": "mm-dd-YYYY"
+										"type": "date"
 									},
 									{
 										"variable": "billingDate",
 										"value": "$.Bill[0].billDate",
-										"type": "date",
-										"format": "mm-dd-YYYY"
+										"type": "date"
 									},
 									{
 										"variable": "billNumber",
@@ -513,13 +527,14 @@
 									},
 									{
 										"variable": "dueDate",
-										"value": "$.Bill[0].billDetails[0].expiryDate"
+										"value": "$.Bill[0].billDetails[0].expiryDate",
+										"type": "date"
 									}
 								]
 							},
 							{
 								"path": "http://egov-mdms-service:8080/egov-mdms-service/v1/_get",
-								"queryParam": "moduleName=tenant&masterName=tenants&tenantId=pb&filter=%5B?(@.code=='{$.property.tenantId}')%5D",
+								"queryParam": "moduleName=tenant&masterName=tenants&tenantId=pg&filter=%5B?(@.code=='{$.property.tenantId}')%5D",
 								"apiRequest": null,
 								"responseMapping": [
 									{
@@ -535,6 +550,17 @@
 											"prefix": "TENANT_TENANTS",
 											"module": "rainmaker-common"
 										}
+									}
+								]
+							},
+							{
+								"path": "http://ws-calculator:8080/ws-calculator/meterConnection/_search",
+								"queryParam": "tenantId=$.tenantId,connectionNos=$.connectionNo",
+								"apiRequest": null,
+								"responseMapping": [
+									{
+										"variable": "currentReading",
+										"value": "$.meterReadings[0].currentReading"
 									}
 								]
 							}
