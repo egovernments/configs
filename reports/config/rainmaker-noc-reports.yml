@@ -4,11 +4,13 @@ ReportDefinitions:
     version: 1.0.0
     moduleName: rainmaker-noc
     sourceColumns:
-      - name: localisedmessage
+      - name: usagetype
         label: reports.noc.collectionreport.usagetype
         type: string
         source: rainmaker-noc
         total: false
+        localisationPrefix: FIRENOC_BUILDINGTYPE_
+        isLocalisationRequired: true
       - name: transactionNumber
         label: reports.noc.collectionreport.transactionNumber
         type: number
@@ -39,18 +41,18 @@ ReportDefinitions:
         searchClause: AND receiptdate <= $toDate
       - name: channel
         label: reports.noc.collectionreport.channel
-        type: multivaluelist
-        pattern: 'list://COUNTER:ULB Counter,ONLINE:Online by Citizen'
+        type: singlevaluelist
+        pattern: 'list://COUNTER:Counter,CITIZEN:Citizen'
         source: common
         isMandatory: false
-        searchClause: AND collectiontype IN ($channel)
+        searchClause: AND fnd.channel IN ($channel)
       - name: paymentMode
         label: reports.noc.collectionreport.paymentMode
         type: singlevaluelist
-        pattern: 'list://Cash:Cash,Online:Online,Card:Card,DD:DD,Cheque:Cheque'
+        pattern: 'list://CASH:Cash,ONLINE:Online,CARD:Card,DD:DD,CHEQUE:Cheque'
         source: common
         isMandatory: false
-        searchClause: AND instrumenttype = $paymentMode
+        searchClause: AND paymentmode = $paymentMode
       - name: ulb
         label: reports.noc.collectionreport.ulb
         type: multivaluelist
@@ -58,11 +60,11 @@ ReportDefinitions:
         source: noc
         wrapper: true
         isMandatory: false
-        searchClause: AND fnoc.tenantId IN ($ulb)
-    query: select COALESCE(message,usagetype) localisedmessage, COUNT(*) as transactionNumber, sum(case when collectiontype='COUNTER' then ins.amount else 0 end) fees_counter, sum(case when collectiontype='ONLINE' then ins.amount else 0 end) fees_online from eg_fn_firenoc fnoc inner join eg_fn_firenocdetail fdet on fdet.firenocuuid=fnoc.uuid inner join egcl_receiptheader_v1 rhead on rhead.consumercode=fdet.applicationnumber inner join eg_fn_buidlings build on build.firenocdetailsuuid=fdet.uuid inner join egcl_receiptinstrument_v1 recins on recins.receiptheader=rhead.id inner join egcl_instrumentheader_v1 ins on recins.instrumentheader=ins.id left outer join message on code=concat('FIRENOC_BUILDINGTYPE_',UPPER(REGEXP_REPLACE(usagetype,'\..*',''))) and module='rainmaker-noc' where 1=1
-    groupby: GROUP BY localisedmessage
-    orderby: ORDER BY localisedmessage
-
+        searchClause: AND fn.tenantId IN ($ulb)
+    query: select usagetype,COUNT(*) as transactionNumber,sum(case when paymentmode='CASH' then totalamountpaid else 0 end) fees_counter, sum(case when paymentmode='ONLINE' then totalamountpaid else 0 end) fees_online from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_fn_firenocdetail fnd on consumercode=fnd.applicationnumber inner join eg_fn_firenoc fn on fnd.firenocuuid=fn.uuid inner join eg_fn_buidlings build on build.firenocdetailsuuid=fnd.uuid
+    groupby: GROUP BY usagetype
+    orderby: ORDER BY usagetype
+    
   - reportName: ApplicationStatusReport
     summary: Application Status Report
     version: 1.0.0
@@ -73,6 +75,8 @@ ReportDefinitions:
         type: string
         source: rainmaker-noc
         total: false
+        localisationPrefix: WF_FIRENOC_
+        isLocalisationRequired: true
       - name: number_of_application
         label: reports.noc.applicationstatusreport.noofapplications
         type: number
@@ -99,7 +103,7 @@ ReportDefinitions:
         wrapper: true
         isMandatory: false
         searchClause: AND fnoc.tenantId IN ($ulb)
-    query: select COALESCE(message,state) application_status,count(*) number_of_application from eg_fn_firenoc fnoc inner join eg_fn_firenocdetail fdet on fdet.firenocuuid=fnoc.uuid inner join (SELECT DISTINCT ON (businessid) * FROM eg_wf_processinstance_v2 ORDER BY businessid,createdtime desc) pinstance on pinstance.businessid=fdet.applicationnumber inner join eg_wf_state_v2 wfstate on pinstance.status=wfstate.uuid left outer join message on code=concat('WF_FIRENOC_',UPPER(state)) and module='rainmaker-noc'  where 1=1
+    query: select fdet.status as application_status,count(*) number_of_application from eg_fn_firenoc fnoc inner join eg_fn_firenocdetail fdet on fdet.firenocuuid=fnoc.uuid inner join (SELECT DISTINCT ON (businessid) * FROM eg_wf_processinstance_v2 ORDER BY businessid,createdtime desc) pinstance on pinstance.businessid=fdet.applicationnumber inner join eg_wf_state_v2 wfstate on pinstance.status=wfstate.uuid
     groupby: GROUP BY application_status
     orderby: ORDER BY application_status
 
@@ -113,6 +117,8 @@ ReportDefinitions:
         type: string
         source: rainmaker-noc
         total: false
+        localisationPrefix: FN_
+        isLocalisationRequired: true
       - name: number_of_applications
         label: reports.noc.channelsreport.applicationNo
         type: number
@@ -142,8 +148,8 @@ ReportDefinitions:
         pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
         source: noc
         wrapper: true
-        isMandatory: false
+        isMandatory: true
         searchClause: AND fnoc.tenantId IN ($ulb)
-    query: select channel, count (*) number_of_applications,round((count (*)::decimal/(select count(*) from eg_fn_firenoc fnoc inner join eg_fn_firenocdetail fdet on fdet.firenocuuid=fnoc.uuid))*100,2) percentage from eg_fn_firenoc fnoc inner join eg_fn_firenocdetail fdet on fdet.firenocuuid=fnoc.uuid
+    query: select channel, count (*) number_of_applications,round((count (*)::decimal/(select count(*) from eg_fn_firenoc fnoc inner join eg_fn_firenocdetail fdet on fdet.firenocuuid=fnoc.uuid where fnoc.tenantId IN ($ulb) ))*100,2) percentage from eg_fn_firenoc fnoc inner join eg_fn_firenocdetail fdet on fdet.firenocuuid=fnoc.uuid
     groupby: GROUP BY channel
     orderby: ORDER BY channel
