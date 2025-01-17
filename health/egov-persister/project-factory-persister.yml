@@ -253,21 +253,23 @@ serviceMaps:
       fromTopic: save-campaign-project
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO health.eg_cm_campaign_projects(id, projectid, campaignnumber, boundarycode, additionaldetails, isactive, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?);
-          basePath: $.campaignProject
+        - query: INSERT INTO health.eg_cm_campaign_projects(id, projectid, campaignnumber, boundarycode, boundarytype, parentboundarycode, additionaldetails, isactive, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
+          basePath: $.campaignProjects.*
           jsonMaps:
-            - jsonPath: $.campaignProject.id
-            - jsonPath: $.campaignProject.projectId
-            - jsonPath: $.campaignProject.campaignNumber
-            - jsonPath: $.campaignProject.boundaryCode
-            - jsonPath: $.campaignProject.additionalDetails
+            - jsonPath: $.campaignProjects.*.id
+            - jsonPath: $.campaignProjects.*.projectId
+            - jsonPath: $.campaignProjects.*.campaignNumber
+            - jsonPath: $.campaignProjects.*.boundaryCode
+            - jsonPath: $.campaignProjects.*.boundaryType
+            - jsonPath: $.campaignProjects.*.parentBoundaryCode
+            - jsonPath: $.campaignProjects.*.additionalDetails
               type: JSON
               dbType: JSONB
-            - jsonPath: $.campaignProject.isActive
-            - jsonPath: $.campaignProject.createdBy
-            - jsonPath: $.campaignProject.lastModifiedBy
-            - jsonPath: $.campaignProject.createdTime
-            - jsonPath: $.campaignProject.lastModifiedTime
+            - jsonPath: $.campaignProjects.*.isActive
+            - jsonPath: $.campaignProjects.*.createdBy
+            - jsonPath: $.campaignProjects.*.lastModifiedBy
+            - jsonPath: $.campaignProjects.*.createdTime
+            - jsonPath: $.campaignProjects.*.lastModifiedTime
 
     - version: 1.0  
       name: UpdateCampaignProject
@@ -275,18 +277,56 @@ serviceMaps:
       fromTopic: update-campaign-project
       isTransaction: true
       queryMaps:
-        - query: UPDATE health.eg_cm_campaign_projects SET projectid = ?, campaignnumber = ?, boundarycode = ?, additionaldetails = ?, isactive = ?, createdby = ?, lastmodifiedby = ?, createdtime = ?, lastmodifiedtime = ? WHERE id = ?;
-          basePath: $.campaignProject
+        - query: UPDATE health.eg_cm_campaign_projects SET projectid = ?, boundarycode = ?, boundarytype = ?, parentboundarycode = ?, additionaldetails = ?, isactive = ?, lastmodifiedby = ?, lastmodifiedtime = ? WHERE id = ?;
+          basePath: $.campaignProjects.*
           jsonMaps:
-            - jsonPath: $.campaignProject.projectId
-            - jsonPath: $.campaignProject.campaignNumber
-            - jsonPath: $.campaignProject.boundaryCode
-            - jsonPath: $.campaignProject.additionalDetails
+            - jsonPath: $.campaignProjects.*.projectId
+            - jsonPath: $.campaignProjects.*.boundaryCode
+            - jsonPath: $.campaignProjects.*.boundaryType
+            - jsonPath: $.campaignProjects.*.parentBoundaryCode
+            - jsonPath: $.campaignProjects.*.additionalDetails
               type: JSON
               dbType: JSONB
-            - jsonPath: $.campaignProject.isActive
-            - jsonPath: $.campaignProject.createdBy
-            - jsonPath: $.campaignProject.lastModifiedBy
-            - jsonPath: $.campaignProject.createdTime
-            - jsonPath: $.campaignProject.lastModifiedTime
-            - jsonPath: $.campaignProject.id
+            - jsonPath: $.campaignProjects.*.isActive
+            - jsonPath: $.campaignProjects.*.lastModifiedBy
+            - jsonPath: $.campaignProjects.*.lastModifiedTime
+            - jsonPath: $.campaignProjects.*.id
+
+    - version: 1.0  
+      name: CreateCampaignCreationProcesses
+      description: Create campaign process in the eg_cm_campaign_creation_process_status table
+      fromTopic: create-campaign-process
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO health.eg_cm_campaign_creation_process_status(id, campaignnumber, processname, status, additionaldetails, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?);
+          basePath: $.campaignProcesses.*
+          jsonMaps:
+            - jsonPath: $.campaignProcesses.*.id
+            - jsonPath: $.campaignProcesses.*.campaignNumber
+            - jsonPath: $.campaignProcesses.*.processName
+            - jsonPath: $.campaignProcesses.*.status
+            - jsonPath: $.campaignProcesses.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.campaignProcesses.*.createdBy
+            - jsonPath: $.campaignProcesses.*.lastModifiedBy
+            - jsonPath: $.campaignProcesses.*.createdTime
+            - jsonPath: $.campaignProcesses.*.lastModifiedTime
+ 
+
+    - version: 1.0  
+      name: UpdateCampaignCreationProcesses
+      description: Update campaign process in the eg_cm_campaign_creation_process_status table
+      fromTopic: update-campaign-process
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE health.eg_cm_campaign_creation_process_status SET status = ?, additionaldetails = ?, lastmodifiedby = ?, lastmodifiedtime = ? WHERE id = ?;
+          basePath: $.campaignProcesses.*
+          jsonMaps:
+            - jsonPath: $.campaignProcesses.*.status
+            - jsonPath: $.campaignProcesses.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.campaignProcesses.*.lastModifiedBy
+            - jsonPath: $.campaignProcesses.*.lastModifiedTime
+            - jsonPath: $.campaignProcesses.*.id
