@@ -1,5 +1,5 @@
 ServiceMaps:
- serviceName: bpa-Event indexer
+ serviceName: Bpa-Event indexer
  version: 1.0.0
  mappings:
   - topic: inbox-bpa-events
@@ -8,66 +8,63 @@ ServiceMaps:
       - name: bpa-inbox
         type: _doc
         id: $.id, $.tenantId
-        jsonPath: $.tl
+        jsonPath: $.BPA
         timeStampField: $.auditDetails.createdTime
         isBulk: false
         customJsonMapping:
-          indexMapping: { "Data": { "id": "","tenantId": "", "applicationNo": "","applicationStatus": "","status": "","possibleServiceDate": "","mobileNumber": "","@timestamp": "timestamp","auditDetails": {},"locality": "","currentProcessInstance": {}}}      
+          indexMapping: { "Data": { "id": "","tenantId": "", "edcrNumber": "","applicationNo": "","applicationDate": "","status": "","landInfo": {},"@timestamp": "timestamp","auditDetails": {},"currentProcessInstance": {}}}      
           fieldMapping:
-          - inJsonPath: $.processInstance
-            outJsonPath: $.Data.currentProcessInstance
           - inJsonPath: $.id
             outJsonPath: $.Data.id
           - inJsonPath: $.tenantId
             outJsonPath: $.Data.tenantId
+          - inJsonPath: $.edcrNumber
+            outJsonPath: $.Data.edcrNumber
           - inJsonPath: $.applicationNo
             outJsonPath: $.Data.applicationNo
-          - inJsonPath: $.applicationStatus
-            outJsonPath: $.Data.applicationStatus
+          - inJsonPath: $.applicationDate
+            outJsonPath: $.Data.applicationDate
           - inJsonPath: $.status
             outJsonPath: $.Data.status
-          - inJsonPath: $.possibleServiceDate
-            outJsonPath: $.Data.possibleServiceDate
-          - inJsonPath: $.citizen.mobileNumber
-            outJsonPath: $.Data.mobileNumber
+          - inJsonPath: $.landInfo
+            outJsonPath: $.Data.landInfo
           - inJsonPath: $.@timestamp
             outJsonPath: $.Data.@timestamp
           - inJsonPath: $.auditDetails
             outJsonPath: $.Data.auditDetails
-          - inJsonPath: $.address.locality.code
-            outJsonPath: $.Data.locality
+          - inJsonPath: $.processInstance
+            outJsonPath: $.Data.currentProcessInstance
+            
   - topic: inbox-bpa-events-legacyindex
     configKey: LEGACYINDEX
     indexes:
-      - name: bpa-inbox
+      - name: bpa-inbox-reindex
         type: _doc
         id: $.id, $.tenantId
-        jsonPath: $.tl.*
+        jsonPath: $.BPA.*
         timeStampField: $.auditDetails.createdTime
         isBulk: true
         customJsonMapping:
-          indexMapping: { "Data": { "id": "","tenantId": "", "applicationNo": "","applicationStatus": "","status": "","possibleServiceDate": "","mobileNumber": "","@timestamp": "timestamp","auditDetails": {},"locality": "","currentProcessInstance": {}}}      
+          indexMapping: { "Data": { "id": "","tenantId": "", "edcrNumber": "","applicationNo": "","applicationDate": "","status": "","landInfo": {},"@timestamp": "timestamp","auditDetails": {},"currentProcessInstance": {}}}      
           fieldMapping:
           - inJsonPath: $.id
             outJsonPath: $.Data.id
           - inJsonPath: $.tenantId
             outJsonPath: $.Data.tenantId
+          - inJsonPath: $.edcrNumber
+            outJsonPath: $.Data.edcrNumber
           - inJsonPath: $.applicationNo
             outJsonPath: $.Data.applicationNo
-          - inJsonPath: $.applicationStatus
-            outJsonPath: $.Data.applicationStatus
+          - inJsonPath: $.applicationDate
+            outJsonPath: $.Data.applicationDate
           - inJsonPath: $.status
             outJsonPath: $.Data.status
-          - inJsonPath: $.possibleServiceDate
-            outJsonPath: $.Data.possibleServiceDate
-          - inJsonPath: $.citizen.mobileNumber
-            outJsonPath: $.Data.mobileNumber
+          - inJsonPath: $.landInfo
+            outJsonPath: $.Data.landInfo
           - inJsonPath: $.@timestamp
             outJsonPath: $.Data.@timestamp
           - inJsonPath: $.auditDetails
             outJsonPath: $.Data.auditDetails
-          - inJsonPath: $.address.locality.code
-            outJsonPath: $.Data.locality
           externalUriMapping:
           - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
             queryParam: businessIds=$.applicationNo,history=true,tenantId=$.tenantId
