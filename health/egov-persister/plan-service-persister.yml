@@ -115,7 +115,7 @@ serviceMaps:
             - jsonPath: $.PlanConfiguration.campaignId
             - jsonPath: $.PlanConfiguration.status
             - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
-            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime            
+            - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
             - jsonPath: $.PlanConfiguration.additionalDetails
               type: JSON
               dbType: JSONB
@@ -404,6 +404,24 @@ serviceMaps:
 
             - jsonPath: $.Plan.auditDetails.lastModifiedTime
 
+        - query: INSERT INTO health.plan_additional_field(id, plan_id, key, value, show_on_ui, editable, "order") VALUES (?, ?, ?, ?, ?, ?, ?);
+          basePath: $.Plan.additionalFields.*
+          jsonMaps:
+
+              - jsonPath: $.Plan.additionalFields.*.id
+
+              - jsonPath: $.Plan.id
+
+              - jsonPath: $.Plan.additionalFields.*.key
+
+              - jsonPath: $.Plan.additionalFields.*.value
+
+              - jsonPath: $.Plan.additionalFields.*.showOnUi
+
+              - jsonPath: $.Plan.additionalFields.*.editable
+
+              - jsonPath: $.Plan.additionalFields.*.order
+
     - version: 1.0.0
       description: Updates the plan
       fromTopic: update-plan
@@ -522,7 +540,32 @@ serviceMaps:
 
             - jsonPath: $.Plan.auditDetails.lastModifiedTime
 
-            
+        - query: INSERT INTO health.plan_additional_field(id, plan_id, key, value, show_on_ui, editable, "order") VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET value = ?, show_on_ui = ?, editable = ?, "order" = ?;
+          basePath: $.Plan.additionalFields.*
+          jsonMaps:
+
+            - jsonPath: $.Plan.additionalFields.*.id
+
+            - jsonPath: $.Plan.id
+
+            - jsonPath: $.Plan.additionalFields.*.key
+
+            - jsonPath: $.Plan.additionalFields.*.value
+
+            - jsonPath: $.Plan.additionalFields.*.showOnUi
+
+            - jsonPath: $.Plan.additionalFields.*.editable
+
+            - jsonPath: $.Plan.additionalFields.*.order
+
+            - jsonPath: $.Plan.additionalFields.*.value
+
+            - jsonPath: $.Plan.additionalFields.*.showOnUi
+
+            - jsonPath: $.Plan.additionalFields.*.editable
+
+            - jsonPath: $.Plan.additionalFields.*.order
+
     - version: 1.0.0
       description: Persists the plan facility
       fromTopic: save-plan-facility
