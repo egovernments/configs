@@ -27011,7 +27011,7 @@
       {
         "module": "PQM",
         "indexName": "vehicletrip",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.vehicleTrip.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"TotalIncomingSludge\":{\"sum\":{\"field\":\"Data.vehicleTrip.tripDetails.volume\"}}}}}}",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.vehicleTrip.tenantId.keyword\":\"pg.testing\"}}],\"must\":[{\"exists\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}]}},\"aggs\":{\"TotalIncomingSludge\":{\"sum\":{\"script\":{\"source\":\"(doc['Data.vehicleTrip.volumeCarried'].value)/1000.0\"}}}}}}}",
         "requestQueryMap": "{\"tenantId\" : \"Data.tests.tenantId\"}",
         "dateRefField": "Data.tests.@timestamp"
       }
@@ -27057,18 +27057,19 @@
       {
         "module": "PQM",
         "indexName": "pqm-service",
-        "aggrQuery": "{\"aggs\":{\"TotalPlants\":{\"cardinality\":{\"field\":\"Data.tests.plantCode.keyword\"}}}}",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"TotalTestsPassed\":{\"filter\":{\"term\":{\"Data.tests.status.keyword\":\"PASS\"}}},\"TotalTestsSubmitted\":{\"filter\":{\"term\":{\"Data.tests.wfStatus.keyword\":\"SUBMITTED\"}}}}}",
         "requestQueryMap": "{\"tenantId\" : \"Data.tests.tenantId\"}",
         "dateRefField": "Data.tests.@timestamp"
       }
     ],
     "chartType": "metric",
     "valueType": "percentage",
-    "action": "",
+    "action": "percentage",
     "drillChart": "none",
     "documentType": "_doc",
     "aggregationPaths": [
-      "TotalPlants"
+      "TotalTestsPassed",
+      "TotalTestSubmitted"
     ],
     "postAggregationTheory": "",
     "insight": {},
@@ -27080,18 +27081,19 @@
       {
         "module": "PQM",
         "indexName": "pqm-service",
-        "aggrQuery": "{\"aggs\":{\"TotalPlants\":{\"cardinality\":{\"field\":\"Data.tests.plantCode.keyword\"}}}}",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"TotalTestsSubmitted\":{\"filter\":{\"term\":{\"Data.tests.wfStatus.keyword\":\"SUBMITTED\"}}},\"TotalTests\":{\"value_count\":{\"field\":\"Data.tests.id.keyword\"}}}}",
         "requestQueryMap": "{\"tenantId\" : \"Data.tests.tenantId\"}",
         "dateRefField": "Data.tests.@timestamp"
       }
     ],
     "chartType": "metric",
     "valueType": "percentage",
-    "action": "",
+    "action": "percentage",
     "drillChart": "none",
     "documentType": "_doc",
     "aggregationPaths": [
-      "TotalPlants"
+      "TotalTestsSubmitted",
+      "TotalTests"
     ],
     "postAggregationTheory": "",
     "insight": {},
@@ -27148,7 +27150,7 @@
       {
         "module": "PQM",
         "indexName": "pqm-service",
-        "aggrQuery": "{\"aggs\":{\"TotalPlants\":{\"cardinality\":{\"field\":\"Data.tests.plantCode.keyword\"}}}}",
+        "aggrQuery": "{\"size\":0,\"query\":{\"bool\":{\"must\":[{\"term\":{\"Data.tests.wfStatus.keyword\":\"SUBMITTED\"}}]}},\"aggs\":{\"PlantsPassPercentage\":{\"terms\":{\"field\":\"Data.tests.plantCode.keyword\",\"size\":200},\"aggs\":{\"TotalPassTest\":{\"filter\":{\"term\":{\"Data.tests.status.keyword\":\"PASS\"}}},\"PassPercentage\":{\"bucket_script\":{\"buckets_path\":{\"passCount\":\"TotalPassTest._count\",\"totalCount\":\"_count\"},\"script\":\"params.totalCount>0?params.passCount/params.totalCount*100:0\"}},\"PassPercentageFilter\":{\"bucket_selector\":{\"buckets_path\":{\"passPercentage\":\"PassPercentage\"},\"script\":\"params.passPercentage>90\"}},\"dummy\":{\"max\":{\"script\":\"1\"}}}},\"TotalPlantsAbove90Percentage\":{\"sum_bucket\":{\"buckets_path\":\"PlantsPassPercentage>dummy\"}}}}",
         "requestQueryMap": "{\"tenantId\" : \"Data.tests.tenantId\"}",
         "dateRefField": "Data.tests.@timestamp"
       }
@@ -27159,11 +27161,11 @@
     "drillChart": "none",
     "documentType": "_doc",
     "aggregationPaths": [
-      "TotalPlants"
+      "TotalPlantsAbove90Percentage"
     ],
     "postAggregationTheory": "",
     "insight": {},
-    "_comment": "Total Plants"
+    "_comment": "Total Plants Above 90 Percentage"
   },
   "plantPassBetween": {
     "chartName": "DSS_PQM_PLANT_PASS_BETWEEN",
@@ -27171,7 +27173,7 @@
       {
         "module": "PQM",
         "indexName": "pqm-service",
-        "aggrQuery": "{\"aggs\":{\"TotalPlants\":{\"cardinality\":{\"field\":\"Data.tests.plantCode.keyword\"}}}}",
+        "aggrQuery": "{\"size\":0,\"query\":{\"bool\":{\"must\":[{\"term\":{\"Data.tests.wfStatus.keyword\":\"SUBMITTED\"}}]}},\"aggs\":{\"PlantsPassPercentage\":{\"terms\":{\"field\":\"Data.tests.plantCode.keyword\",\"size\":200},\"aggs\":{\"TotalPassTest\":{\"filter\":{\"term\":{\"Data.tests.status.keyword\":\"PASS\"}}},\"PassPercentage\":{\"bucket_script\":{\"buckets_path\":{\"passCount\":\"TotalPassTest._count\",\"totalCount\":\"_count\"},\"script\":\"params.totalCount>0?params.passCount/params.totalCount*100:0\"}},\"PassPercentageFilter\":{\"bucket_selector\":{\"buckets_path\":{\"passPercentage\":\"PassPercentage\"},\"script\":\"params.passPercentage<=90&¶ms.passPercentage>=75\"}},\"dummy\":{\"max\":{\"script\":\"1\"}}}},\"TotalPlantsBetween75And90Percentage\":{\"sum_bucket\":{\"buckets_path\":\"PlantsPassPercentage>dummy\"}}}}",
         "requestQueryMap": "{\"tenantId\" : \"Data.tests.tenantId\"}",
         "dateRefField": "Data.tests.@timestamp"
       }
@@ -27182,11 +27184,11 @@
     "drillChart": "none",
     "documentType": "_doc",
     "aggregationPaths": [
-      "TotalPlants"
+      "TotalPlantsBetween75And90Percentage"
     ],
     "postAggregationTheory": "",
     "insight": {},
-    "_comment": "Total Plants"
+    "_comment": "Total Plants Between 75 And 90 Percentage"
   },
   "plantPassLessthen": {
     "chartName": "DSS_PQM_PLANT_PASS_LESS_THEN",
@@ -27194,7 +27196,7 @@
       {
         "module": "PQM",
         "indexName": "pqm-service",
-        "aggrQuery": "{\"aggs\":{\"TotalPlants\":{\"cardinality\":{\"field\":\"Data.tests.plantCode.keyword\"}}}}",
+        "aggrQuery": "{\"size\":0,\"query\":{\"bool\":{\"must\":[{\"term\":{\"Data.tests.wfStatus.keyword\":\"SUBMITTED\"}}]}},\"aggs\":{\"PlantsPassPercentage\":{\"terms\":{\"field\":\"Data.tests.plantCode.keyword\",\"size\":200},\"aggs\":{\"TotalPassTest\":{\"filter\":{\"term\":{\"Data.tests.status.keyword\":\"PASS\"}}},\"PassPercentage\":{\"bucket_script\":{\"buckets_path\":{\"passCount\":\"TotalPassTest._count\",\"totalCount\":\"_count\"},\"script\":\"params.totalCount>0?params.passCount/params.totalCount*100:0\"}},\"PassPercentageFilter\":{\"bucket_selector\":{\"buckets_path\":{\"passPercentage\":\"PassPercentage\"},\"script\":\"params.passPercentage<75\"}},\"dummy\":{\"max\":{\"script\":\"1\"}}}},\"TotalPlantsBelow75Percentage\":{\"sum_bucket\":{\"buckets_path\":\"PlantsPassPercentage>dummy\"}}}}",
         "requestQueryMap": "{\"tenantId\" : \"Data.tests.tenantId\"}",
         "dateRefField": "Data.tests.@timestamp"
       }
@@ -27205,11 +27207,11 @@
     "drillChart": "none",
     "documentType": "_doc",
     "aggregationPaths": [
-      "TotalPlants"
+      "TotalPlantsBelow75Percentage"
     ],
     "postAggregationTheory": "",
     "insight": {},
-    "_comment": "Total Plants"
+    "_comment": "Total Plants Below 75 Percentage"
   },
   "plantWiseQualityResult": {
     "chartName": "DSS_PQM_QUALITY_RESULTS_PLANT_WISE",
@@ -27219,7 +27221,7 @@
         "dateRefField": "Data.tests.@timestamp",
         "requestQueryMap": "{\"plantCode\" : \"Data.tests.plantCode.keyword\"}",
         "indexName": "pqm-service",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.tests.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"Plants\":{\"terms\":{\"field\":\"Data.tests.plantCode.keyword\"},\"aggs\":{\"TotalTestCreated\":{\"value_count\":{\"field\":\"Data.tests.id.keyword\"}},\"TotalTestSubmitted\":{\"filter\":{\"term\":{\"Data.tests.wfStatus.keyword\":\"SUBMITTED\"}}},\"TotalTestpassed\":{\"filter\":{\"term\":{\"Data.tests.status.keyword\":\"PASS\"}}},\"PassPercentage\":{\"bucket_script\":{\"buckets_path\":{\"passed\":\"TotalTestpassed._count\",\"submitted\":\"TotalTestSubmitted._count\"},\"script\":\"params.submitted>0?(params.passed/params.submitted)*100:0\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"terms\":{\"field\":\"Data.tests.plantCode.keyword\"},\"aggs\":{\"TotalTestsCreated\":{\"value_count\":{\"field\":\"Data.tests.id.keyword\"}},\"TotalTestsSubmitted\":{\"filter\":{\"term\":{\"Data.tests.wfStatus.keyword\":\"SUBMITTED\"}}},\"TotalTestsPassed\":{\"filter\":{\"term\":{\"Data.tests.status.keyword\":\"PASS\"}}},\"PassPercentage\":{\"bucket_script\":{\"buckets_path\":{\"passed\":\"TotalTestsPassed._count\",\"submitted\":\"TotalTestsSubmitted._count\"},\"script\":\"params.submitted>0?(params.passed/params.submitted)*100:0\"}}}}}}"
        }
     ],
     "isMdmsEnabled": true,
@@ -27235,9 +27237,9 @@
     "drillChart": "pqmQualtyReportByPlant",
     "plotLabel": "Plant",
     "aggregationPaths": [
-      "TotalTestCreated",
-      "TotalTestSubmitted",
-      "TotalTestpassed",
+      "TotalTestsCreated",
+      "TotalTestsSubmitted",
+      "TotalTestsPassed",
       "PassPercentage"
     ],
     "pathDataTypeMapping": [
@@ -27260,9 +27262,9 @@
       "XtableColumnOrder": [
         "S.N.",
         "PlantCode",
-        "TotalTestCreated",
-        "TotalTestSubmitted",
-        "TotalTestpassed",
+        "TotalTestsCreated",
+        "TotalTestsSubmitted",
+        "TotalTestsPassed",
         "PassPercentage"
       ]
     },
@@ -27277,7 +27279,7 @@
         "dateRefField": "Data.tests.@timestamp",
         "requestQueryMap": "{\"tenantId\" : \"Data.tests.tenantId\", \"parmeter\" : \"Data.tests.testCriteria.criteriaCode\"}",
         "indexName": "pqm-service",
-        "aggrQuery": "{\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"Data.tests.tenantId.keyword\",\"size\":100},\"aggs\":{\"Parameter\":{\"terms\":{\"field\":\"Data.tests.testCriteria.criteriaCode.keyword\",\"size\":100},\"aggs\":{\"LastModifiedDate\":{\"max\":{\"field\":\"Data.tests.testCriteria.auditDetails.lastModifiedTime\"}},\"LastUpdatedValue\":{\"max\":{\"field\":\"Data.tests.testCriteria.resultValue\"}}}}}}}}"
+        "aggrQuery": "{\"size\":0,\"query\":{\"exists\":{\"field\":\"Data.tests.testCriteria\"}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"Data.tests.tenantId.keyword\",\"size\":100},\"aggs\":{\"parameter_rules\":{\"terms\":{\"field\":\"Data.tests.testCriteria.criteriaCode.keyword\",\"size\":100},\"aggs\":{\"LastModifiedDate\":{\"max\":{\"field\":\"Data.tests.testCriteria.auditDetails.lastModifiedTime\"}},\"LatestResultStatus\":{\"scripted_metric\":{\"init_script\":\"state.latestStatus=null\",\"map_script\":\"\"\"if(params['_source'].Data!=null&¶ms['_source'].Data.tests!=null&¶ms['_source'].Data.tests.testCriteria!=null){for(iteminparams['_source'].Data.tests.testCriteria){if(item.auditDetails!=null&&item.auditDetails.lastModifiedTime!=null){deftime=item.auditDetails.lastModifiedTime;if(state.latestStatus==null||time>state.latestStatus.time){state.latestStatus=['status':item.resultStatus,'time':time];}}}}\"\"\",\"combine_script\":\"returnstate.latestStatus\",\"reduce_script\":\"\"\"deflatest=null;for(sinstates){if(s!=null){if(latest==null||s.time>latest.time){latest=s;}}}returnlatest!=null?latest.status:null;\"\"\"}},\"LatestResultValue\":{\"scripted_metric\":{\"init_script\":\"state.latestValue=null\",\"map_script\":\"\"\"if(params['_source'].Data!=null&¶ms['_source'].Data.tests!=null&¶ms['_source'].Data.tests.testCriteria!=null){for(iteminparams['_source'].Data.tests.testCriteria){if(item.auditDetails!=null&&item.auditDetails.lastModifiedTime!=null){deftime=item.auditDetails.lastModifiedTime;if(state.latestValue==null||time>state.latestValue.time){state.latestValue=['value':item.resultValue,'time':time];}}}}\"\"\",\"combine_script\":\"returnstate.latestValue\",\"reduce_script\":\"\"\"deflatest=null;for(sinstates){if(s!=null){if(latest==null||s.time>latest.time){latest=s;}}}returnlatest!=null?latest.value:null;\"\"\"}}}}}}}}"
        }
     ],
     "isMdmsEnabled": true,
@@ -27292,17 +27294,21 @@
     "isRoundOff": true,
     "documentType": "_doc",
     "drillChart": "pqmQualtyReportByTenant",
-    "plotLabel": "District",
+    "plotLabel": "Parameter",
     "aggregationPaths": [
       "LastModifiedDate",
-      "LastUpdatedValue"
+      "LatestResultStatus",
+      "LatestResultValue"
     ],
     "pathDataTypeMapping": [
       {
         "LastModifiedDate" : "number"
       },
       {
-        "LastUpdatedValue" : "number"
+        "LatestResultStatus" : "number"
+      },
+      {
+        "LatestResultValue" : "number"
       }
     ],
     "isCumulative": true,
@@ -27311,8 +27317,10 @@
       "XtableColumnOrder": [
         "S.N.",
         "District",
+        "Parameter",
         "LastModifiedDate",
-        "LastModifiedDate"
+        "LatestResultStatus",
+        "LatestResultValue"
       ]
     },
     "insight": {},
