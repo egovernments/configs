@@ -340,6 +340,49 @@ serviceMaps:
             - jsonPath: $.campaignEmployees.*.lastModifiedBy
             - jsonPath: $.campaignEmployees.*.lastModifiedTime
             - jsonPath: $.campaignEmployees.*.id
+    
+    - version: 1.0  
+      name: CreateCampaignFacilities
+      description: Create campaign facilities in the eg_cm_campaign_facilities table
+      fromTopic: save-campaign-facilities
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO health.eg_cm_campaign_facilities(id, campaignnumber, "name", facilityid, facilityusage, ispermanent, storagecapacity, additionaldetails, isactive, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);
+          basePath: $.campaignFacilities.*
+          jsonMaps:
+            - jsonPath: $.campaignEmployees.*.id
+            - jsonPath: $.campaignEmployees.*.campaignNumber
+            - jsonPath: $.campaignEmployees.*.name
+            - jsonPath: $.campaignEmployees.*.facilityId
+            - jsonPath: $.campaignEmployees.*.facilityUsage
+            - jsonPath: $.campaignEmployees.*.isPermanent
+            - jsonPath: $.campaignEmployees.*.storageCapacity
+            - jsonPath: $.campaignEmployees.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.campaignEmployees.*.isActive
+            - jsonPath: $.campaignEmployees.*.createdBy
+            - jsonPath: $.campaignEmployees.*.lastModifiedBy
+            - jsonPath: $.campaignEmployees.*.createdTime
+            - jsonPath: $.campaignEmployees.*.lastModifiedTime
+
+    - version: 1.0  
+      name: UpdateCampaignFacilities
+      description: Update campaign facilities in the eg_cm_campaign_facilities table
+      fromTopic: update-campaign-facilities
+      isTransaction: true
+      queryMaps:
+        - query: UPDATE health.eg_cm_campaign_facilities SET facilityid = ?, additionaldetails = ?, isactive = ?, lastmodifiedby = ?, lastmodifiedtime = ? WHERE id = ?;
+          basePath: $.campaignFacilities.*
+          jsonMaps:
+            - jsonPath: $.campaignFacilities.*.facilityId
+            - jsonPath: $.campaignFacilities.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.campaignFacilities.*.isActive
+            - jsonPath: $.campaignFacilities.*.lastModifiedBy
+            - jsonPath: $.campaignFacilities.*.lastModifiedTime
+            - jsonPath: $.campaignFacilities.*.id
 
     - version: 1.0  
       name: CreateCampaignMappings
