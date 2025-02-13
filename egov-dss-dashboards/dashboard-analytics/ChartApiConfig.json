@@ -16969,7 +16969,7 @@
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtName\"}",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"Open_Req\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"OpenReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Closed_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"ClosedReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"TotalReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.fsm.auditDetails.lastModifiedTime'].value - doc['Data.fsm.auditDetails.createdTime'].value < params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"ClosedWithInSla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"Open_Req\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"OpenReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Closed_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"ClosedReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"TotalReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.fsm.auditDetails.lastModifiedTime'].value-doc['Data.fsm.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"ClosedWithInSla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Failed_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"DSO_REJECTED\",\"REJECTED\",\"CANCELED\"]}}]}},\"aggs\":{\"FailedReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}}}}"
       },
       {
         "module": "FSM",
@@ -16999,16 +16999,6 @@
         "postAggregationTheory": "",
         "actionName": "PercentageComputedField",
         "fields": [
-          "ClosedReq",
-          "TotalReq"
-        ],
-        "newField": "CompletionRateIn%",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      },
-      {
-        "postAggregationTheory": "",
-        "actionName": "PercentageComputedField",
-        "fields": [
           "ClosedWithInSla",
           "TotalReq"
         ],
@@ -17023,9 +17013,9 @@
         "OpenReq",
         "ClosedReq",
         "TotalReq",
-        "CompletionRateIn%",
         "SLAAchievedIn%",
-        "TotalCollection"
+        "TotalCollection",
+        "FailedReq"
       ]
     },
     "insight": {},
@@ -17039,7 +17029,7 @@
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtName\"}",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"Data.fsm.tenantId.keyword\",\"size\":1000},\"aggs\":{\"Open_Req\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\",\"DSO_REJECTED\",\"REJECTED\",\"CANCELED\"]}}]}},\"aggs\":{\"OpenReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Closed_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"ClosedReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"TotalReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.fsm.auditDetails.lastModifiedTime'].value - doc['Data.fsm.auditDetails.createdTime'].value < params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"ClosedWithInSla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"Data.fsm.tenantId.keyword\",\"size\":1000},\"aggs\":{\"Open_Req\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\",\"DSO_REJECTED\",\"REJECTED\",\"CANCELED\"]}}]}},\"aggs\":{\"OpenReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Closed_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"ClosedReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"TotalReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.fsm.auditDetails.lastModifiedTime'].value-doc['Data.fsm.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"ClosedWithInSla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Failed_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"DSO_REJECTED\",\"REJECTED\",\"CANCELED\"]}}]}},\"aggs\":{\"FailedReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}}}}}}"
       },
       {
         "module": "FSM",
@@ -17068,16 +17058,6 @@
         "postAggregationTheory": "",
         "actionName": "PercentageComputedField",
         "fields": [
-          "ClosedReq",
-          "TotalReq"
-        ],
-        "newField": "CompletionRateIn%",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      },
-      {
-        "postAggregationTheory": "",
-        "actionName": "PercentageComputedField",
-        "fields": [
           "ClosedWithInSla",
           "TotalReq"
         ],
@@ -17092,9 +17072,9 @@
         "OpenReq",
         "ClosedReq",
         "TotalReq",
-        "CompletionRateIn%",
         "SLAAchievedIn%",
-        "TotalCollection"
+        "TotalCollection",
+        "FailedReq"
       ]
     },
     "insight": {},
@@ -17108,7 +17088,7 @@
         "dateRefField": "Data.fsm.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtCode\"}",
         "indexName": "fsm",
-        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"Data.ward.name.keyword\",\"size\":1000},\"aggs\":{\"Open_Req\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"OpenReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Closed_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"ClosedReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"TotalReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.fsm.auditDetails.lastModifiedTime'].value - doc['Data.fsm.auditDetails.createdTime'].value < params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"ClosedWithInSla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}}}}}}"
+        "aggrQuery": "{\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.fsm.tenantId.keyword\":\"pg.testing\"}}]}},\"aggs\":{\"Ward\":{\"terms\":{\"field\":\"Data.ward.name.keyword\",\"size\":1000},\"aggs\":{\"Open_Req\":{\"filter\":{\"bool\":{\"must_not\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"OpenReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Closed_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}}]}},\"aggs\":{\"ClosedReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"TotalReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}},\"Closed_With_In_Sla\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"COMPLETED\",\"CITIZEN_FEEDBACK_PENDING\"]}},{\"script\":{\"script\":{\"source\":\"doc['Data.fsm.auditDetails.lastModifiedTime'].value-doc['Data.fsm.auditDetails.createdTime'].value<params.threshold\",\"lang\":\"painless\",\"params\":{\"threshold\":172800000}}}}]}},\"aggs\":{\"ClosedWithInSla\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}},\"Failed_Req\":{\"filter\":{\"bool\":{\"must\":[{\"terms\":{\"Data.fsm.applicationStatus.keyword\":[\"DSO_REJECTED\",\"REJECTED\",\"CANCELED\"]}}]}},\"aggs\":{\"FailedReq\":{\"value_count\":{\"field\":\"Data.fsm.tenantId.keyword\"}}}}}}}}}}"
       },
       {
         "module": "FSM",
@@ -17143,16 +17123,6 @@
         "postAggregationTheory": "",
         "actionName": "PercentageComputedField",
         "fields": [
-          "ClosedReq",
-          "TotalReq"
-        ],
-        "newField": "CompletionRateIn%",
-        "_comments": "fields are field names picked from its aggregation query to use post aggregation newField value with given new field name  "
-      },
-      {
-        "postAggregationTheory": "",
-        "actionName": "PercentageComputedField",
-        "fields": [
           "ClosedWithInSla",
           "TotalReq"
         ],
@@ -17167,9 +17137,9 @@
         "OpenReq",
         "ClosedReq",
         "TotalReq",
-        "CompletionRateIn%",
         "SLAAchievedIn%",
-        "TotalCollection"
+        "TotalCollection",
+        "FailedReq"
       ]
     },
     "insight": {},
@@ -17355,6 +17325,60 @@
     ],
     "isCumulative": true,
     "interval": "month",
+    "insight": {},
+    "_comment": " "
+  },
+  "fsmNonEmpanelledVehicleReport": {
+    "chartName": "DSS_FSM_NON_EMPANELLED_VEHICLE_LOG_REPORT",
+    "queries": [
+      {
+        "module": "FSM",
+        "dateRefField": "Data.vehicleTrip.@timestamp",
+        "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtName\"}",
+        "indexName": "vehicletrip",
+        "aggrQuery": "{\"query\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.vehicleTrip.tenantId.keyword\":\"pg.testing\"}}],\"must\":[{\"term\":{\"Data.vehicleTrip.businessService.keyword\":\"FSM_VEHICLE_TRIP\"}}],\"filter\":[{\"nested\":{\"path\":\"Data.vehicleTrip.tripDetails\",\"query\":{\"bool\":{\"must_not\":[{\"exists\":{\"field\":\"Data.vehicleTrip.tripDetails.referenceNo\"}}]}}}}]}},\"aggs\":{\"ULB\":{\"terms\":{\"field\":\"Data.vehicleTrip.tenantId.keyword\"},\"aggs\":{\"Vehicle\":{\"terms\":{\"field\":\"Data.vehicleTrip.additionalDetails.vehicleNumber.keyword\"},\"aggs\":{\"TotalTrips\":{\"value_count\":{\"field\":\"Data.vehicleTrip.@timestamp\"}},\"TotalSeptageDisposed\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}}}"
+      }
+    ],
+    "isMdmsEnabled": true,
+    "filterKeys": [
+      {
+        "key": "registrationNumber",
+        "column": "Vehicle_No"
+      },
+      {
+        "key": "tenantId",
+        "column": "District"
+      }
+    ],
+    "isPostResponseHandler": true,
+    "chartType": "xtable",
+    "valueType": "number",
+    "action": "",
+    "isRoundOff": true,
+    "documentType": "_doc",
+    "drillChart": "",
+    "plotLabel": "District",
+    "aggregationPaths": [
+      ""
+    ],
+    "pathDataTypeMapping": [
+      {
+        "TotalTrips": "number"
+      },
+      {
+        "TotalSeptageDisposed": "number"
+      }
+    ],
+    "isCumulative": true,
+    "interval": "month",
+    "chartSpecificProperty": {
+      "XtableColumnOrder": [
+        "S.N.",
+        "District",
+        "TotalTrips",
+        "TotalSeptageDisposed"
+      ]
+    },
     "insight": {},
     "_comment": " "
   },
