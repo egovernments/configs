@@ -22705,5 +22705,679 @@
     ],
     "insight": {},
     "_comment": "Microplan Total number of Facilities"
+  },
+   "totalHouseholdSprayedIRS" : {
+    "chartName" : "DSS_TOTAL_HOUSEHOLD_SPRAYED",
+    "queries" : [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"totalHouseholdSprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}},\"query\":{\"match\":{\"Data.status\":\"ADMINISTERED_SUCCESS\"}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "isRoundOff": false,
+    "aggregationPaths": [
+      "totalHouseholdSprayed"
+    ],
+    "drillChart": "none",
+    "insight": {
+      "chartResponseMap": "totalHouseholdSprayed",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "day",
+      "isRoundOff": true
+    },
+    "_comment": ""
+  },
+  "totalBottlesUsedIRS" : {
+    "chartName" : "DSS_TOTAL_BOTTLES_USED",
+    "queries" : [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"totalBottlesUsed\":{\"sum\":{\"field\":\"Data.quantity\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "isRoundOff": false,
+    "aggregationPaths": [
+      "totalBottlesUsed"
+    ],
+    "drillChart": "none",
+    "insight": {
+      "chartResponseMap": "totalBottlesUsed",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "day",
+      "isRoundOff": true
+    },
+    "_comment": ""
+  },
+  "percentTargetAchievementTodayIRS" : {
+    "chartName" : "DSS_PERCENT_TARGET_ACHIEVEMENT_TODAY",
+    "queries" : [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"totalHouseholdSprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}},\"query\":{\"match\":{\"Data.status.keyword\":\"ADMINISTRATION_SUCCESS\"}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectId\":\"Data.projectId.keyword\"}",
+        "indexName": "project-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"targetPerDay\":{\"sum\":{\"field\":\"Data.targetPerDay\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "percentage",
+    "action": "percentage",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "totalHouseholdSprayed",
+      "targetPerDay"
+    ],
+    "insight": {
+      "chartResponseMap": "percentTargetAchievementToday",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "dateRange"
+    },
+    "_comment" : ""
+  },
+  "coverageByUserIRS":{
+    "chartName": "DSS_HEALTH_IRS_COVERAGE_BY_USER",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"uuid\":\"Data.createdBy.keyword\",\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.nameOfUser.keyword\"},\"aggs\":{\"HouseholdsVisited\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"uuid\":\"Data.createdBy.keyword\",\"cycle\":\"Data.additionalDetails.cycleIndex\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.status.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.nameOfUser.keyword\"},\"aggs\":{\"HouseholdsSprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}},\"NegativeHouseholdsSprayed\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"HouseholdsSprayed\"},\"script\":\"params.count*-1\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"uuid\":\"Data.createdBy.keyword\",\"cycle\":\"Data.additionalDetails.cycleIndex\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.deliveredTo.keyword\":\"HOUSEHOLD\"}},{\"term\":{\"Data.status.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"UserName\":{\"terms\":{\"field\":\"Data.nameOfUser.keyword\"},\"aggs\":{\"BottlesUsedToday\":{\"sum\":{\"field\":\"Data.quantity\"}},\"NegativeBottlesUsedToday\":{\"bucket_script\":{\"buckets_path\":{\"count\":\"BottlesUsedToday\"},\"script\":\"params.count*-1\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"uuid\":\"Data.createdBy.keyword\"}",
+        "indexName": "stock-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.facilityType.keyword\":\"STAFF\"}},{\"term\":{\"Data.eventType.keyword\":\"RECEIVED\"}}]}},\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.nameOfUser.keyword\"},\"aggs\":{\"Stock count per user\":{\"sum\":{\"field\":\"Data.physicalCount\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"uuid\":\"Data.syncedUserId.keyword\"}",
+        "indexName": "user-sync-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.syncedNameOfUser.keyword\"},\"aggs\":{\"Lastsyncedtime\":{\"max\":{\"field\":\"Data.syncedTimeStamp\"}}}}}}"
+      }
+    ],
+    "filterKeys": [],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel" : "User Name",
+    "excludedColumns": [
+      "NegativeHouseholdsSprayed", 
+      "NegativeBottlesUsedToday", 
+      "HouseholdsVisited", 
+      "HouseholdsSprayed", 
+      "BottlesUsedToday", 
+      "Stock count per user", 
+      "Lastsyncedtime"
+    ],
+    "computedFields" : [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["HouseholdsVisited"],
+        "newField" : "No. of houses visited today",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory" :"",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["HouseholdsSprayed"],
+        "newField" : "No. of houses sprayed today",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["HouseholdsVisited","NegativeHouseholdsSprayed"],
+        "newField" : "No. of houses not sprayed today",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory" :"",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["BottlesUsedToday"],
+        "newField" : "Bottles used today",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory" : "",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Stock count per user","NegativeBottlesUsedToday"],
+        "newField" : "No. of remaining bottles",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory" :"",
+        "actionName": "AdditiveComputedField",
+        "fields" : ["Lastsyncedtime"],
+        "newField" : "Last synced time",
+        "_comments": ""
+      }
+    ],
+    "insight": {
+    },
+    "sort": "sortKeyAsc",
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "_comment": " "
+  },
+  "performanceByUserIRS" : {
+    "chartName": "DSS_HEALTH_IRS_PERFORMANCE_BY_USER",
+    "queries" : [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"uuid\":\"Data.createdBy.keyword\",\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.status.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}},\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.nameOfUser.keyword\"},\"aggs\":{\"Total houses sprayed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"uuid\":\"Data.createdBy.keyword\",\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.nameOfUser.keyword\"},\"aggs\":{\"Totalhousesvisited\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}"
+      }
+    ],
+    "filterKeys": [],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel" : "User Name",
+    "excludedColumns": ["Total houses sprayed" ,"Totalhousesvisited"],
+    "computedFields" : [
+      {
+        "postAggregationTheory" : "",
+        "actionName": "PercentageComputedField",
+        "fields" : ["Total houses sprayed","Totalhousesvisited"],
+        "newField" : "House coverage ratio",
+        "_comments": ""
+      }
+    ],
+    "insight": {
+    },
+    "sort": "sortKeyAsc",
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "_comment": " "
+  },
+  "childrenAdministeredSmc": {
+    "chartName": "DSS_TOTAL_CHILDREN_ADMINISTERED",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filters\":{\"filters\":{\"ADMIN_SUCCESS\":{\"bool\":{\"must\":[{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}}}},\"aggs\":{\"totalChildrenAdministered\":{\"value_count\":{\"field\":\"Data.taskId.keyword\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "isRoundOff": false,
+    "aggregationPaths": [
+      "totalChildrenAdministered"
+    ],
+    "drillChart": "none",
+    "insight": {
+      "chartResponseMap": "childrenAdministeredSmc",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "day",
+      "isRoundOff": true
+    },
+    "_comment": ""
+  },
+  "spaqUsedSmc": {
+    "chartName": "DSS_TOTAL_SPAQ_USED",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filters\":{\"filters\":{\"ADMIN_SUCCESS\":{\"bool\":{\"must\":[]}}}},\"aggs\":{\"totalSpaqUsed\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "isRoundOff": false,
+    "aggregationPaths": [
+      "totalSpaqUsed"
+    ],
+    "drillChart": "none",
+    "insight": {
+      "chartResponseMap": "spaqUsedSmc",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "day",
+      "isRoundOff": true
+    },
+    "_comment": ""
+  },
+  "childrenAdministeredCoverageSmc": {
+    "chartName": "ADMINISTRATION_COVERAGE_TODAY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filters\":{\"filters\":{\"ADMIN_SUCCESS\":{\"bool\":{\"must\":[{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}}}},\"aggs\":{\"totalChildrenAdministered\":{\"value_count\":{\"field\":\"Data.taskId.keyword\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"NAME\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":{\"value\":\"INDIVIDUAL\"}}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.province\"}}]}},\"aggs\":{\"targetPerDay\":{\"sum\":{\"field\":\"Data.targetPerDay\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "percentage",
+    "action": "percentage",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "totalChildrenAdministered",
+      "targetPerDay"
+    ],
+    "insight": {
+      "chartResponseMap": "childrenAdministeredCoverageSmc",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "dateRange"
+    },
+    "_comment": ""
+  },
+  "childrenAdministrationSummarySmc": {
+    "chartName": "DSS_HEALTH_ADMINISTRATION_SUMMARY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.household.clientAuditDetails.lastModifiedTime",
+        "requestQueryMap": "{\"uuid\": \"Data.household.clientAuditDetails.lastModifiedBy.keyword\", \"projectTypeId\": \"Data.additionalDetails.projectTypeId.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.userName.keyword\"},\"aggs\":{\"Households visited\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"NAME\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}},{\"term\":{\"Data.deliveredTo.keyword\":{\"value\":\"INDIVIDUAL\"}}},{\"range\":{\"Data.age\":{\"lte\":11}}}]}},\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.userName.keyword\"},\"aggs\":{\"Children Administered 3 to 11\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"NAME\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}},{\"term\":{\"Data.deliveredTo.keyword\":{\"value\":\"INDIVIDUAL\"}}},{\"range\":{\"Data.age\":{\"gte\":12}}}]}},\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.userName.keyword\"},\"aggs\":{\"Children Administered 12 to 59\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"NAME\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}},{\"term\":{\"Data.deliveredTo.keyword\":{\"value\":\"INDIVIDUAL\"}}},{\"term\":{\"Data.productName.keyword\":{\"value\":\"SPAQ 2 (12 a 59 meses)\"}}}]}},\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.userName.keyword\"},\"aggs\":{\"SPAQ2 used\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"NAME\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}},{\"term\":{\"Data.deliveredTo.keyword\":{\"value\":\"INDIVIDUAL\"}}},{\"term\":{\"Data.productName.keyword\":{\"value\":\"SPAQ 1 (3 a <12 meses)\"}}}]}},\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.userName.keyword\"},\"aggs\":{\"SPAQ1 used\":{\"sum\":{\"field\":\"Data.quantity\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "referral-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filters\":{\"filters\":{\"BENEFICIARY_REFERRED\":{\"bool\":{\"must\":[{\"term\":{\"Data.role.keyword\":\"DISTRIBUTOR\"}}]}}}},\"aggs\":{\"totalBeneficiariesReferred\":{\"value_count\":{\"field\":\"Data.individualId.keyword\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"NAME\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.administrationStatus.keyword\":\"CLOSED_HOUSEHOLD\"}},{\"term\":{\"Data.deliveredTo.keyword\":{\"value\":\"INDIVIDUAL\"}}},{\"term\":{\"Data.additionalDetails.Reason.keyword\":\"Recusa\"}}]}},\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.userName.keyword\"},\"aggs\":{\"Household Refused\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.additionalDetails.projectTypeId.keyword\"}",
+        "indexName": "user-sync-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"User Name\":{\"terms\":{\"size\":2000,\"field\":\"Data.syncedUserName.keyword\"},\"aggs\":{\"Lastsyncedtime\":{\"max\":{\"field\":\"Data.syncedTimeStamp\"}}}}}}"
+      }
+    ],
+    "filterKeys": [],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "User Name",
+    "excludedColumns": [
+      "Households visited",
+      "Children Administered 3 to 11",
+      "Children Administered 12 to 59",
+      "SPAQ1 used",
+      "SPAQ2 used",
+      "totalBeneficiariesReferred",
+      "Household Refused",
+      "Lastsyncedtime"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Households visited"
+        ],
+        "newField": "Households Visited",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Children Administered 3 to 11"
+        ],
+        "newField": "Children_Administered_3_11",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Children Administered 12 to 59"
+        ],
+        "newField": "Children_Administered_12_59",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "SPAQ1 used"
+        ],
+        "newField": "SPAQ1_used",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "SPAQ2 used"
+        ],
+        "newField": "SPAQ2_used",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "totalBeneficiariesReferred"
+        ],
+        "newField": "Beneficiary_Referred",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Household Refused"
+        ],
+        "newField": "Household_Refused",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Lastsyncedtime"
+        ],
+        "newField": "Last synced time",
+        "_comments": ""
+      }
+    ],
+    "insight": {},
+    "sort": "sortKeyAsc",
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "_comment": " "
+  },
+  "householdsDistributedLLIN" : {
+    "chartName" : "DSS_TOTAL_HOUSEHOLD_DISTRIBUTED",
+    "queries" : [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filters\":{\"filters\":{\"ADMIN_SUCCESS\":{\"bool\":{\"must\":[{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}}}},\"aggs\":{\"totalHouseholdsDistributed\":{\"value_count\":{\"field\":\"Data.projectBeneficiaryClientReferenceId.keyword\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "isRoundOff": false,
+    "aggregationPaths": [
+      "totalHouseholdsDistributed"
+    ],
+    "drillChart": "none",
+    "insight": {
+      "chartResponseMap": "totalHouseholdsDistributed",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "day",
+      "isRoundOff": true
+    },
+    "_comment": ""
+  },
+  "bednetsDistributedLLIN" : {
+    "chartName" : "DSS_TOTAL_BEDNETS_DISTRIBUTED",
+    "queries" : [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"bednetsDistributed\":{\"sum\":{\"field\":\"Data.quantity\"}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "number",
+    "action": "",
+    "isRoundOff": false,
+    "aggregationPaths": [
+      "bednetsDistributed"
+    ],
+    "drillChart": "none",
+    "insight": {
+      "chartResponseMap": "bednetsDistributed",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "day",
+      "isRoundOff": true
+    },
+    "_comment": ""
+  },
+ "householdDistributionCoverageLLIN": {
+    "chartName": "DISTRIBUTION_COVERAGE_TODAY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"FILTER\":{\"filters\":{\"filters\":{\"ADMIN_SUCCESS\":{\"bool\":{\"must\":[{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}}]}}}},\"aggs\":{\"totalHouseholdsDistributed\":{\"value_count\":{\"field\":\"Data.projectBeneficiaryClientReferenceId.keyword\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"NAME\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.targetType.keyword\":{\"value\":\"HOUSEHOLD\"}}}],\"must_not\":[{\"exists\":{\"field\":\"Data.boundaryHierarchy.province\"}}]}},\"aggs\":{\"targetPerDay\":{\"sum\":{\"field\":\"Data.targetPerDay\"}}}}}}"
+      }
+    ],
+    "chartType": "metric",
+    "valueType": "percentage",
+    "action": "percentage",
+    "drillChart": "none",
+    "aggregationPaths": [
+      "totalChildrenAdministered",
+      "targetPerDay"
+    ],
+    "insight": {
+      "chartResponseMap": "householdDistributionCoverage",
+      "action": "differenceOfNumbers",
+      "upwardIndicator": "positive",
+      "downwardIndicator": "negative",
+      "textMessage": "$indicator$value% than last $insightInterval",
+      "colorCode": "#228B22",
+      "insightInterval": "dateRange"
+    },
+    "_comment": ""
+  },
+  "householdDistributionSummaryLLIN": {
+    "chartName": "HOUSEHOLD_DISTRIBUTION_SUMMARY",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.household.clientAuditDetails.lastModifiedTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.additionalDetails.projectTypeId.keyword\"}",
+        "indexName": "household-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.userName.keyword\"},\"aggs\":{\"Households visited\":{\"value_count\":{\"field\":\"Data.household.id.keyword\"}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"NAME\":{\"filter\":{\"bool\":{\"must\":[{\"term\":{\"Data.administrationStatus.keyword\":\"ADMINISTRATION_SUCCESS\"}},{\"term\":{\"Data.deliveredTo.keyword\":{\"value\":\"HOUSEHOLD\"}}}]}},\"aggs\":{\"User Name\":{\"terms\":{\"field\":\"Data.userName.keyword\"},\"aggs\":{\"Households distributed\":{\"value_count\":{\"field\":\"Data.id.keyword\"}}}}}}}}"
+      },
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"projectTypeId\": \"Data.additionalDetails.projectTypeId.keyword\"}",
+        "indexName": "user-sync-index-v1",
+        "aggrQuery": "{\"size\":0,\"aggs\":{\"User Name\":{\"terms\":{\"size\":2000,\"field\":\"Data.syncedUserName.keyword\"},\"aggs\":{\"Lastsyncedtime\":{\"max\":{\"field\":\"Data.syncedTimeStamp\"}}}}}}"
+      }
+    ],
+    "filterKeys": [],
+    "chartType": "xtable",
+    "valueType": "number",
+    "drillChart": "none",
+    "documentType": "_doc",
+    "action": "",
+    "plotLabel": "User Name",
+    "excludedColumns": [
+      "Households visited",
+      "Households distributed",
+      "Lastsyncedtime"
+    ],
+    "computedFields": [
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Households visited"
+        ],
+        "newField": "Households Visited",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Households distributed"
+        ],
+        "newField": "Households distributed",
+        "_comments": ""
+      },
+      {
+        "postAggregationTheory": "",
+        "actionName": "AdditiveComputedField",
+        "fields": [
+          "Lastsyncedtime"
+        ],
+        "newField": "Last synced time",
+        "_comments": ""
+      }
+    ],
+    "insight": {},
+    "sort": "sortKeyAsc",
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "_comment": " "
   }
 }
