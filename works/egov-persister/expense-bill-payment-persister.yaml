@@ -6,7 +6,8 @@ serviceMaps:
    description: create bill in eg_expense_bill
    fromTopic: expense-bill-create
    queryMaps: 
-    - query: INSERT into eg_expense_bill (id, tenantid, billdate, duedate, billnumber, totalamount, totalPaidAmount, businessservice, referenceId, fromperiod, toperiod, status, paymentStatus, createdby, createdTime, lastmodifiedby, lastModifiedTime, additionalDetails) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+  # on conflict do nothing change is done to support insert of billDetails batchwise. Every consecutive batch will have the same bill with different billDetails
+    - query: INSERT into eg_expense_bill (id, tenantid, billdate, duedate, billnumber, totalamount, totalPaidAmount, businessservice, referenceId, fromperiod, toperiod, status, paymentStatus, createdby, createdTime, lastmodifiedby, lastModifiedTime, additionalDetails) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id, tenantid) DO NOTHING
       basePath: $.bill
       jsonMaps:
        
@@ -50,7 +51,7 @@ serviceMaps:
 
 
     # insert into party from payer of bill
-    - query: INSERT into eg_expense_party (id, tenantid, type, identifier, parentId, status, createdby, createdTime, lastmodifiedby, lastModifiedTime) values(?,?,?,?,?,?,?,?,?,?)
+    - query: INSERT into eg_expense_party (id, tenantid, type, identifier, parentId, status, createdby, createdTime, lastmodifiedby, lastModifiedTime) values(?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id, tenantid) DO NOTHING
       basePath: $.bill.payer
       jsonMaps:
        
