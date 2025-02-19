@@ -51403,13 +51403,11 @@
         "dateRefField": "Data.tests.@timestamp",
         "requestQueryMap": "{\"tenantId\" : \"Data.tests.tenantId\", \"parmeter\" : \"Data.tests.testCriteria.criteriaCode\"}",
         "indexName": "pqm-service",
-        "aggrQuery": "{\n  \"size\": 0,\n  \"query\": {\n    \"exists\": {\n      \"field\": \"Data.tests.testCriteria\"\n    }\n  },\n  \"aggs\": {\n    \"ULBs\": {\n      \"terms\": {\n        \"field\": \"Data.tests.tenantId.keyword\",\n        \"size\": 100\n      },\n      \"aggs\": {\n        \"parameter_rules\": {\n          \"terms\": {\n            \"field\": \"Data.tests.testCriteria.criteriaCode.keyword\",\n            \"size\": 100\n          },\n          \"aggs\": {\n            \"LastModifiedDate\": {\n              \"max\": {\n                \"field\": \"Data.tests.testCriteria.auditDetails.lastModifiedTime\"\n              }\n            },\n            \"LatestResultStatus\": {\n              \"scripted_metric\": {\n                \"init_script\": \"state.latestStatus = null\",\n                \"map_script\": \"\"\"\n                  if (params['_source'].Data != null &&\n                      params['_source'].Data.tests != null &&\n                      params['_source'].Data.tests.testCriteria != null) {\n                    for (item in params['_source'].Data.tests.testCriteria) {\n                      if (item.auditDetails != null && item.auditDetails.lastModifiedTime != null) {\n                        def time = item.auditDetails.lastModifiedTime;\n                        if (state.latestStatus == null || time > state.latestStatus.time) {\n                          state.latestStatus = ['status': item.resultStatus, 'time': time];\n                        }\n                      }\n                    }\n                  }\n                \"\"\",\n                \"combine_script\": \"return state.latestStatus\",\n                \"reduce_script\": \"\"\"\n                  def latest = null;\n                  for (s in states) {\n                    if (s != null) {\n                      if (latest == null || s.time > latest.time) {\n                        latest = s;\n                      }\n                    }\n                  }\n                  return latest != null ? latest.status : null;\n                \"\"\"\n              }\n            },\n            \"LatestResultValue\": {\n              \"scripted_metric\": {\n                \"init_script\": \"state.latestValue = null\",\n                \"map_script\": \"\"\"\n                  if (params['_source'].Data != null &&\n                      params['_source'].Data.tests != null &&\n                      params['_source'].Data.tests.testCriteria != null) {\n                    for (item in params['_source'].Data.tests.testCriteria) {\n                      if (item.auditDetails != null && item.auditDetails.lastModifiedTime != null) {\n                        def time = item.auditDetails.lastModifiedTime;\n                        if (state.latestValue == null || time > state.latestValue.time) {\n                          state.latestValue = ['value': item.resultValue, 'time': time];\n                        }\n                      }\n                    }\n                  }\n                \"\"\",\n                \"combine_script\": \"return state.latestValue\",\n                \"reduce_script\": \"\"\"\n                  def latest = null;\n                  for (s in states) {\n                    if (s != null) {\n                      if (latest == null || s.time > latest.time) {\n                        latest = s;\n                      }\n                    }\n                  }\n                  return latest != null ? latest.value : null;\n                \"\"\"\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        "aggrQuery": "{\"size\":0,\"query\":{\"exists\":{\"field\":\"Data.tests.testCriteria\"}},\"aggs\":{\"ULBs\":{\"terms\":{\"field\":\"Data.tests.tenantId.keyword\",\"size\":100},\"aggs\":{\"Parameter\":{\"terms\":{\"field\":\"Data.tests.testCriteria.criteriaCode.keyword\",\"size\":100},\"aggs\":{\"LastModifiedDate\":{\"max\":{\"field\":\"Data.tests.testCriteria.auditDetails.lastModifiedTime\"}},\"LatestResultStatus\":{\"scripted_metric\":{\"init_script\":\"state.latestStatus=null\",\"map_script\":\"if(params['_source'].Data!=null&&params['_source'].Data.tests!=null&&params['_source'].Data.tests.testCriteria!=null){for(iteminparams['_source'].Data.tests.testCriteria){if(item.auditDetails!=null&&item.auditDetails.lastModifiedTime!=null){deftime=item.auditDetails.lastModifiedTime;if(state.latestStatus==null||time>state.latestStatus.time){state.latestStatus=['status':item.resultStatus,'time':time];}}}}\",\"combine_script\":\"returnstate.latestStatus\",\"reduce_script\":\"deflatest=null;for(sinstates){if(s!=null){if(latest==null||s.time>latest.time){latest=s;}}}returnlatest!=null?latest.status:null;\"}},\"LatestResultValue\":{\"scripted_metric\":{\"init_script\":\"state.latestValue=null\",\"map_script\":\"if(params['_source'].Data!=null&&params['_source'].Data.tests!=null&&params['_source'].Data.tests.testCriteria!=null){for(iteminparams['_source'].Data.tests.testCriteria){if(item.auditDetails!=null&&item.auditDetails.lastModifiedTime!=null){deftime=item.auditDetails.lastModifiedTime;if(state.latestValue==null||time>state.latestValue.time){state.latestValue=['value':item.resultValue,'time':time];}}}}\",\"combine_script\":\"returnstate.latestValue\",\"reduce_script\":\"deflatest=null;for(sinstates){if(s!=null){if(latest==null||s.time>latest.time){latest=s;}}}returnlatest!=null?latest.value:null;\"}}}}}}}"
        }
     ],
-    "isMdmsEnabled": false,
     "filterKeys": [
-      {"key": "tenantId", "column": "District"},
-      {"key": "parameter", "column": "Parameter"}
+      {"key": "tenantId", "column": "District"}
     ],
     "isPostResponseHandler": true,
     "chartType": "xtable",
@@ -51418,7 +51416,7 @@
     "isRoundOff": true,
     "documentType": "_doc",
     "drillChart": "",
-    "plotLabel": "Parameter",
+    "plotLabel": "District",
     "aggregationPaths": [
       "LastModifiedDate",
       "LatestResultStatus",
@@ -51432,9 +51430,21 @@
         "LatestResultStatus" : "number"
       },
       {
-        "LatestResultValue" : "number"
+        "LatestResultValue" : "string"
       }
     ],
+    "isCumulative": true,
+    "interval": "month",
+    "chartSpecificProperty": {
+      "XtableColumnOrder": [
+        "S.N.",
+        "District",
+        "Parameter",
+        "vehicleNumber",
+        "TotalTrips",
+        "TotalSeptageDisposed"
+      ]
+    },
     "insight": {},
     "_comment": " "
   }
