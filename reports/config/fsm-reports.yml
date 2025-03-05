@@ -778,24 +778,24 @@ ReportDefinitions:
         label: Application Number
         type: string
         source: fsm
-      - name: DriverGarimaID
-        label: Driver ID
+      - name: DriverName
+        label: Driver Name
         type: string
         source: fsm
-      - name: HelperGarimaID
-        label: Helper ID 1
+      - name: Helper1Name
+        label: Helper Name 1
         type: string
         source: fsm
-      - name: HelperGarimaID
-        label: Helper ID 2
+      - name: Helper2Name
+        label: Helper Name 2
         type: string
         source: fsm
-      - name: HelperGarimaID
-        label: Helper ID 3
+      - name: Helper3Name
+        label: Helper Name 3
         type: string
         source: fsm
-      - name: HelperGarimaID
-        label: Helper ID 4
+      - name: Helper4Name
+        label: Helper Name 4
         type: string
         source: fsm
       - name: Nooftrips
@@ -829,26 +829,57 @@ ReportDefinitions:
         searchClause: AND fsm.createdtime <= $toDate
     query: |
       WITH RankedWorkers AS (
-          SELECT fsm.applicationno, fsm.tenantid, fsm.nooftrips, fsm.lastmodifiedtime, SanitationWorker.individual_id, SanitationWorker.workertype,
-          ROW_NUMBER() OVER (PARTITION BY fsm.applicationno, SanitationWorker.workertype ORDER BY SanitationWorker.individual_id) AS rn
-          FROM eg_fsm_application AS fsm
-          JOIN eg_fsm_application_worker AS SanitationWorker ON SanitationWorker.application_id = fsm.id
-      )
-      SELECT INITCAP(SPLIT_PART(fsm.tenantid, '.', 2)) AS ulb, fsm.applicationno AS ApplicationId, 
-      MAX(CASE WHEN rw.workertype = 'DRIVER' THEN rw.individual_id END) AS DriverGarimaID,
-      MAX(CASE WHEN rw.workertype = 'HELPER' AND rw.rn = 1 THEN rw.individual_id END) AS HelperGarimaID,
-      MAX(CASE WHEN rw.workertype = 'HELPER' AND rw.rn = 2 THEN rw.individual_id END) AS HelperGarimaID,
-      MAX(CASE WHEN rw.workertype = 'HELPER' AND rw.rn = 3 THEN rw.individual_id END) AS HelperGarimaID,
-      MAX(CASE WHEN rw.workertype = 'HELPER' AND rw.rn = 4 THEN rw.individual_id END) AS HelperGarimaID,
-      COALESCE(fsm.nooftrips, 0) AS Nooftrips, 
-      TO_CHAR(TO_TIMESTAMP(fsm.createdtime / 1000) AT TIME ZONE 'Asia/Kolkata', 'MM/DD/YYYY HH24:MI:SS') AS ApplicationSubmitDate,
-      (SELECT MAX(registrationnumber) FROM eg_vehicle WHERE id IN (SELECT vt.vehicle_id FROM eg_vehicle_trip vt 
-      JOIN eg_vehicle_trip_detail vtd ON vt.id = vtd.trip_id WHERE vtd.referenceno = fsm.applicationno AND vt.status = 'ACTIVE')) AS VehicleRegistrationNumber,
-      TO_CHAR(TO_TIMESTAMP((SELECT MAX(vt.lastmodifiedtime) FROM eg_vehicle_trip vt JOIN eg_vehicle_trip_detail vtd ON vt.id = vtd.trip_id 
-      WHERE vtd.referenceno = fsm.applicationno AND vt.status = 'ACTIVE' AND vt.applicationstatus = 'DISPOSED') / 1000) AT TIME ZONE 'Asia/Kolkata', 'MM/DD/YYYY HH24:MI:SS') AS lastmodifiedtime 
+      SELECT 
+        fsm.applicationno, 
+        fsm.tenantid, 
+        fsm.nooftrips, 
+        fsm.lastmodifiedtime, 
+        SanitationWorker.individual_id, 
+        SanitationWorker.workertype,
+        ROW_NUMBER() OVER (PARTITION BY fsm.applicationno, SanitationWorker.workertype ORDER BY SanitationWorker.individual_id) AS rn
+      FROM eg_fsm_application AS fsm
+      JOIN eg_fsm_application_worker AS SanitationWorker 
+        ON SanitationWorker.application_id = fsm.id
+            )
+      SELECT 
+          INITCAP(SPLIT_PART(fsm.tenantid, '.', 2)) AS ulb, 
+          fsm.applicationno AS ApplicationId, 
+          MAX(CASE WHEN rw.workertype = 'DRIVER' 
+                  THEN ind.givenname END) AS DriverName,
+          MAX(CASE WHEN rw.workertype = 'HELPER' AND rw.rn = 1 
+                  THEN ind.givenname END) AS Helper1Name,
+          MAX(CASE WHEN rw.workertype = 'HELPER' AND rw.rn = 2 
+                  THEN ind.givenname END) AS Helper2Name,
+          MAX(CASE WHEN rw.workertype = 'HELPER' AND rw.rn = 3 
+                  THEN ind.givenname END) AS Helper3Name,
+          MAX(CASE WHEN rw.workertype = 'HELPER' AND rw.rn = 4 
+                  THEN ind.givenname END) AS Helper4Name,
+          COALESCE(fsm.nooftrips, 0) AS Nooftrips, 
+          TO_CHAR(TO_TIMESTAMP(fsm.createdtime / 1000) AT TIME ZONE 'Asia/Kolkata', 'MM/DD/YYYY HH24:MI:SS') AS ApplicationSubmitDate,
+          (SELECT MAX(registrationnumber) 
+          FROM eg_vehicle 
+          WHERE id IN (
+              SELECT vt.vehicle_id 
+              FROM eg_vehicle_trip vt 
+              JOIN eg_vehicle_trip_detail vtd ON vt.id = vtd.trip_id 
+              WHERE vtd.referenceno = fsm.applicationno 
+              AND vt.status = 'ACTIVE'
+          )) AS VehicleRegistrationNumber,
+          TO_CHAR(TO_TIMESTAMP((
+              SELECT MAX(vt.lastmodifiedtime) 
+              FROM eg_vehicle_trip vt 
+              JOIN eg_vehicle_trip_detail vtd ON vt.id = vtd.trip_id 
+              WHERE vtd.referenceno = fsm.applicationno 
+              AND vt.status = 'ACTIVE' 
+              AND vt.applicationstatus = 'DISPOSED') / 1000) AT TIME ZONE 'Asia/Kolkata', 'MM/DD/YYYY HH24:MI:SS'
+          ) AS lastmodifiedtime 
       FROM eg_fsm_application AS fsm 
-      LEFT JOIN RankedWorkers rw ON rw.applicationno = fsm.applicationno 
-      LEFT JOIN eg_vehicle_trip vt ON vt.applicationno = fsm.applicationno where fsm.tenantid=$tenantid  
+      LEFT JOIN RankedWorkers rw 
+          ON rw.applicationno = fsm.applicationno 
+      LEFT JOIN INDIVIDUAL ind 
+          ON ind.id = rw.individual_id
+      LEFT JOIN eg_vehicle_trip vt 
+          ON vt.applicationno = fsm.applicationno where fsm.tenantid=$tenantid  
     groupby: GROUP BY fsm.applicationno, fsm.tenantid, fsm.nooftrips, fsm.createdtime
     orderby: ORDER BY fsm.applicationno DESC
  
