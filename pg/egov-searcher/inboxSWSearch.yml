@@ -1,0 +1,189 @@
+SearchDefinitions:
+  moduleName: sw-services
+  summary: Sewerage Services Inbox API
+  version: 1.0.0
+  definitions:
+    - name: inboxswsearch
+      query:
+        baseQuery: Select row_to_json(result) from
+          (
+          select DISTINCT(sw.applicationno),pi.createdtime from eg_sw_connection as sw
+          LEFT OUTER JOIN eg_pt_property property ON sw.property_id = property.propertyid
+          LEFT OUTER JOIN eg_pt_owner owner ON owner.propertyid =  property.id 
+          LEFT OUTER JOIN eg_sw_connectionholder connectionHolder ON sw.id = connectionHolder.connectionid 
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = sw.applicationno
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = sw.applicationno GROUP BY wf.businessid)
+          order by pi.createdtime asc $pagination
+          ) result
+        groupBy:
+        orderBy:
+      searchParams:
+        condition: AND
+        params:
+          - name: sw.tenantid
+            isMandatory: true
+            jsonPath: $.searchCriteria.tenantId
+          - name: sw.property_id
+            isMandatory: false
+            jsonPath: $.searchCriteria.propertyId
+          - name: sw.applicationType
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationType
+          - name: sw.applicationno
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationNumber
+          - name: sw.locality
+            isMandatory: false
+            jsonPath: $.searchCriteria.locality
+          - name: sw.connectionNo
+            isMandatory: false
+            jsonPath: $.searchCriteria.consumerNo
+          - name: sw.applicationStatus
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationStatus
+          - name: assg.assignee
+            isMandatory: false
+            jsonPath: $.searchCriteria.assignee
+          - name: pi.status
+            isMandatory: false
+            jsonPath: $.searchCriteria.status
+          - name: owner.userid
+            isMandatory: false
+            jsonPath: $.searchCriteria.userIds
+          - name: pi.businessservice
+            isMandatory: false
+            jsonPath: $.searchCriteria.businessservice
+        pagination:
+          noOfRecords: $.searchCriteria.noOfRecords
+          offset: $.searchCriteria.offset
+
+      output:
+        jsonFormat: {"ResponseInfo": {},"SewerageConnections": []}
+        outJsonPath: $.SewerageConnections
+        responseInfoPath: $.ResponseInfo
+   
+   
+    - name: inboxswsearchdesc
+      query:
+        baseQuery: Select row_to_json(result) from
+          (
+          select DISTINCT(sw.applicationNo),pi.createdtime from eg_sw_connection as sw
+          LEFT OUTER JOIN eg_pt_property property ON sw.property_id = property.propertyid
+          LEFT OUTER JOIN eg_pt_owner owner ON owner.propertyid =  property.id 
+          LEFT OUTER JOIN eg_sw_connectionholder connectionHolder ON sw.id = connectionHolder.connectionid  
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = sw.applicationno
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = sw.applicationno GROUP BY wf.businessid)
+          order by pi.createdtime desc $pagination
+          ) result
+        groupBy:
+        orderBy:
+      searchParams:
+        condition: AND
+        params:
+          - name: sw.tenantid
+            isMandatory: true
+            jsonPath: $.searchCriteria.tenantId
+          - name: sw.property_id
+            isMandatory: false
+            jsonPath: $.searchCriteria.propertyId
+          - name: sw.applicationType
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationType
+          - name: sw.applicationno
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationNumber
+          - name: sw.locality
+            isMandatory: false
+            jsonPath: $.searchCriteria.locality
+          - name: sw.connectionNo
+            isMandatory: false
+            jsonPath: $.searchCriteria.consumerNo
+          - name: sw.applicationStatus
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationStatus
+          - name: assg.assignee
+            isMandatory: false
+            jsonPath: $.searchCriteria.assignee
+          - name: pi.status
+            isMandatory: false
+            jsonPath: $.searchCriteria.status
+          - name: owner.userid
+            isMandatory: false
+            jsonPath: $.searchCriteria.userIds
+          - name: pi.businessservice
+            isMandatory: false
+            jsonPath: $.searchCriteria.businessservice
+        pagination:
+          noOfRecords: $.searchCriteria.noOfRecords
+          offset: $.searchCriteria.offset
+
+      output:
+        jsonFormat: {"ResponseInfo": {},"SewerageConnections": []}
+        outJsonPath: $.SewerageConnections
+        responseInfoPath: $.ResponseInfo
+    
+    
+    - name: inboxswsearchcount
+      query:
+        baseQuery: SELECT row_to_json(TotalCount) from (SELECT COUNT(result) from
+          (
+          select DISTINCT(sw.applicationno),pi.createdtime from eg_sw_connection as sw
+          LEFT OUTER JOIN eg_pt_property property ON sw.property_id = property.propertyid
+          LEFT OUTER JOIN eg_pt_owner owner ON owner.propertyid =  property.id 
+          LEFT OUTER JOIN eg_sw_connectionholder connectionHolder ON sw.id = connectionHolder.connectionid 
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = sw.applicationno
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = sw.applicationno GROUP BY wf.businessid)
+          order by pi.createdtime asc
+          ) result) TotalCount
+        groupBy:
+        orderBy:
+      searchParams:
+        condition: AND
+        params:
+          - name: sw.tenantid
+            isMandatory: true
+            jsonPath: $.searchCriteria.tenantId
+          - name: sw.property_id
+            isMandatory: false
+            jsonPath: $.searchCriteria.propertyId
+          - name: sw.applicationtype
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationType
+          - name: sw.applicationno
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationNumber
+          - name: sw.locality
+            isMandatory: false
+            jsonPath: $.searchCriteria.locality
+          - name: sw.connectionNo
+            isMandatory: false
+            jsonPath: $.searchCriteria.consumerNo
+          - name: owner.userid
+            isMandatory: false
+            jsonPath: $.searchCriteria.userIds
+          - name: sw.applicationStatus
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationStatus
+          - name: assg.assignee
+            isMandatory: false
+            jsonPath: $.searchCriteria.assignee
+          - name: pi.status
+            isMandatory: false
+            jsonPath: $.searchCriteria.status
+          - name: pi.businessservice
+            isMandatory: false
+            jsonPath: $.searchCriteria.businessservice
+        pagination:
+          noOfRecords: $.searchCriteria.noOfRecords
+          offset: $.searchCriteria.offset
+
+      output:
+        jsonFormat: {"ResponseInfo": {},"TotalCount": {}}
+        outJsonPath: $.TotalCount
+        responseInfoPath: $.ResponseInfo

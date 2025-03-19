@@ -1,0 +1,332 @@
+serviceMaps:
+ serviceName: contract-service
+ mappings:
+ - version: 1.0
+   name: contract
+   description: Persists contract details in eg_wms_contract table
+   fromTopic: save-contract
+   isTransaction: true
+   isAuditEnabled: true
+   module: CT
+   objecIdJsonPath: $.id
+   tenantIdJsonPath: $.tenantId
+   transactionCodeJsonPath: $.contractNumber
+   auditAttributeBasePath: $.contract
+   queryMaps:
+    - query: INSERT INTO eg_wms_contract (id, contract_number, supplement_number, version_number, old_uuid, business_service, tenant_id , wf_status, executing_authority, contract_type, total_contracted_amount, security_deposit, agreement_date, defect_liability_period, org_id, start_date, end_date, status, additional_details, created_by, last_modified_by, created_time, last_modified_time,completion_period) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+      basePath: $.contract
+      jsonMaps:
+       - jsonPath: $.contract.id
+
+       - jsonPath: $.contract.contractNumber
+
+       - jsonPath: $.contract.supplementNumber
+
+       - jsonPath: $.contract.versionNumber
+
+       - jsonPath: $.contract.oldUuid
+
+       - jsonPath: $.contract.businessService
+
+       - jsonPath: $.contract.tenantId
+
+       - jsonPath: $.contract.wfStatus
+
+       - jsonPath: $.contract.executingAuthority
+
+       - jsonPath: $.contract.contractType
+
+       - jsonPath: $.contract.totalContractedAmount
+
+       - jsonPath: $.contract.securityDeposit
+
+       - jsonPath: $.contract.agreementDate
+
+       - jsonPath: $.contract.defectLiabilityPeriod
+
+       - jsonPath: $.contract.orgId
+
+       - jsonPath: $.contract.startDate
+
+       - jsonPath: $.contract.endDate
+
+       - jsonPath: $.contract.status
+
+       - jsonPath: $.contract.additionalDetails
+         type: JSON
+         dbType: JSONB
+
+       - jsonPath: $.contract.auditDetails.createdBy
+
+       - jsonPath: $.contract.auditDetails.lastModifiedBy
+
+       - jsonPath: $.contract.auditDetails.createdTime
+
+       - jsonPath: $.contract.auditDetails.lastModifiedTime
+
+       - jsonPath: $.contract.completionPeriod
+
+    - query: INSERT INTO eg_wms_contract_documents (id, filestore_id, document_type, document_uid, status, contract_id, additional_details, created_by, last_modified_by, created_time, last_modified_time) VALUES (?,?,?,?,?,?,?,?,?,?,?);
+      basePath: $.contract.documents.*
+      jsonMaps:
+        - jsonPath: $.contract.documents.*.id
+
+        - jsonPath: $.contract.documents.*.fileStore
+
+        - jsonPath: $.contract.documents.*.documentType
+
+        - jsonPath: $.contract.documents.*.documentUid
+
+        - jsonPath: $.contract.documents.*.status
+
+        - jsonPath: $.contract[?({id} in @.documents[*].id)].id
+
+        - jsonPath: $.contract.documents.*.additionalDetails
+          type: JSON
+          dbType: JSONB
+
+        - jsonPath: $.contract[?({id} in @.documents[*].id)].auditDetails.createdBy
+
+        - jsonPath: $.contract[?({id} in @.documents[*].id)].auditDetails.lastModifiedBy
+
+        - jsonPath: $.contract[?({id} in @.documents[*].id)].auditDetails.createdTime
+
+        - jsonPath: $.contract[?({id} in @.documents[*].id)].auditDetails.lastModifiedTime
+
+
+    - query: INSERT INTO eg_wms_contract_line_items (id, estimate_id, estimate_line_item_id, contract_line_item_ref, contract_id, tenant_id, unit_rate, no_of_unit, status, additional_details, created_by, last_modified_by, created_time, last_modified_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+      basePath: $.contract.lineItems.*
+      jsonMaps:
+        - jsonPath: $.contract.lineItems.*.id
+
+        - jsonPath: $.contract.lineItems.*.estimateId
+
+        - jsonPath: $.contract.lineItems.*.estimateLineItemId
+
+        - jsonPath: $.contract.lineItems.*.contractLineItemRef
+
+        - jsonPath: $.contract[?({id} in @.lineItems[*].id)].id
+
+        - jsonPath: $.contract.lineItems.*.tenantId
+
+        - jsonPath: $.contract.lineItems.*.unitRate
+
+        - jsonPath: $.contract.lineItems.*.noOfunit
+
+        - jsonPath: $.contract.lineItems.*.status
+
+        - jsonPath: $.contract.documents.*.additionalDetails
+          type: JSON
+          dbType: JSONB
+
+        - jsonPath: $.contract[?({id} in @.lineItems[*].id)].auditDetails.createdBy
+
+        - jsonPath: $.contract[?({id} in @.lineItems[*].id)].auditDetails.lastModifiedBy
+
+        - jsonPath: $.contract[?({id} in @.lineItems[*].id)].auditDetails.createdTime
+
+        - jsonPath: $.contract[?({id} in @.lineItems[*].id)].auditDetails.lastModifiedTime
+
+    - query: INSERT INTO eg_wms_contract_amount_breakups (id, estimate_amount_breakup_id, line_item_id, amount, status, additional_details, created_by, last_modified_by, created_time, last_modified_time) VALUES (?,?,?,?,?,?,?,?,?,?);
+      basePath: $.contract.lineItems.*.amountBreakups.*
+      jsonMaps:
+        - jsonPath: $.contract.lineItems.*.amountBreakups.*.id
+
+        - jsonPath: $.contract.lineItems.*.amountBreakups.*.estimateAmountBreakupId
+
+        - jsonPath: $.contract.lineItems[?({id} in @.amountBreakups[*].id)].id
+
+        - jsonPath: $.contract.lineItems.*.amountBreakups.*.amount
+
+        - jsonPath: $.contract.lineItems.*.amountBreakups.*.status
+
+        - jsonPath: $.contract.lineItems.*.amountBreakups.*.additionalDetails
+          type: JSON
+          dbType: JSONB
+
+        - jsonPath: $.contract[?({id} in @.lineItems.*.amountBreakups[*].id)].auditDetails.createdBy
+
+        - jsonPath: $.contract[?({id} in @.lineItems.*.amountBreakups[*].id)].auditDetails.lastModifiedBy
+
+        - jsonPath: $.contract[?({id} in @.lineItems.*.amountBreakups[*].id)].auditDetails.createdTime
+
+        - jsonPath: $.contract[?({id} in @.lineItems.*.amountBreakups[*].id)].auditDetails.lastModifiedTime
+
+ - version: 1.0
+   name: contract
+   description: Update contract details in eg_wms_contract table
+   fromTopic: update-contract
+   isTransaction: true
+   module: CT
+   objecIdJsonPath: $.id
+   tenantIdJsonPath: $.tenantId
+   transactionCodeJsonPath: $.contractNumber
+   auditAttributeBasePath: $.contract
+   queryMaps:
+     - query: UPDATE eg_wms_contract set wf_status = ?, executing_authority = ?, contract_type = ?, total_contracted_amount = ?, security_deposit = ?, agreement_date = ?, defect_liability_period = ?, start_date = ?, end_date = ?, status = ?, additional_details = ?, created_by = ?, last_modified_by = ?, created_time = ?, last_modified_time = ?, issue_date = ?, completion_period = ?, org_id = ? where id = ? ;
+       basePath: $.contract
+       jsonMaps:
+         - jsonPath: $.contract.wfStatus
+
+         - jsonPath: $.contract.executingAuthority
+
+         - jsonPath: $.contract.contractType
+
+         - jsonPath: $.contract.totalContractedAmount
+
+         - jsonPath: $.contract.securityDeposit
+
+         - jsonPath: $.contract.agreementDate
+
+         - jsonPath: $.contract.defectLiabilityPeriod
+
+         - jsonPath: $.contract.startDate
+
+         - jsonPath: $.contract.endDate
+
+         - jsonPath: $.contract.status
+
+         - jsonPath: $.contract.additionalDetails
+           type: JSON
+           dbType: JSONB
+
+         - jsonPath: $.contract.auditDetails.createdBy
+
+         - jsonPath: $.contract.auditDetails.lastModifiedBy
+
+         - jsonPath: $.contract.auditDetails.createdTime
+
+         - jsonPath: $.contract.auditDetails.lastModifiedTime
+
+         - jsonPath: $.contract.issueDate
+
+         - jsonPath: $.contract.completionPeriod
+
+         - jsonPath: $.contract.orgId
+
+         - jsonPath: $.contract.id
+
+     - query: INSERT INTO eg_wms_contract_documents (id, filestore_id, document_type, document_uid, status, contract_id, additional_details, created_by, last_modified_by, created_time, last_modified_time) VALUES (?,?,?,?,?,?,?,?,?,?,?)  ON CONFLICT (id) DO UPDATE SET filestore_id = ?, document_type = ? , additional_details = ? ,last_modified_by = ? ,last_modified_time = ?, status = ?;
+       basePath: $.contract.documents.*
+       jsonMaps:
+         - jsonPath: $.contract.documents.*.id
+
+         - jsonPath: $.contract.documents.*.fileStore
+
+         - jsonPath: $.contract.documents.*.documentType
+
+         - jsonPath: $.contract.documents.*.documentUid
+
+         - jsonPath: $.contract.documents.*.status
+
+         - jsonPath: $.contract[?({id} in @.documents[*].id)].id
+
+         - jsonPath: $.contract.documents.*.additionalDetails
+           type: JSON
+           dbType: JSONB
+
+         - jsonPath: $.contract[?({id} in @.documents[*].id)].auditDetails.createdBy
+
+         - jsonPath: $.contract[?({id} in @.documents[*].id)].auditDetails.lastModifiedBy
+
+         - jsonPath: $.contract[?({id} in @.documents[*].id)].auditDetails.createdTime
+
+         - jsonPath: $.contract[?({id} in @.documents[*].id)].auditDetails.lastModifiedTime
+
+         - jsonPath: $.contract.documents.*.fileStore
+
+         - jsonPath: $.contract.documents.*.documentType
+
+         - jsonPath: $.contract.documents.*.additionalDetails
+           type: JSON
+           dbType: JSONB
+
+         - jsonPath: $.contract[?({id} in @.documents[*].id)].auditDetails.lastModifiedBy
+
+         - jsonPath: $.contract[?({id} in @.documents[*].id)].auditDetails.lastModifiedTime
+
+         - jsonPath: $.contract.documents.*.status
+
+     - query:  INSERT INTO eg_wms_contract_line_items (id, estimate_id, estimate_line_item_id, contract_line_item_ref, contract_id, tenant_id, unit_rate, no_of_unit, status, additional_details, created_by, last_modified_by, created_time, last_modified_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE SET unit_rate = ?, no_of_unit = ?, status = ?, additional_details = ?, last_modified_by = ?, last_modified_time = ?;
+       basePath: $.contract.lineItems.*
+       jsonMaps:
+         - jsonPath: $.contract.lineItems.*.id
+
+         - jsonPath: $.contract.lineItems.*.estimateId
+
+         - jsonPath: $.contract.lineItems.*.estimateLineItemId
+
+         - jsonPath: $.contract.lineItems.*.contractLineItemRef
+
+         - jsonPath: $.contract[?({id} in @.lineItems[*].id)].id
+
+         - jsonPath: $.contract.lineItems.*.tenantId
+
+         - jsonPath: $.contract.lineItems.*.unitRate
+
+         - jsonPath: $.contract.lineItems.*.noOfunit
+
+         - jsonPath: $.contract.lineItems.*.status
+
+         - jsonPath: $.contract.documents.*.additionalDetails
+           type: JSON
+           dbType: JSONB
+
+         - jsonPath: $.contract[?({id} in @.lineItems[*].id)].auditDetails.createdBy
+
+         - jsonPath: $.contract[?({id} in @.lineItems[*].id)].auditDetails.lastModifiedBy
+
+         - jsonPath: $.contract[?({id} in @.lineItems[*].id)].auditDetails.createdTime
+
+         - jsonPath: $.contract[?({id} in @.lineItems[*].id)].auditDetails.lastModifiedTime
+
+         - jsonPath: $.contract.lineItems.*.unitRate
+
+         - jsonPath: $.contract.lineItems.*.noOfunit
+
+         - jsonPath: $.contract.lineItems.*.status
+
+         - jsonPath: $.contract.documents.*.additionalDetails
+           type: JSON
+           dbType: JSONB
+
+         - jsonPath: $.contract[?({id} in @.lineItems[*].id)].auditDetails.lastModifiedBy
+
+         - jsonPath: $.contract[?({id} in @.lineItems[*].id)].auditDetails.lastModifiedTime
+
+     - query: INSERT INTO eg_wms_contract_amount_breakups (id, estimate_amount_breakup_id, line_item_id, amount, status, additional_details, created_by, last_modified_by, created_time, last_modified_time) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE SET amount = ?, status = ?, additional_details = ?, last_modified_by = ?, last_modified_time = ?;
+       basePath: $.contract.lineItems.*.amountBreakups.*
+       jsonMaps:
+         - jsonPath: $.contract.lineItems.*.amountBreakups.*.id
+
+         - jsonPath: $.contract.lineItems.*.amountBreakups.*.estimateAmountBreakupId
+
+         - jsonPath: $.contract.lineItems[?({id} in @.amountBreakups[*].id)].id
+
+         - jsonPath: $.contract.lineItems.*.amountBreakups.*.amount
+
+         - jsonPath: $.contract.lineItems.*.amountBreakups.*.status
+
+         - jsonPath: $.contract.lineItems.*.amountBreakups.*.additionalDetails
+           type: JSON
+           dbType: JSONB
+
+         - jsonPath: $.contract[?({id} in @.lineItems.*.amountBreakups[*].id)].auditDetails.createdBy
+
+         - jsonPath: $.contract[?({id} in @.lineItems.*.amountBreakups[*].id)].auditDetails.lastModifiedBy
+
+         - jsonPath: $.contract[?({id} in @.lineItems.*.amountBreakups[*].id)].auditDetails.createdTime
+
+         - jsonPath: $.contract[?({id} in @.lineItems.*.amountBreakups[*].id)].auditDetails.lastModifiedTime
+
+         - jsonPath: $.contract.lineItems.*.amountBreakups.*.amount
+
+         - jsonPath: $.contract.lineItems.*.amountBreakups.*.status
+
+         - jsonPath: $.contract.lineItems.*.amountBreakups.*.additionalDetails
+           type: JSON
+           dbType: JSONB
+
+         - jsonPath: $.contract[?({id} in @.lineItems.*.amountBreakups[*].id)].auditDetails.lastModifiedBy
+
+         - jsonPath: $.contract[?({id} in @.lineItems.*.amountBreakups[*].id)].auditDetails.lastModifiedTime

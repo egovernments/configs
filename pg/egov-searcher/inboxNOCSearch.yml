@@ -1,0 +1,163 @@
+SearchDefinitions:
+ moduleName: noc-services
+ summary: Noc Services Inbox API
+ version: 1.0.0
+ definitions:
+ - name: inboxnocsearch
+   query:
+    baseQuery: Select row_to_json(result) from
+          (
+          select DISTINCT(noc.applicationno) as applicationno,noc.createdtime as createdtime from eg_noc as noc
+          INNER JOIN eg_bpa_buildingplan as bpa ON noc.sourcerefid=bpa.applicationno
+          INNER JOIN eg_land_landInfo landinfo ON bpa.landId = landinfo.id
+          INNER JOIN eg_land_Address landaddress ON landinfo.id = landaddress.landInfoId
+          INNER JOIN eg_land_ownerInfo ownerinfo ON landinfo.id = ownerinfo.landInfoId
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = noc.applicationno
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = noc.applicationno GROUP BY wf.businessid)
+          order by noc.createdtime asc $pagination
+          ) result
+    groupBy:
+    orderBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: noc.tenantid
+      isMandatory: true
+      jsonPath: $.searchCriteria.tenantId
+    - name: landaddress.locality
+      isMandatory: false
+      jsonPath: $.searchCriteria.locality
+    - name: assg.assignee
+      isMandatory: false
+      jsonPath: $.searchCriteria.assignee
+    - name: pi.status
+      isMandatory: false
+      jsonPath: $.searchCriteria.status
+    - name: noc.sourceRefId
+      isMandatory: false
+      jsonPath: $.searchCriteria.sourceApplicationNumber
+    - name: noc.applicationno
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationNumber
+    - name: ownerinfo.uuid
+      isMandatory: false
+      jsonPath: $.searchCriteria.userid
+    - name: pi.businessservice
+      isMandatory: false
+      jsonPath: $.searchCriteria.businessservice
+    pagination:
+      noOfRecords: $.searchCriteria.noOfRecords
+      offset: $.searchCriteria.offset
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"Noc": []}
+    outJsonPath: $.Noc
+    responseInfoPath: $.ResponseInfo
+
+ - name: inboxnocsearchcount
+   query:
+    baseQuery: SELECT row_to_json(TotalCount) from (SELECT COUNT(result) from
+          (
+          select DISTINCT(noc.applicationno) as applicationno,noc.createdtime as createdtime from eg_noc as noc
+          INNER JOIN eg_bpa_buildingplan as bpa ON noc.sourcerefid=bpa.applicationno
+          INNER JOIN eg_land_landInfo landinfo ON bpa.landId = landinfo.id
+          INNER JOIN eg_land_Address landaddress ON landinfo.id = landaddress.landInfoId
+          INNER JOIN eg_land_ownerInfo ownerinfo ON landinfo.id = ownerinfo.landInfoId
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = noc.applicationno
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = noc.applicationno GROUP BY wf.businessid)
+          order by noc.createdtime asc $pagination
+          ) result) TotalCount
+    groupBy:
+    orderBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: noc.tenantid
+      isMandatory: true
+      jsonPath: $.searchCriteria.tenantId
+    - name: landaddress.locality
+      isMandatory: false
+      jsonPath: $.searchCriteria.locality
+    - name: assg.assignee
+      isMandatory: false
+      jsonPath: $.searchCriteria.assignee
+    - name: pi.status
+      isMandatory: false
+      jsonPath: $.searchCriteria.status
+    - name: noc.applicationno
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationNo
+    - name: noc.sourceRefId
+      isMandatory: false
+      jsonPath: $.searchCriteria.sourceApplicationNumber
+    - name: ownerinfo.uuid
+      isMandatory: false
+      jsonPath: $.searchCriteria.userid
+    - name: pi.businessservice
+      isMandatory: false
+      jsonPath: $.searchCriteria.businessservice
+    pagination:
+      noOfRecords: $.searchCriteria.noOfRecords
+      offset: $.searchCriteria.offset
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"TotalCount": {}}
+    outJsonPath: $.TotalCount
+    responseInfoPath: $.ResponseInfo
+
+ - name: inboxnocsearchdesc
+   query:
+    baseQuery: Select row_to_json(result) from
+          (
+          select DISTINCT(noc.applicationno) as applicationno,noc.createdtime as createdtime from eg_noc as noc
+          INNER JOIN eg_bpa_buildingplan as bpa ON noc.sourcerefid=bpa.applicationno
+          INNER JOIN eg_land_landInfo landinfo ON bpa.landId = landinfo.id
+          INNER JOIN eg_land_Address landaddress ON landinfo.id = landaddress.landInfoId
+          INNER JOIN eg_land_ownerInfo ownerinfo ON landinfo.id = ownerinfo.landInfoId
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = noc.applicationno
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = noc.applicationno GROUP BY wf.businessid)
+          order by noc.createdtime desc $pagination
+          ) result
+    groupBy:
+    orderBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: noc.tenantid
+      isMandatory: true
+      jsonPath: $.searchCriteria.tenantId
+    - name: landaddress.locality
+      isMandatory: false
+      jsonPath: $.searchCriteria.locality
+    - name: assg.assignee
+      isMandatory: false
+      jsonPath: $.searchCriteria.assignee
+    - name: pi.status
+      isMandatory: false
+      jsonPath: $.searchCriteria.status
+    - name: noc.applicationno
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationNo
+    - name: noc.sourceRefId
+      isMandatory: false
+      jsonPath: $.searchCriteria.sourceApplicationNumber
+    - name: ownerinfo.uuid
+      isMandatory: false
+      jsonPath: $.searchCriteria.userid
+    - name: pi.businessservice
+      isMandatory: false
+      jsonPath: $.searchCriteria.businessservice
+    pagination:
+      noOfRecords: $.searchCriteria.noOfRecords
+      offset: $.searchCriteria.offset
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"Noc": []}
+    outJsonPath: $.Noc
+    responseInfoPath: $.ResponseInfo

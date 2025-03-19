@@ -1,0 +1,286 @@
+ReportDefinitions:
+  - reportName: MCollectReceiptRegister
+    decryptionPathId: MCollectReceiptRegister
+    summary: Report is used for audit and year-end finance reconciliation activities by the ULBs. It also serves as the data dump needed by the ULBs. 
+    version: 1.0.0
+    moduleName: mcollect
+    sourceColumns:
+      - name: challannumber
+        label: reports.mcollect.challannumber
+        type: string
+        source: mcollect
+        total: false
+      - name: receiptnumber
+        label: reports.mcollect.receiptnumber
+        type: string
+        source: mcollect
+        total: false
+      - name: receiptdate
+        label: reports.mcollect.receiptdate
+        type: string
+        source: mcollect
+        total: false
+      - name: name
+        label: reports.mcollect.consumername
+        type: string
+        source: mcollect
+        total: false 
+      - name: service
+        label: reports.mcollect.servicedetails
+        type: string
+        source: mcollect
+        total: false
+        localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
+        isLocalisationRequired: true
+      - name: amountcollected
+        label: reports.mcollect.amountcollected
+        type: string
+        source: mcollect
+        total: true
+      - name: payername
+        label: reports.mcollect.payername
+        type: string
+        source: mcollect
+        total: false
+      - name: transactionnumber
+        label: reports.mcollect.transactionnumber
+        type: string
+        source: mcollect
+        total: false
+      - name: chequeNo
+        label: reports.mcollect.chequeNo
+        type: string
+        source: mcollect
+        total: false
+    searchParams:
+      - name: service
+        label: reports.mcollect.service
+        type: multivaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pg&moduleName=BillingService&masterName=BusinessService&filter=%5B?(@.type=='Adhoc')%5D|$.MdmsRes.BillingService.BusinessService.*.code|$.MdmsRes.BillingService.BusinessService.*.code
+        source: mcollect
+        wrapper: true
+        isMandatory: true
+        searchClause: AND ec.businessService IN ( $service )
+        isLocalisationRequired: true
+        localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
+      - name: fromDate
+        label: reports.mcollect.fromDate
+        type: epoch
+        source: mcollect
+        isMandatory: true
+        searchClause: AND paydl.receiptdate >= $fromDate
+      - name: toDate
+        label: reports.mcollect.toDate
+        type: epoch
+        source: mcollect
+        isMandatory: true
+        searchClause: AND paydl.receiptdate <= $toDate
+      - name: receiptstatus
+        label: reports.mcollect.receiptstatus
+        type: singlevaluelist
+        pattern: 'list://New:New,Deposited:Deposited,Dishonoured:Dishonoured'
+        source: mcollect
+        isMandatory: false
+        searchClause: AND pay.paymentstatus <= $receiptstatus
+      - name: collectorname
+        label: reports.mcollect.collectorname
+        type: singlevaluelist
+        pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=UC_EMP|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.username
+        source: mcollect
+        wrapper: true
+        isMandatory: false
+        searchClause: AND pay.createdby= $collectorname
+    query: |
+          SELECT ec.challanNo as challannumber, paydl.receiptnumber as receiptnumber, To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY') AS receiptdate, users.name as name,
+          ec.businessService as service, pay.totalamountpaid AS amountcollected, pay.payername, pay.transactionnumber as transactionnumber, pay.instrumentnumber as chequeNo FROM egcl_payment AS pay
+          inner join egcl_paymentdetail AS paydl ON pay.id = paydl.paymentid
+          inner join egcl_bill as bill on paydl.billid = bill.id
+          inner join eg_echallan as ec on bill.consumercode = ec.challanNo and bill.tenantid = ec.tenantid
+          inner join eg_user as users on users.uuid = ec.accountid where pay.paymentstatus !='CANCELLED'
+    orderby: order by paydl.receiptdate desc
+  
+  - reportName: MCollectCollectionReport
+    decryptionPathId: MCollectCollectionReport
+    summary: It helps administrators track the collection in the ULB and the employee collection performance. 
+    version: 1.0.0
+    moduleName: mcollect
+    sourceColumns:
+      - name: service
+        label: reports.mcollect.service
+        type: string
+        source: mcollect
+        total: false
+        localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
+        isLocalisationRequired: true
+      - name: locality
+        label: reports.mcollect.locality
+        type: string
+        source: mcollect
+        total: false
+        localisationPrefix: TENANTS_MOHALLA_
+        isLocalisationRequired: true
+      - name: name
+        label: reports.mcollect.collectorname
+        type: string
+        source: mcollect
+        total: false
+      - name: paymentmode
+        label: reports.mcollect.paymentinstrument
+        type: string
+        source: mcollect
+        total: false
+      - name: totaltransaction
+        label: reports.mcollect.totaltransaction
+        type: string
+        source: mcollect
+        total: true
+      - name: amountcollected
+        label: reports.mcollect.amountcollected
+        type: string
+        source: mcollect
+        total: true
+    searchParams:
+      - name: service
+        label: reports.mcollect.service
+        type: multivaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pg&moduleName=BillingService&masterName=BusinessService&filter=%5B?(@.type=='Adhoc')%5D|$.MdmsRes.BillingService.BusinessService.*.code|$.MdmsRes.BillingService.BusinessService.*.code
+        source: mcollect
+        wrapper: true
+        isMandatory: true
+        searchClause: AND ec.businessService IN ( $service )
+        isLocalisationRequired: true
+        localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
+      - name: fromDate
+        label: reports.mcollect.fromDate
+        type: epoch
+        source: mcollect
+        isMandatory: true
+        searchClause: AND paydl.receiptdate >= $fromDate
+      - name: toDate
+        label: reports.mcollect.toDate
+        type: epoch
+        source: mcollect
+        isMandatory: true
+        searchClause: AND paydl.receiptdate <= $toDate
+      - name: name
+        label: reports.mcollect.collectorname
+        type: singlevaluelist
+        pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=UC_EMP|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.username
+        source: mcollect
+        wrapper: true
+        isMandatory: false
+        searchClause: AND pay.createdby = $name
+      - name: locality
+        label: reports.mcollect.locality
+        type: singlevaluelist
+        pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.code
+        source: mcollect
+        wrapper: true
+        isMandatory: false
+        localisationPrefix: TENANTS_MOHALLA_
+        isLocalisationRequired: true
+        searchClause: AND eca.locality = $locality
+      - name: paymentType
+        label: reports.mcollect.paymentType
+        type: singlevaluelist
+        pattern: 'list://CASH:CASH,ONLINE:ONLINE,CARD:CARD,DD:DD,CHEQUE:CHEQUE'
+        source: mcollect
+        wrapper: true
+        isMandatory: false
+        isLocalisationRequired: true
+        localisationPrefix: COMMON_MASTERS_PAYMENTMODE_
+        searchClause: AND pay.paymentmode = $paymentType
+    query: |
+          Select ec.businessService as service, eca.locality as locality, (select name from eg_user where id = pay.createdby::Integer ) as name, 
+          pay.paymentmode as paymentmode, count(DISTINCT ec.challanNo) as totaltransaction, sum(totalamountpaid) as amountcollected from egcl_bill as b 
+          inner join egcl_billdetial as bd on b.id = bd.billid AND b.tenantid = bd.tenantid 
+          inner join eg_echallan as ec on b.consumercode = ec.challanNo and b.tenantid =ec.tenantid 
+          inner join eg_challan_address as eca on ec.id = eca.echallanId 
+          inner join egcl_paymentdetail paydl on b.id = paydl.billid and b.tenantid = paydl.tenantid 
+          inner join egcl_payment pay on paydl.paymentid = pay.id and paydl.tenantid =pay.tenantid where 1=1
+    groupby: group by service,locality, name, paymentmode
+
+  - reportName: MCollectChallanRegister
+    summary: Report is used to track and understand the challans generated, outstanding amount, & different status of the challans. 
+    version: 1.0.0
+    moduleName: mcollect
+    sourceColumns:
+      - name: service
+        label: reports.mcollect.service
+        type: string
+        source: mcollect
+        total: false
+        localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
+        isLocalisationRequired: true
+      - name: locality
+        label: reports.mcollect.locality
+        type: string
+        source: mcollect
+        total: false
+        localisationPrefix: TENANTS_MOHALLA_
+        isLocalisationRequired: true
+      - name: totalchallans
+        label: reports.mcollect.totalchallans
+        type: string
+        source: mcollect
+        total: true
+      - name: status
+        label: reports.mcollect.status
+        type: string
+        source: mcollect
+        total: false
+        localisationPrefix: UC_
+        isLocalisationRequired: true
+      - name: totalamount
+        label: reports.mcollect.totalamount
+        type: string
+        source: mcollect
+        total: true
+    searchParams:
+      - name: service
+        label: reports.mcollect.service
+        type: singlevaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pg&moduleName=BillingService&masterName=BusinessService&filter=%5B?(@.type=='Adhoc')%5D|$.MdmsRes.BillingService.BusinessService.*.code|$.MdmsRes.BillingService.BusinessService.*.code
+        source: mcollect
+        wrapper: true
+        isMandatory: false
+        searchClause: AND ec.businessService = $service
+        localisationPrefix: BILLINGSERVICE_BUSINESSSERVICE_
+        isLocalisationRequired: true
+      - name: fromDate
+        label: reports.mcollect.fromDate
+        type: epoch
+        source: mcollect
+        isMandatory: false
+        searchClause: AND ec.taxPeriodFrom >= $fromDate
+      - name: toDate
+        label: reports.mcollect.toDate
+        type: epoch
+        source: mcollect
+        isMandatory: false
+        searchClause: AND ec.taxPeriodTo <= $toDate
+      - name: status
+        label: reports.mcollect.status
+        type: singlevaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=pg&moduleName=mCollect&masterName=applicationStatus&filter=%5B?(@.active)%5D|$.MdmsRes.mCollect.applicationStatus.*.code|$.MdmsRes.mCollect.applicationStatus.*.code
+        source: mcollect
+        wrapper: true
+        isMandatory: false
+        localisationPrefix: UC_
+        isLocalisationRequired: true
+        searchClause: AND ec.applicationStatus = $status
+      - name: locality
+        label: reports.mcollect.locality
+        type: singlevaluelist
+        pattern: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.code
+        source: mcollect
+        wrapper: true
+        isMandatory: false
+        localisationPrefix: TENANTS_MOHALLA_
+        isLocalisationRequired: true
+        searchClause: AND eca.locality = $locality  
+    query: |
+          select ec.businessService as service , eca.locality as locality, ec.applicationStatus as status, count(DISTINCT ec.challanNo) as totalchallans, sum(bd.totalamount) as totalamount from eg_echallan as ec 
+          join eg_challan_address as eca on ec.id = eca.echallanId 
+          join egbs_billdetail_v1 as bd on ec.challanNo = bd.consumercode where 1=1
+    groupby: group by ec.businessService, eca.locality, ec.applicationStatus

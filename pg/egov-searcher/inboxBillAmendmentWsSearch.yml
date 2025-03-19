@@ -1,0 +1,171 @@
+SearchDefinitions:
+  moduleName: bsWs-service
+  summary: Billing Amendment Services Inbox API
+  version: 1.0.0
+  definitions:
+    - name: inboxbswssearch
+      query:
+        baseQuery: Select row_to_json(final_result) from 
+          (
+          select DISTINCT(amendmentid), consumercode, createdtime from
+          ( select bs.amendmentid, bs.consumerCode, pi.createdtime from egbs_amendment as bs 
+          INNER JOIN eg_ws_connection conn ON bs.consumercode = conn.connectionno
+          INNER JOIN egbs_demand_v1 demand ON bs.consumercode = demand.consumercode 
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bs.amendmentid 
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid 
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bs.amendmentid GROUP BY wf.businessid)
+          order by pi.createdtime asc $pagination
+          ) result) final_result order by createdtime asc
+        groupBy:
+        orderBy:
+      searchParams:
+        condition: AND
+        params:
+          - name: bs.tenantid
+            isMandatory: true
+            jsonPath: $.searchCriteria.tenantId
+          - name: bs.amendmentid
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationNumber
+          - name: conn.locality
+            isMandatory: false
+            jsonPath: $.searchCriteria.locality
+          - name: bs.consumercode
+            isMandatory: false
+            jsonPath: $.searchCriteria.consumerNo
+          - name: bs.status
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationStatus
+          - name: assg.assignee
+            isMandatory: false
+            jsonPath: $.searchCriteria.assignee
+          - name: pi.status
+            isMandatory: false
+            jsonPath: $.searchCriteria.status
+          - name: pi.businessservice
+            isMandatory: false
+            jsonPath: $.searchCriteria.businessservice
+          - name: demand.payer
+            isMandatory: false
+            jsonPath: $.searchCriteria.userIds
+        pagination:
+          noOfRecords: $.searchCriteria.noOfRecords
+          offset: $.searchCriteria.offset
+        
+      output:
+        jsonFormat: {"ResponseInfo": {},"BillAmendments": []}
+        outJsonPath: $.BillAmendments
+        responseInfoPath: $.ResponseInfo
+   
+   
+    - name: inboxbswssearchdesc
+      query:
+        baseQuery: Select row_to_json(final_result) from
+          (
+          select DISTINCT(amendmentid), consumercode, createdtime from
+          ( select bs.amendmentid, bs.consumerCode, pi.createdtime from egbs_amendment as bs 
+          INNER JOIN eg_ws_connection conn ON bs.consumercode = conn.connectionno
+          INNER JOIN egbs_demand_v1 demand ON bs.consumercode = demand.consumercode 
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bs.amendmentid 
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid 
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bs.amendmentid GROUP BY wf.businessid)
+          order by pi.createdtime desc $pagination
+          ) result) final_result order by createdtime desc
+        groupBy:
+        orderBy:
+      searchParams:
+        condition: AND
+        params:
+          - name: bs.tenantid
+            isMandatory: true
+            jsonPath: $.searchCriteria.tenantId
+          - name: bs.amendmentid
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationNumber
+          - name: conn.locality
+            isMandatory: false
+            jsonPath: $.searchCriteria.locality
+          - name: bs.consumercode
+            isMandatory: false
+            jsonPath: $.searchCriteria.consumerNo
+          - name: bs.status
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationStatus
+          - name: assg.assignee
+            isMandatory: false
+            jsonPath: $.searchCriteria.assignee
+          - name: pi.status
+            isMandatory: false
+            jsonPath: $.searchCriteria.status
+          - name: pi.businessservice
+            isMandatory: false
+            jsonPath: $.searchCriteria.businessservice
+          - name: demand.payer
+            isMandatory: false
+            jsonPath: $.searchCriteria.userIds
+        pagination:
+          noOfRecords: $.searchCriteria.noOfRecords
+          offset: $.searchCriteria.offset
+
+      output:
+        jsonFormat: {"ResponseInfo": {},"BillAmendments": []}
+        outJsonPath: $.BillAmendments
+        responseInfoPath: $.ResponseInfo
+    
+    
+    - name: inboxbswssearchcount
+      query:
+        baseQuery: SELECT row_to_json(TotalCount) from (SELECT COUNT(final_result) from
+          (
+          select DISTINCT(amendmentid), consumercode from
+          ( select bs.amendmentid, bs.consumerCode, pi.createdtime from egbs_amendment as bs 
+          INNER JOIN eg_ws_connection conn ON bs.consumercode = conn.connectionno
+          INNER JOIN egbs_demand_v1 demand ON bs.consumercode = demand.consumercode 
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = bs.amendmentid 
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid 
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = bs.amendmentid GROUP BY wf.businessid)
+          order by pi.createdtime asc $pagination
+          ) result) final_result) TotalCount
+        groupBy:
+        orderBy:
+      searchParams:
+        condition: AND
+        params:
+          - name: bs.tenantid
+            isMandatory: true
+            jsonPath: $.searchCriteria.tenantId
+          - name: bs.amendmentid
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationNumber
+          - name: conn.locality
+            isMandatory: false
+            jsonPath: $.searchCriteria.locality
+          - name: bs.consumercode
+            isMandatory: false
+            jsonPath: $.searchCriteria.consumerNo
+          - name: bs.status
+            isMandatory: false
+            jsonPath: $.searchCriteria.applicationStatus
+          - name: assg.assignee
+            isMandatory: false
+            jsonPath: $.searchCriteria.assignee
+          - name: pi.status
+            isMandatory: false
+            jsonPath: $.searchCriteria.status
+          - name: pi.businessservice
+            isMandatory: false
+            jsonPath: $.searchCriteria.businessservice
+          - name: demand.payer
+            isMandatory: false
+            jsonPath: $.searchCriteria.userIds   
+        pagination:
+          noOfRecords: $.searchCriteria.noOfRecords
+          offset: $.searchCriteria.offset
+
+      output:
+        jsonFormat: {"ResponseInfo": {},"TotalCount": {}}
+        outJsonPath: $.TotalCount
+        responseInfoPath: $.ResponseInfo

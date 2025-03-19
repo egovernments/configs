@@ -1,0 +1,881 @@
+ReportDefinitions:
+  - reportName: FSMDailyCollectionReport 
+    decryptionPathId: FSMDailyCollectionReport
+    summary: Report is used for check FSM daily collection. 
+    version: 1.0.0
+    moduleName: fsm
+    sourceColumns:
+      - name: receiptdate
+        label: REPORT_FSM_RESULT_RECEIPTDATE
+        type: string
+        source: fsm
+        total: false
+      - name: receiptnumber
+        label: REPORT_FSM_RESULT_RECEIPTNUMBER
+        type: string
+        source: fsm
+        total: false
+      - name: applicationno
+        label: REPORT_FSM_RESULT_APPLICATIONNO
+        type: string
+        source: fsm
+        total: false
+      - name: name
+        label: REPORT_FSM_RESULT_APPLICANTNAME
+        type: string
+        source: fsm
+        total: false
+      - name: instrumenttype
+        label: REPORT_FSM_RESULT_PAYMENTMODE
+        type: string
+        source: fsm
+        total: false  
+      - name: chequedate
+        label: REPORT_FSM_RESULT_CHEQUEDATE
+        type: string
+        source: fsm
+        total: false
+      - name: chequeno
+        label: REPORT_FSM_RESULT_CHEQUENO
+        type: string
+        source: fsm
+        total: false   
+      - name: bankname
+        label: REPORT_FSM_RESULT_BANKNAME
+        type: string
+        source: fsm
+        total: false        
+      - name: transactionid
+        label: REPORT_FSM_RESULT_TRANSACTIONID
+        type: string
+        source: fsm
+        total: false
+      - name: carddigit
+        label: REPORT_FSM_RESULT_CARDDIGIT
+        type: string
+        source: fsm
+        total: false    
+      - name: amount
+        label: REPORT_FSM_RESULT_AMOUNT
+        type: string
+        source: fsm
+        total: true
+      - name: status
+        label: REPORT_FSM_RESULT_STATUS
+        type: string
+        source: fsm
+        total: false
+    searchParams:
+      - name: fromDate
+        label: REPORTS_FSM_PARAM_FROMDATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND app.createdtime >= $fromDate
+      - name: toDate
+        label: REPORTS_FSM_PARAM_TODATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND app.createdtime <= $toDate 
+      - name: instrumentType
+        label: REPORTS_FSM_PARAM_INSTRUMENTTYPE
+        type: singlevaluelist
+        pattern: 'list://CASH:CASH,ONLINE:ONLINE,CARD:CARD,DD:DD,CHEQUE:CHEQUE'
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND pay.paymentmode = $instrumentType
+      - name: collectionOperator
+        label: REPORTS_FSM_PARAM_COLLECTIONOPERATOR
+        type: singlevaluelist
+        pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=FSM_COLLECTOR|$.Employees[*].user.id|$.Employees[*].user.name|$.Employees[*].user.username
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND pay.createdby= $collectionOperator
+      - name: status
+        label: REPORTS_FSM_PARAM_STATUS
+        type: singlevaluelist
+        pattern: 'list://NEW:NEW,DEPOSITED:DEPOSITED,CANCELLED:CANCELLED,DISHONOURED:DISHONOURED'
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND pay.paymentstatus = $status
+      - name: dsoId
+        label: REPORTS_FSM_PARAM_DSONAME
+        type: singlevaluelist
+        pattern: http://vendor:8080/vendor/v1/_search?tenantId=$tenantid|$.vendor.*.id|$.vendor.*.name
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND app.dso_id = $dsoId
+    query: |
+          select To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY')  as receiptdate, paydl.receiptnumber as receiptnumber,b.consumercode AS applicationno,(select name from eg_user where uuid=app.accountid ) as name,  pay.paymentmode as instrumenttype, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then To_char(To_timestamp(pay.instrumentdate / 1000), 'DD/MM/YYYY')  else  'NA' end)  as chequedate, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.instrumentnumber else  'NA' end) as chequeno, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.additionaldetails::json#>>'{bankDetails,BANK}'  else  'NA' end) as bankname, (case when pay.paymentmode='ONLINE' then pay.transactionnumber else  'NA' end) as transactionid, (case when pay.paymentmode='CARD' then pay.instrumentnumber else  '' end) as carddigit, bd.amountpaid as amount,pay.paymentstatus as status from egcl_bill b inner join egcl_billdetial bd ON b.id = bd.billid AND b.tenantid = bd.tenantid INNER JOIN eg_fsm_application app on b.consumercode =app.applicationno and b.tenantid =app.tenantid inner join egcl_paymentdetail paydl   ON b.id = paydl.billid    AND b.tenantid = paydl.tenantid inner join egcl_payment pay  ON paydl.paymentid = pay.id and   paydl.tenantid =pay.tenantid where pay.tenantid=$tenantid and b.businessservice ='FSM.TRIP_CHARGES' 
+    orderby: order by paydl.receiptdate  desc
+    
+  - reportName: FSMDailyDesludingReport
+    summary: Report gives the highlevel information of FSM Requests
+    version: 1.0.0
+    moduleName: fsm
+    externalService:
+      - entity: $.TenantBoundary[0].boundary
+        apiURL: http://boundary-service.egov:8080/boundary-service/boundary-relationships/_search?hierarchyType=REVENUE-LOCALITY&boundaryType=Locality&tenantId=$tenantId
+        keyOrder: name,code
+        tableName: fsm_boundary
+    sourceColumns:
+      - name: tenantid
+        label: ULB Name
+        type: string
+        source: fsm
+      - name: ApplicationId
+        label: REPORT_FSM_RESULT_APPLICATION_NO
+        type: string
+        source: fsm
+      - name: ApplicationStatus
+        label: Application Status
+        type: string
+        source: fsm
+      - name: Nooftrips
+        label: REPORT_FSM_RESULT_No_OF_TRIPS
+        type: string
+        source: fsm
+      - name: PropertyType
+        label: Property Type
+        type: string
+        source: fsm
+      - name: PropertySubType
+        label: Property Sub Type
+        type: string
+        source: fsm
+      - name: UrbanRuralFlag
+        label: Urban Rural Flag
+        type: string
+        source: fsm
+      - name: locality
+        label: Locality
+        type: string
+        source: fsm
+      - name: GP
+        label: Gram Panchayat
+        type: string
+        source: fsm
+      - name: SlumName
+        label: Slum Name
+        type: string
+        source: fsm
+      - name: DesludgingVehicleNumber
+        label: Desludging Vehicle Number
+        type: string
+        source: fsm
+      - name: VehicleOwner
+        label: Vehicle OwnerShip
+        type: string
+        source: fsm
+      - name: VehicleCapacity
+        label: Vehicle Capacity
+        type: string
+        source: fsm
+      - name: TotalAmount
+        label: Total Amount to be Collected
+        type: string
+        source: fsm
+        total: true
+      - name: AdvanceAmount
+        label: Advance Amount
+        type: string
+        source: fsm
+        total: true
+      - name: PaymentAmount
+        label: Amount Collected
+        type: string
+        source: fsm
+        total: true
+      - name: ApplicationSubmitDate
+        label: Application Submitted Date
+        type: string
+        source: fsm
+      - name: Rating
+        label: Rating
+        type: string
+        source: fsm
+      - name: Comment
+        label: Reason for Rejection/Cancellation
+        type: string
+        source: fsm
+    searchParams:
+      - name: fromDate
+        label: REPORTS_FSM_PARAM_FROMDATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND fsm.createdtime >= $fromDate
+      - name: toDate
+        label: REPORTS_FSM_PARAM_TODATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND fsm.createdtime <= $toDate
+      - name: status
+        label: REPORTS_FSM_PARAM_STATUS
+        type: singlevaluelist
+        pattern: 'list://CREATED:Created,CITIZEN_FEEDBACK_PENDING:Citizen feedback pending,PENDING_DSO_APPROVAL:Pending DSO Approval,REJECTED:Rejected,ASSING_DSO:Assign DSO,DSO_INPROGRESS:DSO in Progress,CANCELED:Cancelled,COMPLETED:Conpleted,PENDING_APPL_FEE_PAYMENT:Pending application fee payment'
+        source: rainmaker-fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND REPLACE (fsm.applicationstatus, '_', ',') = $status
+      - name: locality
+        label: REPORTS_FSM_PARAM_LOCALITY
+        type: singlevaluelist
+        pattern: http://boundary-service.egov:8080/boundary-service/boundary-relationships/_search?hierarchyType=REVENUE-LOCALITY&boundaryType=Locality&tenantId=$tenantid|$.TenantBoundary[0].boundary.*.code|$.TenantBoundary[0].boundary.*.name
+        source: fsm
+        wrapper: true
+        isMandatory: false
+        searchClause: AND fsmaddress.locality = $locality
+    query: |
+          SELECT INITCAP(SPLIT_PART(fsm.tenantid,'.',2)) as tenantid, 
+          fsm.applicationno AS ApplicationId, 
+          COALESCE(INITCAP(REPLACE(fsm.applicationStatus, '_', ' ')), 'N/A') AS ApplicationStatus,
+          COALESCE(fsm.nooftrips, 0) AS Nooftrips,  
+          INITCAP(split_part(fsm.propertyusage::TEXT, '.', 1)) AS PropertyType, 
+          CASE 
+                WHEN split_part(fsm.propertyusage::TEXT, '.', 2) != '' 
+                THEN INITCAP(REPLACE(split_part(fsm.propertyusage::TEXT, '.', 2), '_', ' '))
+                ELSE 'N/A' 
+          END AS PropertySubType, 
+          CAST(COALESCE(fsmaddress.additionaldetails->>'boundaryType', 'N/A') AS TEXT) as UrbanRuralFlag, 
+          boundary.name as locality, 
+          CAST(COALESCE(fsmaddress.additionaldetails->'gramPanchayat'->>'name', 'N/A') AS TEXT) as GP, 
+          CAST(COALESCE(fsmaddress.slumname, 'N/A') AS TEXT) AS SlumName, 
+          COALESCE(fsmvehicle.registrationNumber, 'N/A') AS DesludgingVehicleNumber, 
+          COALESCE(fsmvehicle.vehicleowner, 'N/A') AS VehicleOwner,  
+          COALESCE(fsmvehicle.tankcapicity, 0) AS VehicleCapacity, 
+          CAST(COALESCE(NULLIF(fsm.additionaldetails->>'tripAmount', '')::NUMERIC * fsm.nooftrips, 0) AS NUMERIC) AS TotalAmount,
+          COALESCE(fsm.advanceamount, 0) AS AdvanceAmount, 
+          COALESCE(fsmpayment.totalamountpaid, 0) AS PaymentAmount, 
+          TO_CHAR(TO_TIMESTAMP(fsm.createdtime / 1000)::timestamp AT TIME ZONE 'Asia/Kolkata', 'MM/DD/YYYY HH24:MI:SS') AS ApplicationSubmitDate, 
+          COALESCE(pirating.rating, 0 ) AS Rating, 
+          COALESCE(picomment.comment, 'N/A') AS Comment 
+          FROM eg_fsm_application AS fsm 
+          JOIN eg_fsm_address AS fsmaddress ON (fsmaddress.fsm_id = fsm.id) 
+          JOIN eg_fsm_geolocation AS fsmgeolocation ON (fsmaddress.id = fsmgeolocation.address_id) 
+          LEFT JOIN eg_vendor AS fsmdso ON (fsmdso.id = fsm.dso_id) 
+          LEFT JOIN eg_vehicle AS fsmvehicle ON (fsm.vehicle_id = fsmvehicle.id) 
+          LEFT JOIN egcl_bill AS egbill ON (egbill.consumercode = fsm.applicationno) 
+          LEFT JOIN egcl_paymentdetail AS paymentdl ON (paymentdl.billid = egbill.id) 
+          LEFT JOIN egcl_payment AS fsmpayment ON (fsmpayment.id = paymentdl.paymentid) 
+          LEFT JOIN (SELECT pi.rating, pi.businessId FROM eg_wf_processinstance_v2 pi JOIN eg_wf_state_v2 status ON (status.uuid = pi.status) WHERE status.state = 'COMPLETED') pirating ON (pirating.businessId = fsm.applicationno) 
+          LEFT JOIN (SELECT pi.comment, pi.businessId FROM eg_wf_processinstance_v2 pi JOIN eg_wf_state_v2 status ON (status.uuid = pi.status) WHERE status.state IN ('REJECTED', 'CANCELED', 'DSO_REJECTED')) picomment ON (picomment.businessId = fsm.applicationno) 
+          LEFT  JOIN (VALUES fsm_boundary) AS boundary(name,code) ON (boundary.code = fsmaddress.locality)
+          WHERE fsm.tenantid=$tenantid 
+          AND fsm.additionaldetails->>'tripAmount' NOT IN ('', '[]')
+    orderby: ORDER BY fsm.applicationNo
+
+  
+  - reportName: FSMVendorVehicleReport
+    summary: FSM Vendor Vehicle Report.
+    version: 1.0.0
+    moduleName: fsm
+    sourceColumns:
+      - name: ven_tenant
+        label: Ulb Name
+        type: string
+        source: fsm
+        total: false
+      - name: ven_name
+        label: Vendor Name
+        type: string
+        source: fsm
+        total: false
+      - name: ven_status
+        label: Vendor Status
+        type: string
+        source: fsm
+        total: false
+      - name: ven_createdtime
+        label: Vendor Created Time
+        type: string
+        source: fsm
+        total: false
+      - name: veh_reg_no
+        label: Vehicle Registration Number
+        type: string
+        source: fsm
+        total: false
+      - name: vehiclecapacity
+        label: Vehicle Capacity
+        type: string
+        source: fsm
+        total: true
+      - name: make
+        label: Vehicle Make
+        type: string
+        source: fsm
+        total: false 
+      - name: model
+        label: Vehicle Model
+        type: string
+        source: fsm
+        total: false 
+      - name: vehicleowner
+        label: Vehicle Owner
+        type: string
+        source: fsm
+        total: false 
+      - name: veh_status
+        label: Vehicle Status
+        type: string
+        source: fsm
+        total: false 
+      - name: veh_createdtime
+        label: Vehicle Created Time
+        type: string
+        source: fsm
+        total: false    
+    searchParams:
+      - name: tenant
+        label: ULB
+        type: singlevaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=tenant&masterName=tenants&tenantId=pg|MdmsRes.tenant.tenants[*].code|MdmsRes.tenant.tenants[*].name
+        source: bpa
+        wrapper: true
+        isMandatory: true
+        searchClause:  where ven.tenantid = $tenant
+    query: 
+          select 
+          INITCAP(SPLIT_PART(ven.tenantid,'.',2)) as ven_tenant, 
+          ven.name as ven_name, 
+          ven.status as ven_status, 
+          to_char((to_timestamp(ven.createdtime/1000)::timestamp at time Zone 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS') as ven_createdtime, 
+          veh.id as veh_id, veh.registrationnumber as veh_reg_no, 
+          veh.tankcapicity as vehiclecapacity, 
+          veh.model as make,
+          INITCAP(REPLACE(split_part(veh.type::TEXT, '.', 2), '_', ' ')) AS model, 
+          veh.vehicleowner as vehicleowner, 
+          veh.status as veh_status, 
+          to_char((to_timestamp(veh.createdtime/1000)::timestamp at time Zone 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS') as veh_createdtime 
+          from eg_vendor ven full outer join eg_vendor_vehicle venveh on ven.id = venveh.vendor_id 
+          full outer join eg_vehicle veh on veh.id = venveh.vechile_id 
+          
+  - reportName: FSMUnregisteredVehicleLog
+    summary: FSM Unregistered Vehicle Log.
+    version: 1.0.0
+    moduleName: fsm
+    sourceColumns:
+      - name: tenantid
+        label: Ulb Name
+        type: string
+        source: fsm
+        total: false
+      - name: vehicleTripId
+        label: Vehicle Trip Id
+        type: string
+        source: fsm
+        total: false
+      - name: volumecarried
+        label: Sludge Disposed
+        type: string
+        source: fsm
+        total: true
+      - name: dsoName
+        label: DSO Name
+        type: string
+        source: fsm
+        total: false
+      - name: locality
+        label: Locality
+        type: string
+        source: fsm
+        total: false
+      - name: location
+        label: Urban Rural Flag
+        type: string
+        source: fsm
+        total: false
+      - name: ULB_GP_name
+        label: ULB/GP name
+        type: string
+        source: fsm
+        total: false
+      - name: vehicleNumber
+        label: Vehicle Number
+        type: string
+        source: fsm
+        total: false
+      - name: comments
+        label: Comments
+        type: string
+        source: fsm
+        total: false
+      - name: tripEndTime
+        label: Trip Disposed Time
+        type: string
+        source: fsm
+        total: false  
+    searchParams:
+      - name: fromDate
+        label: REPORTS_FSM_PARAM_FROMDATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND vehicletrip.createdtime >= $fromDate
+      - name: toDate
+        label: REPORTS_FSM_PARAM_TODATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND vehicletrip.createdtime <= $toDate
+    query: |
+          SELECT
+          INITCAP(SPLIT_PART(vehicletrip.tenantid, '.', 2)) AS tenantid, 
+          vehicletrip.applicationno AS vehicleTripId, 
+          vehicletrip.volumecarried AS volumecarried, 
+          REPLACE(CAST(COALESCE(vehicletrip.additionaldetails->'dsoName', '{}') AS TEXT), '"', '') AS dsoName, 
+          REPLACE(CAST(COALESCE(vehicletrip.additionaldetails->'locality', '{}') AS TEXT), '"', '') AS locality,  
+          CASE 
+               WHEN vehicletrip.additionaldetails->>'propertyLocation' = 'WITHIN_ULB_LIMITS' THEN 'ULB' 
+               WHEN vehicletrip.additionaldetails->>'propertyLocation' = 'FROM_GRAM_PANCHAYAT' THEN  
+               CAST(COALESCE(vehicletrip.additionaldetails->>'boundaryType', '{}') AS TEXT) 
+               WHEN vehicletrip.additionaldetails->>'propertyLocation' = 'FROM_OTHER_ULB' THEN 'Other ULB' 
+               ELSE NULL 
+               END AS location,
+          CASE 
+              WHEN vehicletrip.additionaldetails->>'propertyLocation' = 'WITHIN_ULB_LIMITS' THEN 
+                  REPLACE(CAST(COALESCE(vehicletrip.additionaldetails->'locality', '{}') AS TEXT), '"', '') 
+              WHEN vehicletrip.additionaldetails->>'propertyLocation' = 'FROM_GRAM_PANCHAYAT' THEN 
+                  REPLACE(CAST(COALESCE(vehicletrip.additionaldetails->'gramPanchayat'->'name', '{}') AS TEXT), '"', '') 
+              WHEN vehicletrip.additionaldetails->>'propertyLocation' = 'FROM_OTHER_ULB' THEN 
+                  REPLACE(CAST(COALESCE(vehicletrip.additionaldetails->'newLocality', '{}') AS TEXT), '"', '') 
+              ELSE NULL 
+            END AS ULB_GP_name, 
+            REPLACE(CAST(COALESCE(vehicletrip.additionaldetails->'vehicleNumber', '{}') AS TEXT), '"', '') AS vehicleNumber, 
+            CAST(COALESCE(vehicletrip.additionaldetails->'comments', '{}') AS TEXT) AS comments,
+            CASE
+                WHEN LENGTH(CAST(tripendtime AS varchar)) = 13 THEN
+                    TO_CHAR((TO_TIMESTAMP(vehicleTrip.tripendtime / 1000)::timestamp AT TIME ZONE 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS')
+                WHEN LENGTH(CAST(tripendtime AS varchar)) = 10 THEN
+                    TO_CHAR((TO_TIMESTAMP(vehicleTrip.tripendtime)::timestamp AT TIME ZONE 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS')
+                ELSE '0'
+            END AS tripEndTime,
+            vehicletrip.applicationstatus AS applicationStatus 
+            FROM eg_vehicle_trip AS vehicletrip 
+            JOIN eg_vehicle_trip_detail AS vehicletripdetails 
+            ON (vehicletrip.id = vehicletripdetails.trip_id) 
+            AND vehicletripdetails.referenceno IS NULL 
+            AND vehicletrip.tenantid = $tenantid
+    orderby: order by vehicletrip.applicationno desc
+  
+  - reportName: FSMVehicleTrip
+    summary: FSM Vehicle Trip.
+    version: 1.0.0
+    moduleName: fsm
+    sourceColumns:
+      - name: tenantid
+        label: Ulb Name
+        type: string
+        source: fsm
+        total: false
+      - name: ApplicationId
+        label: Application Number
+        type: string
+        source: fsm
+        total: false
+      - name: VehicleTripId
+        label: Vehicle Trip Id
+        type: string
+        source: fsm
+        total: false
+      - name: Vehicle_Application_Status
+        label: Vehicle Application Status
+        type: string
+        source: fsm
+        total: false
+      - name: urbanRuralFlag
+        label: Urban Rural Flag
+        type: string
+        source: fsm
+        total: false
+      - name: DesludgingVehicleNumber
+        label: Desludging Vehicle Number
+        type: string
+        source: fsm
+        total: false
+      - name: VehicleType
+        label: Vehicle Type
+        type: string
+        source: fsm
+        total: false
+      - name: vehicleowner
+        label: Vehicle Owner
+        type: string
+        source: fsm
+        total: false
+      - name: VehicleCapacity
+        label: Vehicle Capacity
+        type: string
+        source: fsm
+        total: false
+      - name: WasteCollected
+        label: Waste Collected
+        type: string
+        source: fsm
+        total: true
+      - name: WasteDumped
+        label: Waste Dumped
+        type: string
+        source: fsm
+        total: true  
+      - name: VehicleOutDateTime
+        label: Vehicle Out Date Time
+        type: string
+        source: fsm
+        total: false  
+      - name: ApplicationSubmitDate
+        label: Application Submit Date
+        type: string
+        source: fsm
+        total: false
+      - name: slaInDay
+        label: SLA In Day
+        type: string
+        source: fsm
+        total: false
+      - name: slaInHourss
+        label: SLA In Hours
+        type: string
+        source: fsm
+        total: false    
+    searchParams:
+      - name: fromDate
+        label: REPORTS_FSM_PARAM_FROMDATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND fsmvehicleTrip.createdtime >= $fromDate
+      - name: toDate
+        label: REPORTS_FSM_PARAM_TODATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND fsmvehicleTrip.createdtime <= $toDate
+      - name: vehicleNo
+        label: REPORTS_FSM_PARAM_VEHICLENUMBER
+        type: string
+        source: fsm
+        isMandatory: false
+        searchClause: AND fsmvehicle.registrationnumber ilike '%'||$vehicleNo||'%'
+      - name: vehicleCapacity
+        label: REPORTS_FSM_PARAM_VEHICLECAPACITY
+        type: string
+        source: fsm
+        isMandatory: false
+        searchClause: AND fsmvehicle.tankcapicity = CAST($vehicleCapacity AS INTEGER)
+      - name: applicationStatus
+        label: REPORTS_FSM_PARAM_APPLICATIONSTATUS
+        type: string
+        source: fsm
+        isMandatory: false
+        searchClause: AND fsmvehicleTrip.applicationstatus = $applicationStatus
+    query: |
+          SELECT INITCAP(SPLIT_PART(fsm.tenantid,'.',2)) as tenantid, 
+          fsm.applicationno::TEXT AS ApplicationId,
+          fsmvehicleTrip.applicationno::TEXT AS VehicleTripId,
+          INITCAP(REPLACE(fsmvehicleTrip.applicationstatus, '_', ' ')) AS Vehicle_Application_Status,
+          CASE WHEN fsmaddress.additionaldetails->>'boundaryType'='GP' THEN 'Rural' ELSE 'Urban' END AS urbanRuralFlag,
+          COALESCE(fsmvehicle.registrationNumber, 'N/A')::TEXT AS DesludgingVehicleNumber,
+          COALESCE(INITCAP(REPLACE(REPLACE(fsmvehicle.type, '_', ' '), '.', ' ')), 'N/A') AS VehicleType,
+          fsmvehicle.vehicleowner::TEXT AS vehicleowner,
+          COALESCE(fsmvehicle.tankcapicity, 0) AS VehicleCapacity,
+          COALESCE(fsmvehicleTripdetail.volume, 0) AS WasteCollected,
+          COALESCE(fsmvehicleTrip.volumeCarried, 0) AS WasteDumped,
+          CASE
+              WHEN length(cast(tripendtime AS varchar)) = 13 THEN
+                  to_char((to_timestamp(fsmvehicleTrip.tripendtime / 1000)::timestamp AT TIME ZONE 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS')
+              WHEN length(cast(tripendtime AS varchar)) = 10 THEN
+                  to_char((to_timestamp(fsmvehicleTrip.tripendtime)::timestamp AT TIME ZONE 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS')
+              ELSE '0'
+          END AS VehicleOutDateTime,
+          to_char((to_timestamp(fsm.createdtime / 1000)::timestamp AT TIME ZONE 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS')::TEXT AS ApplicationSubmitDate,
+          CASE
+              WHEN length(cast(tripendtime AS varchar)) = 13 THEN ((fsmvehicleTrip.tripendtime - fsm.createdtime) / (1000 * 60 * 60 * 24))::TEXT
+              WHEN length(cast(tripendtime AS varchar)) = 10 THEN ((fsmvehicleTrip.tripendtime - fsm.createdtime / 1000) / (60 * 60 * 24))::TEXT
+              ELSE '0'
+          END AS slaInDay,
+          CASE
+              WHEN length(cast(tripendtime AS varchar)) = 13 THEN ((fsmvehicleTrip.tripendtime - fsm.createdtime) / (1000 * 60 * 60) + 1)::TEXT
+              WHEN length(cast(tripendtime AS varchar)) = 10 THEN ((fsmvehicleTrip.tripendtime - fsm.createdtime / 1000) / (60 * 60) + 1)::TEXT
+              ELSE '0'
+          END AS slaInHours,
+          CASE
+              WHEN length(cast(tripendtime AS varchar)) = 13 THEN  
+                  CASE WHEN ((fsmvehicleTrip.tripendtime - fsm.createdtime) / (1000 * 60 * 60)) > 72 THEN '>72 hrs'::TEXT
+                       ELSE '<72 hrs'::TEXT
+                  END  
+              WHEN length(cast(tripendtime AS varchar)) = 10 THEN  
+                  CASE WHEN ((fsmvehicleTrip.tripendtime - fsm.createdtime / 1000) / (60 * 60)) > 72 THEN '>72 hrs'::TEXT
+                       ELSE '<72 hrs'::TEXT
+                  END
+              ELSE '0'
+          END AS slaInHourss
+          FROM eg_fsm_application AS fsm
+          JOIN eg_fsm_address AS fsmaddress ON (fsmaddress.fsm_id = fsm.id)
+          LEFT JOIN eg_vendor AS fsmdso ON (fsmdso.id = fsm.dso_id)  
+          LEFT JOIN eg_vehicle AS fsmvehicle ON (fsm.vehicle_id = fsmvehicle.id)
+          LEFT JOIN eg_vehicle_trip_detail AS fsmvehicleTripdetail ON (fsmvehicleTripdetail.referenceNo = fsm.applicationNo)
+          LEFT JOIN eg_vehicle_trip AS fsmvehicleTrip ON (fsmvehicleTripdetail.trip_id = fsmvehicleTrip.id) 
+          WHERE fsmvehicleTrip.tenantid=$tenantid 
+    orderby: ORDER BY fsm.applicationno ASC
+    
+  - reportName: TQMTest
+    summary: TQM Test Result.
+    version: 1.0.0
+    moduleName: fsm
+    sourceColumns:
+      - name: testid
+        label: Test ID
+        type: string
+        source: fsm
+      - name: ulb
+        label: ULB Name
+        type: string
+        source: fsm
+      - name: plantcode
+        label: Plant Code
+        type: string
+        source: fsm
+      - name: laboperator
+        label: Lab Name
+        type: string
+        source: fsm
+      - name: processcode
+        label: Treatment Process
+        type: string
+        source: fsm
+      - name: stagecode
+        label: Stage
+        type: string
+        source: fsm
+      - name: sourcetype
+        label: Test Type
+        type: string
+        source: fsm
+      - name: materialcode
+        label: Output Type
+        type: string
+        source: fsm
+      - name: scheduleddate
+        label: Pending Date
+        type: string
+        source: fsm
+      - name: lastmodifiedtime
+        label: Test Submitted Date
+        type: string
+        source: fsm
+      - name: wfstatus
+        label: Status
+        type: string
+        source: fsm
+      - name: sla
+        label: SLA
+        type: string
+        source: fsm
+      - name: PH
+        label: PH BenchMark
+        type: string
+        source: fsm
+      - name: PH_RESULT
+        label: PH Result
+        type: string
+        source: fsm
+      - name: PH_RESULT_SUMMARY
+        label: PH Result Summary
+        type: string
+        source: fsm
+      - name: BOD
+        label: BOD BenchMark
+        type: string
+        source: fsm
+      - name: BOD_RESULT
+        label: BOD Result
+        type: string
+        source: fsm
+      - name: BOD_RESULT_SUMMARY
+        label: BOD Result Summary
+        type: string
+        source: fsm
+      - name: COD
+        label: COD BenchMark
+        type: string
+        source: fsm
+      - name: COD_RESULT
+        label: COD Result
+        type: string
+        source: fsm
+      - name: COD_RESULT_SUMMARY
+        label: COD Result Summary
+        type: string
+        source: fsm
+      - name: TSS
+        label: TSS BenchMark
+        type: string
+        source: fsm
+      - name: TSS_RESULT
+        label: TSS Result
+        type: string
+        source: fsm
+      - name: TSS_RESULT_SUMMARY
+        label: TSS Result Summary
+        type: string
+        source: fsm
+      - name: TDS
+        label: TDS BenchMark
+        type: string
+        source: fsm
+      - name: TDS_RESULT
+        label: TDS Result
+        type: string
+        source: fsm
+      - name: TDS_RESULT_SUMMARY
+        label: TDS Result Summary
+        type: string
+        source: fsm
+      - name: status
+        label: Overall Result Summary
+        type: string
+        source: fsm
+    searchParams:
+      - name: fromDate
+        label: REPORTS_FSM_PARAM_FROMDATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND tqm.createdtime >= $fromDate
+      - name: toDate
+        label: REPORTS_FSM_PARAM_TODATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND tqm.createdtime <= $toDate
+    query: |
+          SELECT tqm.testid as testid, INITCAP(SPLIT_PART(tqm.tenantid,'.',2)) AS ulb, tqm.plantcode as plantcode, tqm.labassignedto as laboperator, tqm.processcode as processcode, tqm.stagecode as stagecode, tqm.sourcetype as sourcetype, tqm.materialcode as materialcode, to_char((to_timestamp(tqm.scheduleddate/1000)::timestamp AT TIME ZONE 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS') AS scheduleddate, tqm.lastmodifiedby as lastmodifiedby, to_char((to_timestamp(tqm.lastmodifiedtime/1000)::timestamp AT TIME ZONE 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS') AS lastmodifiedtime, tqm.wfstatus as wfstatus, (DATE(to_timestamp(tqm.scheduleddate/1000)::timestamp AT TIME ZONE 'Asia/Kolkata') - DATE(CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')) AS sla, MAX(CASE WHEN criteria.criteriacode = 'PH' THEN criteria.criteriacode END) AS PH, MAX(CASE WHEN criteria.criteriacode = 'PH' THEN criteria.resultvalue END) AS PH_RESULT, MAX(CASE WHEN criteria.criteriacode = 'PH' THEN criteria.resultstatus END) AS PH_RESULT_SUMMARY, MAX(CASE WHEN criteria.criteriacode = 'BOD' THEN criteria.criteriacode END) AS BOD, MAX(CASE WHEN criteria.criteriacode = 'BOD' THEN criteria.resultvalue END) AS BOD_RESULT, MAX(CASE WHEN criteria.criteriacode = 'BOD' THEN criteria.resultstatus END) AS BOD_RESULT_SUMMARY, MAX(CASE WHEN criteria.criteriacode = 'COD' THEN criteria.criteriacode END) AS COD, MAX(CASE WHEN criteria.criteriacode = 'COD' THEN criteria.resultvalue END) AS COD_RESULT, MAX(CASE WHEN criteria.criteriacode = 'COD' THEN criteria.resultstatus END) AS COD_RESULT_SUMMARY, MAX(CASE WHEN criteria.criteriacode = 'TSS' THEN criteria.criteriacode END) AS TSS, MAX(CASE WHEN criteria.criteriacode = 'TSS' THEN criteria.resultvalue END) AS TSS_RESULT, MAX(CASE WHEN criteria.criteriacode = 'TSS' THEN criteria.resultstatus END) AS TSS_RESULT_SUMMARY, MAX(CASE WHEN criteria.criteriacode = 'TDS' THEN criteria.criteriacode END) AS TDS , MAX(CASE WHEN criteria.criteriacode = 'TDS' THEN criteria.resultvalue END) AS TDS_RESULT, MAX(CASE WHEN criteria.criteriacode = 'TDS' THEN criteria.resultstatus END) AS TDS_RESULT_SUMMARY, tqm.status as status FROM eg_pqm_tests tqm INNER JOIN eg_pqm_test_criteria_results criteria ON tqm.testid = criteria.testid where tqm.tenantid = $tenantid  
+    groupby: GROUP BY tqm.testid, tqm.tenantid, tqm.plantcode, tqm.labassignedto, tqm.processcode, tqm.stagecode, tqm.materialcode, tqm.sourcetype, tqm.wfstatus, tqm.scheduleddate, tqm.lastmodifiedby, tqm.lastmodifiedtime, tqm.status  
+    orderby: ORDER BY tqm.scheduleddate DESC
+    
+  - reportName: SanitationWorkerReport
+    summary: SanitationWorker Report.
+    version: 1.0.0
+    moduleName: fsm
+    sourceColumns:
+      - name: ulb
+        label: ULB Name
+        type: string
+        source: fsm
+      - name: ApplicationId
+        label: Application Number
+        type: string
+        source: fsm
+      - name: DriverName
+        label: Driver Name
+        type: string
+        source: fsm
+      - name: Helper1Name
+        label: Helper Name 1
+        type: string
+        source: fsm
+      - name: Helper2Name
+        label: Helper Name 2
+        type: string
+        source: fsm
+      - name: Helper3Name
+        label: Helper Name 3
+        type: string
+        source: fsm
+      - name: Helper4Name
+        label: Helper Name 4
+        type: string
+        source: fsm
+      - name: Nooftrips
+        label: No of Trips
+        type: string
+        source: fsm
+      - name: ApplicationSubmitDate
+        label: Application Submitted Time
+        type: string
+        source: fsm
+      - name: VehicleRegistrationNumber
+        label: Vehicle Number
+        type: string
+        source: fsm
+      - name: lastmodifiedtime
+        label: Last Trip Disposed Time
+        type: string
+        source: fsm
+    searchParams:
+      - name: fromDate
+        label: REPORTS_FSM_PARAM_FROMDATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND fsm.createdtime >= $fromDate
+      - name: toDate
+        label: REPORTS_FSM_PARAM_TODATE
+        type: epoch
+        source: fsm
+        isMandatory: true
+        searchClause: AND fsm.createdtime <= $toDate
+    query: |
+      WITH RankedWorkers AS (
+      SELECT 
+        fsm.applicationno, 
+        fsm.tenantid, 
+        fsm.nooftrips, 
+        fsm.lastmodifiedtime, 
+        SanitationWorker.individual_id, 
+        SanitationWorker.workertype,
+        ROW_NUMBER() OVER (PARTITION BY fsm.applicationno, SanitationWorker.workertype ORDER BY SanitationWorker.individual_id) AS rn
+      FROM eg_fsm_application AS fsm
+      JOIN eg_fsm_application_worker AS SanitationWorker 
+        ON SanitationWorker.application_id = fsm.id
+            )
+      SELECT 
+          INITCAP(SPLIT_PART(fsm.tenantid, '.', 2)) AS ulb, 
+          fsm.applicationno AS ApplicationId, 
+          MAX(CASE WHEN rw.workertype = 'DRIVER' 
+                  THEN ind.givenname END) AS DriverName,
+          MAX(CASE WHEN rw.workertype = 'HELPER' AND rw.rn = 1 
+                  THEN ind.givenname END) AS Helper1Name,
+          MAX(CASE WHEN rw.workertype = 'HELPER' AND rw.rn = 2 
+                  THEN ind.givenname END) AS Helper2Name,
+          MAX(CASE WHEN rw.workertype = 'HELPER' AND rw.rn = 3 
+                  THEN ind.givenname END) AS Helper3Name,
+          MAX(CASE WHEN rw.workertype = 'HELPER' AND rw.rn = 4 
+                  THEN ind.givenname END) AS Helper4Name,
+          COALESCE(fsm.nooftrips, 0) AS Nooftrips, 
+          TO_CHAR(TO_TIMESTAMP(fsm.createdtime / 1000) AT TIME ZONE 'Asia/Kolkata', 'MM/DD/YYYY HH24:MI:SS') AS ApplicationSubmitDate,
+          (SELECT MAX(registrationnumber) 
+          FROM eg_vehicle 
+          WHERE id IN (
+              SELECT vt.vehicle_id 
+              FROM eg_vehicle_trip vt 
+              JOIN eg_vehicle_trip_detail vtd ON vt.id = vtd.trip_id 
+              WHERE vtd.referenceno = fsm.applicationno 
+              AND vt.status = 'ACTIVE'
+          )) AS VehicleRegistrationNumber,
+          TO_CHAR(TO_TIMESTAMP((
+              SELECT MAX(vt.lastmodifiedtime) 
+              FROM eg_vehicle_trip vt 
+              JOIN eg_vehicle_trip_detail vtd ON vt.id = vtd.trip_id 
+              WHERE vtd.referenceno = fsm.applicationno 
+              AND vt.status = 'ACTIVE' 
+              AND vt.applicationstatus = 'DISPOSED') / 1000) AT TIME ZONE 'Asia/Kolkata', 'MM/DD/YYYY HH24:MI:SS'
+          ) AS lastmodifiedtime 
+      FROM eg_fsm_application AS fsm 
+      LEFT JOIN RankedWorkers rw 
+          ON rw.applicationno = fsm.applicationno 
+      LEFT JOIN INDIVIDUAL ind 
+          ON ind.id = rw.individual_id
+      LEFT JOIN eg_vehicle_trip vt 
+          ON vt.applicationno = fsm.applicationno where fsm.tenantid=$tenantid  
+    groupby: GROUP BY fsm.applicationno, fsm.tenantid, fsm.nooftrips, fsm.createdtime
+    orderby: ORDER BY fsm.applicationno DESC
+ 

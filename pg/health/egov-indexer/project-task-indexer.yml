@@ -1,0 +1,41 @@
+ServiceMaps:
+  serviceName: project
+  version: 1.0.0
+  mappings:
+    - topic: transformer-producer-bulk-project-task-index-v1-health-topic
+      configKey: INDEX
+      indexes:
+        - name: project-task-index-v1
+          type: tasks
+          id: $.id
+          isBulk: true
+          jsonPath: $
+          customJsonMapping:
+            indexMapping: { "Data": {} }
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data
+          timeStampField: $.createdTime
+        - name: user-sync-index-v1
+          type: users
+          id: $.id
+          isBulk: true
+          jsonPath: $
+          customJsonMapping:
+            indexMapping: { "Data": {} }
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data
+              - inJsonPath: $.lastModifiedBy
+                outJsonPath: $.Data.syncedUserId
+              - inJsonPath: $.createdTime
+                outJsonPath: $.Data.clientCreatedTime
+              - inJsonPath: $.userName
+                outJsonPath: $.Data.syncedUserName
+              - inJsonPath: $.syncedTime
+                outJsonPath: $.Data.createdTime
+              - inJsonPath: $.syncedDate
+                outJsonPath: $.Data.syncedDate
+              - inJsonPath: $.nameOfUser
+                outJsonPath: $.Data.syncedNameOfUser
+          timeStampField: $.createdTime

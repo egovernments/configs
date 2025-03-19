@@ -1,0 +1,61 @@
+serviceMaps:
+  serviceName: Measurement-Service
+  mappings:
+    - version: 1.0
+      name: measurement-service
+      description: Persists measurementService details in the table
+      fromTopic: save-measurement-service-details
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO eg_mbs_measurements(id, tenantid, mbnumber, wfstatus, additionaldetails, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+          basePath: measurements.*
+          jsonMaps:
+
+
+            - jsonPath: $.measurements.*.id
+
+            - jsonPath: $.measurements.*.tenantId
+
+            - jsonPath: $.measurements.*.measurementNumber
+
+            - jsonPath: $.measurements.*.wfStatus
+
+            - jsonPath: $.measurements.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.measurements.*.auditDetails.createdTime
+
+            - jsonPath: $.measurements.*.auditDetails.createdBy
+
+            - jsonPath: $.measurements.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.measurements.*.auditDetails.lastModifiedBy
+
+
+
+    - version: 1.0
+      name: measurement-service
+      description: Persists measurementService details in the table
+      fromTopic: update-measurement-service-details
+      isTransaction: true
+      queryMaps:
+
+        - query: UPDATE eg_mbs_measurements SET wfstatus = ?,additionaldetails = ?,lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
+
+          basePath: measurements.*
+          jsonMaps:
+
+
+            - jsonPath: $.measurements.*.wfStatus
+
+            - jsonPath: $.measurements.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.measurements.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.measurements.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.measurements.*.id

@@ -1,0 +1,159 @@
+{
+  "key": "measurement-book",
+  "documentType": "WORK-ORDER",
+  "DataConfigs": {
+    "moduleName": "rainmaker-common",
+    "version": "1.0.0",
+    "baseKeyPath": "$",
+    "entityIdPath": "$.id",
+    "isCommonTableBorderRequired": true,
+    "mappings": [
+      {
+        "topic": "common-pdf-generation-3",
+        "mappings": [
+          {
+            "direct": [
+              {
+                "variable": "measurementNumber",
+                "value": {
+                  "path": "$.measurement.measurementNumber"
+                }
+              },
+              {
+                "variable": "project_id",
+                "value": {
+                  "path": "$.estimate.additionalDetails.projectNumber"
+                }
+              },
+              {
+                "variable": "work_order_number",
+                "value": {
+                  "path": "$.contract.contractNumber"
+                }
+              },
+              {
+                "variable": "muster_roll_id",
+                "value": {
+                  "path": "$.measurement.additionalDetails.musterRollNumber"
+                }
+              },
+              {
+                "variable": "project_name",
+                "value": {
+                  "path": "$.estimate.additionalDetails.projectName"
+                }
+              },
+              {
+                "variable": "project_location",
+                "value": {
+                  "path": "$.estimate.additionalDetails.locality"
+                }
+              },
+              {
+                "variable": "project_description",
+                "value": {
+                  "path": "$.estimate.description"
+                }
+              },
+              {
+                "variable": "measurement_period",
+                "value": {
+                  "path": "$.measurement.measurementPeriod"
+                }
+              },
+              {
+                "variable": "tableData",
+                "value": {
+                  "path": "$.tableData"
+                },
+                "type":"function",
+                "format": "var y = [];\nvar a = [];\nvar tableData = arguments[0];\nfunction rupeeFormat(amount) {\n  flag = 0;\n  var count = 0;\n  var amount = amount.toString();\n  var len = amount.length;\n  var val = '';\n  for (var i = len - 1; i >= 0; i--) {\n    val = amount[i] + val;\n    if (amount[i] == '.') {\n      flag = 1;\n      count = -1;\n      val = amount.substring(i, len);\n    }\n    if (count % 2 == 0 && i != 0 && count != 0) {\n      val = ',' + val;\n    }\n    count += 1;\n  }\n  if (flag == 0) {\n    val += '.00';\n  }\n  return val;\n}\nfor(var i = 0;i<tableData.length;i++){\n    var x = {\n      Sno: i + 1,\n      uom: tableData[i].uom,\n      rate: rupeeFormat(tableData[i].unitRate),\n      Estimated_Quantity: tableData[i].estimatedQuantity,\n      Consumed_Quantity: tableData[i].consumedQuantity,\n      Current_Quantity: tableData[i].currentQuantity,\n      sorDescription: tableData[i].description,\n      mbAmount: tableData[i].mbAmount\n    };\n    y.push(x);\n}\nreturn y;"
+              },
+              {
+                "variable": "totalSum",
+                "value": {
+                  "path": "$.tableData"
+                },
+                "type":"function",
+                "format": "var y = [],\n    a = [],\n    tableData = arguments[0];\nlet total=0;\nfor (var i = 0; i < tableData.length; i++) {\n    total += tableData[i].mbAmount;\n}\ny.push({'sum':total});\nreturn y;\n"
+              }
+            ]
+          },
+          {
+            "externalAPI": [
+              {
+                "path": "http://egov-mdms-service:8080/egov-mdms-service/v1/_get",
+                "queryParam": "moduleName=tenant&masterName=tenants&tenantId=pg&filter=%5B?(@.code=='{$.tenantId}')%5D",
+                "apiRequest": null,
+                "responseMapping": [
+                  {
+                    "variable": "address",
+                    "value": "$.MdmsRes.tenant.tenants[0].address"
+                  },
+                  {
+                    "variable": "phoneNumber",
+                    "value": "$.MdmsRes.tenant.tenants[0].contactNumber"
+                  },
+                  {
+                    "variable": "website",
+                    "value": "$.MdmsRes.tenant.tenants[0].domainUrl"
+                  },
+                  {
+                    "variable": "email",
+                    "value": "$.MdmsRes.tenant.tenants[0].emailId"
+                  },
+                  {
+                    "variable": "logoImage",
+                    "value": "$.MdmsRes.tenant.tenants[0].logoId",
+                    "type": "image"
+                  },
+                  {
+                    "variable": "logo-header",
+                    "value": "$.MdmsRes.tenant.tenants[0].code",
+                    "localisation": {
+                      "required": true,
+                      "module": "rainmaker-common"
+                    }
+                  },
+                  {
+                    "variable": "subdivision",
+                    "value": "$.MdmsRes.tenant.tenants[0].city.ulbGrade",
+                    "localisation": {
+                      "required": true,
+                      "prefix": "COMMON_SUBDIVISION",
+                      "module": "rainmaker-common"
+                    }
+                  },
+                  {
+                    "variable": "cmImage",
+                    "value": "$.MdmsRes.tenant.tenants[0].cmImageId",
+                    "type": "image"
+                  },
+                  {
+                    "variable": "tLogoImage",
+                    "value": "$.MdmsRes.tenant.tenants[0].tLogoImageId",
+                    "type": "image"
+                  },
+                  {
+                    "variable": "schemImage",
+                    "value": "$.MdmsRes.tenant.tenants[0].schemImageId",
+                    "type": "image"
+                  },
+                  {
+                    "variable": "sealImage",
+                    "value": "$.MdmsRes.tenant.tenants[0].sealImageId",
+                    "type": "image"
+                  },
+                  {
+                    "variable": "districtName",
+                    "value": "$.MdmsRes.tenant.tenants[0].city.districtName"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

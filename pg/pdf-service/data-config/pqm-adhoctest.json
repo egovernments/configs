@@ -1,0 +1,174 @@
+{
+  "key": "pqm-adhoctest",
+  "DataConfigs": {
+    "serviceName": "rainmaker-common",
+    "version": "1.0.0",
+    "baseKeyPath": "$.tests.*",
+    "entityIdPath":"$.testId",
+    "isCommonTableBorderRequired": true,
+    "mappings": [
+      {
+        "mappings": [
+          {
+            "direct": [
+              {
+                "variable": "testId",
+                "value": {
+                  "path": "$.testId"
+                }
+              },
+              {
+                "variable": "plantCode",
+                "value": {
+                  "path": "$.plantCode"
+                },
+                "localisation":{
+                  "required":true,
+                  "prefix": "PQM_PLANT",
+                  "module": "rainmaker-tqm"
+                }
+              },
+              {
+                "variable": "processCode",
+                "value": {
+                  "path": "$.processCode"
+                },
+                "localisation":{
+                "required":true,
+                "prefix": "PQM_PROCESS",
+                "module": "rainmaker-tqm"
+              }
+              },
+              {
+                "variable": "stageCode",
+                "value": {
+                  "path": "$.stageCode"
+                },
+                "localisation":{
+                  "required":true,
+                  "prefix": "PQM_STAGE",
+                  "module": "rainmaker-tqm"
+                }
+              },
+              {
+                "variable": "materialCode",
+                "value": {
+                  "path": "$.materialCode"
+                },
+                "localisation":{
+                  "required":true,
+                  "prefix": "PQM_MATERIAL",
+                  "module": "rainmaker-tqm"
+                }
+              },
+              {
+                "variable": "testType",
+                "value": {
+                  "path": "$.testType"
+                },
+                "localisation":{
+                  "required":true,
+                  "prefix": "PQM_SOURCETYPE",
+                  "module": "rainmaker-tqm"
+                }
+              },
+              {
+                "variable": "scheduleDate",
+                "value": {
+                  "path": "$.scheduledDate"
+                },
+                "type": "date"
+              },
+              {
+                "variable": "submittedDate",
+                "value": {
+                  "path": "$.auditDetails.lastModifiedTime"
+                },
+                "type": "date"
+              },
+              {
+                "variable": "status",
+                "value": {
+                  "path": "$.status"
+                }
+              },
+              {
+                "variable": "labName",
+                "value": {
+                  "path": "$.labAssignedTo"
+                },
+                "localisation":{
+                  "required":true,
+                  "prefix": "PQM_QUALITYTESTLAB",
+                  "module": "rainmaker-tqm"
+                }
+              },
+              {
+                "variable": "statusColor",
+                "value": {
+                  "path": "$.status"
+                },
+                "type":"function",
+                "format": "var colorstatus = arguments[0];\nif (colorstatus.toUpperCase() === 'FAIL') {\n    return 'red';\n} else {\n    return 'green';\n}"},
+              {
+                "variable": "tableData",
+                "value": {
+                  "path": "$.testCriteria"
+                },
+                "type":"function",
+                "format": "var y = [];\nvar a = [];\nvar testCriteria = arguments[0];\n\nfor (var i = 0; i < testCriteria.length; i++) {\n        var x = {\n            Sno: i + 1,\n            qualityParameterDescription: testCriteria[i].criteriaName,\n            benchmarkResult: testCriteria[i].resultValue,\n            uom: testCriteria[i].uom,\n            benchmarkResultColor: testCriteria[i].resultStatus=='FAIL' ? 'red':'green'\n        };\n\n        y.push(x);\n}\n\nreturn y;"              }
+            ]
+          },
+          {
+            "externalAPI": [ {
+              "path": "http://egov-mdms-service:8080/egov-mdms-service/v1/_get",
+              "queryParam": "moduleName=tenant&masterName=tenants&tenantId=pg&filter=%5B?(@.code=='{$.tenantId}')%5D",
+              "apiRequest": null,
+              "responseMapping":[
+                {
+                  "variable":"address",
+                  "value":"$.MdmsRes.tenant.tenants[0].address"
+                },
+                {
+                  "variable":"phoneNumber",
+                  "value":"$.MdmsRes.tenant.tenants[0].contactNumber"
+                },
+                {
+                  "variable":"website",
+                  "value":"$.MdmsRes.tenant.tenants[0].domainUrl"
+                },
+                {
+                  "variable":"email",
+                  "value":"$.MdmsRes.tenant.tenants[0].emailId"
+                },
+                {
+                  "variable": "logoImage",
+                  "value":"$.MdmsRes.tenant.tenants[0].logoId",
+                  "type":"image"
+                },
+                {
+                  "variable": "logo-header",
+                  "value":"$.MdmsRes.tenant.tenants[0].code",
+                  "localisation":{
+                    "required":true,
+                    "module":"rainmaker-common"
+                  }
+                },
+                {
+                  "variable": "subdivision",
+                  "value": "$.MdmsRes.tenant.tenants[0].city.ulbGrade",
+                  "localisation": {
+                    "required": true,
+                    "prefix": "COMMON_SUBDIVISION",
+                    "module": "rainmaker-common"
+                  }
+                }
+              ]
+            }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

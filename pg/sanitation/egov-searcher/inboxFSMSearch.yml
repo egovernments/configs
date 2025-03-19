@@ -1,0 +1,75 @@
+SearchDefinitions:
+ moduleName: fsm-services
+ summary: FSM Inbox API
+ version: 1.0.0
+ definitions:
+ - name: inboxfsmsearchcount
+   query:
+    baseQuery: SELECT row_to_json(TotalCount) from (SELECT COUNT(result) from
+          (
+          select DISTINCT(fsm.applicationno) as applicationNo,fsm.createdtime from eg_fsm_application as fsm
+          INNER JOIN eg_fsm_address fsmadd ON fsm.id =fsmadd.fsm_id
+          INNER JOIN eg_wf_processinstance_v2 pi ON pi.businessid = fsm.applicationno
+          LEFT JOIN eg_wf_assignee_v2 assg ON pi.id = assg.processinstanceid
+          $where
+          AND pi.createdtime IN (select max(createdtime) from eg_wf_processinstance_v2 wf where wf.businessid = fsm.applicationno GROUP BY wf.businessid)
+          order by fsm.createdtime asc
+          ) result) TotalCount
+    groupBy:
+    orderBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: fsm.tenantid
+      isMandatory: true
+      jsonPath: $.searchCriteria.tenantId
+    - name: fsm.applicationno
+      isMandatory: false
+      jsonPath: $.searchCriteria.applicationNo
+    - name: fsmadd.locality
+      isMandatory: false
+      jsonPath: $.searchCriteria.locality
+    - name: assg.assignee
+      isMandatory: false
+      jsonPath: $.searchCriteria.assignee
+    - name: pi.status
+      isMandatory: false
+      jsonPath: $.searchCriteria.status
+    - name: fsm.accountid
+      isMandatory: false
+      jsonPath: $.searchCriteria.userid
+    - name: pi.businessservice
+      isMandatory: false
+      jsonPath: $.searchCriteria.businessservice
+    pagination:
+      noOfRecords: $.searchCriteria.noOfRecords
+      offset: $.searchCriteria.offset
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"TotalCount": {}}
+    outJsonPath: $.TotalCount
+    responseInfoPath: $.ResponseInfo
+ - name: inboxfsmdsoId
+   query:
+    baseQuery: SELECT row_to_json(vendor) from (select vendor.* from  eg_vendor as vendor $where) vendor     
+    groupBy:
+    orderBy:
+   searchParams:
+    condition: AND
+    params:
+    - name: vendor.tenantid
+      isMandatory: true
+      jsonPath: $.searchCriteria.tenantId
+    - name: vendor.owner_id
+      isMandatory: false
+      jsonPath: $.searchCriteria.ownerId
+    pagination:
+      noOfRecords: $.searchCriteria.noOfRecords
+      offset: $.searchCriteria.offset
+
+   output:
+    jsonFormat: {"ResponseInfo": {},"vendor": {}}
+    outJsonPath: $.vendor
+    responseInfoPath: $.ResponseInfo 
+  
+   

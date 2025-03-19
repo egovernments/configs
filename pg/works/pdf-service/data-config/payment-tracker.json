@@ -1,0 +1,209 @@
+{
+  "key": "payment-tracker",
+  "documentType": "PROJECT-DETAILS",
+  "DataConfigs": {
+    "moduleName": "rainmaker-project",
+    "version": "1.0.0",
+    "baseKeyPath": "$.Projects.*",
+    "entityIdPath": "$.id",
+    "isCommonTableBorderRequired": true,
+    "mappings": [
+      {
+        "topic": "common-pdf-generation-3",
+        "mappings": [
+          {
+            "direct": [
+              {
+                "variable": "project_details",
+                "value": {
+                  "path": "WORKS_PROJECT_DETAILS"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-project"
+                }
+              },
+              {
+                "variable": "projectNumber",
+                "value": {
+                  "path": "$.projectNumber"
+                }
+              },
+              {
+                "variable": "asOnDate",
+                "value": {
+                  "path": "$.date"
+                }
+              },
+              {
+                "variable": "project_name",
+                "value": {
+                  "path": "ES_COMMON_PROJECT_NAME"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-common"
+                }
+              },
+              {
+                "variable": "project_description",
+                "value": {
+                  "path": "PROJECT_PROJECT_DESC"
+                },
+                "type": "label",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-project"
+                }
+              },
+              {
+                "variable": "name",
+                "value": {
+                  "path": "$.name"
+                }
+              },
+              {
+                "variable": "locality",
+                "value": {
+                  "path": "$.address.boundary"
+                }
+              },
+              {
+                "variable": "ward",
+                "value": {
+                  "path": "$.address.boundaryType"
+                }
+              },
+              {
+                "variable": "city",
+                "value": {
+                  "path": "$.address.city"
+                }
+              },
+              {
+                "variable": "description",
+                "value": {
+                  "path": "$.description"
+                }
+              },
+              {
+                "variable": "estimatedAmount",
+                "value": {
+                  "path": "$.estimatedAmount"
+                }
+              },
+              {
+                "variable": "wageAmountPaid",
+                "value": {
+                  "path": "$.wageAmountPaid"
+                }
+              },
+              {
+                "variable": "purchaseAmountPaid",
+                "value": {
+                  "path": "$.purchaseAmountPaid"
+                }
+              },
+              {
+                "variable": "supervisionAmountPaid",
+                "value": {
+                  "path": "$.supervisionAmountPaid"
+                }
+              },
+              {
+                "variable": "failedPaymentAmount",
+                "value": {
+                  "path": "$.failedPaymentAmount"
+                }
+              },
+
+              {
+                "variable": "tableData",
+                "value": {
+                  "path": "$.bills"
+                },
+                "type": "function",
+                "format": "var y = [];\nbills = arguments[0];\nvar rupeeFormat = function(amount) {\n    var flag = 0;\n    var count = 0;\n    amount = amount.toString();\n    var len = amount.length;\n    var val = '';\n\n    for (var i = len - 1; i >= 0; i--) {\n        val = amount[i] + val;\n\n        if (amount[i] == '.') {\n            flag = 1;\n            count = -1;\n            val = amount.substring(i, len);\n        }\n\n        if (count % 2 == 0 && i != 0 && count != 0) {\n            val = ',' + val;\n        }\n\n        count += 1;\n    }\n\n    if (flag == 0) {\n        val += '.00';\n    }\n\n    return val;\n};\nfor (var i = 0; i < bills.length; i++) {\n    var x = {\n        billNumber: bills[i].businessObject.additionalDetails.billNumber[0],\n        billAmount: rupeeFormat(bills[i].businessObject.grossAmount),\n        paymentDate: bills[i].businessObject.paymentDate,\n        paymentStatus: bills[i].businessObject.piStatus,\n        paymentFailed: rupeeFormat(bills[i].businessObject.failedAmount),\n        paymentSuccessful: rupeeFormat(bills[i].businessObject.successAmount)\n    };\n    y.push(x);\n}\nreturn y;\n"
+              },
+              {
+                "variable": "total",
+                "value": {
+                  "path": "$.total"
+                }
+              }
+            ]
+          },
+          {
+            "externalAPI": [
+              {
+                "path": "http://egov-mdms-service:8080/egov-mdms-service/v1/_get",
+                "queryParam": "moduleName=tenant&masterName=tenants&tenantId=pg&filter=%5B?(@.code=='{$.tenantId}')%5D",
+                "apiRequest": null,
+                "responseMapping": [
+                  {
+                    "variable": "address",
+                    "value": "$.MdmsRes.tenant.tenants[0].address"
+                  },
+                  {
+                    "variable": "address",
+                    "value": "$.MdmsRes.tenant.tenants[0].address"
+                  },
+                  {
+                    "variable": "phoneNumber",
+                    "value": "$.MdmsRes.tenant.tenants[0].contactNumber"
+                  },
+                  {
+                    "variable": "website",
+                    "value": "$.MdmsRes.tenant.tenants[0].domainUrl"
+                  },
+                  {
+                    "variable": "email",
+                    "value": "$.MdmsRes.tenant.tenants[0].emailId"
+                  },
+                  {
+                    "variable": "logoImage",
+                    "value": "$.MdmsRes.tenant.tenants[0].logoId",
+                    "type": "image"
+                  },
+                  {
+                    "variable": "logo-header",
+                    "value": "$.MdmsRes.tenant.tenants[0].code",
+                    "localisation": {
+                      "required": true,
+                      "prefix": "TENANT_TENANTS",
+                      "module": "rainmaker-od"
+                    }
+                  },
+                  {
+                    "variable": "logo-header",
+                    "value": "$.MdmsRes.pdfHeader",
+                    "localisation": {
+                      "required": true,
+                      "prefix": "TENANT_TENANTS",
+                      "module": "rainmaker-od"
+                    }
+                  },
+                  {
+                    "variable": "subdivision",
+                    "value": "$.MdmsRes.tenant.tenants[0].city.ulbGrade",
+                    "localisation": {
+                      "required": true,
+                      "prefix": "COMMON_SUBDIVISION",
+                      "module": "rainmaker-common"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+

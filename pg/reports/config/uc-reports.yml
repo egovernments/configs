@@ -1,0 +1,902 @@
+ReportDefinitions:
+  - reportName: MiscReceipt
+    summary: Receipt Register Miscellaneous
+    version: 1.0.0
+    moduleName: rainmaker-uc
+    sourceColumns:
+      - name: ulb
+        label: reports.uc.ulb
+        type: string
+        source: uc
+        total: false
+      - name: receiptnumber
+        label: reports.uc.receiptnumber
+        type: string
+        source: uc
+        total: false
+      - name: receiptdate
+        label: reports.uc.receiptdate
+        type: string
+        source: uc
+        total: false
+      - name: g8issuedate
+        label: reports.uc.g8issuedate
+        type: string
+        source: uc
+        total: false
+      - name: g8receiptno
+        label: reports.uc.g8receiptno
+        type: string
+        source: uc
+        total: false
+      - name: status
+        label: reports.uc.receiptstatus
+        type: string
+        source: uc
+        total: false
+      - name: servicecategory
+        label: reports.uc.businessdetails
+        type: string
+        source: uc
+        total: false
+      - name: cgst
+        label: reports.uc.cgst
+        type: string
+        source: uc
+        total: true
+      - name: tax
+        label: reports.uc.tax
+        type: string
+        source: uc
+        total: true
+      - name: fieldcollection
+        label: reports.uc.fieldcollection
+        type: string
+        source: uc
+        total: true
+      - name: sgst
+        label: reports.uc.sgst
+        type: string
+        source: uc
+        total: true
+      - name: ddorchequenumber
+        label: reports.uc.ddorchequenumber
+        type: string
+        source: uc
+        total: false
+      - name: collectiontype
+        label: reports.uc.collectiontype
+        type: string
+        source: uc
+        total: false
+      - name: collectorname
+        label: reports.uc.collectorname
+        type: string
+        source: uc
+        total: false
+      - name: totalamount
+        label: reports.uc.totalamount
+        type: string
+        source: uc
+        total: true
+      - name: paymentmode
+        label: reports.uc.paymentmode
+        type: string
+        source: uc
+        total: false
+    searchParams:
+      - name: fromDate
+        label: reports.uc.fromDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND rh.receiptdate >= $fromDate
+      - name: toDate
+        label: reports.uc.toDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND rh.receiptdate <= $toDate
+      - name: ulb
+        label: reports.uc.ulb
+        type: singlevaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+        source: uc
+        wrapper: true
+        isMandatory: false
+        searchClause: AND rh.tenantid != 'pb.testing' AND rh.tenantid = $ulb
+    query: |
+        -- Use CTE to force query plan, compute & use CTE later
+        WITH receipt_breakup AS (
+                    SELECT 
+                      receiptheader, 
+                      SUM(CASE WHEN taxheadcode LIKE '%_CGST' THEN adjustedamount ELSE 0 END) as cgst, 
+                      SUM(CASE WHEN taxheadcode LIKE '%_TAX' THEN adjustedamount ELSE 0 END) as tax, 
+                      SUM(CASE WHEN taxheadcode LIKE '%_SGST' THEN adjustedamount ELSE 0 END) as sgst, 
+                      SUM(CASE WHEN taxheadcode LIKE '%_FIELD_FEE' THEN adjustedamount ELSE 0 END) as fieldcollection            
+                    FROM egcl_receiptdetails_v1 as rd
+                    INNER JOIN egcl_receiptheader_v1 as rh on rh.id = rd.receiptheader
+                    WHERE  rh.status != 'Cancelled'  AND rh.tenantid !='pb.testing' AND businessdetails not in ('PT','TL')
+                    GROUP BY rd.receiptheader
+        )
+        SELECT 
+          rh.tenantid as ulb,
+          rh.receiptnumber as receiptnumber,
+          To_char((To_timestamp(rh.receiptdate / 1000) at time Zone 'Asia/Kolkata'), 'DD/MM/YYYY') as receiptdate,
+          To_char((To_timestamp(rh.manualreceiptdate / 1000) at time Zone 'Asia/Kolkata'), 'DD/MM/YYYY') as g8issuedate,
+          rh.manualreceiptnumber as g8receiptno,
+          rh.status as status,
+          businessdetails as servicecategory,
+          receipt_breakup.*,  
+          amount as totalamount, 
+          instrumenttype as paymentmode,
+          (case when instrumenttype like 'CASH' then '' else  transactionnumber end) as ddorchequenumber,
+          'System' as collectiontype,
+          eg_user.name as collectorname
+        FROM egcl_receiptheader_v1 AS rh
+        JOIN egcl_receiptinstrument_v1 AS ri ON rh.id = ri.receiptheader
+        JOIN egcl_instrumentheader_v1 AS ih ON ih.id = ri.instrumentheader
+        JOIN receipt_breakup ON rh.id = receipt_breakup.receiptheader
+        JOIN eg_user ON rh.createdby::INTEGER=eg_user.id
+        WHERE  rh.status != 'Cancelled'  AND rh.tenantid!='pb.testing' AND businessdetails not in ('PT','TL')
+    orderby: ORDER BY rh.receiptdate DESC
+
+  - reportName: MiscReceiptRegister
+    summary: Receipt Register Miscellaneous
+    decryptionPathId: MiscReceiptRegister
+    version: 1.0.0
+    moduleName: rainmaker-uc
+    additionalConfig:
+      print:
+        pdfPageSize: "A2"
+    sourceColumns:
+      - name: challanno
+        label: reports.uc.challanno
+        type: string
+        source: uc
+        total: false
+      - name: receiptnumber
+        label: reports.uc.receiptnumber
+        type: string
+        source: uc
+        total: false
+      - name: receiptdate
+        label: reports.uc.receiptdate
+        type: string
+        source: uc
+        total: false
+      - name: consumername
+        label: reports.uc.consumername
+        type: string
+        source: uc
+      - name: servicecategory
+        label: reports.uc.businessdetails
+        type: string
+        source: uc
+        total: false
+      - name: tax
+        label: reports.uc.tax
+        type: string
+        source: uc
+        total: true
+      - name: fieldcollection
+        label: reports.uc.fieldcollection
+        type: string
+        source: uc
+        total: true
+      - name: cgst
+        label: reports.uc.cgst
+        type: string
+        source: uc
+        total: true
+      - name: sgst
+        label: reports.uc.sgst
+        type: string
+        source: uc
+        total: true
+      - name: securitydeposit
+        label: reports.uc.securitydeposit
+        type: string
+        source: uc
+        total: true
+      - name: totalamount
+        label: reports.uc.totalamount
+        type: string
+        source: uc
+        total: true
+      - name: transactionorchequenumber
+        label: reports.uc.ddorchequenumber
+        type: string
+        source: uc
+        total: false
+      - name: banktxnNo
+        label: report.uc.banktxnNo
+        type: string
+        source: uc
+        total: false
+      - name: ddchequedate
+        label: reports.uc.ddorchequedate
+        type: string
+        source: uc
+        total: false
+      # - name: bankname
+      #   label: reports.uc.bankname
+      #   type: string
+      #   source: uc
+      #   total: false
+      # - name: branchname
+      #   label: reports.uc.branchname
+      #   type: string
+      #   source: uc
+      #   total: false
+      - name: name
+        label: reports.uc.collectorname
+        type: string
+        source: uc
+        total: false
+      - name: paymentmode
+        label: reports.uc.paymentmode
+        type: string
+        source: uc
+        total: false
+      - name: GLCode
+        label: reports.uc.GLCode
+        type: string
+        source: uc
+        total: false
+      - name: g8issuedate
+        label: reports.uc.g8issuedate
+        type: string
+        source: uc
+        total: false
+      - name: g8receiptno
+        label: reports.uc.g8receiptno
+        type: string
+        source: uc
+        total: false
+      - name: status
+        label: reports.uc.receiptstatus
+        type: string
+        source: uc
+        total: false
+      - name: comments
+        label: reports.uc.comment
+        type: string
+        source: uc
+        total: false
+    searchParams:
+      - name: fromDate
+        label: reports.uc.fromDate
+        type: epoch
+        source: uc
+        isMandatory: true
+        searchClause: AND pd.receiptdate >= $fromDate
+      - name: toDate
+        label: reports.uc.toDate
+        type: epoch
+        source: uc
+        isMandatory: true
+        searchClause: AND pd.receiptdate <= $toDate
+      - name: businessservice
+        label: reports.uc.businessservice
+        type: singlevaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=BillingService&masterName=BusinessService&tenantId=$tenantid&filter=%5B?(@.type=='Adhoc')%5D|$.MdmsRes.BillingService.BusinessService[*].code|$.MdmsRes.BillingService.BusinessService[*].businessService
+        source: uc
+        wrapper: true
+        isMandatory: false
+        searchClause: AND bill.businessservice = $businessservice
+      - name: name
+        label: reports.uc.collectorname
+        type: singlevaluelist
+        pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=UC_EMP|$.Employees[*].user.id|$.Employees[*].user.name
+        source: uc
+        wrapper: true
+        isMandatory: false
+        searchClause: AND eg_user.id = $name::INTEGER
+    query: |
+             WITH receipt_breakup AS (
+             SELECT 
+                      billdetailid, 
+                      SUM(CASE WHEN taxheadcode LIKE '%_CGST' THEN adjustedamount ELSE 0 END) as cgst, 
+                      SUM(CASE WHEN taxheadcode LIKE '%_TAX' THEN adjustedamount ELSE 0 END) as tax,
+                      SUM(CASE WHEN taxheadcode LIKE '%_SGST' THEN adjustedamount ELSE 0 END) as sgst, 
+                      SUM(CASE WHEN taxheadcode LIKE '%_FIELD_FEE' THEN adjustedamount ELSE 0 END) as fieldcollection,
+                      SUM(CASE WHEN taxheadcode LIKE '%_SEC_DEP' THEN adjustedamount ELSE 0 END) as securitydeposit
+                    FROM egcl_billaccountdetail as rd
+                    INNER JOIN egcl_billdetial as rh on rh.id = rd.billdetailid
+                    INNER JOIN egcl_bill as bill on bill.id = rh.billid
+                    where status!='Cancelled' and businessservice not in ('PT','TL') and rd.tenantid=$tenantid
+                    GROUP BY rd.billdetailid)
+                    SELECT initcap(split_part(rh.tenantid,'.', 2)) as ulb,pd.receiptnumber as receiptnumber,To_char((To_timestamp(pd.receiptdate / 1000) at time Zone 'Asia/Kolkata'),'DD/MM/YYYY') as receiptdate,To_char((To_timestamp(pd.manualreceiptdate / 1000) at time Zone 'Asia/Kolkata'), 'DD/MM/YYYY') as g8issuedate,pd.manualreceiptnumber as g8receiptno,bill.status as status,servicecategory,receipt_breakup.*,challan.additionaldetail->>'GLcode' as GLCode,challan.description as comments,amount as totalamount,paymentmode,(case when pay.paymentmode ilike 'CASH' then '' else  transactionnumber end) as transactionorchequenumber,(case when pay.paymentmode ilike 'CHEQUE' then To_char((To_timestamp(pay.instrumentdate / 1000) at time Zone 'Asia/Kolkata'), 'DD/MM/YYYY') else '' end) as ddchequedate,pgtxn.bank_transaction_no as banktxnNo,eg_user.name as name,consumername,challanno FROM egcl_billdetial AS rh INNER JOIN (SELECT DISTINCT bill.id,status,consumercode, businessservice,message.message as servicecategory from egcl_bill bill LEFT OUTER JOIN message ON CONCAT('BILLINGSERVICE_BUSINESSSERVICE_',replace(businessservice, '.', '_')) = message.code AND message.locale='en_IN' AND message.module='rainmaker-uc')as bill ON bill.id = rh.billid and status != 'Cancelled' and businessservice not in ('PT','TL')LEFT OUTER JOIN egcl_paymentdetail as pd ON pd.billid = bill.id LEFT OUTER JOIN (Select pay.id ,instrumentdate, paymentstatus,transactionnumber,message.message as paymentmode ,pay.createdby from egcl_payment pay LEFT OUTER JOIN message ON CONCAT('COMMON_MASTERS_PAYMENTMODE_',replace(paymentmode, '.', '_')) = message.code AND message.locale='en_IN')  AS pay ON pay.id = pd.paymentid LEFT OUTER Join eg_pg_transactions as pgtxn ON pay.transactionnumber = pgtxn.txn_id JOIN (Select challanno as challanno,accountid,eg_user.name as consumername,description,additionaldetail from eg_echallan challan LEFT OUTER JOIN eg_user ON challan.accountid=eg_user.uuid) as challan on challan.challanno = bill.consumercode JOIN receipt_breakup ON rh.id = receipt_breakup.billdetailid JOIN eg_user ON pay.createdby::INTEGER=eg_user.id  WHERE rh.tenantid=$tenantid
+    orderby: ORDER BY pd.receiptdate DESC
+
+  - reportName: StateLevelMiscCollectReceiptRegister
+    summary: State Receipt Register Miscellaneous
+    version: 1.0.0
+    moduleName: rainmaker-uc
+    sourceColumns:
+      - name: ulb
+        label: reports.uc.ulb
+        type: string
+        source: uc
+        total: false
+      - name: service
+        label: reports.uc.businessdetails
+        type: string
+        source: uc
+        total: false
+      - name: tax
+        label: reports.uc.tax
+        type: string
+        source: uc
+        total: true
+      - name: fieldcollection
+        label: reports.uc.fieldcollection
+        type: string
+        source: uc
+        total: true
+      - name: cgst
+        label: reports.uc.cgst
+        type: string
+        source: uc
+        total: true
+      - name: sgst
+        label: reports.uc.sgst
+        type: string
+        source: uc
+        total: true
+      - name: securitydeposit
+        label: reports.uc.securitydeposit
+        type: string
+        source: uc
+        total: true
+      - name: totalcollection
+        label: reports.uc.totalamount
+        type: string
+        source: uc
+        total: true
+    searchParams:
+      - name: fromDate
+        label: reports.uc.fromDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND bl.billdate >= $fromDate
+      - name: toDate
+        label: reports.uc.toDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND bl.billdate <= $toDate
+      - name: ulb
+        label: reports.uc.ulb
+        type: singlevaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+        source: uc
+        wrapper: true
+        isMandatory: false
+        searchClause: AND rd.tenantid != 'pb.testing' AND rd.tenantid = $ulb
+    query: |
+        -- Use CTE to force query plan, compute & use CTE later
+          SELECT
+          initcap(split_part(rd.tenantid,'.', 2)) as ulb,bl.servicetype as service,
+          count(distinct rd.billdetailid) as totalreceipts,
+          SUM(CASE WHEN taxheadcode LIKE '%_CGST' THEN adjustedamount ELSE 0 END) as cgst, 
+          SUM(CASE WHEN taxheadcode LIKE '%_TAX' THEN adjustedamount ELSE 0 END) as tax,
+          SUM(CASE WHEN taxheadcode LIKE '%_SGST' THEN adjustedamount ELSE 0 END) as sgst, 
+          SUM(CASE WHEN taxheadcode LIKE '%_FIELD_FEE' THEN adjustedamount ELSE 0 END) as fieldcollection,
+          SUM(CASE WHEN taxheadcode LIKE '%_SEC_DEP' THEN adjustedamount ELSE 0 END) as securitydeposit,
+          SUM(rd.adjustedamount) as totalcollection
+          FROM egcl_billaccountdetail as rd
+          INNER JOIN egcl_billdetial as rh on rh.id =  rd.billdetailid					
+          INNER JOIN (SELECT distinct bill.id, status,billdate,businessservice,message.message as servicetype from egcl_bill bill  INNER JOIN message ON CONCAT('BILLINGSERVICE_BUSINESSSERVICE_',replace(businessservice, '.', '_')) = message.code AND message.locale='en_IN' AND message.module='rainmaker-uc') as bl ON bl.id = rh.billid and status != 'Cancelled' and businessservice not in ('PT','TL') and rd.tenantid != 'pb.testing'
+    groupby: GROUP BY rd.tenantid,bl.servicetype
+    orderby: ORDER BY rd.tenantid
+
+  - reportName: StateLevelMiscReceipt
+    summary: State Miscellaneous Receipt Register 
+    version: 1.0.0
+    moduleName: rainmaker-uc
+    sourceColumns:
+      - name: ulb
+        label: reports.uc.ulb
+        type: string
+        source: uc
+        total: false
+      - name: totalreceipts
+        label: reports.uc.noOfReceipts
+        type: string
+        source: uc
+        total: true
+      - name: tax
+        label: reports.uc.tax
+        type: string
+        source: uc
+        total: true
+      - name: cgst
+        label: reports.uc.cgst
+        type: string
+        source: uc
+        total: true
+      - name: sgst
+        label: reports.uc.sgst
+        type: string
+        source: uc
+        total: true
+      - name: fieldcollection
+        label: reports.uc.fieldCollection
+        type: string
+        source: uc
+        total: true
+      - name: securitydeposit
+        label: reports.uc.securitydeposit
+        type: string
+        source: uc
+        total: true
+      - name: totalcollection
+        label: reports.uc.totalamount
+        type: string
+        source: uc
+        total: true
+    searchParams:
+      - name: fromDate
+        label: reports.uc.fromDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND bl.billdate >= $fromDate
+      - name: toDate
+        label: reports.uc.toDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND bl.billdate <= $toDate
+      - name: ulb
+        label: reports.uc.ulb
+        type: singlevaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+        source: uc
+        wrapper: true
+        isMandatory: false
+        searchClause: AND rd.tenantid = $ulb
+    query: |
+        -- Use CTE to force query plan, compute & use CTE later
+          SELECT 
+          initcap(split_part(rd.tenantid,'.', 2)) as ulb,
+          count(distinct rd.billdetailid) as totalreceipts,
+          SUM(CASE WHEN taxheadcode LIKE '%_CGST' THEN adjustedamount ELSE 0 END) as cgst, 
+          SUM(CASE WHEN taxheadcode LIKE '%_TAX' THEN adjustedamount ELSE 0 END) as tax,
+          SUM(CASE WHEN taxheadcode LIKE '%_SGST' THEN adjustedamount ELSE 0 END) as sgst, 
+          SUM(CASE WHEN taxheadcode LIKE '%_FIELD_FEE' THEN adjustedamount ELSE 0 END) as fieldcollection,
+          SUM(CASE WHEN taxheadcode LIKE '%_SEC_DEP' THEN adjustedamount ELSE 0 END) as securitydeposit,
+          SUM(rd.adjustedamount) as totalcollection
+          FROM egcl_billaccountdetail as rd
+          INNER JOIN egcl_billdetial as rh on rh.id =  rd.billdetailid					
+          INNER JOIN (SELECT distinct bill.id, status,billdate,businessservice from egcl_bill bill  ) as bl ON bl.id = rh.billid and status != 'Cancelled' and businessservice not in ('PT','TL') and rd.tenantid != 'pb.testing'
+    groupby: group by rd.tenantid
+
+
+
+  - reportName: MiscCollectionState
+    summary: State Miscellaneous Collection Register 
+    version: 1.0.0
+    moduleName: rainmaker-uc
+    sourceColumns:
+      - name: ulb
+        label: reports.uc.ulb
+        type: string
+        source: uc
+        total: false
+      - name: offlinetransactions
+        label: reports.uc.noOfOfflineTransactions
+        type: string
+        source: uc
+        total: true
+      - name: onlinetransactions
+        label: reports.uc.noOfOnlineTransactions
+        type: string
+        source: uc
+        total: true
+      - name: totaltransactions
+        label: reports.uc.totalTransactions
+        type: string
+        source: uc
+        total: true
+      - name: offlinecollection
+        label: reports.uc.offlineCollection
+        type: string
+        source: uc
+        total: true
+      - name: onlinecollection
+        label: reports.uc.onlineCollection
+        type: string
+        source: uc
+        total: true
+      - name: totalcollection
+        label: reports.uc.totalCollection
+        type: string
+        source: uc
+        total: true
+    searchParams:
+      - name: fromDate
+        label: reports.uc.fromDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND rh.receiptdate >= $fromDate
+      - name: toDate
+        label: reports.uc.toDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND rh.receiptdate <= $toDate
+      - name: ulb
+        label: reports.uc.ulb
+        type: singlevaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+        source: uc
+        wrapper: true
+        isMandatory: false
+        searchClause: rd.tenantid != 'pb.testing' AND rh.tenantid = $ulb
+    query: |
+        -- Use CTE to force query plan, compute & use CTE later
+        SELECT
+          initcap(split_part(rh.tenantId, '.', 2)) as ulb,
+          count(*) FILTER (where collectiontype='COUNTER') as offlinetransactions,
+          count(*) FILTER (where collectiontype='ONLINE') as onlinetransactions,
+          count(*) as totaltransactions,
+          sum(case collectiontype when 'COUNTER' then ih.amount else 0 end) as offlinecollection,
+          sum(case collectiontype when 'ONLINE' then ih.amount else 0 end) as onlinecollection,
+          sum(ih.amount) as totalcollection
+        from egcl_receiptheader_v1 as rh
+        inner join egcl_receiptinstrument_v1 as ri on ri.receiptheader = rh.id
+        inner join egcl_instrumentheader_v1 as ih on ih.id = ri.instrumentheader
+        where rh.businessdetails not in ('PT','TL') and rh.status !='Cancelled' and rh.tenantid !='pb.testing'
+    groupby: GROUP BY rh.tenantid
+    orderby: ORDER BY rh.tenantId asc
+
+  - reportName: MiscBusinessServiceCollectionTenant
+    summary: Miscellaneous Business Service Collection 
+    version: 1.0.0
+    moduleName: rainmaker-uc
+    sourceColumns:
+      - name: service
+        label: reports.uc.serviceType
+        type: string
+        source: uc
+        total: false      
+      - name: totalreceipts
+        label: reports.uc.totalReceipts
+        type: string
+        source: uc
+        total: true
+      - name: tax
+        label: reports.uc.tax
+        type: string
+        source: uc
+        total: true
+      - name: cgst
+        label: reports.uc.cgst
+        type: string
+        source: uc
+        total: true
+      - name: sgst
+        label: reports.uc.sgst
+        type: string
+        source: uc
+        total: true
+      - name: fieldcollection
+        label: reports.uc.fieldcollection
+        type: string
+        source: uc
+        total: true
+      - name: securitydeposit
+        label: reports.uc.securitydeposit
+        type: string
+        source: uc
+        total: true
+      - name: totalcollection
+        label: reports.uc.totalCollection
+        type: string
+        source: uc
+        total: true
+    searchParams:
+      - name: fromDate
+        label: reports.uc.fromDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND bl.billdate >= $fromDate
+      - name: toDate
+        label: reports.uc.toDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND bl.billdate <= $toDate
+    query: |
+        -- Use CTE to force query plan, compute & use CTE later
+        SELECT
+          bl.servicetype as service,
+          count(distinct rd.billdetailid) as totalreceipts,
+          SUM(CASE WHEN taxheadcode LIKE '%_CGST' THEN adjustedamount ELSE 0 END) as cgst, 
+          SUM(CASE WHEN taxheadcode LIKE '%_TAX' THEN adjustedamount ELSE 0 END) as tax,
+          SUM(CASE WHEN taxheadcode LIKE '%_SGST' THEN adjustedamount ELSE 0 END) as sgst, 
+          SUM(CASE WHEN taxheadcode LIKE '%_FIELD_FEE' THEN adjustedamount ELSE 0 END) as fieldcollection,
+          SUM(CASE WHEN taxheadcode LIKE '%_SEC_DEP' THEN adjustedamount ELSE 0 END) as securitydeposit,
+          SUM(rd.amount) as totalcollection
+          FROM egcl_billaccountdetail as rd
+          INNER JOIN egcl_billdetial as rh on rh.id =  rd.billdetailid					
+          INNER JOIN (SELECT distinct bill.id, status,billdate,businessservice,message.message as servicetype from egcl_bill bill  INNER JOIN message ON CONCAT('BILLINGSERVICE_BUSINESSSERVICE_',replace(businessservice, '.', '_')) = message.code AND message.locale='en_IN' AND message.module='rainmaker-uc') as bl ON bl.id = rh.billid and status != 'Cancelled' and businessservice not in ('PT','TL') and rd.tenantid=$tenantid
+    groupby: GROUP BY bl.servicetype
+    orderby: ORDER BY bl.servicetype
+
+  - reportName: MiscReceiptCBCancelled
+    summary: Cancelled Receipt Miscellaneous
+    decryptionPathId: MiscReceiptCBCancelled
+    version: 1.0.0
+    moduleName: rainmaker-uc
+    additionalConfig:
+      print:
+        pdfPageSize: "A3"
+    sourceColumns:
+      - name: ulb
+        label: reports.uc.ulb
+        type: string
+        source: uc
+        total: false
+      - name: receiptnumber
+        label: reports.uc.receiptnumber
+        type: string
+        source: uc
+        total: false
+      - name: receiptdate
+        label: reports.uc.receiptdate
+        type: string
+        source: uc
+        total: false
+      - name: servicecategory
+        label: reports.uc.businessdetails
+        type: string
+        source: uc
+        total: false
+      - name: tax
+        label: reports.uc.tax
+        type: string
+        source: uc
+        total: true
+      - name: fieldcollection
+        label: reports.uc.fieldcollection
+        type: string
+        source: uc
+        total: true
+      - name: cgst
+        label: reports.uc.cgst
+        type: string
+        source: uc
+        total: true
+      - name: sgst
+        label: reports.uc.sgst
+        type: string
+        source: uc
+        total: true
+      - name: securitydeposit
+        label: reports.uc.securitydeposit
+        type: string
+        source: uc
+        total: true
+      - name: ddorchequenumber
+        label: reports.uc.ddorchequenumber
+        type: string
+        source: uc
+        total: false
+      - name: ddchequedate
+        label: reports.uc.ddorchequedate
+        type: string
+        source: uc
+        total: false
+      - name: collectiontype
+        label: reports.uc.collectiontype
+        type: string
+        source: uc
+        total: false
+      - name: name
+        label: reports.uc.collectorname
+        type: string
+        source: uc
+        total: false
+      - name: totalamount
+        label: reports.uc.totalamount
+        type: string
+        source: uc
+        total: true
+      - name: paymentmode
+        label: reports.uc.paymentmode
+        type: string
+        source: uc
+        total: false
+    searchParams:
+      - name: fromDate
+        label: reports.uc.fromDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND pd.receiptdate >= $fromDate
+      - name: toDate
+        label: reports.uc.toDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND pd.receiptdate <= $toDate
+      - name: name
+        label: reports.uc.collectorname
+        type: singlevaluelist
+        pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=UC_EMP|$.Employees[*].user.id|$.Employees[*].user.name
+        source: uc
+        wrapper: true
+        isMandatory: false
+        searchClause: AND eg_user.id = $name::INTEGER
+    query: |
+             WITH receipt_breakup AS (
+             SELECT 
+                      billdetailid, 
+                      SUM(CASE WHEN taxheadcode LIKE '%_CGST' THEN adjustedamount ELSE 0 END) as cgst, 
+                      SUM(CASE WHEN taxheadcode LIKE '%_TAX' THEN adjustedamount ELSE 0 END) as tax,
+                      SUM(CASE WHEN taxheadcode LIKE '%_SGST' THEN adjustedamount ELSE 0 END) as sgst, 
+                      SUM(CASE WHEN taxheadcode LIKE '%_FIELD_FEE' THEN adjustedamount ELSE 0 END) as fieldcollection,
+                      SUM(CASE WHEN taxheadcode LIKE '%_SEC_DEP' THEN adjustedamount ELSE 0 END) as securitydeposit
+                    FROM egcl_billaccountdetail as rd
+                    INNER JOIN egcl_billdetial as rh on rh.id = rd.billdetailid
+                    INNER JOIN egcl_bill as bill on bill.id = rh.billid
+                    where status ='Cancelled' and businessservice not in ('PT','TL') and rd.tenantid=$tenantid and rd.tenantid != 'pb.testing'
+                    GROUP BY rd.billdetailid)
+                    SELECT initcap(split_part(rh.tenantid,'.', 2)) as ulb,pd.receiptnumber as receiptnumber,To_char((To_timestamp(pd.receiptdate / 1000) at time Zone 'Asia/Kolkata'), 'DD/MM/YYYY') as receiptdate,servicecategory,receipt_breakup.*,  amount as totalamount,pay.paymentmode as paymentmode,(case when pay.paymentmode like 'CASH' then '' else  transactionnumber end) as transactionorchequenumber,(case when pay.paymentmode like 'CHEQUE' then To_char((To_timestamp(pay.instrumentdate / 1000) at time Zone 'Asia/Kolkata'), 'DD/MM/YYYY') else '' end) as ddchequedate,eg_user.name as name FROM egcl_billdetial AS rh INNER JOIN (SELECT DISTINCT bill.id,status, businessservice,message.message as servicecategory from egcl_bill bill LEFT OUTER JOIN message ON CONCAT('BILLINGSERVICE_BUSINESSSERVICE_',replace(businessservice, '.', '_')) = message.code AND message.locale='en_IN' AND message.module='rainmaker-uc')as bill ON bill.id = rh.billid and status = 'Cancelled' and businessservice not in ('PT','TL')LEFT OUTER JOIN egcl_paymentdetail as pd ON pd.billid = bill.id LEFT OUTER JOIN egcl_payment  AS pay ON pay.id = pd.paymentid JOIN eg_user ON pay.createdby::INTEGER=eg_user.id JOIN receipt_breakup ON rh.id = receipt_breakup.billdetailid WHERE rh.tenantid=$tenantid
+    orderby: ORDER BY pd.receiptdate DESC
+
+  - reportName: MiscReceiptCB
+    summary: Receipt Register Miscellaneous
+    decryptionPathId: MiscReceiptCB
+    version: 1.0.0
+    moduleName: rainmaker-uc
+    # additionalConfig:
+    #   print:
+    #     pdfPageSize: "A3"
+    sourceColumns:
+      - name: consumername
+        label: reports.uc.consumername
+        type: string
+        source: uc
+        total: false
+      - name: mobilenumber
+        label: reports.uc.mobilenumber
+        type: string
+        source: uc
+        total: false
+      - name: receiptdate
+        label: reports.uc.receiptdate
+        type: string
+        source: uc
+        total: false
+      - name: receiptnumber
+        label: reports.uc.receiptnumber
+        type: string
+        source: uc
+        total: false
+      - name: payername
+        label: reports.uc.payername
+        type: string
+        source: uc
+        total: false
+      - name: servicecategory
+        label: reports.uc.businessdetails
+        type: string
+        source: uc
+        total: false
+      - name: amount
+        label: reports.uc.totalamount
+        type: string
+        source: uc
+        total: true
+      # - name: remarks
+      #   label: reports.uc.remarks
+      #   type: string
+      #   source: uc
+      #   total: false
+      - name: name
+        label: reports.uc.collectorname
+        type: string
+        source: uc
+        total: false
+    searchParams:
+      - name: fromDate
+        label: reports.uc.fromDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND pd.receiptdate >= $fromDate
+      - name: toDate
+        label: reports.uc.toDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND pd.receiptdate <= $toDate
+      - name: name
+        label: reports.uc.collectorname
+        type: singlevaluelist
+        pattern: http://egov-hrms:8080/egov-hrms/employees/_search?tenantId=$tenantid&roles=UC_EMP|$.Employees[*].user.id|$.Employees[*].user.name
+        source: uc
+        wrapper: true
+        isMandatory: false
+        searchClause: AND eg_user.id = $name::INTEGER
+    query: |
+        -- Use CTE to force query plan, compute & use CTE later
+        SELECT pay.payername as payername,consumername,pay.mobilenumber as mobilenumber,To_char((To_timestamp(pd.receiptdate / 1000) at time Zone 'Asia/Kolkata'), 'DD/MM/YYYY') as receiptdate,bill.servicecategory,rh.amount as amount,eg_user.name as name,pd.receiptnumber as receiptnumber FROM egcl_billdetial AS rh INNER JOIN (SELECT DISTINCT bill.id,status,consumercode, businessservice,message.message as servicecategory from egcl_bill bill LEFT OUTER JOIN message ON CONCAT('BILLINGSERVICE_BUSINESSSERVICE_',replace(businessservice, '.', '_')) = message.code AND message.locale='en_IN' AND message.module='rainmaker-uc')as bill ON bill.id = rh.billid and status != 'Cancelled' and businessservice not in ('PT','TL') LEFT OUTER JOIN egcl_paymentdetail as pd ON pd.billid = bill.id LEFT OUTER JOIN egcl_payment  AS pay ON pay.id = pd.paymentid JOIN (Select challanno as challanno,accountid,eg_user.name as consumername,additionaldetail from eg_echallan challan LEFT OUTER JOIN eg_user ON challan.accountid=eg_user.uuid) as challan on challan.challanno = bill.consumercode JOIN eg_user ON pay.createdby::INTEGER=eg_user.id WHERE rh.tenantid=$tenantid
+    orderby: ORDER BY pd.receiptdate DESC
+
+  - reportName: ChallanStatusRegistry
+    summary: Challan Status Register
+    decryptionPathId: ChallanStatusRegistry
+    version: 1.0.0
+    moduleName: rainmaker-uc
+    sourceColumns:
+      - name: challanno
+        label: reports.uc.challanno
+        type: string
+        source: uc
+        total: false
+      - name: consumername
+        label: reports.uc.consumername
+        type: string
+        source: uc
+        total: false
+      - name: servicecategory
+        label: reports.uc.businessdetails
+        type: string
+        source: uc
+        total: false
+      - name: amount
+        label: reports.uc.totalamount
+        type: string
+        source: uc
+        total: true
+      - name: applicationstatus
+        label: reports.uc.appstatus
+        type: string
+        source: uc
+        total: false
+      - name: challandate
+        label: reports.uc.billdate
+        type: string
+        source: uc
+        total: false
+    searchParams:
+      - name: fromDate
+        label: reports.uc.fromDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND challan.createdtime >= $fromDate
+      - name: toDate
+        label: reports.uc.toDate
+        type: epoch
+        source: uc
+        isMandatory: false
+        searchClause: AND challan.createdtime <= $toDate
+      - name: businessservice
+        label: reports.uc.businessservice
+        type: singlevaluelist
+        pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=BillingService&masterName=BusinessService&tenantId=$tenantid&filter=%5B?(@.type=='Adhoc')%5D|$.MdmsRes.BillingService.BusinessService[*].code|$.MdmsRes.BillingService.BusinessService[*].businessService
+        source: uc
+        wrapper: true
+        isMandatory: false
+        searchClause: AND challan.businessservice = $businessservice
+      - name: status
+        label: reports.uc.appstatus
+        type: singlevaluelist
+        pattern: list://ACTIVE:Unpaid,PAID:Paid,CANCELLED:Cancelled
+        source: uc
+        wrapper: true
+        isMandatory: false
+        searchClause: AND applicationstatus = $status
+    query: |
+        -- Use CTE to force query plan, compute & use CTE later
+        Select DISTINCT challanno as challanno,accountid,eg_user.name as consumername,businessservice,message.message as servicecategory,applicationstatus,ddetail.amount as amount,To_char((To_timestamp(challan.createdtime / 1000) at time Zone 'Asia/Kolkata'), 'DD/MM/YYYY') as challandate from eg_echallan AS challan LEFT OUTER JOIN message ON CONCAT('BILLINGSERVICE_BUSINESSSERVICE_',replace(businessservice, '.', '_')) = message.code AND message.locale='en_IN' AND message.module='rainmaker-uc' INNER JOIN (Select  id,consumercode from egbs_demand_v1 demand) as demand on demand.consumercode = challan.challanno INNER JOIN (Select DISTINCT  demandid,SUM(taxamount)as amount from egbs_demanddetail_v1 ddetail group by demandid) as ddetail on ddetail.demandid = demand.id LEFT OUTER JOIN eg_user ON challan.accountid=eg_user.uuid  WHERE challan.tenantid like $tenantid and challan.applicationstatus in ('ACTIVE','CANCELLED','PAID')

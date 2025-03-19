@@ -1,0 +1,226 @@
+ServiceMaps:
+ serviceName: Fire Noc Service - rainmaker
+ version: 1.0.0
+ mappings:
+  - topic: save-fn-firenoc
+    configKey: INDEX
+    indexes:
+      - name: firenoc-services
+        type: general
+        id: $.id,$.tenantId
+        isBulk: true
+        jsonPath: $.FireNOCs
+        timeStampField: $.auditDetails.createdTime
+        customJsonMapping:
+          indexMapping: {"Data":{"channel":"","id":"","tenantId":"","fireNOCDetails":{"status":"","action":"","firestationId":"","applicationNumber":"","fireNOCType":"","buildings":[],"propertyDetails":{},"additionalDetail":{},"applicantDetails":{}},"auditDetails":{},"@timestamp":"timestamp"}}
+          fieldMapping:
+          - inJsonPath: $.id
+            outJsonPath: $.Data.id
+          - inJsonPath: $.tenantId
+            outJsonPath: $.Data.tenantId
+          - inJsonPath: $.fireNOCDetails.channel
+            outJsonPath: $.Data.channel
+          - inJsonPath: $.fireNOCDetails.status
+            outJsonPath: $.Data.fireNOCDetails.status
+          - inJsonPath: $.fireNOCDetails.action
+            outJsonPath: $.Data.fireNOCDetails.action
+          - inJsonPath: $.fireNOCDetails.fireNOCType
+            outJsonPath: $.Data.fireNOCDetails.fireNOCType
+          - inJsonPath: $.fireNOCDetails.buildings
+            outJsonPath: $.Data.fireNOCDetails.buildings
+          - inJsonPath: $.fireNOCDetails.applicationNumber
+            outJsonPath: $.Data.fireNOCDetails.applicationNumber
+          - inJsonPath: $.fireNOCDetails.buildings
+            outJsonPath: $.Data.fireNOCDetails.buildings
+          - inJsonPath: $.fireNOCDetails.propertyDetails
+            outJsonPath: $.Data.fireNOCDetails.propertyDetails
+          - inJsonPath: $.fireNOCDetails.additionalDetail
+            outJsonPath: $.Data.fireNOCDetails.additionalDetail
+          - inJsonPath: $.fireNOCDetails.applicantDetails
+            outJsonPath: $.Data.fireNOCDetails.applicantDetails
+          - inJsonPath: $.fireNOCDetails.firestationId
+            outJsonPath: $.Data.fireNOCDetails.firestationId
+          - inJsonPath: $.auditDetails
+            outJsonPath: $.Data.auditDetails  
+          - inJsonPath: $.@timestamp
+            outJsonPath: $.Data.@timestamp
+          externalUriMapping:
+          - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+            queryParam: businessIds=$.fireNOCDetails.applicationNumber,history=true,tenantId=$.tenantId
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pg.citya","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pg.citya"}]}}}
+            uriResponseMapping:
+            - inJsonPath: $.ProcessInstances
+              outJsonPath: $.Data.history
+          - path: http://egov-localization.egov:8080/localization/messages/v1/_search
+            queryParam: locale=en_IN,tenantId=$.tenantId,codes=$.fireNOCDetails.firestationId
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pg.citya","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pg.citya"}]}}}
+            uriResponseMapping:
+            - inJsonPath: $.messages[0].message
+              outJsonPath: $.Data.Department
+          - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
+            queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.fireNOCDetails.propertyDetails.address.locality.code,tenantId=$.tenantId
+            apiRequest: {"RequestInfo": {"apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61","authToken": "02dbe5be-28df-4d82-954f-3d27c56cca7d","userInfo":{"id":73}}}
+            uriResponseMapping:
+            - inJsonPath: $.TenantBoundary[0].boundary[0]
+              outJsonPath: $.Data.ward
+          mdmsMapping:
+          - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+            moduleName: tenant
+            masterName: tenants
+            tenantId: pg
+            filter: "[?(@.code == $tenant)]"
+            filterMapping:
+            - variable: $tenant
+              valueJsonpath: $.tenantId
+            uriResponseMapping:
+            - inJsonPath: $.MdmsRes.tenant.tenants
+              outJsonPath: $.Data.tenantData
+     
+
+  - topic: update-fn-firenoc
+    configKey: INDEX
+    indexes:
+      - name: firenoc-services
+        type: general
+        id: $.id,$.tenantId
+        isBulk: true
+        jsonPath: $.FireNOCs
+        timeStampField: $.auditDetails.lastModifiedTime
+        customJsonMapping:
+          indexMapping: {"Data":{"channel":"","id":"","tenantId":"","fireNOCDetails":{"status":"","action":"","firestationId":"","applicationNumber":"","fireNOCType":"","buildings":[],"propertyDetails":{},"additionalDetail":{},"applicantDetails":{}},"auditDetails":{},"@timestamp":"timestamp"}}
+          fieldMapping:
+          - inJsonPath: $.id
+            outJsonPath: $.Data.id
+          - inJsonPath: $.tenantId
+            outJsonPath: $.Data.tenantId
+          - inJsonPath: $.fireNOCDetails.channel
+            outJsonPath: $.Data.channel
+          - inJsonPath: $.fireNOCDetails.status
+            outJsonPath: $.Data.fireNOCDetails.status
+          - inJsonPath: $.fireNOCDetails.action
+            outJsonPath: $.Data.fireNOCDetails.action
+          - inJsonPath: $.fireNOCDetails.fireNOCType
+            outJsonPath: $.Data.fireNOCDetails.fireNOCType
+          - inJsonPath: $.fireNOCDetails.buildings
+            outJsonPath: $.Data.fireNOCDetails.buildings
+          - inJsonPath: $.fireNOCDetails.applicationNumber
+            outJsonPath: $.Data.fireNOCDetails.applicationNumber
+          - inJsonPath: $.fireNOCDetails.buildings
+            outJsonPath: $.Data.fireNOCDetails.buildings
+          - inJsonPath: $.fireNOCDetails.propertyDetails
+            outJsonPath: $.Data.fireNOCDetails.propertyDetails
+          - inJsonPath: $.fireNOCDetails.additionalDetail
+            outJsonPath: $.Data.fireNOCDetails.additionalDetail
+          - inJsonPath: $.fireNOCDetails.applicantDetails
+            outJsonPath: $.Data.fireNOCDetails.applicantDetails
+          - inJsonPath: $.fireNOCDetails.firestationId
+            outJsonPath: $.Data.fireNOCDetails.firestationId
+          - inJsonPath: $.auditDetails
+            outJsonPath: $.Data.auditDetails  
+          - inJsonPath: $.@timestamp
+            outJsonPath: $.Data.@timestamp
+          externalUriMapping:
+          - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+            queryParam: businessIds=$.fireNOCDetails.applicationNumber,history=true,tenantId=$.tenantId
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pg.citya","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pg.citya"}]}}}
+            uriResponseMapping:
+            - inJsonPath: $.ProcessInstances
+              outJsonPath: $.Data.history
+          - path: http://egov-localization.egov:8080/localization/messages/v1/_search
+            queryParam: locale=en_IN,tenantId=$.tenantId,codes=$.fireNOCDetails.firestationId
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pg.citya","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pg.citya"}]}}}
+            uriResponseMapping:
+            - inJsonPath: $.messages[0].message
+              outJsonPath: $.Data.Department
+          - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
+            queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.fireNOCDetails.propertyDetails.address.locality.code,tenantId=$.tenantId
+            apiRequest: {"RequestInfo": {"apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61","authToken": "02dbe5be-28df-4d82-954f-3d27c56cca7d","userInfo":{"id":73}}}
+            uriResponseMapping:
+            - inJsonPath: $.TenantBoundary[0].boundary[0]
+              outJsonPath: $.Data.ward
+          mdmsMapping:
+          - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+            moduleName: tenant
+            masterName: tenants
+            tenantId: pg
+            filter: "[?(@.code == $tenant)]"
+            filterMapping:
+            - variable: $tenant
+              valueJsonpath: $.tenantId
+            uriResponseMapping:
+            - inJsonPath: $.MdmsRes.tenant.tenants
+              outJsonPath: $.Data.tenantData
+              
+  - topic: update-fn-workflow
+    configKey: INDEX
+    indexes:
+      - name: firenoc-services
+        type: general
+        id: $.id,$.tenantId
+        isBulk: true
+        jsonPath: $.FireNOCs
+        timeStampField: $.auditDetails.lastModifiedTime
+        customJsonMapping:
+          indexMapping: {"Data":{"channel":"","id":"","tenantId":"","fireNOCDetails":{"status":"","action":"","firestationId":"","applicationNumber":"","fireNOCType":"","buildings":[],"propertyDetails":{},"additionalDetail":{},"applicantDetails":{}},"auditDetails":{},"@timestamp":"timestamp"}}
+          fieldMapping:
+          - inJsonPath: $.id
+            outJsonPath: $.Data.id
+          - inJsonPath: $.tenantId
+            outJsonPath: $.Data.tenantId
+          - inJsonPath: $.fireNOCDetails.channel
+            outJsonPath: $.Data.channel
+          - inJsonPath: $.fireNOCDetails.status
+            outJsonPath: $.Data.fireNOCDetails.status
+          - inJsonPath: $.fireNOCDetails.action
+            outJsonPath: $.Data.fireNOCDetails.action
+          - inJsonPath: $.fireNOCDetails.fireNOCType
+            outJsonPath: $.Data.fireNOCDetails.fireNOCType
+          - inJsonPath: $.fireNOCDetails.buildings
+            outJsonPath: $.Data.fireNOCDetails.buildings
+          - inJsonPath: $.fireNOCDetails.applicationNumber
+            outJsonPath: $.Data.fireNOCDetails.applicationNumber
+          - inJsonPath: $.fireNOCDetails.buildings
+            outJsonPath: $.Data.fireNOCDetails.buildings
+          - inJsonPath: $.fireNOCDetails.propertyDetails
+            outJsonPath: $.Data.fireNOCDetails.propertyDetails
+          - inJsonPath: $.fireNOCDetails.additionalDetail
+            outJsonPath: $.Data.fireNOCDetails.additionalDetail
+          - inJsonPath: $.fireNOCDetails.applicantDetails
+            outJsonPath: $.Data.fireNOCDetails.applicantDetails
+          - inJsonPath: $.fireNOCDetails.firestationId
+            outJsonPath: $.Data.fireNOCDetails.firestationId
+          - inJsonPath: $.auditDetails
+            outJsonPath: $.Data.auditDetails  
+          - inJsonPath: $.@timestamp
+            outJsonPath: $.Data.@timestamp
+          externalUriMapping:
+          - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+            queryParam: businessIds=$.fireNOCDetails.applicationNumber,history=true,tenantId=$.tenantId
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pg.citya","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pg.citya"}]}}}
+            uriResponseMapping:
+            - inJsonPath: $.ProcessInstances
+              outJsonPath: $.Data.history
+          - path: http://egov-localization.egov:8080/localization/messages/v1/_search
+            queryParam: locale=en_IN,tenantId=$.tenantId,codes=$.fireNOCDetails.firestationId
+            apiRequest: {"RequestInfo":{"apiId":"org.egov.pt","ver":"1.0","ts":1502890899493,"action":"asd","did":"4354648646","key":"xyz","msgId":"654654","requesterId":"61","authToken":"d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo":{"id":1,"uuid":"1fec8102-0e02-4d0a-b283-cd80d5dab067","type":"EMPLOYEE","tenantId":"pg.citya","roles":[{"name":"Employee","code":"EMPLOYEE","tenantId":"pg.citya"}]}}}
+            uriResponseMapping:
+            - inJsonPath: $.messages[0].message
+              outJsonPath: $.Data.Department
+          - path: http://egov-location.egov:8080/egov-location/location/v11/boundarys/_search
+            queryParam: hierarchyTypeCode=REVENUE,boundaryType=Block,codes=$.fireNOCDetails.propertyDetails.address.locality.code,tenantId=$.tenantId
+            apiRequest: {"RequestInfo": {"apiId": "org.egov.pt","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654", "requesterId": "61","authToken": "02dbe5be-28df-4d82-954f-3d27c56cca7d","userInfo":{"id":73}}}
+            uriResponseMapping:
+            - inJsonPath: $.TenantBoundary[0].boundary[0]
+              outJsonPath: $.Data.ward
+          mdmsMapping:
+          - path: http://egov-mdms-service.egov:8080/egov-mdms-service/v1/_search
+            moduleName: tenant
+            masterName: tenants
+            tenantId: pg
+            filter: "[?(@.code == $tenant)]"
+            filterMapping:
+            - variable: $tenant
+              valueJsonpath: $.tenantId
+            uriResponseMapping:
+            - inJsonPath: $.MdmsRes.tenant.tenants
+              outJsonPath: $.Data.tenantData

@@ -1,0 +1,45 @@
+ServiceMaps:
+  serviceName: measurement-service
+  version: 1.0.0
+  mappings:
+    - topic: enrich-measurement-service-details
+      configKey: INDEX
+      indexes:
+        - name: measurement-service-index
+          type: general
+          id: $.measurement.id,$.measurement.tenantId
+          jsonPath: $.*
+          isBulk: true
+          timeStampField: $.measurement.auditDetails.createdTime
+          customJsonMapping:
+            indexMapping: {"Data":{"id":"","tenantId":"","measurementNumber":"","physicalRefNumber":"","referenceId":"","entryDate":"","measures":[],"auditDetails":{},"additionalDetails":{},"contract":{},"currentProcessInstance": {}}}
+            fieldMapping:
+              - inJsonPath: $.measurement.id
+                outJsonPath: $.Data.id
+              - inJsonPath: $.measurement.tenantId
+                outJsonPath: $.Data.tenantId
+              - inJsonPath: $.measurement.measurementNumber
+                outJsonPath: $.Data.measurementNumber
+              - inJsonPath: $.measurement.physicalRefNumber
+                outJsonPath: $.Data.physicalRefNumber
+              - inJsonPath: $.measurement.referenceId
+                outJsonPath: $.Data.referenceId
+              - inJsonPath: $.measurement.entryDate
+                outJsonPath: $.Data.entryDate
+              - inJsonPath: $.measurement.measures
+                outJsonPath: $.Data.measures
+              - inJsonPath: $.measurement.auditDetails
+                outJsonPath: $.Data.auditDetails
+              - inJsonPath: $.measurement.additionalDetails
+                outJsonPath: $.Data.additionalDetails
+              - inJsonPath: $.contract
+                outJsonPath: $.Data.contract
+              - inJsonPath: $.measurement.processInstance
+                outJsonPath: $.Data.currentProcessInstance
+            externalUriMapping:
+              - path: http://egov-workflow-v2.egov:8080/egov-workflow-v2/egov-wf/process/_search
+                queryParam: businessIds=$.measurement.measurementNumber,history=true,tenantId=$.measurement.tenantId
+                apiRequest: { "RequestInfo": { "apiId": "org.egov.bill","ver": "1.0","ts": 1502890899493,"action": "asd","did": "4354648646","key": "xyz","msgId": "654654","requesterId": "61","authToken": "d9994555-7656-4a67-ab3a-a952a0d4dfc8","userInfo": { "id": 1,"uuid": "1fec8102-0e02-4d0a-b283-cd80d5dab067","type": "EMPLOYEE","tenantId": "pg.citya","roles": [ { "name": "Employee","code": "EMPLOYEE","tenantId": "pg.citya" } ] } } }
+                uriResponseMapping:
+                  - inJsonPath: $.ProcessInstances
+                  

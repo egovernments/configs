@@ -1,0 +1,70 @@
+ServiceMaps:
+  serviceName: stock
+  version: 1.0.0
+  mappings:
+    - topic: transformer-producer-bulk-stock-index-v1-health-topic
+      configKey: INDEX
+      indexes:
+        - name: stock-index-v1
+          type: stock
+          id: $.id
+          isBulk: true
+          jsonPath: $
+          customJsonMapping:
+            indexMapping: { "Data": { } }
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data
+          timeStampField: $.lastModifiedTime
+        - name: user-sync-index-v1
+          type: users
+          id: $.id
+          isBulk: true
+          jsonPath: $
+          customJsonMapping:
+            indexMapping: { "Data": { } }
+            fieldMapping:
+              - inJsonPath: $.lastModifiedBy
+                outJsonPath: $.Data.syncedUserId
+              - inJsonPath: $.createdTime
+                outJsonPath: $.Data.clientCreatedTime
+              - inJsonPath: $.userName
+                outJsonPath: $.Data.syncedUserName
+              - inJsonPath: $.role
+                outJsonPath: $.Data.role
+              - inJsonPath: $.boundaryHierarchy
+                outJsonPath: $.Data.boundaryHierarchy
+              - inJsonPath: $.syncedTime
+                outJsonPath: $.Data.createdTime
+              - inJsonPath: $.syncedTimeStamp
+                outJsonPath: $.Data.syncedTimeStamp
+              - inJsonPath: $.@timestamp
+                outJsonPath: $.Data.@timestamp
+              - inJsonPath: $.syncedDate
+                outJsonPath: $.Data.syncedDate
+              - inJsonPath: $.latitude
+                outJsonPath: $.Data.latitude
+              - inJsonPath: $.longitude
+                outJsonPath: $.Data.longitude
+              - inJsonPath: $.nameOfUser
+                outJsonPath: $.Data.syncedNameOfUser
+              - inJsonPath: $.projectType
+                outJsonPath: $.Data.projectType
+              - inJsonPath: $.projectTypeId
+                outJsonPath: $.Data.projectTypeId
+          timeStampField: $.createdTime
+
+    - topic: transformer-producer-stock-recon-index-v1-health-topic
+      configKey: INDEX
+      indexes:
+        - name: stock-reconciliation-index-v1
+          type: reconciliation
+          id: $.stockReconciliation.id
+          isBulk: true
+          jsonPath: $
+          customJsonMapping:
+            indexMapping: { "Data": { } }
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data
+          timeStampField: $.stockReconciliation.auditDetails.createdTime
