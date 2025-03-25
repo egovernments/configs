@@ -7,7 +7,7 @@ serviceMaps:
    fromTopic: pg-save-pgr-servicereq
    isTransaction: true
    queryMaps:
-    - query: INSERT INTO staging.eg_pgr_servicereq(tenantId,serviceCode,serviceRequestId,description,lat,long,address,addressId,email,deviceId,accountId,firstName,lastName,phone,attributes,status,assignedTo,source,expectedTime,createdby,createdtime,lastmodifiedby,lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+    - query: INSERT INTO pg.eg_pgr_servicereq(tenantId,serviceCode,serviceRequestId,description,lat,long,address,addressId,email,deviceId,accountId,firstName,lastName,phone,attributes,status,assignedTo,source,expectedTime,createdby,createdtime,lastmodifiedby,lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
 
       basePath: serviceReq.*
       jsonMaps:
@@ -62,7 +62,7 @@ serviceMaps:
        - jsonPath: $.serviceReq.*.auditDetails.lastModifiedTime
 
 
-    - query: INSERT INTO staging.eg_pgr_media(id, by, "when",url, tenantId,serviceRequestId) VALUES (?,?,?,?,?,?);
+    - query: INSERT INTO pg.eg_pgr_media(id, by, "when",url, tenantId,serviceRequestId) VALUES (?,?,?,?,?,?);
 
       basePath: serviceReq.*.media.*
       jsonMaps:
@@ -80,7 +80,7 @@ serviceMaps:
        - jsonPath: $.serviceReq[?({id} in @.media[*].id)].serviceRequestId
 
 
-    - query: INSERT INTO staging.eg_pgr_comment(id, by, "when", message, tenantId,serviceRequestId, isInternal) VALUES (?,?,?,?,?,?,?);
+    - query: INSERT INTO pg.eg_pgr_comment(id, by, "when", message, tenantId,serviceRequestId, isInternal) VALUES (?,?,?,?,?,?,?);
 
       basePath: serviceReq.*.comments.*
       jsonMaps:
@@ -106,7 +106,7 @@ serviceMaps:
    fromTopic: pg-update-pgr-servicereq
    isTransaction: true
    queryMaps:
-    - query: INSERT INTO staging.eg_pgr_servicereq_audit (tenantid, servicecode, servicerequestid, description, lat, "long", address, addressid, email, deviceid, accountid, firstname,lastname, phone, attributes, status, assignedto, source, expectedtime, createdby, createdtime,auditcreatedtime) SELECT tenantid, servicecode, servicerequestid, description, lat, "long", address, addressid, email, deviceid, accountid,firstname, lastname, phone, attributes, status, assignedto, source, expectedtime,lastmodifiedby,lastmodifiedtime,(select extract (EPOCH from now())*1000)  FROM eg_pgr_servicereq where tenantId=? AND servicerequestid=?;
+    - query: INSERT INTO pg.eg_pgr_servicereq_audit (tenantid, servicecode, servicerequestid, description, lat, "long", address, addressid, email, deviceid, accountid, firstname,lastname, phone, attributes, status, assignedto, source, expectedtime, createdby, createdtime,auditcreatedtime) SELECT tenantid, servicecode, servicerequestid, description, lat, "long", address, addressid, email, deviceid, accountid,firstname, lastname, phone, attributes, status, assignedto, source, expectedtime,lastmodifiedby,lastmodifiedtime,(select extract (EPOCH from now())*1000)  FROM eg_pgr_servicereq where tenantId=? AND servicerequestid=?;
 
       basePath: serviceReq.*
       jsonMaps:
@@ -116,7 +116,7 @@ serviceMaps:
        - jsonPath: $.serviceReq.*.serviceRequestId
 
 
-    - query: UPDATE staging.eg_pgr_servicereq  SET  description=?, lat=?, long=?,address=?, addressid=?, email=?, deviceid=?, accountid=?, firstname=?, lastname=?, phone=?, attributes=?, status=?, assignedto=?, source=?, expectedtime=?, lastmodifiedby=?, lastmodifiedtime=? WHERE tenantid=? AND servicerequestid=?;
+    - query: UPDATE pg.eg_pgr_servicereq  SET  description=?, lat=?, long=?,address=?, addressid=?, email=?, deviceid=?, accountid=?, firstname=?, lastname=?, phone=?, attributes=?, status=?, assignedto=?, source=?, expectedtime=?, lastmodifiedby=?, lastmodifiedtime=? WHERE tenantid=? AND servicerequestid=?;
 
       basePath: serviceReq.*
       jsonMaps:
@@ -165,7 +165,7 @@ serviceMaps:
 
 
 
-    - query: INSERT INTO staging.eg_pgr_media(id, by, "when",url, tenantId,serviceRequestId) VALUES (?,?,?,?,?,?) ON CONFLICT (id,TenantId) DO NOTHING;
+    - query: INSERT INTO pg.eg_pgr_media(id, by, "when",url, tenantId,serviceRequestId) VALUES (?,?,?,?,?,?) ON CONFLICT (id,TenantId) DO NOTHING;
 
       basePath: serviceReq.*.media.*
       jsonMaps:
@@ -183,7 +183,7 @@ serviceMaps:
        - jsonPath: $.serviceReq[?({id} in @.media[*].id)].serviceRequestId
 
 
-    - query: INSERT INTO staging.eg_pgr_comment(id, by, "when", message, tenantId,serviceRequestId, isInternal) VALUES (?,?,?,?,?,?,?) ON CONFLICT (id,tenantId) DO NOTHING;
+    - query: INSERT INTO pg.eg_pgr_comment(id, by, "when", message, tenantId,serviceRequestId, isInternal) VALUES (?,?,?,?,?,?,?) ON CONFLICT (id,tenantId) DO NOTHING;
 
       basePath: serviceReq.*.comments.*
       jsonMaps:
