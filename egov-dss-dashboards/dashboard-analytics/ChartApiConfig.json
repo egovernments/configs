@@ -38288,14 +38288,15 @@
         "dateRefField": "Data.vehicleTrip.@timestamp",
         "requestQueryMap": "{\"wardId\" : \"Data.ward.name.keyword\", \"tenantId\" : \"Data.tenantData.code\" ,  \"district\" : \"Data.tenantData.city.districtName\"}",
         "indexName": "vehicletrip",
-        "aggrQuery": "{\"size\":0,\"aggs\":{\"AGGR\":{\"filter\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.vehicleTrip.tenantId.keyword\":\"pg.testing\"}}],\"must\":[{\"term\":{\"Data.vehicleTrip.businessService.keyword\":\"FSM_VEHICLE_TRIP\"}}]}},\"aggs\":{\"vehicleNumber\":{\"terms\":{\"field\":\"Data.vehicleTrip.additionalDetails.vehicleNumber.keyword\"},\"aggs\":{\"TotalTrips\":{\"value_count\":{\"field\":\"Data.vehicleTrip.@timestamp\"}},\"TotalSeptageDisposed\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}}}"
-      }
+        "aggrQuery": "{\"query\":{\"bool\":{\"must_not\":[{\"term\":{\"Data.vehicleTrip.tenantId.keyword\":\"pg.testing\"}}],\"must\":[{\"term\":{\"Data.vehicleTrip.businessService.keyword\":\"FSM_VEHICLE_TRIP\"}}],\"filter\":[{\"nested\":{\"path\":\"Data.vehicleTrip.tripDetails\",\"query\":{\"bool\":{\"must_not\":[{\"exists\":{\"field\":\"Data.vehicleTrip.tripDetails.referenceNo\"}}]}}}}]}},\"aggs\":{\"ULB\":{\"terms\":{\"field\":\"Data.vehicleTrip.tenantId.keyword\"},\"aggs\":{\"vehicleNumber\":{\"terms\":{\"field\":\"Data.vehicleTrip.additionalDetails.vehicleNumber.keyword\"},\"aggs\":{\"TotalTrips\":{\"value_count\":{\"field\":\"Data.vehicleTrip.@timestamp\"}},\"TotalSeptageDisposed\":{\"sum\":{\"field\":\"Data.vehicleTrip.volumeCarried\"}}}}}}}}"
+ }
     ],
     "isMdmsEnabled": true,
     "filterKeys": [
-      {"key": "vehicleNumber", "column": "Vehicle_No"},
-      {"key": "wardId", "column": "Ward"},
-      {"key": "ulbId", "column": "ULB"}
+      {
+        "key": "tenantId",
+        "column": "District"
+      }
 
     ],
     "isPostResponseHandler": true,
@@ -38305,13 +38306,23 @@
     "isRoundOff": true,
     "documentType": "_doc",
     "drillChart": "",
-    "plotLabel": "Vehicle_No",
+    "plotLabel": "District",
     "aggregationPaths": [
+     "vehicleNumber",
         "TotalTrips",
         "TotalSeptageDisposed"
     ],
     "isCumulative": true,
     "interval": "month",
+    "chartSpecificProperty": {
+      "XtableColumnOrder": [
+        "S.N.",
+        "District",
+        "vehicleNumber",
+        "TotalTrips",
+        "TotalSeptageDisposed"
+      ]
+    },
     "insight": {},
     "_comment": " "
   },
