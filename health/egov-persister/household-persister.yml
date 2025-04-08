@@ -180,6 +180,27 @@ serviceMaps:
             - jsonPath: $.*.clientAuditDetails.lastModifiedTime
             - jsonPath: $.*.clientAuditDetails.createdBy
             - jsonPath: $.*.clientAuditDetails.lastModifiedBy
+        - query: INSERT INTO health.HOUSEHOLD_MEMBER_RELATIONSHIP(id, clientReferenceId, tenantId, selfId, selfClientReferenceId, relativeId, relativeClientReferenceId, relationshipType, createdBy, lastModifiedBy, createdTime, lastModifiedTime, clientCreatedBy, clientLastModifiedBy, clientCreatedTime, clientLastModifiedTime, rowVersion, isDeleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.*.relationships.*
+          jsonMaps:
+            - jsonPath: $.*.relationships.*.id
+            - jsonPath: $.*.relationships.*.clientReferenceId
+            - jsonPath: $.*.relationships.*.tenantId
+            - jsonPath: $.*.relationships.*.selfId
+            - jsonPath: $.*.relationships.*.selfClientReferenceId
+            - jsonPath: $.*.relationships.*.relativeId
+            - jsonPath: $.*.relationships.*.relativeClientReferenceId
+            - jsonPath: $.*.relationships.*.relationshipType
+            - jsonPath: $.*.relationships.*.auditDetails.createdBy
+            - jsonPath: $.*.relationships.*.auditDetails.lastModifiedBy
+            - jsonPath: $.*.relationships.*.auditDetails.createdTime
+            - jsonPath: $.*.relationships.*.auditDetails.lastModifiedTime
+            - jsonPath: $.*.relationships.*.clientAuditDetails.createdBy
+            - jsonPath: $.*.relationships.*.clientAuditDetails.lastModifiedBy
+            - jsonPath: $.*.relationships.*.clientAuditDetails.createdTime
+            - jsonPath: $.*.relationships.*.clientAuditDetails.lastModifiedTime
+            - jsonPath: $.*.relationships.*.rowVersion
+            - jsonPath: $.*.relationships.*.isDeleted
     - version: 1.0
       description: Update household member.
       fromTopic: update-household-member-health-topic
@@ -208,6 +229,19 @@ serviceMaps:
             - jsonPath: $.*.clientAuditDetails.lastModifiedBy
             - jsonPath: $.*.individualId
             - jsonPath: $.*.householdId
+        - query: UPDATE health.HOUSEHOLD_MEMBER_RELATIONSHIP SET relationshipType=?, relativeId=?, relativeClientReferenceId=?, lastModifiedBy=?, lastModifiedTime=?, clientLastModifiedBy=?, clientLastModifiedTime=?, rowVersion=?, isDeleted=? WHERE selfId=? AND isDeleted=false;
+          basePath: $.*.relationships.*
+          jsonMaps:
+            - jsonPath: $.*.relationships.*.relationshipType
+            - jsonPath: $.*.relationships.*.relativeId
+            - jsonPath: $.*.relationships.*.relativeClientReferenceId
+            - jsonPath: $.*.relationships.*.auditDetails.lastModifiedBy
+            - jsonPath: $.*.relationships.*.auditDetails.lastModifiedTime
+            - jsonPath: $.*.relationships.*.clientAuditDetails.lastModifiedBy
+            - jsonPath: $.*.relationships.*.clientAuditDetails.lastModifiedTime
+            - jsonPath: $.*.relationships.*.rowVersion
+            - jsonPath: $.*.relationships.*.isDeleted
+            - jsonPath: $.*.relationships.*.selfId
     - version: 1.0
       description: Deletes household Member.
       fromTopic: delete-household-member-health-topic
@@ -233,3 +267,11 @@ serviceMaps:
               type: JSON
               dbType: JSONB
             - jsonPath: $.*.id
+        - query: UPDATE HOUSEHOLD_MEMBER_RELATIONSHIP SET lastModifiedBy = ?, lastModifiedTime = ?, rowVersion = ?, isDeleted = ? WHERE selfId = ?;
+          basePath: $.*.relationships.*
+          jsonMaps:
+            - jsonPath: $.*.relationships.*.auditDetails.lastModifiedBy
+            - jsonPath: $.*.relationships.*.auditDetails.lastModifiedTime
+            - jsonPath: $.*.relationships.*.rowVersion
+            - jsonPath: $.*.relationships.*.isDeleted
+            - jsonPath: $.*.relationships.*.selfId
