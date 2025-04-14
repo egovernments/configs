@@ -2359,3 +2359,142 @@ ReportDefinitions:
       WHERE 1=1
   orderby: ORDER BY assignee NULLS FIRST,deptmap_def.name
   groupby: GROUP BY assignee,deptmap_def.name
+  
+  
+- reportName: DescriptionReport
+  summary: Fetches department wise reports based description of the complaint
+  version: 1.0.0
+  moduleName: pgr
+  externalService:
+  - entity: $.MdmsRes.RAINMAKER-PGR.ServiceDefs
+    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=RAINMAKER-PGR&masterName=ServiceDefs&tenantId=$tenantId
+    keyOrder: serviceCode,department,slaHours
+    tableName: tbl_dept
+  - entity: $.MdmsRes.common-masters.Department
+    apiURL: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?moduleName=common-masters&masterName=Department&tenantId=$tenantId
+    keyOrder: name,code
+    tableName: tbl_def_dept
+  - entity: $.TenantBoundary[0].boundary
+    apiURL: http://egov-location.egov/egov-location/location/v11/boundarys/_search?hierarchyTypeCode=ADMIN&boundaryType=Locality&tenantId=$tenantId
+    keyOrder: name,code
+    tableName: tbl_boundary
+  sourceColumns:
+  - name: lastassignedto
+    label: reports.pgr.lastassignedto
+    type: string
+    source: eg_pgr_service
+    total: false
+  - name: complaintId
+    label: reports.pgr.complaintId
+    type: string
+    source: eg_pgr_service
+    total: false
+  - name: complainttype
+    label: reports.pgr.complainttype
+    type: string
+    source: eg_pgr_service
+    total: false
+  - name: dateofcomplaint
+    label: reports.pgr.dateofcomplaint
+    type: string
+    source: eg_pgr_service
+    total: false
+  - name: dateofassignment
+    label: reports.pgr.dateofassignment
+    type: string
+    source: eg_pgr_service
+    total: false
+  - name: status
+    label: reports.pgr.status
+    type: string
+    source: eg_pgr_service
+    total: false
+  - name: ward
+    label: reports.pgr.ward
+    type: string
+    source: eg_pgr_service
+    total: false
+  - name: name
+    label: reports.pgr.name
+    type: string
+    source: eg_pgr_service
+    total: false
+  - name: phone
+    label: reports.pgr.phone
+    type: string
+    source: eg_pgr_service
+    total: false
+  - name: address
+    label: reports.pgr.address
+    type: string
+    source: eg_pgr_service
+    total: false
+  - name: landmark
+    label: reports.pgr.landmark
+    type: string
+    source: eg_pgr_service
+    total: false
+  - name: description
+    label: reports.pgr.description
+    type: string
+    source: eg_pgr_service
+    total: false
+  - name: slahours
+    label: reports.pgr.slahours
+    type: string
+    source: eg_pgr_service
+    total: false
+  searchParams:
+  - name: ulb
+    label: ULB
+    type: singlevaluelist
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=tenant&masterName=tenants|$.MdmsRes.tenant.tenants.*.code|$.MdmsRes.tenant.tenants.*.name
+    source: pt
+    wrapper: true
+    isMandatory: false
+    searchClause: AND eg_pgr_service.tenantid = $ulb
+  - name: fromDate
+    label: reports.pgr.datefrom
+    type: epoch
+    source: eg_pgr_service
+    isMandatory: true
+    searchClause: AND eg_pgr_service.createdtime >= $fromDate
+  - name: toDate
+    label: reports.rainmaker-pgr.dateto
+    type: epoch
+    source: eg_pgr_service
+    isMandatory: true
+    searchClause: AND eg_pgr_service.createdtime <= $toDate
+  - name: deptname
+    label: reports.pgr.dept.name
+    type: singlevaluelist
+    source: eg_pgr_service
+    pattern: http://egov-mdms-service:8080/egov-mdms-service/v1/_get?tenantId=$tenantid&moduleName=common-masters&masterName=Department|$.MdmsRes.common-masters.Department[*].code|$.MdmsRes.common-masters.Department[*].name   
+    isMandatory: false
+    searchClause: AND eg_pgr_service.deptmap_def.name = $deptname
+  query: |
+    SELECT 
+    DISTINCT ON (servicerequestid)
+    ua.name as lastassignedto,
+    servicerequestid AS complaintId, 
+    regexp_replace(servicecode, '([a-z])([A-Z])', '\1 \2','g') AS complainttype, 
+    to_char(to_timestamp(TRUNC(CAST(eg_pgr_service.createdtime AS bigint) / 1000)), 'DD/MM/YYYY') AS dateofcomplaint, 
+    to_char(to_timestamp(TRUNC(CAST(epa.when AS bigint) / 1000)), 'DD/MM/YYYY') AS dateofassignment,
+    Initcap(eg_pgr_service.status) as status,
+    (SELECT boundary_def.name FROM (VALUES tbl_boundary) AS boundary_def(name,code) where code=eg_pgr_address.mohalla) as ward, 
+    eg_user.name, 
+    phone, 
+    eg_pgr_address.landmark, 
+    eg_pgr_address.housenoandstreetname as address, 
+    description, 
+    (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000), ' days remaining') END) as slaHours)
+    FROM eg_pgr_service
+    left outer join eg_pgr_address on eg_pgr_address.uuid = eg_pgr_service.addressid
+    left outer join eg_user on eg_user.id = eg_pgr_service.accountid::int
+    left outer join eg_pgr_action as epa on epa.businesskey = eg_pgr_service.servicerequestid and epa.action in ('assign','reassign')
+    left outer join eg_user as ua on ua.id = epa.assignee::int
+    WHERE 
+    eg_pgr_service.tenantid LIKE  $tenantid 
+    AND eg_pgr_address.uuid = eg_pgr_service.addressid
+    AND eg_pgr_service.status IN ('open','assigned','reassigrequested','rejected')
+  orderby: ORDER BY servicerequestid, epa."when" desc
