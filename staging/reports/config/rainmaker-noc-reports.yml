@@ -61,7 +61,7 @@ ReportDefinitions:
         wrapper: true
         isMandatory: false
         searchClause: AND fn.tenantId IN ($ulb)
-    query: select usagetype,COUNT(*) as transactionNumber,sum(case when paymentmode='CASH' then totalamountpaid else 0 end) fees_counter, sum(case when paymentmode='ONLINE' then totalamountpaid else 0 end) fees_online from egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_fn_firenocdetail fnd on consumercode=fnd.applicationnumber inner join eg_fn_firenoc fn on fnd.firenocuuid=fn.uuid inner join eg_fn_buidlings build on build.firenocdetailsuuid=fnd.uuid
+    query: select usagetype,COUNT(*) as transactionNumber,sum(case when paymentmode='CASH' then totalamountpaid else 0 end) fees_counter, sum(case when paymentmode='ONLINE' then totalamountpaid else 0 end) fees_online from pg.egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_fn_firenocdetail fnd on consumercode=fnd.applicationnumber inner join eg_fn_firenoc fn on fnd.firenocuuid=fn.uuid inner join eg_fn_buidlings build on build.firenocdetailsuuid=fnd.uuid
     groupby: GROUP BY usagetype
     orderby: ORDER BY usagetype
     
@@ -103,7 +103,7 @@ ReportDefinitions:
         wrapper: true
         isMandatory: false
         searchClause: AND fnoc.tenantId IN ($ulb)
-    query: select fdet.status as application_status,count(*) number_of_application from eg_fn_firenoc fnoc inner join eg_fn_firenocdetail fdet on fdet.firenocuuid=fnoc.uuid inner join (SELECT DISTINCT ON (businessid) * FROM eg_wf_processinstance_v2 ORDER BY businessid,createdtime desc) pinstance on pinstance.businessid=fdet.applicationnumber inner join eg_wf_state_v2 wfstate on pinstance.status=wfstate.uuid
+    query: select fdet.status as application_status,count(*) number_of_application from pg.eg_fn_firenoc fnoc inner join eg_fn_firenocdetail fdet on fdet.firenocuuid=fnoc.uuid inner join (SELECT DISTINCT ON (businessid) * FROM eg_wf_processinstance_v2 ORDER BY businessid,createdtime desc) pinstance on pinstance.businessid=fdet.applicationnumber inner join eg_wf_state_v2 wfstate on pinstance.status=wfstate.uuid
     groupby: GROUP BY application_status
     orderby: ORDER BY application_status
 
@@ -150,6 +150,6 @@ ReportDefinitions:
         wrapper: true
         isMandatory: true
         searchClause: AND fnoc.tenantId IN ($ulb)
-    query: select channel, count (*) number_of_applications,round((count (*)::decimal/(select count(*) from eg_fn_firenoc fnoc inner join eg_fn_firenocdetail fdet on fdet.firenocuuid=fnoc.uuid where fnoc.tenantId IN ($ulb) ))*100,2) percentage from eg_fn_firenoc fnoc inner join eg_fn_firenocdetail fdet on fdet.firenocuuid=fnoc.uuid
+    query: select channel, count (*) number_of_applications,round((count (*)::decimal/(select count(*) from pg.eg_fn_firenoc fnoc inner join eg_fn_firenocdetail fdet on fdet.firenocuuid=fnoc.uuid where fnoc.tenantId IN ($ulb) ))*100,2) percentage from pg.eg_fn_firenoc fnoc inner join eg_fn_firenocdetail fdet on fdet.firenocuuid=fnoc.uuid
     groupby: GROUP BY channel
     orderby: ORDER BY channel

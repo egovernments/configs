@@ -952,7 +952,7 @@ ReportDefinitions:
         propertydetail, 
         string_agg(distinct pu.occupancytype, ',') as occupancytype, 
         string_agg(distinct coalesce(usagecategoryminor, usagecategorymajor), ',') as propertytype 
-      from eg_pt_unit_v2 as pu
+      from pg.eg_pt_unit_v2 as pu
       where  pu.tenantid = $tenantid
       group by propertydetail
     )
@@ -976,7 +976,7 @@ ReportDefinitions:
       to_timestamp(ih.transactiondate/1000) at time zone 'Asia/Kolkata' as "paymentdate",
       eu.emailid     as "emailid"    ,
       REGEXP_REPLACE(REGEXP_REPLACE(CONCAT(pta.doorno, ',', pta.addressline1, ',', pta.addressline2, ',', pta.buildingname, ',', pta.pincode), ',+', ','), '^,|,$', '') as "address"
-    from egcl_receiptheader_v1 as rh
+    from pg.egcl_receiptheader_v1 as rh
     inner join egcl_receiptinstrument_v1 as ri on ri.receiptheader = rh.id    inner join egcl_instrumentheader_v1     as ih on ih.id = ri.instrumentheader
     inner join eg_pt_property_v2    as pt on pt.propertyid = split_part(consumercode, ':', 1)
     inner join eg_pt_propertydetail_v2    as pd on pd.assessmentnumber = split_part(consumercode, ':', 2)
