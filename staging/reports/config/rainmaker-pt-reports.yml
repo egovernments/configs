@@ -195,12 +195,12 @@ ReportDefinitions:
         To_char(To_timestamp(rh.manualreceiptdate / 1000), 'DD/MM/YYYY') AS g8issuedate,
         Initcap(COALESCE(pt_detail.usagecategoryminor, pt_detail.usagecategorymajor)) as usagetype,
         manualreceiptnumber as g8receiptno
-      FROM egcl_receiptheader_v1 AS rh
-      JOIN egcl_receiptinstrument_v1 AS ri ON rh.id = ri.receiptheader
-      JOIN egcl_instrumentheader_v1 AS ih ON ih.id = ri.instrumentheader
-      JOIN receipt_breakup ON rh.id = receipt_breakup.receiptheader
-      JOIN eg_pt_propertydetail_v2 pt_detail ON CONCAT(pt_detail.property, ':', pt_detail.assessmentnumber) = rh.consumercode
-      JOIN eg_pt_address_v2 pt_addr ON pt_detail.property = pt_addr.property
+      FROM pg.egcl_receiptheader_v1 AS rh
+      JOIN pg.egcl_receiptinstrument_v1 AS ri ON rh.id = ri.receiptheader
+      JOIN pg.egcl_instrumentheader_v1 AS ih ON ih.id = ri.instrumentheader
+      JOIN pg.receipt_breakup ON rh.id = receipt_breakup.receiptheader
+      JOIN pg.eg_pt_propertydetail_v2 pt_detail ON CONCAT(pt_detail.property, ':', pt_detail.assessmentnumber) = rh.consumercode
+      JOIN pg.eg_pt_address_v2 pt_addr ON pt_detail.property = pt_addr.property
       WHERE rh.tenantid LIKE $tenantid and rh.status != 'Cancelled'
   orderby: ORDER BY rh.receiptdate DESC
 
@@ -400,12 +400,12 @@ ReportDefinitions:
         To_char(To_timestamp(rh.manualreceiptdate / 1000), 'DD/MM/YYYY') AS g8issuedate,
         Initcap(COALESCE(pt_detail.usagecategoryminor, pt_detail.usagecategorymajor)) as usagetype,
         manualreceiptnumber as g8receiptno
-      FROM egcl_receiptheader_v1 AS rh
-      JOIN egcl_receiptinstrument_v1 AS ri ON rh.id = ri.receiptheader
-      JOIN egcl_instrumentheader_v1 AS ih ON ih.id = ri.instrumentheader
-      JOIN receipt_breakup ON rh.id = receipt_breakup.receiptheader
-      JOIN eg_pt_propertydetail_v2 pt_detail ON CONCAT(pt_detail.property, ':', pt_detail.assessmentnumber) = rh.consumercode
-      JOIN eg_pt_address_v2 pt_addr ON pt_detail.property = pt_addr.property
+      FROM pg.egcl_receiptheader_v1 AS rh
+      JOIN pg.egcl_receiptinstrument_v1 AS ri ON rh.id = ri.receiptheader
+      JOIN pg.egcl_instrumentheader_v1 AS ih ON ih.id = ri.instrumentheader
+      JOIN pg.receipt_breakup ON rh.id = receipt_breakup.receiptheader
+      JOIN pg.eg_pt_propertydetail_v2 pt_detail ON CONCAT(pt_detail.property, ':', pt_detail.assessmentnumber) = rh.consumercode
+      JOIN pg.eg_pt_address_v2 pt_addr ON pt_detail.property = pt_addr.property
       WHERE rh.tenantid LIKE $tenantid and rh.status = 'Cancelled'
   orderby: ORDER BY rh.receiptdate DESC
 
@@ -456,8 +456,8 @@ ReportDefinitions:
     FROM eg_pt_propertydetail_v2 AS pd 
     LEFT OUTER JOIN 
       (SELECT consumercode, totalamount, amount FROM egcl_receiptheader_v1 AS rh 
-      LEFT OUTER JOIN egcl_receiptinstrument_v1 AS ri ON rh.id = ri.receiptheader 
-      LEFT OUTER JOIN egcl_instrumentheader_v1 AS ih ON ri.instrumentheader = ih.id 
+      LEFT OUTER JOIN pg.egcl_receiptinstrument_v1 AS ri ON rh.id = ri.receiptheader 
+      LEFT OUTER JOIN pg.egcl_instrumentheader_v1 AS ih ON ri.instrumentheader = ih.id 
       and ih.instrumentstatus  != 'CANCELLED' 
       where rh.status != 'Cancelled'
       ) AS instrument_data ON CONCAT(pd.property, ':', pd.assessmentnumber) = instrument_data.consumercode 
@@ -658,12 +658,12 @@ ReportDefinitions:
         To_char(To_timestamp(rh.manualreceiptdate / 1000), 'DD/MM/YYYY') AS g8issuedate,
         Initcap(COALESCE(pt_detail.usagecategoryminor, pt_detail.usagecategorymajor)) as usagetype,
         manualreceiptnumber as g8receiptno
-      FROM egcl_receiptheader_v1 AS rh
-      JOIN egcl_receiptinstrument_v1 AS ri ON rh.id = ri.receiptheader
-      JOIN egcl_instrumentheader_v1 AS ih ON ih.id = ri.instrumentheader
-      JOIN receipt_breakup ON rh.id = receipt_breakup.receiptheader
-      JOIN eg_pt_propertydetail_v2 pt_detail ON CONCAT(pt_detail.property, ':', pt_detail.assessmentnumber) = rh.consumercode
-      JOIN eg_pt_address_v2 pt_addr ON pt_detail.property = pt_addr.property
+      FROM pg.egcl_receiptheader_v1 AS rh
+      JOIN pg.egcl_receiptinstrument_v1 AS ri ON rh.id = ri.receiptheader
+      JOIN pg.egcl_instrumentheader_v1 AS ih ON ih.id = ri.instrumentheader
+      JOIN pg.receipt_breakup ON rh.id = receipt_breakup.receiptheader
+      JOIN pg.eg_pt_propertydetail_v2 pt_detail ON CONCAT(pt_detail.property, ':', pt_detail.assessmentnumber) = rh.consumercode
+      JOIN pg.eg_pt_address_v2 pt_addr ON pt_detail.property = pt_addr.property
       WHERE rh.tenantid != 'pb.testing' and rh.status = 'Cancelled'
   orderby: ORDER BY rh.receiptdate DESC
 
@@ -750,8 +750,8 @@ ReportDefinitions:
       (SUM(totalamount) - SUM(amount)) AS totalamountdue 
       FROM eg_pt_propertydetail_v2 AS pd 
       LEFT OUTER JOIN (SELECT consumercode, totalamount, amount, collectiontype, receiptdate FROM egcl_receiptheader_v1 AS rh 
-      LEFT OUTER JOIN egcl_receiptinstrument_v1 AS ri ON rh.id = ri.receiptheader 
-      LEFT OUTER JOIN egcl_instrumentheader_v1 AS ih ON ri.instrumentheader = ih.id and ih.instrumentstatus   != 'CANCELLED' 
+      LEFT OUTER JOIN pg.egcl_receiptinstrument_v1 AS ri ON rh.id = ri.receiptheader 
+      LEFT OUTER JOIN pg.egcl_instrumentheader_v1 AS ih ON ri.instrumentheader = ih.id and ih.instrumentstatus   != 'CANCELLED' 
       where rh.status != 'Cancelled'
       ) AS tbl_amounts ON CONCAT(pd.property, ':', pd.assessmentnumber) = tbl_amounts.consumercode 
       WHERE tenantid LIKE CONCAT(SPLIT_PART($tenantid, '.', 1), '%') and tenantid != 'pb.testing'
@@ -828,8 +828,8 @@ ReportDefinitions:
       (SUM(totalamount) - SUM(amount)) AS totalamountdue 
       FROM eg_pt_propertydetail_v2 AS pd 
       LEFT OUTER JOIN (SELECT consumercode, totalamount, amount, collectiontype, receiptdate FROM egcl_receiptheader_v1 AS rh 
-      LEFT OUTER JOIN egcl_receiptinstrument_v1 AS ri ON rh.id = ri.receiptheader 
-      LEFT OUTER JOIN egcl_instrumentheader_v1 AS ih ON ri.instrumentheader = ih.id and ih.instrumentstatus   != 'CANCELLED' 
+      LEFT OUTER JOIN pg.egcl_receiptinstrument_v1 AS ri ON rh.id = ri.receiptheader 
+      LEFT OUTER JOIN pg.egcl_instrumentheader_v1 AS ih ON ri.instrumentheader = ih.id and ih.instrumentstatus   != 'CANCELLED' 
       where rh.status != 'Cancelled'
       ) AS tbl_amounts ON CONCAT(pd.property, ':', pd.assessmentnumber) = tbl_amounts.consumercode 
       WHERE tenantid LIKE CONCAT(SPLIT_PART($tenantid, '.', 1), '%') and tenantid = $tenantid
@@ -977,11 +977,11 @@ ReportDefinitions:
       eu.emailid     as "emailid"    ,
       REGEXP_REPLACE(REGEXP_REPLACE(CONCAT(pta.doorno, ',', pta.addressline1, ',', pta.addressline2, ',', pta.buildingname, ',', pta.pincode), ',+', ','), '^,|,$', '') as "address"
     from pg.egcl_receiptheader_v1 as rh
-    inner join egcl_receiptinstrument_v1 as ri on ri.receiptheader = rh.id    inner join egcl_instrumentheader_v1     as ih on ih.id = ri.instrumentheader
-    inner join eg_pt_property_v2    as pt on pt.propertyid = split_part(consumercode, ':', 1)
-    inner join eg_pt_propertydetail_v2    as pd on pd.assessmentnumber = split_part(consumercode, ':', 2)
-    inner join eg_pt_owner_v2     as po on po.propertydetail = pd.assessmentnumber
-    inner join eg_user as eu on eu.uuid     = po.userid
-    inner join eg_pt_address_v2    as pta on pta.property = pt.propertyid
-    inner join eg_pt_unit_v2_ot as pot on pot.propertydetail = pd.assessmentnumber
+    inner join pg.egcl_receiptinstrument_v1 as ri on ri.receiptheader = rh.id    inner join egcl_instrumentheader_v1     as ih on ih.id = ri.instrumentheader
+    inner join pg.eg_pt_property_v2    as pt on pt.propertyid = split_part(consumercode, ':', 1)
+    inner join pg.eg_pt_propertydetail_v2    as pd on pd.assessmentnumber = split_part(consumercode, ':', 2)
+    inner join pg.eg_pt_owner_v2     as po on po.propertydetail = pd.assessmentnumber
+    inner join pg.eg_user as eu on eu.uuid     = po.userid
+    inner join pg.eg_pt_address_v2    as pta on pta.property = pt.propertyid
+    inner join pg.eg_pt_unit_v2_ot as pot on pot.propertydetail = pd.assessmentnumber
     where rh.tenantid = $tenantid

@@ -91,14 +91,14 @@ ReportDefinitions:
       ehe.uuid,
       ehe.tenantid,
       eu.name,
-      (SELECT ARRAY(SELECT DISTINCT er.name from pg.eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE eu.uuid=ehe.uuid AND er.name IS NOT NULL)) as role,
-      (SELECT ARRAY(SELECT DISTINCT er.code from pg.eg_user eu LEFT JOIN eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE eu.uuid=ehe.uuid AND er.code IS NOT NULL)) as rolecodes,
+      (SELECT ARRAY(SELECT DISTINCT er.name from pg.eg_user eu LEFT JOIN pg.eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE eu.uuid=ehe.uuid AND er.name IS NOT NULL)) as role,
+      (SELECT ARRAY(SELECT DISTINCT er.code from pg.eg_user eu LEFT JOIN pg.eg_userrole_v1 eur ON eu.id=eur.user_id AND eu.tenantid=eur.user_tenantid LEFT JOIN (VALUES tbl_def_roles) AS er(name,code) ON eur.role_code=er.code WHERE eu.uuid=ehe.uuid AND er.code IS NOT NULL)) as rolecodes,
       eha.designation,
       eha.department,
       ehe.employeestatus
       FROM eg_hrms_employee ehe
-      LEFT OUTER JOIN eg_user eu ON ehe.uuid = eu.uuid
-      LEFT OUTER JOIN eg_hrms_assignment eha ON eu.uuid = eha.employeeid
+      LEFT OUTER JOIN pg.eg_user eu ON ehe.uuid = eu.uuid
+      LEFT OUTER JOIN pg.eg_hrms_assignment eha ON eu.uuid = eha.employeeid
       WHERE eu.active = true)
     SELECT emp_data.id as id,
       emp_data.name as name,

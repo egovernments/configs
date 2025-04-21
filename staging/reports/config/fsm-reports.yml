@@ -111,7 +111,7 @@ ReportDefinitions:
         isMandatory: false
         searchClause: AND app.dso_id = $dsoId
     query: |
-          select To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY')  as receiptdate, paydl.receiptnumber as receiptnumber,b.consumercode AS applicationno,(select name from pg.eg_user where uuid=app.accountid ) as name,  pay.paymentmode as instrumenttype, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then To_char(To_timestamp(pay.instrumentdate / 1000), 'DD/MM/YYYY')  else  'NA' end)  as chequedate, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.instrumentnumber else  'NA' end) as chequeno, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.additionaldetails::json#>>'{bankDetails,BANK}'  else  'NA' end) as bankname, (case when pay.paymentmode='ONLINE' then pay.transactionnumber else  'NA' end) as transactionid, (case when pay.paymentmode='CARD' then pay.instrumentnumber else  '' end) as carddigit, bd.amountpaid as amount,pay.paymentstatus as status from pg.egcl_bill b inner join egcl_billdetial bd ON b.id = bd.billid AND b.tenantid = bd.tenantid INNER JOIN eg_fsm_application app on b.consumercode =app.applicationno and b.tenantid =app.tenantid inner join egcl_paymentdetail paydl   ON b.id = paydl.billid    AND b.tenantid = paydl.tenantid inner join egcl_payment pay  ON paydl.paymentid = pay.id and   paydl.tenantid =pay.tenantid where pay.tenantid=$tenantid and b.businessservice ='FSM.TRIP_CHARGES' 
+          select To_char(To_timestamp(paydl.receiptdate / 1000), 'DD/MM/YYYY')  as receiptdate, paydl.receiptnumber as receiptnumber,b.consumercode AS applicationno,(select name from pg.eg_user where uuid=app.accountid ) as name,  pay.paymentmode as instrumenttype, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then To_char(To_timestamp(pay.instrumentdate / 1000), 'DD/MM/YYYY')  else  'NA' end)  as chequedate, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.instrumentnumber else  'NA' end) as chequeno, (case when (pay.paymentmode like 'CHEQUE' OR pay.paymentmode like 'DD') then pay.additionaldetails::json#>>'{bankDetails,BANK}'  else  'NA' end) as bankname, (case when pay.paymentmode='ONLINE' then pay.transactionnumber else  'NA' end) as transactionid, (case when pay.paymentmode='CARD' then pay.instrumentnumber else  '' end) as carddigit, bd.amountpaid as amount,pay.paymentstatus as status from pg.egcl_bill b inner join pg.egcl_billdetial bd ON b.id = bd.billid AND b.tenantid = bd.tenantid INNER JOIN pg.eg_fsm_application app on b.consumercode =app.applicationno and b.tenantid =app.tenantid inner join pg.egcl_paymentdetail paydl   ON b.id = paydl.billid    AND b.tenantid = paydl.tenantid inner join pg.egcl_payment pay  ON paydl.paymentid = pay.id and   paydl.tenantid =pay.tenantid where pay.tenantid=$tenantid and b.businessservice ='FSM.TRIP_CHARGES' 
     orderby: order by paydl.receiptdate  desc
     
   - reportName: FSMDailyDesludingReport
@@ -257,15 +257,15 @@ ReportDefinitions:
           COALESCE(pirating.rating, 0 ) AS Rating, 
           COALESCE(picomment.comment, 'N/A') AS Comment 
           FROM eg_fsm_application AS fsm 
-          JOIN eg_fsm_address AS fsmaddress ON (fsmaddress.fsm_id = fsm.id) 
-          JOIN eg_fsm_geolocation AS fsmgeolocation ON (fsmaddress.id = fsmgeolocation.address_id) 
-          LEFT JOIN eg_vendor AS fsmdso ON (fsmdso.id = fsm.dso_id) 
-          LEFT JOIN eg_vehicle AS fsmvehicle ON (fsm.vehicle_id = fsmvehicle.id) 
-          LEFT JOIN egcl_bill AS egbill ON (egbill.consumercode = fsm.applicationno) 
-          LEFT JOIN egcl_paymentdetail AS paymentdl ON (paymentdl.billid = egbill.id) 
-          LEFT JOIN egcl_payment AS fsmpayment ON (fsmpayment.id = paymentdl.paymentid) 
-          LEFT JOIN (SELECT pi.rating, pi.businessId FROM eg_wf_processinstance_v2 pi JOIN eg_wf_state_v2 status ON (status.uuid = pi.status) WHERE status.state = 'COMPLETED') pirating ON (pirating.businessId = fsm.applicationno) 
-          LEFT JOIN (SELECT pi.comment, pi.businessId FROM eg_wf_processinstance_v2 pi JOIN eg_wf_state_v2 status ON (status.uuid = pi.status) WHERE status.state IN ('REJECTED', 'CANCELED', 'DSO_REJECTED')) picomment ON (picomment.businessId = fsm.applicationno) 
+          JOIN pg.eg_fsm_address AS fsmaddress ON (fsmaddress.fsm_id = fsm.id) 
+          JOIN pg.eg_fsm_geolocation AS fsmgeolocation ON (fsmaddress.id = fsmgeolocation.address_id) 
+          LEFT JOIN pg.eg_vendor AS fsmdso ON (fsmdso.id = fsm.dso_id) 
+          LEFT JOIN pg.eg_vehicle AS fsmvehicle ON (fsm.vehicle_id = fsmvehicle.id) 
+          LEFT JOIN pg.egcl_bill AS egbill ON (egbill.consumercode = fsm.applicationno) 
+          LEFT JOIN pg.egcl_paymentdetail AS paymentdl ON (paymentdl.billid = egbill.id) 
+          LEFT JOIN pg.egcl_payment AS fsmpayment ON (fsmpayment.id = paymentdl.paymentid) 
+          LEFT JOIN (SELECT pi.rating, pi.businessId FROM eg_wf_processinstance_v2 pi JOIN pg.eg_wf_state_v2 status ON (status.uuid = pi.status) WHERE status.state = 'COMPLETED') pirating ON (pirating.businessId = fsm.applicationno) 
+          LEFT JOIN (SELECT pi.comment, pi.businessId FROM eg_wf_processinstance_v2 pi JOIN pg.eg_wf_state_v2 status ON (status.uuid = pi.status) WHERE status.state IN ('REJECTED', 'CANCELED', 'DSO_REJECTED')) picomment ON (picomment.businessId = fsm.applicationno) 
           LEFT  JOIN (VALUES fsm_boundary) AS boundary(name,code) ON (boundary.code = fsmaddress.locality)
           WHERE fsm.tenantid=$tenantid 
           AND fsm.additionaldetails->>'tripAmount' NOT IN ('', '[]')
@@ -354,8 +354,8 @@ ReportDefinitions:
           veh.vehicleowner as vehicleowner, 
           veh.status as veh_status, 
           to_char((to_timestamp(veh.createdtime/1000)::timestamp at time Zone 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS') as veh_createdtime 
-          from pg.eg_vendor ven full outer join eg_vendor_vehicle venveh on ven.id = venveh.vendor_id 
-          full outer join eg_vehicle veh on veh.id = venveh.vechile_id 
+          from pg.eg_vendor ven full outer join pg.eg_vendor_vehicle venveh on ven.id = venveh.vendor_id 
+          full outer join pg.eg_vehicle veh on veh.id = venveh.vechile_id 
           
   - reportName: FSMUnregisteredVehicleLog
     summary: FSM Unregistered Vehicle Log.
@@ -459,7 +459,7 @@ ReportDefinitions:
             END AS tripEndTime,
             vehicletrip.applicationstatus AS applicationStatus 
             FROM eg_vehicle_trip AS vehicletrip 
-            JOIN eg_vehicle_trip_detail AS vehicletripdetails 
+            JOIN pg.eg_vehicle_trip_detail AS vehicletripdetails 
             ON (vehicletrip.id = vehicletripdetails.trip_id) 
             AND vehicletripdetails.referenceno IS NULL 
             AND vehicletrip.tenantid = $tenantid
@@ -617,12 +617,12 @@ ReportDefinitions:
                   END
               ELSE '0'
           END AS slaInHourss
-          FROM eg_fsm_application AS fsm
-          JOIN eg_fsm_address AS fsmaddress ON (fsmaddress.fsm_id = fsm.id)
-          LEFT JOIN eg_vendor AS fsmdso ON (fsmdso.id = fsm.dso_id)  
-          LEFT JOIN eg_vehicle AS fsmvehicle ON (fsm.vehicle_id = fsmvehicle.id)
-          LEFT JOIN eg_vehicle_trip_detail AS fsmvehicleTripdetail ON (fsmvehicleTripdetail.referenceNo = fsm.applicationNo)
-          LEFT JOIN eg_vehicle_trip AS fsmvehicleTrip ON (fsmvehicleTripdetail.trip_id = fsmvehicleTrip.id) 
+          FROM pg.eg_fsm_application AS fsm
+          JOIN pg.eg_fsm_address AS fsmaddress ON (fsmaddress.fsm_id = fsm.id)
+          LEFT JOIN pg.eg_vendor AS fsmdso ON (fsmdso.id = fsm.dso_id)  
+          LEFT JOIN pg.eg_vehicle AS fsmvehicle ON (fsm.vehicle_id = fsmvehicle.id)
+          LEFT JOIN pg.eg_vehicle_trip_detail AS fsmvehicleTripdetail ON (fsmvehicleTripdetail.referenceNo = fsm.applicationNo)
+          LEFT JOIN pg.eg_vehicle_trip AS fsmvehicleTrip ON (fsmvehicleTripdetail.trip_id = fsmvehicleTrip.id) 
           WHERE fsmvehicleTrip.tenantid=$tenantid 
     orderby: ORDER BY fsm.applicationno ASC
     
@@ -757,7 +757,7 @@ ReportDefinitions:
         isMandatory: true
         searchClause: AND tqm.createdtime <= $toDate
     query: |
-          SELECT tqm.testid as testid, INITCAP(SPLIT_PART(tqm.tenantid,'.',2)) AS ulb, tqm.plantcode as plantcode, tqm.labassignedto as laboperator, tqm.processcode as processcode, tqm.stagecode as stagecode, tqm.sourcetype as sourcetype, tqm.materialcode as materialcode, to_char((to_timestamp(tqm.scheduleddate/1000)::timestamp AT TIME ZONE 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS') AS scheduleddate, tqm.lastmodifiedby as lastmodifiedby, to_char((to_timestamp(tqm.lastmodifiedtime/1000)::timestamp AT TIME ZONE 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS') AS lastmodifiedtime, tqm.wfstatus as wfstatus, (DATE(to_timestamp(tqm.scheduleddate/1000)::timestamp AT TIME ZONE 'Asia/Kolkata') - DATE(CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')) AS sla, MAX(CASE WHEN criteria.criteriacode = 'PH' THEN criteria.criteriacode END) AS PH, MAX(CASE WHEN criteria.criteriacode = 'PH' THEN criteria.resultvalue END) AS PH_RESULT, MAX(CASE WHEN criteria.criteriacode = 'PH' THEN criteria.resultstatus END) AS PH_RESULT_SUMMARY, MAX(CASE WHEN criteria.criteriacode = 'BOD' THEN criteria.criteriacode END) AS BOD, MAX(CASE WHEN criteria.criteriacode = 'BOD' THEN criteria.resultvalue END) AS BOD_RESULT, MAX(CASE WHEN criteria.criteriacode = 'BOD' THEN criteria.resultstatus END) AS BOD_RESULT_SUMMARY, MAX(CASE WHEN criteria.criteriacode = 'COD' THEN criteria.criteriacode END) AS COD, MAX(CASE WHEN criteria.criteriacode = 'COD' THEN criteria.resultvalue END) AS COD_RESULT, MAX(CASE WHEN criteria.criteriacode = 'COD' THEN criteria.resultstatus END) AS COD_RESULT_SUMMARY, MAX(CASE WHEN criteria.criteriacode = 'TSS' THEN criteria.criteriacode END) AS TSS, MAX(CASE WHEN criteria.criteriacode = 'TSS' THEN criteria.resultvalue END) AS TSS_RESULT, MAX(CASE WHEN criteria.criteriacode = 'TSS' THEN criteria.resultstatus END) AS TSS_RESULT_SUMMARY, MAX(CASE WHEN criteria.criteriacode = 'TDS' THEN criteria.criteriacode END) AS TDS , MAX(CASE WHEN criteria.criteriacode = 'TDS' THEN criteria.resultvalue END) AS TDS_RESULT, MAX(CASE WHEN criteria.criteriacode = 'TDS' THEN criteria.resultstatus END) AS TDS_RESULT_SUMMARY, tqm.status as status FROM eg_pqm_tests tqm INNER JOIN eg_pqm_test_criteria_results criteria ON tqm.testid = criteria.testid where tqm.tenantid = $tenantid  
+          SELECT tqm.testid as testid, INITCAP(SPLIT_PART(tqm.tenantid,'.',2)) AS ulb, tqm.plantcode as plantcode, tqm.labassignedto as laboperator, tqm.processcode as processcode, tqm.stagecode as stagecode, tqm.sourcetype as sourcetype, tqm.materialcode as materialcode, to_char((to_timestamp(tqm.scheduleddate/1000)::timestamp AT TIME ZONE 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS') AS scheduleddate, tqm.lastmodifiedby as lastmodifiedby, to_char((to_timestamp(tqm.lastmodifiedtime/1000)::timestamp AT TIME ZONE 'Asia/Kolkata'), 'mm/dd/yyyy HH24:MI:SS') AS lastmodifiedtime, tqm.wfstatus as wfstatus, (DATE(to_timestamp(tqm.scheduleddate/1000)::timestamp AT TIME ZONE 'Asia/Kolkata') - DATE(CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Kolkata')) AS sla, MAX(CASE WHEN criteria.criteriacode = 'PH' THEN criteria.criteriacode END) AS PH, MAX(CASE WHEN criteria.criteriacode = 'PH' THEN criteria.resultvalue END) AS PH_RESULT, MAX(CASE WHEN criteria.criteriacode = 'PH' THEN criteria.resultstatus END) AS PH_RESULT_SUMMARY, MAX(CASE WHEN criteria.criteriacode = 'BOD' THEN criteria.criteriacode END) AS BOD, MAX(CASE WHEN criteria.criteriacode = 'BOD' THEN criteria.resultvalue END) AS BOD_RESULT, MAX(CASE WHEN criteria.criteriacode = 'BOD' THEN criteria.resultstatus END) AS BOD_RESULT_SUMMARY, MAX(CASE WHEN criteria.criteriacode = 'COD' THEN criteria.criteriacode END) AS COD, MAX(CASE WHEN criteria.criteriacode = 'COD' THEN criteria.resultvalue END) AS COD_RESULT, MAX(CASE WHEN criteria.criteriacode = 'COD' THEN criteria.resultstatus END) AS COD_RESULT_SUMMARY, MAX(CASE WHEN criteria.criteriacode = 'TSS' THEN criteria.criteriacode END) AS TSS, MAX(CASE WHEN criteria.criteriacode = 'TSS' THEN criteria.resultvalue END) AS TSS_RESULT, MAX(CASE WHEN criteria.criteriacode = 'TSS' THEN criteria.resultstatus END) AS TSS_RESULT_SUMMARY, MAX(CASE WHEN criteria.criteriacode = 'TDS' THEN criteria.criteriacode END) AS TDS , MAX(CASE WHEN criteria.criteriacode = 'TDS' THEN criteria.resultvalue END) AS TDS_RESULT, MAX(CASE WHEN criteria.criteriacode = 'TDS' THEN criteria.resultstatus END) AS TDS_RESULT_SUMMARY, tqm.status as status FROM pg.eg_pqm_tests tqm INNER JOIN pg.eg_pqm_test_criteria_results criteria ON tqm.testid = criteria.testid where tqm.tenantid = $tenantid  
     groupby: GROUP BY tqm.testid, tqm.tenantid, tqm.plantcode, tqm.labassignedto, tqm.processcode, tqm.stagecode, tqm.materialcode, tqm.sourcetype, tqm.wfstatus, tqm.scheduleddate, tqm.lastmodifiedby, tqm.lastmodifiedtime, tqm.status  
     orderby: ORDER BY tqm.scheduleddate DESC
     
@@ -833,8 +833,8 @@ ReportDefinitions:
         SanitationWorker.individual_id, 
         SanitationWorker.workertype,
         ROW_NUMBER() OVER (PARTITION BY fsm.applicationno, SanitationWorker.workertype ORDER BY SanitationWorker.individual_id) AS rn
-      FROM eg_fsm_application AS fsm
-      JOIN eg_fsm_application_worker AS SanitationWorker 
+      FROM pg.eg_fsm_application AS fsm
+      JOIN pg.eg_fsm_application_worker AS SanitationWorker 
         ON SanitationWorker.application_id = fsm.id
             )
       SELECT 
@@ -856,25 +856,25 @@ ReportDefinitions:
           FROM eg_vehicle 
           WHERE id IN (
               SELECT vt.vehicle_id 
-              FROM eg_vehicle_trip vt 
-              JOIN eg_vehicle_trip_detail vtd ON vt.id = vtd.trip_id 
+              FROM pg.eg_vehicle_trip vt 
+              JOIN pg.eg_vehicle_trip_detail vtd ON vt.id = vtd.trip_id 
               WHERE vtd.referenceno = fsm.applicationno 
               AND vt.status = 'ACTIVE'
           )) AS VehicleRegistrationNumber,
           TO_CHAR(TO_TIMESTAMP((
               SELECT MAX(vt.lastmodifiedtime) 
-              FROM eg_vehicle_trip vt 
-              JOIN eg_vehicle_trip_detail vtd ON vt.id = vtd.trip_id 
+              FROM pg.eg_vehicle_trip vt 
+              JOIN pg.eg_vehicle_trip_detail vtd ON vt.id = vtd.trip_id 
               WHERE vtd.referenceno = fsm.applicationno 
               AND vt.status = 'ACTIVE' 
               AND vt.applicationstatus = 'DISPOSED') / 1000) AT TIME ZONE 'Asia/Kolkata', 'MM/DD/YYYY HH24:MI:SS'
           ) AS lastmodifiedtime 
       FROM eg_fsm_application AS fsm 
-      LEFT JOIN RankedWorkers rw 
+      LEFT JOIN pg.RankedWorkers rw 
           ON rw.applicationno = fsm.applicationno 
-      LEFT JOIN INDIVIDUAL ind 
+      LEFT JOIN pg.INDIVIDUAL ind 
           ON ind.id = rw.individual_id
-      LEFT JOIN eg_vehicle_trip vt 
+      LEFT JOIN pg.eg_vehicle_trip vt 
           ON vt.applicationno = fsm.applicationno where fsm.tenantid=$tenantid  
     groupby: GROUP BY fsm.applicationno, fsm.tenantid, fsm.nooftrips, fsm.createdtime
     orderby: ORDER BY fsm.applicationno DESC

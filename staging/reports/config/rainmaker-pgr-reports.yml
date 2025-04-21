@@ -153,10 +153,10 @@ ReportDefinitions:
     (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000), ' days remaining') END) as slaHours), 
     Initcap(eg_pgr_service.status) as status
     FROM eg_pgr_service
-    left outer join eg_pgr_address on eg_pgr_address.uuid = eg_pgr_service.addressid
-    left outer join eg_user on eg_user.id = eg_pgr_service.accountid::int
-    left outer join eg_pgr_action as epa on epa.businesskey = eg_pgr_service.servicerequestid and epa.action in ('assign','reassign')
-    left outer join eg_user as ua on ua.id = epa.assignee::int
+    left outer join pg.eg_pgr_address on eg_pgr_address.uuid = eg_pgr_service.addressid
+    left outer join pg.eg_user on eg_user.id = eg_pgr_service.accountid::int
+    left outer join pg.eg_pgr_action as epa on epa.businesskey = eg_pgr_service.servicerequestid and epa.action in ('assign','reassign')
+    left outer join pg.eg_user as ua on ua.id = epa.assignee::int
     WHERE 
     eg_pgr_service.tenantid LIKE  $tenantid 
     AND eg_pgr_address.uuid = eg_pgr_service.addressid
@@ -318,8 +318,8 @@ ReportDefinitions:
     description, 
     (SELECT (CASE WHEN (((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000)) < 1 THEN CONCAT('Overdue by ', ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000) - ((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24), ' days') ELSE CONCAT(((SELECT deptmap.slaHours FROM (VALUES tbl_dept) AS deptmap(serviceCode, department, slaHours) WHERE deptmap.serviceCode = eg_pgr_service.servicecode)::integer / 24) - ((((select extract(epoch from now())) * 1000) - eg_pgr_service.createdtime)::bigint/86400000), ' days remaining') END) as slaHours), 
     initcap(status) as status FROM eg_pgr_service 
-    INNER JOIN eg_user ON eg_pgr_service.accountid = eg_user.id::VARCHAR 
-    INNER JOIN eg_pgr_address ON eg_pgr_service.addressid = eg_pgr_address.uuid
+    INNER JOIN pg.eg_user ON eg_pgr_service.accountid = eg_user.id::VARCHAR 
+    INNER JOIN pg.eg_pgr_address ON eg_pgr_service.addressid = eg_pgr_address.uuid
     WHERE eg_pgr_service.status = 'assigned' 
     AND servicerequestid IN (SELECT DISTINCT businesskey FROM eg_pgr_action WHERE status = 'assigned' AND "when" IN (select max("when") FROM eg_pgr_action WHERE assignee NOTNULL GROUP BY businesskey) AND assignee = $userid) 
   orderby: ORDER BY eg_pgr_service.createdtime asc

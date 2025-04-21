@@ -130,22 +130,22 @@ ReportDefinitions:
       To_char(To_timestamp(receipt.manualreceiptdate / 1000), 'DD/MM/YYYY') AS g8issuedate,
       receipt.manualreceiptnumber as g8receiptno
 
-    FROM eg_tl_tradelicense tl 
-    INNER JOIN eg_tl_tradelicensedetail tld ON tld.tradelicenseid = tl.id 
+    FROM pg.eg_tl_tradelicense tl 
+    INNER JOIN pg.eg_tl_tradelicensedetail tld ON tld.tradelicenseid = tl.id 
     INNER JOIN (
       SELECT tradelicensedetailid,array_to_string(array_agg(message.message),', ') as tradeTypeName FROM eg_tl_tradeunit
-      INNER JOIN message ON split_part(message.code,'_',2) = tradeType AND message.locale = 'en_IN' GROUP BY 1) tlunit ON tlunit.tradelicensedetailid = tld.id
+      INNER JOIN pg.message ON split_part(message.code,'_',2) = tradeType AND message.locale = 'en_IN' GROUP BY 1) tlunit ON tlunit.tradelicensedetailid = tld.id
     INNER JOIN (
       SELECT tradelicensedetailid, array_to_string(array_agg(name),', ') as name, array_to_string(array_agg(mobilenumber),', ') as mobilenumber
-      FROM eg_tl_owner tlowner 
-      INNER JOIN eg_user tluser ON tluser.uuid = tlowner.id
+      FROM pg.eg_tl_owner tlowner 
+      INNER JOIN pg.eg_user tluser ON tluser.uuid = tlowner.id
       group by tradelicensedetailid
     ) tlown ON tlown.tradelicensedetailid = tld.id
-    LEFT OUTER JOIN egcl_receiptheader_v1 receipt ON receipt.consumercode = tl.applicationnumber  and receipt.status != 'Cancelled'
-    LEFT OUTER JOIN egcl_receiptinstrument_v1 as ri ON ri.receiptheader = receipt.id
-    LEFT OUTER JOIN egcl_instrumentheader_v1 as ih ON ih.id = ri.instrumentheader and ih.instrumentstatus != 'CANCELLED'
-    LEFT OUTER JOIN (SELECT tradelicensedetailid,array_to_string(array_agg(message.message),',') AS acc FROM eg_tl_accessory 
-    LEFT OUTER JOIN message ON split_part(message.code,'_',2) = accessorycategory AND message.locale = 'en_IN' GROUP BY 1 ) tlacc ON tlacc.tradelicensedetailid = tld.id 
+    LEFT OUTER JOIN pg.egcl_receiptheader_v1 receipt ON receipt.consumercode = tl.applicationnumber  and receipt.status != 'Cancelled'
+    LEFT OUTER JOIN pg.egcl_receiptinstrument_v1 as ri ON ri.receiptheader = receipt.id
+    LEFT OUTER JOIN pg.egcl_instrumentheader_v1 as ih ON ih.id = ri.instrumentheader and ih.instrumentstatus != 'CANCELLED'
+    LEFT OUTER JOIN (SELECT tradelicensedetailid,array_to_string(array_agg(message.message),',') AS acc FROM pg.eg_tl_accessory 
+    LEFT OUTER JOIN pg.message ON split_part(message.code,'_',2) = accessorycategory AND message.locale = 'en_IN' GROUP BY 1 ) tlacc ON tlacc.tradelicensedetailid = tld.id 
     WHERE tl.Status in ('APPROVED', 'PAID', 'CANCELLED') AND tl.tenantId LIKE $tenantid
 
 - reportName: StateTradeLicenseCancelledRegistryReport
@@ -284,22 +284,22 @@ ReportDefinitions:
       To_char(To_timestamp(receipt.manualreceiptdate / 1000), 'DD/MM/YYYY') AS g8issuedate,
       receipt.manualreceiptnumber as g8receiptno
 
-    FROM eg_tl_tradelicense tl 
-    INNER JOIN eg_tl_tradelicensedetail tld ON tld.tradelicenseid = tl.id 
+    FROM pg.eg_tl_tradelicense tl 
+    INNER JOIN pg.eg_tl_tradelicensedetail tld ON tld.tradelicenseid = tl.id 
     INNER JOIN (
       SELECT tradelicensedetailid,array_to_string(array_agg(message.message),', ') as tradeTypeName FROM eg_tl_tradeunit
-      INNER JOIN message ON split_part(message.code,'_',2) = tradeType AND message.locale = 'en_IN' GROUP BY 1) tlunit ON tlunit.tradelicensedetailid = tld.id
+      INNER JOIN pg.message ON split_part(message.code,'_',2) = tradeType AND message.locale = 'en_IN' GROUP BY 1) tlunit ON tlunit.tradelicensedetailid = tld.id
     INNER JOIN (
       SELECT tradelicensedetailid, array_to_string(array_agg(name),', ') as name, array_to_string(array_agg(mobilenumber),', ') as mobilenumber
       FROM eg_tl_owner tlowner 
-      INNER JOIN eg_user tluser ON tluser.uuid = tlowner.id
+      INNER JOIN pg.eg_user tluser ON tluser.uuid = tlowner.id
       group by tradelicensedetailid
     ) tlown ON tlown.tradelicensedetailid = tld.id
-    INNER JOIN egcl_receiptheader_v1 receipt ON receipt.consumercode = tl.applicationnumber  and receipt.status = 'Cancelled'
-    INNER JOIN egcl_receiptinstrument_v1 as ri ON ri.receiptheader = receipt.id
-    INNER JOIN egcl_instrumentheader_v1 as ih ON ih.id = ri.instrumentheader
+    INNER JOIN pg.egcl_receiptheader_v1 receipt ON receipt.consumercode = tl.applicationnumber  and receipt.status = 'Cancelled'
+    INNER JOIN pg.egcl_receiptinstrument_v1 as ri ON ri.receiptheader = receipt.id
+    INNER JOIN pg.egcl_instrumentheader_v1 as ih ON ih.id = ri.instrumentheader
     LEFT OUTER JOIN (SELECT tradelicensedetailid,array_to_string(array_agg(message.message),',') AS acc FROM eg_tl_accessory 
-    LEFT OUTER JOIN message ON split_part(message.code,'_',2) = accessorycategory AND message.locale = 'en_IN' GROUP BY 1 ) tlacc ON tlacc.tradelicensedetailid = tld.id 
+    LEFT OUTER JOIN pg.message ON split_part(message.code,'_',2) = accessorycategory AND message.locale = 'en_IN' GROUP BY 1 ) tlacc ON tlacc.tradelicensedetailid = tld.id 
     WHERE tl.tenantId != 'pg.testing'
 - reportName: TradeLicenseCancelledRegistryReport
   decryptionPathId: TradeLicenseCancelledRegistryReport
@@ -431,22 +431,22 @@ ReportDefinitions:
       To_char(To_timestamp(receipt.manualreceiptdate / 1000), 'DD/MM/YYYY') AS g8issuedate,
       receipt.manualreceiptnumber as g8receiptno
 
-    FROM eg_tl_tradelicense tl 
-    INNER JOIN eg_tl_tradelicensedetail tld ON tld.tradelicenseid = tl.id 
+    FROM pg.eg_tl_tradelicense tl 
+    INNER JOIN pg.eg_tl_tradelicensedetail tld ON tld.tradelicenseid = tl.id 
     INNER JOIN (
       SELECT tradelicensedetailid,array_to_string(array_agg(message.message),', ') as tradeTypeName FROM eg_tl_tradeunit
-      INNER JOIN message ON split_part(message.code,'_',2) = tradeType AND message.locale = 'en_IN' GROUP BY 1) tlunit ON tlunit.tradelicensedetailid = tld.id
+      INNER JOIN pg.message ON split_part(message.code,'_',2) = tradeType AND message.locale = 'en_IN' GROUP BY 1) tlunit ON tlunit.tradelicensedetailid = tld.id
     INNER JOIN (
       SELECT tradelicensedetailid, array_to_string(array_agg(name),', ') as name, array_to_string(array_agg(mobilenumber),', ') as mobilenumber
-      FROM eg_tl_owner tlowner 
-      INNER JOIN eg_user tluser ON tluser.uuid = tlowner.id
+      FROM pg.eg_tl_owner tlowner 
+      INNER JOIN pg.eg_user tluser ON tluser.uuid = tlowner.id
       group by tradelicensedetailid
     ) tlown ON tlown.tradelicensedetailid = tld.id
-    INNER JOIN egcl_receiptheader_v1 receipt ON receipt.consumercode = tl.applicationnumber  and receipt.status = 'Cancelled'
-    INNER JOIN egcl_receiptinstrument_v1 as ri ON ri.receiptheader = receipt.id
-    INNER JOIN egcl_instrumentheader_v1 as ih ON ih.id = ri.instrumentheader
+    INNER JOIN pg.egcl_receiptheader_v1 receipt ON receipt.consumercode = tl.applicationnumber  and receipt.status = 'Cancelled'
+    INNER JOIN pg.egcl_receiptinstrument_v1 as ri ON ri.receiptheader = receipt.id
+    INNER JOIN pg.egcl_instrumentheader_v1 as ih ON ih.id = ri.instrumentheader
     LEFT OUTER JOIN (SELECT tradelicensedetailid,array_to_string(array_agg(message.message),',') AS acc FROM eg_tl_accessory 
-    LEFT OUTER JOIN message ON split_part(message.code,'_',2) = accessorycategory AND message.locale = 'en_IN' GROUP BY 1 ) tlacc ON tlacc.tradelicensedetailid = tld.id 
+    LEFT OUTER JOIN pg.message ON split_part(message.code,'_',2) = accessorycategory AND message.locale = 'en_IN' GROUP BY 1 ) tlacc ON tlacc.tradelicensedetailid = tld.id 
     WHERE tl.tenantId LIKE $tenantid
 
 
@@ -496,8 +496,8 @@ ReportDefinitions:
       sum(case collectiontype when 'ONLINE' then amount else 0 end) as online,
       initcap(split_part(rh.tenantId, '.', 2)) as tenantId 
       from pg.egcl_receiptheader_v1 as rh
-    inner join egcl_receiptinstrument_v1 as ri on ri.receiptheader = rh.id
-    inner join egcl_instrumentheader_v1 as ih on ih.id = ri.instrumentheader
+    inner join pg.egcl_receiptinstrument_v1 as ri on ri.receiptheader = rh.id
+    inner join pg.egcl_instrumentheader_v1 as ih on ih.id = ri.instrumentheader
     where rh.businessdetails = 'TL' and rh.status !='Cancelled' and rh.tenantid !='pg.testing'
     AND rh.tenantId LIKE $tenantid
   groupby: GROUP BY rh.tenantId
@@ -535,7 +535,7 @@ ReportDefinitions:
     source: tl
     isMandatory: false
     searchClause: AND tl.lastmodifiedtime <= $toDate
-  query: SELECT COUNT(applicationnumber) as total,message.message as status from pg.eg_tl_tradelicense tl LEFT OUTER JOIN message ON split_part(message.code,'_',2) = status AND message.locale = 'en_IN' WHERE tl.tenantid LIKE $tenantid
+  query: SELECT COUNT(applicationnumber) as total,message.message as status from pg.eg_tl_tradelicense tl LEFT OUTER JOIN pg.message ON split_part(message.code,'_',2) = status AND message.locale = 'en_IN' WHERE tl.tenantid LIKE $tenantid
   groupby: GROUP BY message.message
   orderby: ORDER BY case message.message when 'Pending Application' then 1 when 'Pending Payment' then 2 when 'Pending Approval' then 3 when 'Approved' then 4 when 'Rejected' then 5 when 'Cancelled' then 6 else 7 end
 
@@ -708,8 +708,8 @@ ReportDefinitions:
       sum(case collectiontype when 'ONLINE' then amount else 0 end) as online,
       initcap(split_part(rh.tenantId, '.', 2)) as tenantId
       from pg.egcl_receiptheader_v1 as rh
-    inner join egcl_receiptinstrument_v1 as ri on ri.receiptheader = rh.id
-    inner join egcl_instrumentheader_v1 as ih on ih.id = ri.instrumentheader
+    inner join pg.egcl_receiptinstrument_v1 as ri on ri.receiptheader = rh.id
+    inner join pg.egcl_instrumentheader_v1 as ih on ih.id = ri.instrumentheader
     where rh.businessdetails = 'TL' and rh.status !='Cancelled' and rh.tenantid !='pg.testing'
   groupby: GROUP BY rh.tenantId
   orderby: ORDER BY rh.tenantId asc
@@ -802,7 +802,7 @@ ReportDefinitions:
     wrapper: true
     isMandatory: false
     searchClause: AND tl.tenantId = $ulb
-  query: SELECT tl.tenantId as tenantId,licensenumber,tluser.uuid as uuid,to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as formattedIssuedDate,tl.tradeName,tradeTypeName,acc, name,mobilenumber,amount as totalamount,To_char(To_timestamp(receipt.manualreceiptdate / 1000), 'DD/MM/YYYY') AS g8issuedate,receipt.manualreceiptnumber as g8receiptno FROM eg_tl_tradelicense tl INNER JOIN eg_tl_tradelicensedetail tld ON tld.tradelicenseid = tl.id INNER JOIN eg_tl_owner tlowner ON tlowner.tradelicensedetailid = tld.id INNER JOIN (SELECT tradelicensedetailid,message.message as tradeTypeName FROM eg_tl_tradeunit INNER JOIN message ON split_part(message.code,'_',2) = tradeType) tlunit ON tlunit.tradelicensedetailid = tld.id INNER JOIN eg_user tluser ON tluser.uuid = tlowner.id LEFT OUTER JOIN egcl_receiptheader_v1 receipt ON receipt.consumercode = tl.applicationnumber LEFT JOIN egcl_receiptinstrument_v1 as ri ON ri.receiptheader = receipt.id LEFT JOIN egcl_instrumentheader_v1 as ih ON ih.id = ri.instrumentheader LEFT OUTER JOIN (SELECT tradelicensedetailid,array_to_string(array_agg(message.message),',') AS acc FROM eg_tl_accessory LEFT OUTER JOIN message ON split_part(message.code,'_',2) = accessorycategory AND message.locale = 'en_IN' GROUP BY 1 ) tlacc ON tlacc.tradelicensedetailid = tld.id WHERE tl.Status = 'APPROVED'
+  query: SELECT tl.tenantId as tenantId,licensenumber,tluser.uuid as uuid,to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as formattedIssuedDate,tl.tradeName,tradeTypeName,acc, name,mobilenumber,amount as totalamount,To_char(To_timestamp(receipt.manualreceiptdate / 1000), 'DD/MM/YYYY') AS g8issuedate,receipt.manualreceiptnumber as g8receiptno FROM pg.eg_tl_tradelicense tl INNER JOIN pg.eg_tl_tradelicensedetail tld ON tld.tradelicenseid = tl.id INNER JOIN pg.eg_tl_owner tlowner ON tlowner.tradelicensedetailid = tld.id INNER JOIN (SELECT tradelicensedetailid,message.message as tradeTypeName FROM eg_tl_tradeunit INNER JOIN pg.message ON split_part(message.code,'_',2) = tradeType) tlunit ON tlunit.tradelicensedetailid = tld.id INNER JOIN pg.eg_user tluser ON tluser.uuid = tlowner.id LEFT OUTER JOIN pg.egcl_receiptheader_v1 receipt ON receipt.consumercode = tl.applicationnumber LEFT JOIN pg.egcl_receiptinstrument_v1 as ri ON ri.receiptheader = receipt.id LEFT JOIN pg.egcl_instrumentheader_v1 as ih ON ih.id = ri.instrumentheader LEFT OUTER JOIN (SELECT tradelicensedetailid,array_to_string(array_agg(message.message),',') AS acc FROM eg_tl_accessory LEFT OUTER JOIN pg.message ON split_part(message.code,'_',2) = accessorycategory AND message.locale = 'en_IN' GROUP BY 1 ) tlacc ON tlacc.tradelicensedetailid = tld.id WHERE tl.Status = 'APPROVED'
   orderby: ORDER BY tl.tenantId asc
 
 - reportName: TradeLicenseDailyCollectionReport
@@ -924,7 +924,7 @@ ReportDefinitions:
     wrapper: true
     isMandatory: false
     searchClause: AND egcl_payment.createdby = $collectionOperator
-  query: select to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, eg_user.uuid as uuid, receiptnumber,applicationnumber,licensenumber, eg_user.name as name, eg_user.username as username, paymentmode as instrumenttype, CASE WHEN paymentmode='CHEQUE' THEN  to_char(To_timestamp(instrumentdate/ 1000), 'DD/MM/YYYY') ELSE 'NA' END as chequedate, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE 'NA' END as chequeno, coalesce(TRIM('"' FROM ((egcl_payment.additionaldetails->'bankDetails'->'BANK') ::json::text)),'NA') as bankname,  CASE WHEN paymentmode='ONLINE' THEN transactionnumber ELSE 'NA' END as transactionid ,CASE WHEN paymentmode='CARD' THEN substring(instrumentnumber,1,4) ELSE 'NA' END as lastfourdigits, totalamountpaid, instrumentstatus from pg.egcl_payment inner join egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join eg_tl_tradelicense tl on consumercode=tl.applicationnumber inner join eg_tl_tradelicensedetail on tl.id = eg_tl_tradelicensedetail.tradelicenseid inner join eg_tl_owner  on eg_tl_owner.tradelicensedetailid=eg_tl_tradelicensedetail.id inner join eg_user on eg_user.uuid=eg_tl_owner.id  where egcl_paymentdetail.businessservice='TL' and tl.tenantid= $tenantid
+  query: select to_char(To_timestamp(receiptdate / 1000), 'DD/MM/YYYY') as receiptdate, eg_user.uuid as uuid, receiptnumber,applicationnumber,licensenumber, eg_user.name as name, eg_user.username as username, paymentmode as instrumenttype, CASE WHEN paymentmode='CHEQUE' THEN  to_char(To_timestamp(instrumentdate/ 1000), 'DD/MM/YYYY') ELSE 'NA' END as chequedate, CASE WHEN paymentmode='CHEQUE' THEN instrumentnumber ELSE 'NA' END as chequeno, coalesce(TRIM('"' FROM ((egcl_payment.additionaldetails->'bankDetails'->'BANK') ::json::text)),'NA') as bankname,  CASE WHEN paymentmode='ONLINE' THEN transactionnumber ELSE 'NA' END as transactionid ,CASE WHEN paymentmode='CARD' THEN substring(instrumentnumber,1,4) ELSE 'NA' END as lastfourdigits, totalamountpaid, instrumentstatus from pg.egcl_payment inner join pg.egcl_paymentdetail on egcl_payment.id=egcl_paymentdetail.paymentid inner join pg.egcl_bill on  egcl_paymentdetail.billid=egcl_bill.id inner join pg.eg_tl_tradelicense tl on consumercode=tl.applicationnumber inner join pg.eg_tl_tradelicensedetail on tl.id = eg_tl_tradelicensedetail.tradelicenseid inner join pg.eg_tl_owner  on eg_tl_owner.tradelicensedetailid=eg_tl_tradelicensedetail.id inner join pg.eg_user on eg_user.uuid=eg_tl_owner.id  where egcl_paymentdetail.businessservice='TL' and tl.tenantid= $tenantid
 
 - reportName: TLApplicationStatusReport
   decryptionPathId: TLApplicationStatusReport
@@ -1042,7 +1042,7 @@ ReportDefinitions:
     isMandatory: false
     searchClause: AND (CONCAT(UPPER(tl.workflowcode),'-',tl.status)) in ( $workflowstatus )
     pattern: 'list://NEWTL-INITIATED:NEWTL-INITIATED,NEWTL-APPLIED:NEWTL-APPLIED,NEWTL-FIELDINSPECTION:NEWTL-FIELDINSPECTION,NEWTL-PENDINGAPPROVAL:NEWTL-PENDINGAPPROVAL,NEWTL-APPROVED:NEWTL-APPROVED,NEWTL-PENDINGPAYMENT:NEWTL-PENDINGPAYMENT,NEWTL-CITIZENACTIONREQUIRED:NEWTL-CITIZENACTIONREQUIRED,NEWTL-MANUALEXPIRED:NEWTL-MANUALEXPIRED,NEWTL-EXPIRED:NEWTL-EXPIRED,NEWTL-REJECTED:NEWTL-REJECTED,NEWTL-CANCELLED:NEWTL-CANCELLED,DIRECTRENEWAL-APPLIED:DIRECTRENEWAL-APPLIED,DIRECTRENEWAL-PENDINGPAYMENT:DIRECTRENEWAL-PENDINGPAYMENT,DIRECTRENEWAL-APPROVED:DIRECTRENEWAL-APPROVED,DIRECTRENEWAL-CANCELLED:DIRECTRENEWAL-CANCELLED,DIRECTRENEWAL-MANUALEXPIRED:DIRECTRENEWAL-MANUALEXPIRED,DIRECTRENEWAL-EXPIRED:DIRECTRENEWAL-EXPIRED,EDITRENEWAL-INITIATED:EDITRENEWAL-INITIATED,EDITRENEWAL-APPLIED:EDITRENEWAL-APPLIED,EDITRENEWAL-FIELDINSPECTION:EDITRENEWAL-FIELDINSPECTION,EDITRENEWAL-PENDINGAPPROVAL:EDITRENEWAL-PENDINGAPPROVAL,EDITRENEWAL-APPROVED:EDITRENEWAL-APPROVED,EDITRENEWAL-PENDINGPAYMENT:EDITRENEWAL-PENDINGPAYMENT,EDITRENEWAL-CITIZENACTIONREQUIRED:EDITRENEWAL-CITIZENACTIONREQUIRED,EDITRENEWAL-MANUALEXPIRED:EDITRENEWAL-MANUALEXPIRED,EDITRENEWAL-EXPIRED:EDITRENEWAL-EXPIRED,EDITRENEWAL-REJECTED:EDITRENEWAL-REJECTED,EDITRENEWAL-CANCELLED:EDITRENEWAL-CANCELLED'
-  query: select distinct(applicationnumber), usr.uuid as uuid, applicationdate as normalappdate, to_char(To_timestamp(applicationdate / 1000), 'DD/MM/YYYY') as applicationdate , tld.channel as applicationchannel, (CONCAT(UPPER(tl.workflowcode),'-',tl.status)) as workflowstatus, tl.workflowcode as applicationtype, usr.name as name, split_part(tlunit.tradetype,'.',2) as tradetype, deptmap_def.code as tradesubtype, tradename, tl.status as applicationstatus, case when isterminatestate=true then null else userassignee.name end as currentowner,coalesce(licensenumber,'NA') as licensenumber from pg.eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id=tld.tradelicenseid inner join eg_user usr ON tl.createdby = usr.uuid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id inner join eg_wf_processinstance_v2 pi on pi.businessid=tl.applicationnumber inner join (select businessid, max(createdtime) as maxtime from pg.eg_wf_processinstance_v2 group by businessid) wfg ON pi.businessid=wfg.businessid and maxtime=pi.createdtime inner join eg_wf_state_v2 st on pi.status=st.uuid left outer join eg_wf_assignee_v2 assignee on assignee.processinstanceid = pi.id left outer join eg_user userassignee on assignee.assignee = userassignee.uuid inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=tlunit.tradetype where tl.businessservice='TL'
+  query: select distinct(applicationnumber), usr.uuid as uuid, applicationdate as normalappdate, to_char(To_timestamp(applicationdate / 1000), 'DD/MM/YYYY') as applicationdate , tld.channel as applicationchannel, (CONCAT(UPPER(tl.workflowcode),'-',tl.status)) as workflowstatus, tl.workflowcode as applicationtype, usr.name as name, split_part(tlunit.tradetype,'.',2) as tradetype, deptmap_def.code as tradesubtype, tradename, tl.status as applicationstatus, case when isterminatestate=true then null else userassignee.name end as currentowner,coalesce(licensenumber,'NA') as licensenumber from pg.eg_tl_tradelicense tl inner join pg.eg_tl_tradelicensedetail tld on tl.id=tld.tradelicenseid inner join pg.eg_user usr ON tl.createdby = usr.uuid inner join pg.eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join pg.eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id inner join pg.eg_wf_processinstance_v2 pi on pi.businessid=tl.applicationnumber inner join (select businessid, max(createdtime) as maxtime from pg.eg_wf_processinstance_v2 group by businessid) wfg ON pi.businessid=wfg.businessid and maxtime=pi.createdtime inner join pg.eg_wf_state_v2 st on pi.status=st.uuid left outer join pg.eg_wf_assignee_v2 assignee on assignee.processinstanceid = pi.id left outer join pg.eg_user userassignee on assignee.assignee = userassignee.uuid inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=tlunit.tradetype where tl.businessservice='TL'
   orderby: ORDER BY normalappdate asc
 
 
@@ -1158,7 +1158,7 @@ ReportDefinitions:
     localisationPrefix: TENANTS_MOHALLA_
     isLocalisationRequired: true
     searchClause: AND locality in ($locality)
-  query: select licensenumber,eg_user.uuid as uuid, to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as issueddate , financialyear, tradename, coalesce(to_char(To_timestamp(commencementdate / 1000), 'DD/MM/YYYY'),'NA') as commencementdate , eg_user.name as name, split_part(unt.tradetype,'.',2) as tradetype,  deptmap_def.code as tradesubtype, concat(split_part(tld.structuretype,'.',1),' / ',split_part(tld.structuretype,'.',2)) as structuretype, COALESCE (NULLIF( REGEXP_REPLACE(REGEXP_REPLACE(CONCAT(doorno,',', street,',', initcap(split_part(city, '.', 2)),',', pincode), ',+', ','), '^,|,$', ''),''), 'NA') as tradeaddress, locality, tl.status as currentstatus, coalesce(to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY'),'NA') as licenseexpirydate  from pg.eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id= tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit unt on unt.tradelicensedetailid=tld.id inner join eg_tl_address addr on addr.tradelicensedetailid=tld.id  inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=unt.tradetype where tl.businessservice='TL' and financialyear=(select max(financialyear) from pg.eg_tl_tradelicense where licensenumber=tl.licensenumber) and tl.tenantid= $tenantid and tl.status IN ('EXPIRED','APPROVED','CANCELLED')
+  query: select licensenumber,eg_user.uuid as uuid, to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY') as issueddate , financialyear, tradename, coalesce(to_char(To_timestamp(commencementdate / 1000), 'DD/MM/YYYY'),'NA') as commencementdate , eg_user.name as name, split_part(unt.tradetype,'.',2) as tradetype,  deptmap_def.code as tradesubtype, concat(split_part(tld.structuretype,'.',1),' / ',split_part(tld.structuretype,'.',2)) as structuretype, COALESCE (NULLIF( REGEXP_REPLACE(REGEXP_REPLACE(CONCAT(doorno,',', street,',', initcap(split_part(city, '.', 2)),',', pincode), ',+', ','), '^,|,$', ''),''), 'NA') as tradeaddress, locality, tl.status as currentstatus, coalesce(to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY'),'NA') as licenseexpirydate  from pg.eg_tl_tradelicense tl inner join pg.eg_tl_tradelicensedetail tld on tl.id= tld.tradelicenseid inner join pg.eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join pg.eg_user on eg_user.uuid=eg_tl_owner.id inner join pg.eg_tl_tradeunit unt on unt.tradelicensedetailid=tld.id inner join pg.eg_tl_address addr on addr.tradelicensedetailid=tld.id  inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=unt.tradetype where tl.businessservice='TL' and financialyear=(select max(financialyear) from pg.eg_tl_tradelicense where licensenumber=tl.licensenumber) and tl.tenantid= $tenantid and tl.status IN ('EXPIRED','APPROVED','CANCELLED')
 
 - reportName: TLRenewalPendingReport
   decryptionPathId: TLRenewalPendingReport
@@ -1251,5 +1251,5 @@ ReportDefinitions:
     source: tl
     isMandatory: false
     searchClause: AND tl.financialyear = $financialYear
-  query: select licensenumber, eg_user.uuid as uuid, coalesce(to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY'),'NA') as issueddate,coalesce(to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY'),'NA') as licenseexpirydate, tradename, split_part(tlunit.tradetype,'.',2) as tradetype, deptmap_def.code as tradesubtype, eg_user.name as name, eg_user.mobilenumber as mobilenumber, CASE WHEN(round( date_part( 'epoch', now() ) )*1000 - validto)/86400000>=0 THEN floor(((round( date_part( 'epoch', now() ) )*1000 - validto)/86400000)-(select count(dt) from generate_series((select to_timestamp(validto/1000)::date),(select to_timestamp(date_part( 'epoch', now()))::date), interval '1' day) as t(dt) where extract(dow from dt) in (0,6))) else null end as elapsedtime, tl.status as status from pg.eg_tl_tradelicense tl inner join eg_tl_tradelicensedetail tld on tl.id = tld.tradelicenseid inner join eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join eg_user on eg_user.uuid=eg_tl_owner.id inner join eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=tlunit.tradetype where tl.businessservice='TL' and licensenumber is not null and tl.tenantid = $tenantid AND tl.status in('MANUALEXPIRED', 'EXPIRED', 'APPROVED')
+  query: select licensenumber, eg_user.uuid as uuid, coalesce(to_char(To_timestamp(issueddate / 1000), 'DD/MM/YYYY'),'NA') as issueddate,coalesce(to_char(To_timestamp(validto / 1000), 'DD/MM/YYYY'),'NA') as licenseexpirydate, tradename, split_part(tlunit.tradetype,'.',2) as tradetype, deptmap_def.code as tradesubtype, eg_user.name as name, eg_user.mobilenumber as mobilenumber, CASE WHEN(round( date_part( 'epoch', now() ) )*1000 - validto)/86400000>=0 THEN floor(((round( date_part( 'epoch', now() ) )*1000 - validto)/86400000)-(select count(dt) from generate_series((select to_timestamp(validto/1000)::date),(select to_timestamp(date_part( 'epoch', now()))::date), interval '1' day) as t(dt) where extract(dow from dt) in (0,6))) else null end as elapsedtime, tl.status as status from pg.eg_tl_tradelicense tl inner join pg.eg_tl_tradelicensedetail tld on tl.id = tld.tradelicenseid inner join pg.eg_tl_owner on tld.id=eg_tl_owner.tradelicensedetailid inner join pg.eg_user on eg_user.uuid=eg_tl_owner.id inner join pg.eg_tl_tradeunit tlunit on tlunit.tradelicensedetailid=tld.id inner join (VALUES tbl_def_dept) AS deptmap_def(code,name) ON deptmap_def.code=tlunit.tradetype where tl.businessservice='TL' and licensenumber is not null and tl.tenantid = $tenantid AND tl.status in('MANUALEXPIRED', 'EXPIRED', 'APPROVED')
   orderby: ORDER BY floor(((round( date_part( 'epoch', now() ) )*1000 - validto)/86400000)-(select count(dt) from generate_series((select to_timestamp(validto/1000)::date), (select to_timestamp(date_part( 'epoch', now()))::date), interval '1' day) as t(dt) where extract(dow from dt) in (0,6))) desc
