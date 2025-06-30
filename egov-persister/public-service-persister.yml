@@ -1,4 +1,3 @@
----
 serviceMaps:
   serviceName: public Service
   mappings:
@@ -210,3 +209,22 @@ serviceMaps:
             - jsonPath: $.Service.auditDetails.lastModifiedBy
             - jsonPath: $.Service.auditDetails.lastModifiedTime
             - jsonPath: $.Service.serviceCode
+    - version: 1.0
+      name: public service process create
+      description: save public service process 
+      fromTopic: save-public-service-process
+      queryMaps:
+        - query: >
+            INSERT INTO public_service_process (
+              id, process_name, business_service, module, createdby, created_time, success, failurereason
+            ) VALUES (?::uuid, ?, ?, ?, ?, to_timestamp(? / 1000), ?, ?);
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.id
+            - jsonPath: $.process_name
+            - jsonPath: $.businessService
+            - jsonPath: $.module
+            - jsonPath: $.createdBy
+            - jsonPath: $.createdTime
+            - jsonPath: $.success
+            - jsonPath: $.failureReason
