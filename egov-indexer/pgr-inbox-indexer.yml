@@ -1,0 +1,77 @@
+ServiceMaps:
+  serviceName: Public Grievance Redressal - rainmaker
+  version: 1.0.0
+  mappings:
+    - topic: save-pgr-request
+      configKey: INDEX
+      indexes:
+        - name: inbox-pgr-services
+          type: general
+          id: $.service.serviceRequestId
+          jsonPath: $
+          timeStampField: $.service.auditDetails.createdTime
+          fieldsToBeMasked: ["$.service.citizen.userName", "$.service.citizen.name", "$.service.citizen.mobileNumber", "$.service.citizen.emailId"]
+          customJsonMapping:
+            indexMapping: {"Data":{"service":{},"tenantId": "","auditDetails": {},"currentProcessInstance": {}}}
+            fieldMapping:
+              - inJsonPath: $.service
+                outJsonPath: $.Data.service
+              - inJsonPath: $.service.tenantId
+                outJsonPath: $.Data.tenantId
+              - inJsonPath: $.service.auditDetails
+                outJsonPath: $.Data.auditDetails
+              - inJsonPath: $.ProcessInstances[0]
+                outJsonPath: $.Data.currentProcessInstance
+
+    - topic: update-pgr-request
+      configKey: INDEX
+      indexes:
+        - name: inbox-pgr-services
+          type: general
+          id: $.service.serviceRequestId
+          jsonPath: $
+          timeStampField: $.service.auditDetails.createdTime
+          fieldsToBeMasked: ["$.service.citizen.userName", "$.service.citizen.name", "$.service.citizen.mobileNumber", "$.service.citizen.emailId"]
+          customJsonMapping:
+            indexMapping: {"Data":{"service":{},"tenantId": "","auditDetails": {},"currentProcessInstance": {}}}
+            fieldMapping:
+              - inJsonPath: $.service
+                outJsonPath: $.Data.service
+              - inJsonPath: $.service.tenantId
+                outJsonPath: $.Data.tenantId
+              - inJsonPath: $.service.auditDetails
+                outJsonPath: $.Data.auditDetails
+              - inJsonPath: $.ProcessInstances[0]
+                outJsonPath: $.Data.currentProcessInstance
+
+    - topic: pgr-services-inboxIndex
+      configKey: LEGACYINDEX
+      indexes:
+        - name: inbox-pgr-services-legacy
+          type: general
+          isBulk: true
+          id: $.service.serviceRequestId
+          jsonPath: $.ServiceWrappers.*
+          timeStampField: $.service.auditDetails.createdTime
+          fieldsToBeMasked: ["$.service.citizen.userName", "$.service.citizen.name", "$.service.citizen.mobileNumber", "$.service.citizen.emailId"]
+          customJsonMapping:
+            indexMapping: {"Data":{"service":{},"tenantId": "","auditDetails": {},"currentProcessInstance": {}}}
+            fieldMapping:
+              - inJsonPath: $.service
+                outJsonPath: $.Data.service
+              - inJsonPath: $.service.tenantId
+                outJsonPath: $.Data.tenantId
+              - inJsonPath: $.service.auditDetails
+                outJsonPath: $.Data.auditDetails
+              - inJsonPath: $.ProcessInstances[0]
+                outJsonPath: $.Data.currentProcessInstance
+
+    - topic: pgr-service-reindex
+      configKey: REINDEX
+      indexes:
+        - name: pgrreindex-v2
+          type: general
+          id: $.Data.service.serviceRequestId
+          isBulk: true
+          jsonPath: $.hits
+          timeStampField: $.Data.service.auditDetails.lastModifiedTime
