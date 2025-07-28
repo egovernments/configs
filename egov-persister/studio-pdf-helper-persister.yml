@@ -1,0 +1,23 @@
+serviceMaps:
+  serviceName: studio-pdf-helper
+  mappings:
+    - version: 1.0
+      name: save pdf qr generator
+      description: insert mapping data for generated QR PDFs
+      fromTopic: save-pdf-qr-generator
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO pdf_qr_mapping (
+              id, data, created_by, modified_by, created_time, last_modified_time
+            ) VALUES (?::uuid, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000));
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.id
+            - jsonPath: $.data
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.createdBy
+            - jsonPath: $.modifiedBy
+            - jsonPath: $.createdTime
+            - jsonPath: $.lastModifiedTime
