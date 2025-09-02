@@ -235,3 +235,22 @@ serviceMaps:
             - jsonPath: $.failureReason
               type: JSON
               dbType: JSONB
+   - version: 1.0
+      name: public service Config version Mapping 
+      description: save service Config version Mapping 
+      fromTopic: save-service-version-config-mapping
+      queryMaps:
+        - query: >
+            INSERT INTO service_version_config_mapping (
+              id, service_code, version, config, created_at, updated_at
+            ) VALUES (?::uuid, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000));
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.id
+            - jsonPath: $.serviceCode
+            - jsonPath: $.version
+            - jsonPath: $.config
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.auditDetails.createdTime
+            - jsonPath: $.auditDetails.lastModifiedTime
