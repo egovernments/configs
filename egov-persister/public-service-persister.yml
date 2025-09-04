@@ -9,8 +9,8 @@ serviceMaps:
         - query: >
             INSERT INTO application (
               id, tenant_id, module, business_service, status, channel, application_number, workflow_status, service_code,
-              service_details, additional_details, address, workflow, createdby, last_modifiedby, created_at, updated_at
-            ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000));
+              service_details, additional_details, address, workflow, createdby, last_modifiedby, created_at, updated_at, version
+            ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000), ?);
           basePath: $.Application
           jsonMaps:
             - jsonPath: $.Application.id
@@ -38,6 +38,7 @@ serviceMaps:
             - jsonPath: $.Application.auditDetails.lastModifiedBy
             - jsonPath: $.Application.auditDetails.createdTime
             - jsonPath: $.Application.auditDetails.lastModifiedTime
+            - jsonPath: $.Application.version
         - query: |
             INSERT INTO applicant (
               id, type, application_id, user_id, prefix, active
@@ -89,7 +90,7 @@ serviceMaps:
         - query: >
             UPDATE application SET tenant_id = ?, module = ?, business_service = ?,
             status = ?, channel = ?, workflow_status = ?,
-                service_details = ?, additional_details = ?, address = ?, workflow = ?, last_modifiedby = ?, updated_at = to_timestamp(? / 1000) 
+                service_details = ?, additional_details = ?, address = ?, workflow = ?, last_modifiedby = ?, updated_at = to_timestamp(? / 1000), version = ?  
             WHERE id = ?::uuid;
           basePath: $.Application
           jsonMaps:
@@ -113,6 +114,7 @@ serviceMaps:
               dbType: JSONB
             - jsonPath: $.Application.auditDetails.lastModifiedBy
             - jsonPath: $.Application.auditDetails.lastModifiedTime
+            - jsonPath: $.Application.version
             - jsonPath: $.Application.id
         - query: >
             UPDATE applicant SET type = ?, user_id = ?, prefix = ?, active = ? WHERE
@@ -166,8 +168,8 @@ serviceMaps:
         - query: >
             INSERT INTO service (
               id, tenant_id, module, business_service, status, service_code,
-              additional_details, createdby, last_modifiedby, created_at, updated_at
-            ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000));
+              additional_details, createdby, last_modifiedby, created_at, updated_at, version
+            ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000), ?);
           basePath: $.Service
           jsonMaps:
             - jsonPath: $.Service.id
@@ -183,6 +185,7 @@ serviceMaps:
             - jsonPath: $.Service.auditDetails.lastModifiedBy
             - jsonPath: $.Service.auditDetails.createdTime
             - jsonPath: $.Service.auditDetails.lastModifiedTime
+            - jsonPath: $.Service.version
     - version: 1.0
       name: public service update
       description: update public service by serviceCode
@@ -195,7 +198,8 @@ serviceMaps:
                 status = ?,
                 additional_details = ?,
                 last_modifiedby = ?,
-                updated_at = to_timestamp(? / 1000.0)
+                updated_at = to_timestamp(? / 1000.0),
+                version = ?
             WHERE service_code = ?;
           basePath: $.Service
           jsonMaps:
@@ -208,6 +212,7 @@ serviceMaps:
               dbType: JSONB
             - jsonPath: $.Service.auditDetails.lastModifiedBy
             - jsonPath: $.Service.auditDetails.lastModifiedTime
+            - jsonPath: $.Service.version
             - jsonPath: $.Service.serviceCode
     - version: 1.0
       name: public service process create
@@ -230,3 +235,22 @@ serviceMaps:
             - jsonPath: $.failureReason
               type: JSON
               dbType: JSONB
+   - version: 1.0
+      name: public service Config version Mapping 
+      description: save service Config version Mapping 
+      fromTopic: save-service-version-config-mapping
+      queryMaps:
+        - query: >
+            INSERT INTO service_version_config_mapping (
+              id, service_code, version, config, created_at, updated_at
+            ) VALUES (?::uuid, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000));
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.id
+            - jsonPath: $.serviceCode
+            - jsonPath: $.version
+            - jsonPath: $.config
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.auditDetails.createdTime
+            - jsonPath: $.auditDetails.lastModifiedTime
