@@ -1,14 +1,15 @@
 serviceMaps:
   serviceName: rate-analysis-service
   mappings:
+
     - version: 1.0
       name: RateAnalysisService
       description: Persists Scheduled Jobs to Rate Analysis
-      fromTopic: rate-analysis-job-create
+      fromTopic: pg-rate-analysis-job-create
       isTransaction: true
       module: MAS
       queryMaps:
-        - query: INSERT INTO eg_rate_analysis_schedule (id,jobId,tenantId,rateEffectiveFrom,jobStatus,createdTime,lastModifiedTime,lastModifiedBy,createdBy) VALUES (?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO pg.eg_rate_analysis_schedule (id,jobId,tenantId,rateEffectiveFrom,jobStatus,createdTime,lastModifiedTime,lastModifiedBy,createdBy) VALUES (?,?,?,?,?,?,?,?,?);
           basePath: $.ScheduledJobs
           jsonMaps:
             - jsonPath: $.ScheduledJobs.id
@@ -21,7 +22,7 @@ serviceMaps:
             - jsonPath: $.ScheduledJobs.auditDetails.lastModifiedBy
             - jsonPath: $.ScheduledJobs.auditDetails.createdBy
 
-        - query: INSERT INTO eg_rate_analysis_schedule_details (id,sorId,ratesJobId,sorCode,status,failureReason,additionalDetails) VALUES (?,?,?,?,?,?,?);
+        - query: INSERT INTO pg-eg_rate_analysis_schedule_details (id,sorId,ratesJobId,sorCode,status,failureReason,additionalDetails) VALUES (?,?,?,?,?,?,?);
           basePath: $.ScheduledJobs.sorDetails.*
           jsonMaps:
             - jsonPath: $.ScheduledJobs.sorDetails.*.id
@@ -37,11 +38,11 @@ serviceMaps:
     - version: 1.0
       name: RateAnalysisService
       description: Persists Scheduled Jobs to Rate Analysis
-      fromTopic: rate-analysis-job-update
+      fromTopic: pg-rate-analysis-job-update
       isTransaction: true
       module: MAS
       queryMaps:
-        - query: UPDATE eg_rate_analysis_schedule SET jobStatus = ?, lastModifiedTime = ?, lastModifiedBy = ? WHERE id = ?;
+        - query: UPDATE pg.eg_rate_analysis_schedule SET jobStatus = ?, lastModifiedTime = ?, lastModifiedBy = ? WHERE id = ?;
           basePath: $.ScheduledJobs
           jsonMaps:
             - jsonPath: $.ScheduledJobs.status
@@ -49,7 +50,7 @@ serviceMaps:
             - jsonPath: $.ScheduledJobs.auditDetails.lastModifiedBy
             - jsonPath: $.ScheduledJobs.id
 
-        - query: UPDATE eg_rate_analysis_schedule_details SET status = ?, failureReason = ?, additionalDetails = ? WHERE id = ?;
+        - query: UPDATE pg.eg_rate_analysis_schedule_details SET status = ?, failureReason = ?, additionalDetails = ? WHERE id = ?;
           basePath: $.ScheduledJobs.sorDetails.*
           jsonMaps:
             - jsonPath: $.ScheduledJobs.sorDetails.*.status

@@ -4,7 +4,7 @@ serviceMaps:
     - version: 1.0
       name: Estimate
       description: Persists estimate details
-      fromTopic: save-estimate
+      fromTopic: pg-save-estimate
       isTransaction: true
       isAuditEnabled: true
       module: EST
@@ -13,7 +13,7 @@ serviceMaps:
       transactionCodeJsonPath: $.estimateNumber
       auditAttributeBasePath: $.estimate
       queryMaps:
-        - query: INSERT INTO eg_wms_estimate(id,tenant_id,estimate_number,project_id,proposal_date,status,wf_status,name,reference_number,description,executing_department,additional_details,created_by,last_modified_by,created_time,last_modified_time,revision_number,version_number,old_uuid,business_service) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO pg.eg_wms_estimate(id,tenant_id,estimate_number,project_id,proposal_date,status,wf_status,name,reference_number,description,executing_department,additional_details,created_by,last_modified_by,created_time,last_modified_time,revision_number,version_number,old_uuid,business_service) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
 
           basePath: $.estimate
           jsonMaps:
@@ -59,7 +59,7 @@ serviceMaps:
 
             - jsonPath: $.estimate.businessService
 
-        - query: INSERT INTO eg_wms_estimate_detail(id,tenant_id,estimate_id,sor_id,category,name,description,unit_rate,no_of_unit,uom,uom_value,additional_details,is_active,length,width,height,quantity,is_deduction, old_uuid) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO pg.eg_wms_estimate_detail(id,tenant_id,estimate_id,sor_id,category,name,description,unit_rate,no_of_unit,uom,uom_value,additional_details,is_active,length,width,height,quantity,is_deduction, old_uuid) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
 
           basePath: $.estimate.estimateDetails.*
           jsonMaps:
@@ -103,7 +103,7 @@ serviceMaps:
 
             - jsonPath: $.estimate.estimateDetails.*.previousLineItemId
 
-        - query: INSERT INTO eg_wms_estimate_address(id,tenant_id,estimate_id,latitude,longitude,address_number,address_line_1,address_line_2,landmark,city,pin_code,detail) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO pg.eg_wms_estimate_address(id,tenant_id,estimate_id,latitude,longitude,address_number,address_line_1,address_line_2,landmark,city,pin_code,detail) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
 
           basePath: $.estimate.address
           jsonMaps:
@@ -131,7 +131,7 @@ serviceMaps:
 
             - jsonPath: $.estimate.address.detail
 
-        - query: INSERT INTO eg_wms_estimate_amount_detail(id,tenant_id,estimate_detail_id,type,is_active,amount,additional_details) VALUES (?,?,?,?,?,?,?);
+        - query: INSERT INTO pg.eg_wms_estimate_amount_detail(id,tenant_id,estimate_detail_id,type,is_active,amount,additional_details) VALUES (?,?,?,?,?,?,?);
 
           basePath: $.estimate.estimateDetails.*.amountDetail.*
           jsonMaps:
@@ -153,7 +153,7 @@ serviceMaps:
 
     - version: 1.0
       description: Update estimate
-      fromTopic: update-estimate
+      fromTopic: pg-update-estimate
       isTransaction: true
       isAuditEnabled: true
       module: EST
@@ -162,7 +162,7 @@ serviceMaps:
       transactionCodeJsonPath: $.estimateNumber
       auditAttributeBasePath: $.estimate
       queryMaps:
-        - query: UPDATE eg_wms_estimate set status=?, wf_status=?, name=?, reference_number=?, description=?, executing_department=?, additional_details=?,last_modified_by=?, last_modified_time=? where id=?;
+        - query: UPDATE pg.eg_wms_estimate set status=?, wf_status=?, name=?, reference_number=?, description=?, executing_department=?, additional_details=?,last_modified_by=?, last_modified_time=? where id=?;
           basePath: $.estimate
           jsonMaps:
             - jsonPath: $.estimate.status
@@ -187,7 +187,7 @@ serviceMaps:
 
             - jsonPath: $.estimate.id
 
-        - query: INSERT INTO eg_wms_estimate_detail(id,tenant_id,estimate_id,sor_id,category,name,description,unit_rate,no_of_unit,uom,uom_value,additional_details,is_active,length,width,height,quantity,is_deduction,old_uuid) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE SET sor_id=?, category=?, name=?, description=?,unit_rate=?, no_of_unit=?,uom=?, uom_value=?, additional_details=?,is_active = ?,length = ?,width = ?,height = ?,quantity = ?,is_deduction = ?,old_uuid = ?;
+        - query: INSERT INTO pg.eg_wms_estimate_detail(id,tenant_id,estimate_id,sor_id,category,name,description,unit_rate,no_of_unit,uom,uom_value,additional_details,is_active,length,width,height,quantity,is_deduction,old_uuid) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE SET sor_id=?, category=?, name=?, description=?,unit_rate=?, no_of_unit=?,uom=?, uom_value=?, additional_details=?,is_active = ?,length = ?,width = ?,height = ?,quantity = ?,is_deduction = ?,old_uuid = ?;
 
           basePath: $.estimate.estimateDetails.*
           jsonMaps:
@@ -265,7 +265,7 @@ serviceMaps:
 
             - jsonPath: $.estimate.estimateDetails.*.previousLineItemId
 
-        - query: UPDATE eg_wms_estimate_address set latitude=?, longitude=?, address_number=?,address_line_1=?, address_line_2=?,landmark=?,city=?, pin_code=?, detail=? where id=?;
+        - query: UPDATE pg.eg_wms_estimate_address set latitude=?, longitude=?, address_number=?,address_line_1=?, address_line_2=?,landmark=?,city=?, pin_code=?, detail=? where id=?;
 
           basePath: $.estimate.address
           jsonMaps:
@@ -289,7 +289,7 @@ serviceMaps:
 
             - jsonPath: $.estimate.address.id
 
-        - query: INSERT INTO eg_wms_estimate_amount_detail(id,tenant_id,estimate_detail_id,type,is_active,amount,additional_details) VALUES (?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE set type=?, is_active=?,amount=?,additional_details=?;
+        - query: INSERT INTO pg.eg_wms_estimate_amount_detail(id,tenant_id,estimate_detail_id,type,is_active,amount,additional_details) VALUES (?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE set type=?, is_active=?,amount=?,additional_details=?;
 
           basePath: $.estimate.estimateDetails.*.amountDetail.*
           jsonMaps:
