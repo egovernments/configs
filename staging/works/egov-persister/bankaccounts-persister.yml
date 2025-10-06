@@ -1,202 +1,203 @@
 serviceMaps:
- serviceName: bankaccounts
- mappings:
- - version: 1.0
-   name: bankaccount
-   description: Persists bank account details
-   fromTopic: save-bank-account
-   isTransaction: true
-   isAuditEnabled: true
-   module: BAS
-   objecIdJsonPath: $.id
-   tenantIdJsonPath: $.tenantId
-   transactionCodeJsonPath: $.accountNumber
-   auditAttributeBasePath: $.bankAccounts.*
-   queryMaps:
-    - query: INSERT INTO eg_bank_account(id,tenant_id,service_code,reference_id,additional_details,created_by,last_modified_by,created_time,last_modified_time) VALUES (?,?,?,?,?,?,?,?,?);
+  serviceName: bankaccounts
+  mappings:
 
-      basePath: $.bankAccounts.*
-      jsonMaps:
+    - version: 1.0
+      name: bankaccount
+      description: Persists bank account details
+      fromTopic: pg-save-bank-account
+      isTransaction: true
+      isAuditEnabled: true
+      module: BAS
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      transactionCodeJsonPath: $.accountNumber
+      auditAttributeBasePath: $.bankAccounts.*
+      queryMaps:
+        - query: INSERT INTO pg.eg_bank_account(id,tenant_id,service_code,reference_id,additional_details,created_by,last_modified_by,created_time,last_modified_time) VALUES (?,?,?,?,?,?,?,?,?);
 
-       - jsonPath: $.bankAccounts.*.id
+          basePath: $.bankAccounts.*
+          jsonMaps:
 
-       - jsonPath: $.bankAccounts.*.tenantId
-       
-       - jsonPath: $.bankAccounts.*.serviceCode
+            - jsonPath: $.bankAccounts.*.id
 
-       - jsonPath: $.bankAccounts.*.referenceId
+            - jsonPath: $.bankAccounts.*.tenantId
 
-       - jsonPath: $.bankAccounts.*.additionalFields
-         type: JSON
-         dbType: JSONB
+            - jsonPath: $.bankAccounts.*.serviceCode
 
-       - jsonPath: $.bankAccounts.*.auditDetails.createdBy
+            - jsonPath: $.bankAccounts.*.referenceId
 
-       - jsonPath: $.bankAccounts.*.auditDetails.lastModifiedBy
+            - jsonPath: $.bankAccounts.*.additionalFields
+              type: JSON
+              dbType: JSONB
 
-       - jsonPath: $.bankAccounts.*.auditDetails.createdTime
+            - jsonPath: $.bankAccounts.*.auditDetails.createdBy
 
-       - jsonPath: $.bankAccounts.*.auditDetails.lastModifiedTime
+            - jsonPath: $.bankAccounts.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.bankAccounts.*.auditDetails.createdTime
+
+            - jsonPath: $.bankAccounts.*.auditDetails.lastModifiedTime
 
 
-    - query: INSERT INTO eg_bank_account_detail(id,tenant_id,bank_account_id,account_holder_name,account_number,account_type,is_primary,is_active,additional_details,created_by,last_modified_by,created_time,last_modified_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO pg.eg_bank_account_detail(id,tenant_id,bank_account_id,account_holder_name,account_number,account_type,is_primary,is_active,additional_details,created_by,last_modified_by,created_time,last_modified_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);
 
-      basePath: $.bankAccounts.*.bankAccountDetails.*
-      jsonMaps:
+          basePath: $.bankAccounts.*.bankAccountDetails.*
+          jsonMaps:
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.id
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.id
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.tenantId
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.tenantId
 
-       - jsonPath: $.bankAccounts[*][?({id} in @.bankAccountDetails[*].id)].id
+            - jsonPath: $.bankAccounts[*][?({id} in @.bankAccountDetails[*].id)].id
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.accountHolderName
-       
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.accountNumber
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.accountHolderName
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.accountType
-       
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.isPrimary
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.accountNumber
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.isActive
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.accountType
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.additionalFields
-         type: JSON
-         dbType: JSONB
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.isPrimary
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.auditDetails.createdBy
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.isActive
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.auditDetails.lastModifiedBy
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.additionalFields
+              type: JSON
+              dbType: JSONB
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.auditDetails.createdTime
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.auditDetails.createdBy
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.auditDetails.lastModifiedTime	
-         
-         
-    - query: INSERT INTO eg_bank_accounts_doc(id,bank_account_detail_id,document_type,file_store,document_uid,additional_details) VALUES (?,?,?,?,?,?);
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.auditDetails.lastModifiedBy
 
-      basePath: $.bankAccounts.*.bankAccountDetails.*.documents.*
-      jsonMaps:
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.auditDetails.createdTime
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.id
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.auditDetails.lastModifiedTime
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails[*][?({id} in @.documents[*].id)].id
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.documentType
+        - query: INSERT INTO pg.eg_bank_accounts_doc(id,bank_account_detail_id,document_type,file_store,document_uid,additional_details) VALUES (?,?,?,?,?,?);
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.fileStore
+          basePath: $.bankAccounts.*.bankAccountDetails.*.documents.*
+          jsonMaps:
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.documentUid
-       
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.additionalDetails
-         type: JSON
-         dbType: JSONB
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.id
 
-       
-    - query: INSERT INTO eg_bank_branch_identifier(id,bank_account_detail_id,type,code,additional_details) VALUES (?,?,?,?,?);
+            - jsonPath: $.bankAccounts.*.bankAccountDetails[*][?({id} in @.documents[*].id)].id
 
-      basePath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier
-      jsonMaps:
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.documentType
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.id
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.fileStore
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.id
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.documentUid
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.type
-       
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.code
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.additionalDetails
+              type: JSON
+              dbType: JSONB
 
-       - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.additionalDetails
-         type: JSON
-         dbType: JSONB
-   
-   
- - version: 1.0
-   description: Update bank account details
-   fromTopic: update-bank-account
-   isTransaction: true
-   isAuditEnabled: true
-   module: BAS
-   objecIdJsonPath: $.id
-   tenantIdJsonPath: $.tenantId
-   transactionCodeJsonPath: $.accountNumber
-   auditAttributeBasePath: $.bankAccounts.*
-   queryMaps:
-      - query: UPDATE eg_bank_account set service_code=?, reference_id=?, additional_details=?,last_modified_by=?, last_modified_time=? where id=?;
-        basePath: $.bankAccounts.*
-        jsonMaps:           
 
-          - jsonPath: $.bankAccounts.*.serviceCode
+        - query: INSERT INTO pg.eg_bank_branch_identifier(id,bank_account_detail_id,type,code,additional_details) VALUES (?,?,?,?,?);
 
-          - jsonPath: $.bankAccounts.*.referenceId
-          
-          - jsonPath: $.bankAccounts.*.additionalDetails
-            type: JSON
-            dbType: JSONB
+          basePath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier
+          jsonMaps:
 
-          - jsonPath: $.bankAccounts.*.auditDetails.lastModifiedBy
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.id
 
-          - jsonPath: $.bankAccounts.*.auditDetails.lastModifiedTime
-          
-          - jsonPath: $.bankAccounts.*.id
-          
-          
-      - query: UPDATE eg_bank_account_detail set account_holder_name=?, account_type=?, account_number=?, is_primary=?,is_active=?, additional_details=?,last_modified_by=?, last_modified_time=? where id=?;
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.id
 
-        basePath: $.bankAccounts.*.bankAccountDetails.*
-        jsonMaps:
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.type
 
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.accountHolderName
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.code
 
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.accountType
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.additionalDetails
+              type: JSON
+              dbType: JSONB
 
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.accountNumber
-        
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.isPrimary
 
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.isActive
+    - version: 1.0
+      description: Update bank account details
+      fromTopic: pg-pdate-bank-account
+      isTransaction: true
+      isAuditEnabled: true
+      module: BAS
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      transactionCodeJsonPath: $.accountNumber
+      auditAttributeBasePath: $.bankAccounts.*
+      queryMaps:
+        - query: UPDATE pg.eg_bank_account set service_code=?, reference_id=?, additional_details=?,last_modified_by=?, last_modified_time=? where id=?;
+          basePath: $.bankAccounts.*
+          jsonMaps:
 
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.additionalFields
-          type: JSON
-          dbType: JSONB
-        
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.auditDetails.lastModifiedBy
+            - jsonPath: $.bankAccounts.*.serviceCode
 
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.auditDetails.lastModifiedTime
-        
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.id
-        
-        
-        
-      - query: UPDATE eg_bank_accounts_doc set document_type=?, file_store=?, document_uid=?,additional_details=? where id=?;
+            - jsonPath: $.bankAccounts.*.referenceId
 
-        basePath: $.bankAccounts.*.bankAccountDetails.*.documents.*
-        jsonMaps:
+            - jsonPath: $.bankAccounts.*.additionalDetails
+              type: JSON
+              dbType: JSONB
 
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.documentType
+            - jsonPath: $.bankAccounts.*.auditDetails.lastModifiedBy
 
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.fileStore
-       
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.documentUid
+            - jsonPath: $.bankAccounts.*.auditDetails.lastModifiedTime
 
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.additionalDetails
-          type: JSON
-          dbType: JSONB 
-        
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.id
-        
+            - jsonPath: $.bankAccounts.*.id
 
-      - query: UPDATE eg_bank_branch_identifier set type=?, code=?,additional_details=? where id=?;
 
-        basePath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier
-        jsonMaps:
+        - query: UPDATE pg.eg_bank_account_detail set account_holder_name=?, account_type=?, account_number=?, is_primary=?,is_active=?, additional_details=?,last_modified_by=?, last_modified_time=? where id=?;
 
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.type
-       
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.code
+          basePath: $.bankAccounts.*.bankAccountDetails.*
+          jsonMaps:
 
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.additionalDetails
-          type: JSON
-          dbType: JSONB 
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.accountHolderName
 
-        - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.id         
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.accountType
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.accountNumber
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.isPrimary
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.isActive
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.additionalFields
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.auditDetails.lastModifiedBy
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.auditDetails.lastModifiedTime
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.id
+
+
+
+        - query: UPDATE pg.eg_bank_accounts_doc set document_type=?, file_store=?, document_uid=?,additional_details=? where id=?;
+
+          basePath: $.bankAccounts.*.bankAccountDetails.*.documents.*
+          jsonMaps:
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.documentType
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.fileStore
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.documentUid
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.documents.*.id
+
+
+        - query: UPDATE eg_bank_branch_identifier set type=?, code=?,additional_details=? where id=?;
+
+          basePath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier
+          jsonMaps:
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.type
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.code
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.additionalDetails
+              type: JSON
+              dbType: JSONB
+
+            - jsonPath: $.bankAccounts.*.bankAccountDetails.*.bankBranchIdentifier.id

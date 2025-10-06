@@ -1,13 +1,14 @@
 serviceMaps:
   serviceName: Measurement-Registry
   mappings:
+
     - version: 1.0
       name: measurement
       description: Persists measurements details in the table
-      fromTopic: save-measurement-details
+      fromTopic: pg-save-measurement-details
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO eg_mb_measurements(id, tenantid, mbnumber, phyrefnumber, referenceid, entrydate, isactive, additionaldetails, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO pg.eg_mb_measurements(id, tenantid, mbnumber, phyrefnumber, referenceid, entrydate, isactive, additionaldetails, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
           basePath: measurements.*
           jsonMaps:
@@ -39,7 +40,7 @@ serviceMaps:
             - jsonPath: $.measurements.*.auditDetails.lastModifiedBy
 
 
-        - query: INSERT INTO eg_mb_measurement_details(id, referenceid, targetid, isactive, description, additionaldetails, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO pg.eg_mb_measurement_details(id, referenceid, targetid, isactive, description, additionaldetails, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
           basePath: measurements.*.measures.*
           jsonMaps:
@@ -68,7 +69,7 @@ serviceMaps:
             - jsonPath: $.measurements.*.measures.*.auditDetails.lastModifiedBy
 
 
-        - query: INSERT INTO eg_mb_measurement_documents (id, filestore, documenttype, documentuuid, referenceid, additionaldetails, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO pg.eg_mb_measurement_documents (id, filestore, documenttype, documentuuid, referenceid, additionaldetails, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?);
           basePath: measurements.*.documents.*
           jsonMaps:
             - jsonPath: $.measurements.*.documents.*.id
@@ -94,7 +95,7 @@ serviceMaps:
             - jsonPath: $.measurements[*][?({id} in @.documents[*].id)].auditDetails.lastModifiedTime
 
 
-        - query: INSERT INTO eg_mb_measurement_measures(id, length, breadth, height, numofitems, currentvalue, cumulative, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO pg.eg_mb_measurement_measures(id, length, breadth, height, numofitems, currentvalue, cumulative, createdtime, createdby, lastmodifiedtime, lastmodifiedby) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
           basePath: measurements.*.measures.*
           jsonMaps:
@@ -122,15 +123,14 @@ serviceMaps:
 
             - jsonPath: $.measurements.*.measures.*.auditDetails.lastModifiedBy
 
-
     - version: 1.0
       name: measurement
       description: Persists measurements details in the table
-      fromTopic: update-measurement-details
+      fromTopic: pg-update-measurement-details
       isTransaction: true
       queryMaps:
 
-        - query: UPDATE eg_mb_measurements SET phyrefnumber = ?,referenceid = ?, entrydate = ?,isactive = ?,additionaldetails = ?, lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
+        - query: UPDATE pg.eg_mb_measurements SET phyrefnumber = ?,referenceid = ?, entrydate = ?,isactive = ?,additionaldetails = ?, lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
 
           basePath: measurements.*
           jsonMaps:
@@ -155,7 +155,7 @@ serviceMaps:
             - jsonPath: $.measurements.*.id
 
 
-        - query: UPDATE eg_mb_measurement_details SET targetid = ?,isactive = ?, description = ?, additionaldetails = ?,lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
+        - query: UPDATE pg.eg_mb_measurement_details SET targetid = ?,isactive = ?, description = ?, additionaldetails = ?,lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
 
           basePath: measurements.*.measures.*
           jsonMaps:
@@ -177,7 +177,7 @@ serviceMaps:
             - jsonPath: $.measurements.*.measures.*.id
 
 
-        - query: INSERT INTO eg_mb_measurement_documents (id, filestore, documenttype, documentuuid, referenceid, additionaldetails, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE eg_mb_measurement_documents SET filestore = ?, documenttype = ?, documentuuid = ?, additionaldetails = ?,lastmodifiedtime = ?,lastmodifiedby = ?;
+        - query: INSERT INTO pg.eg_mb_measurement_documents (id, filestore, documenttype, documentuuid, referenceid, additionaldetails, createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id) DO UPDATE eg_mb_measurement_documents SET filestore = ?, documenttype = ?, documentuuid = ?, additionaldetails = ?,lastmodifiedtime = ?,lastmodifiedby = ?;
 
           basePath: measurements.*.documents.*
           jsonMaps:
@@ -219,7 +219,7 @@ serviceMaps:
 
 
 
-        - query: UPDATE eg_mb_measurement_measures SET length = ?,breadth = ?,height = ?, numofitems = ?,currentvalue = ?, cumulative = ?,lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
+        - query: UPDATE pg.eg_mb_measurement_measures SET length = ?,breadth = ?,height = ?, numofitems = ?,currentvalue = ?, cumulative = ?,lastmodifiedtime = ?,lastmodifiedby = ? WHERE id=?;
 
           basePath: measurements.*.measures.*
           jsonMaps:

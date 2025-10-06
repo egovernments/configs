@@ -1,14 +1,15 @@
 serviceMaps:
   serviceName: mukta-ifix-adapter-service
   mappings:
+
     - version: 1.0
       name: MuktaIFixAdapterService
       description: Persists Payment details and status to Mukta
-      fromTopic: mukta-ifix-adapter-disburse-create
+      fromTopic: pg-mukta-ifix-adapter-disburse-create
       isTransaction: true
       module: MAS
       queryMaps:
-        - query: INSERT INTO eg_mukta_ifms_disburse (id, program_code, target_id, account_code, status, status_message, individual, net_amount, gross_amount, created_time, created_by, last_modified_time, last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO pg.eg_mukta_ifms_disburse (id, program_code, target_id, account_code, status, status_message, individual, net_amount, gross_amount, created_time, created_by, last_modified_time, last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: $.message
           jsonMaps:
             - jsonPath: $.message.id
@@ -27,7 +28,7 @@ serviceMaps:
             - jsonPath: $.message.audit_details.lastModifiedTime
             - jsonPath: $.message.audit_details.lastModifiedBy
 
-        - query: INSERT INTO eg_mukta_ifms_message_codes ( id, location_code, parent_id, function_code, administration_code, program_code, recipient_segment_code, economic_segment_code, source_of_fund_code, target_segment_code, additional_details, created_time, created_by, last_modified_time, last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO pg.eg_mukta_ifms_message_codes ( id, location_code, parent_id, function_code, administration_code, program_code, recipient_segment_code, economic_segment_code, source_of_fund_code, target_segment_code, additional_details, created_time, created_by, last_modified_time, last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: $.message
           jsonMaps:
             - jsonPath: $.message.id
@@ -48,7 +49,7 @@ serviceMaps:
             - jsonPath: $.message.audit_details.lastModifiedTime
             - jsonPath: $.message.audit_details.lastModifiedBy
 
-        - query: INSERT INTO eg_mukta_ifms_disburse (id, program_code, target_id, parent_id, account_code, status, status_message, individual, net_amount, gross_amount, created_time, created_by, last_modified_time, last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO pg.eg_mukta_ifms_disburse (id, program_code, target_id, parent_id, account_code, status, status_message, individual, net_amount, gross_amount, created_time, created_by, last_modified_time, last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: $.message.children.*
           jsonMaps:
             - jsonPath: $.message.children.*.id
@@ -68,7 +69,7 @@ serviceMaps:
             - jsonPath: $.message.children.*.audit_details.lastModifiedTime
             - jsonPath: $.message.children.*.audit_details.lastModifiedBy
 
-        - query: INSERT INTO eg_mukta_ifms_message_codes ( id, location_code, parent_id, function_code, administration_code, program_code, recipient_segment_code, economic_segment_code, source_of_fund_code, target_segment_code, additional_details, created_time, created_by, last_modified_time, last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO pg.eg_mukta_ifms_message_codes ( id, location_code, parent_id, function_code, administration_code, program_code, recipient_segment_code, economic_segment_code, source_of_fund_code, target_segment_code, additional_details, created_time, created_by, last_modified_time, last_modified_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: $.message.children.*
           jsonMaps:
             - jsonPath: $.message.children.*.id
@@ -92,11 +93,11 @@ serviceMaps:
     - version: 1.0
       name: MuktaIFixAdapterService
       description: Updating Payment details and status to Mukta
-      fromTopic: mukta-ifix-adapter-disburse-update
+      fromTopic: pg-mukta-ifix-adapter-disburse-update
       isTransaction: true
       module: MAS
       queryMaps:
-        - query: UPDATE eg_mukta_ifms_disburse SET transaction_id = ?, status = ?, status_message = ?, last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
+        - query: UPDATE pg.eg_mukta_ifms_disburse SET transaction_id = ?, status = ?, status_message = ?, last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
           basePath: $.message
           jsonMaps:
             - jsonPath: $.message.transaction_id
@@ -106,7 +107,7 @@ serviceMaps:
             - jsonPath: $.message.audit_details.lastModifiedBy
             - jsonPath: $.message.id
 
-        - query: UPDATE eg_mukta_ifms_message_codes SET additional_details = ?, last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
+        - query: UPDATE pg.eg_mukta_ifms_message_codes SET additional_details = ?, last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
           basePath: $.message
           jsonMaps:
             - jsonPath: $.message.additional_details
@@ -116,7 +117,7 @@ serviceMaps:
             - jsonPath: $.message.audit_details.lastModifiedBy
             - jsonPath: $.message.id
 
-        - query: UPDATE eg_mukta_ifms_disburse SET transaction_id = ?, status = ?, status_message = ?, last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
+        - query: UPDATE pg.eg_mukta_ifms_disburse SET transaction_id = ?, status = ?, status_message = ?, last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
           basePath: $.message.children.*
           jsonMaps:
             - jsonPath: $.message.children.*.transaction_id
@@ -126,7 +127,7 @@ serviceMaps:
             - jsonPath: $.message.children.*.audit_details.lastModifiedBy
             - jsonPath: $.message.children.*.id
 
-        - query: UPDATE eg_mukta_ifms_message_codes SET additional_details = ?,last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
+        - query: UPDATE pg.eg_mukta_ifms_message_codes SET additional_details = ?,last_modified_time = ?, last_modified_by = ? WHERE id = ? ;
           basePath: $.message.children.*
           jsonMaps:
             - jsonPath: $.message.children.*.additional_details

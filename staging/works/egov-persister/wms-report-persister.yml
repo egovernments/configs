@@ -1,17 +1,18 @@
 serviceMaps:
   serviceName: works-management-service
   mappings:
+
     - version: 1.0
       name: works-management-service
       description: Persists report details in job report table
-      fromTopic: mukta-wms-payment-report-create
+      fromTopic: pg-mukta-wms-payment-report-create
       isTransaction: true
       isAuditEnabled: true
       module: WMS
       objecIdJsonPath: $.id
       tenantIdJsonPath: $.tenantId
       queryMaps:
-        - query: INSERT INTO job_report (id, tenant_id, report_number, report_name, no_of_projects, status, request_payload, additional_details, file_store_id, created_by, last_modified_by, created_time, last_modified_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);
+        - query: INSERT INTO pg.job_report (id, tenant_id, report_number, report_name, no_of_projects, status, request_payload, additional_details, file_store_id, created_by, last_modified_by, created_time, last_modified_time) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: $.report
           jsonMaps:
             - jsonPath: $.report.id
@@ -35,11 +36,11 @@ serviceMaps:
     - version: 1.0
       name: works-management-service
       description: Updates report job
-      fromTopic: mukta-wms-payment-report-update
+      fromTopic: pg-mukta-wms-payment-report-update
       isTransaction: true
       module: WMS
       queryMaps:
-        - query: UPDATE job_report SET no_of_projects = ?, status = ?, file_store_id = ?, last_modified_time = ? WHERE id = ?;
+        - query: UPDATE pg.job_report SET no_of_projects = ?, status = ?, file_store_id = ?, last_modified_time = ? WHERE id = ?;
           basePath: $.report
           jsonMaps:
             - jsonPath: $.report.noOfProjects
