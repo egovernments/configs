@@ -340,12 +340,16 @@ serviceMaps:
       fromTopic: save-process-data
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO health.eg_cm_campaign_process_data(campaignnumber,processName, "status") VALUES (?,?,?);
+        - query: INSERT INTO health.eg_cm_campaign_process_data(campaignnumber,processName, "status", createdby, lastmodifiedby, createdtime, lastmodifiedtime) VALUES (?,?,?,?,?,?,?);
           basePath: processes.*
           jsonMaps:
             - jsonPath: $.processes.*.campaignNumber
             - jsonPath: $.processes.*.processName
             - jsonPath: $.processes.*.status
+            - jsonPath: $.processes.*.auditDetails.createdBy
+            - jsonPath: $.processes.*.auditDetails.lastModifiedBy
+            - jsonPath: $.processes.*.auditDetails.createdTime
+            - jsonPath: $.processes.*.auditDetails.lastModifiedTime
 
     - version: 1.0
       name: UpdateProcessData
@@ -353,9 +357,11 @@ serviceMaps:
       fromTopic: update-process-data
       isTransaction: true
       queryMaps:
-        - query: UPDATE health.eg_cm_campaign_process_data SET "status" = ? WHERE campaignnumber = ? AND processName = ?;
+        - query: UPDATE health.eg_cm_campaign_process_data SET "status" = ?, lastmodifiedby = ?, lastmodifiedtime = ? WHERE campaignnumber = ? AND processName = ?;
           basePath: processes.*
           jsonMaps:
             - jsonPath: $.processes.*.status
+            - jsonPath: $.processes.*.auditDetails.lastModifiedBy
+            - jsonPath: $.processes.*.auditDetails.lastModifiedTime
             - jsonPath: $.processes.*.campaignNumber
             - jsonPath: $.processes.*.processName
