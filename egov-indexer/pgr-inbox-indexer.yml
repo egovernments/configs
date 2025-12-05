@@ -1,0 +1,74 @@
+ServiceMaps:
+  serviceName: Public Grievance Redressal - rainmaker
+  version: 1.0.0
+  mappings:
+    - topic: inbox-pgr-events
+      configKey: INDEX
+      indexes:
+        - name: inbox-pgr-services
+          type: general
+          id: $.service.serviceRequestId
+          jsonPath: $
+          timeStampField: $.service.auditDetails.createdTime
+          customJsonMapping:
+            indexMapping: {"Data":{"service":{},"tenantId": "","auditDetails": {},"currentProcessInstance": {}}}
+            fieldMapping:
+              - inJsonPath: $.service
+                outJsonPath: $.Data.service
+              - inJsonPath: $.service.tenantId
+                outJsonPath: $.Data.tenantId
+              - inJsonPath: $.service.auditDetails
+                outJsonPath: $.Data.auditDetails
+              - inJsonPath: $.service.processInstance
+                outJsonPath: $.Data.currentProcessInstance
+
+    - topic: inbox-pgr-events
+      configKey: INDEX
+      indexes:
+        - name: inbox-pgr-services
+          type: general
+          id: $.service.serviceRequestId
+          jsonPath: $
+          timeStampField: $.service.auditDetails.createdTime
+          customJsonMapping:
+            indexMapping: {"Data":{"service":{},"tenantId": "","auditDetails": {},"currentProcessInstance": {}}}
+            fieldMapping:
+              - inJsonPath: $.service
+                outJsonPath: $.Data.service
+              - inJsonPath: $.service.tenantId
+                outJsonPath: $.Data.tenantId
+              - inJsonPath: $.service.auditDetails
+                outJsonPath: $.Data.auditDetails
+              - inJsonPath: $.service.processInstance
+                outJsonPath: $.Data.currentProcessInstance
+
+    - topic: pgr-services-inboxIndex
+      configKey: LEGACYINDEX
+      indexes:
+        - name: inbox-pgr-services-legacy
+          type: general
+          isBulk: true
+          id: $.service.serviceRequestId
+          jsonPath: $.ServiceWrappers.*
+          timeStampField: $.service.auditDetails.createdTime
+          customJsonMapping:
+            indexMapping: {"Data":{"service":{},"tenantId": "","auditDetails": {},"currentProcessInstance": {}}}
+            fieldMapping:
+              - inJsonPath: $.service
+                outJsonPath: $.Data.service
+              - inJsonPath: $.service.tenantId
+                outJsonPath: $.Data.tenantId
+              - inJsonPath: $.service.auditDetails
+                outJsonPath: $.Data.auditDetails
+              - inJsonPath: $.service.ProcessInstances[0]
+                outJsonPath: $.Data.currentProcessInstance
+
+    - topic: pgr-service-reindex
+      configKey: REINDEX
+      indexes:
+        - name: pgrreindex-v2
+          type: general
+          id: $.Data.service.serviceRequestId
+          isBulk: true
+          jsonPath: $.hits
+          timeStampField: $.Data.service.auditDetails.lastModifiedTime
