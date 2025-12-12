@@ -39,6 +39,33 @@ serviceMaps:
             - jsonPath: $.Application.auditDetails.createdTime
             - jsonPath: $.Application.auditDetails.lastModifiedTime
             - jsonPath: $.Application.version
+        - query: >
+            INSERT INTO studio_address (
+              id, tenant_id, latitude, longitude, address_number, address_line1, address_line2,
+              landmark, city, pincode, properties, hierarchy_type, boundary_type, boundary_code,
+              application_number, created_at, updated_at
+            ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000));
+          basePath: $.Application.address
+          jsonMaps:
+            - jsonPath: $.Application.address.id
+            - jsonPath: $.Application.address.tenantId
+            - jsonPath: $.Application.address.latitude
+            - jsonPath: $.Application.address.longitude
+            - jsonPath: $.Application.address.addressNumber
+            - jsonPath: $.Application.address.addressLine1
+            - jsonPath: $.Application.address.addressLine2
+            - jsonPath: $.Application.address.landmark
+            - jsonPath: $.Application.address.city
+            - jsonPath: $.Application.address.pincode
+            - jsonPath: $.Application.address.properties
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Application.address.hierarchyType
+            - jsonPath: $.Application.address.boundaryType
+            - jsonPath: $.Application.address.boundaryCode
+            - jsonPath: $.Application.applicationNumber
+            - jsonPath: $.Application.auditDetails.createdTime
+            - jsonPath: $.Application.auditDetails.lastModifiedTime
         - query: |
             INSERT INTO applicant (
               id, type, application_id, user_id, prefix, active
@@ -90,7 +117,7 @@ serviceMaps:
         - query: >
             UPDATE application SET tenant_id = ?, module = ?, business_service = ?,
             status = ?, channel = ?, workflow_status = ?,
-                service_details = ?, additional_details = ?, address = ?, workflow = ?, last_modifiedby = ?, updated_at = to_timestamp(? / 1000), version = ?  
+                service_details = ?, additional_details = ?, address = ?, workflow = ?, last_modifiedby = ?, updated_at = to_timestamp(? / 1000), version = ?
             WHERE id = ?::uuid;
           basePath: $.Application
           jsonMaps:
@@ -116,6 +143,31 @@ serviceMaps:
             - jsonPath: $.Application.auditDetails.lastModifiedTime
             - jsonPath: $.Application.version
             - jsonPath: $.Application.id
+        - query: >
+            UPDATE studio_address SET
+              latitude = ?, longitude = ?, address_number = ?, address_line1 = ?, address_line2 = ?,
+              landmark = ?, city = ?, pincode = ?, properties = ?, hierarchy_type = ?,
+              boundary_type = ?, boundary_code = ?, updated_at = to_timestamp(? / 1000)
+            WHERE application_number = ? AND tenant_id = ?;
+          basePath: $.Application.address
+          jsonMaps:
+            - jsonPath: $.Application.address.latitude
+            - jsonPath: $.Application.address.longitude
+            - jsonPath: $.Application.address.addressNumber
+            - jsonPath: $.Application.address.addressLine1
+            - jsonPath: $.Application.address.addressLine2
+            - jsonPath: $.Application.address.landmark
+            - jsonPath: $.Application.address.city
+            - jsonPath: $.Application.address.pincode
+            - jsonPath: $.Application.address.properties
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Application.address.hierarchyType
+            - jsonPath: $.Application.address.boundaryType
+            - jsonPath: $.Application.address.boundaryCode
+            - jsonPath: $.Application.auditDetails.lastModifiedTime
+            - jsonPath: $.Application.applicationNumber
+            - jsonPath: $.Application.address.tenantId
         - query: >
             UPDATE applicant SET type = ?, user_id = ?, prefix = ?, active = ? WHERE
             id = ?::uuid;
@@ -216,7 +268,7 @@ serviceMaps:
             - jsonPath: $.Service.serviceCode
     - version: 1.0
       name: public service process create
-      description: save public service process 
+      description: save public service process
       fromTopic: save-public-service-process
       queryMaps:
         - query: >
@@ -236,8 +288,8 @@ serviceMaps:
               type: JSON
               dbType: JSONB
     - version: 1.0
-      name: public service Config version Mapping 
-      description: save service Config version Mapping 
+      name: public service Config version Mapping
+      description: save service Config version Mapping
       fromTopic: save-service-version-config-mapping
       queryMaps:
         - query: >
