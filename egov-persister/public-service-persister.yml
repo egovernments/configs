@@ -306,3 +306,93 @@ serviceMaps:
               dbType: JSONB
             - jsonPath: $.auditDetails.createdTime
             - jsonPath: $.auditDetails.lastModifiedTime
+
+    # ========================================================================
+    # RECORD SYSTEM - Versioned Record Snapshots
+    # ========================================================================
+    - version: 1.0
+      name: public service record create
+      description: Create versioned record snapshot from application
+      fromTopic: save-public-service-record
+      isTransaction: true
+      queryMaps:
+        # 1. Insert new record version
+        - query: >
+            INSERT INTO record (
+              id, record_number, version, previous_record_id,
+              application_id, application_number, service_number,
+              tenant_id, module, business_service, service_code, workflow_status, channel,
+              applicant, fields, address, documents, additional_details, data,
+              status, is_current,
+              created_at, created_by, updated_at, updated_by
+            ) VALUES (
+              ?::uuid, ?, ?::integer, ?::uuid,
+              ?::uuid, ?, ?,
+              ?, ?, ?, ?, ?, ?,
+              ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb,
+              ?, ?::boolean,
+              ?, ?, ?, ?
+            );
+          basePath: $.Record
+          jsonMaps:
+            - jsonPath: $.Record.id
+            - jsonPath: $.Record.recordNumber
+            - jsonPath: $.Record.version
+            - jsonPath: $.Record.previousRecordId
+            - jsonPath: $.Record.applicationId
+            - jsonPath: $.Record.applicationNumber
+            - jsonPath: $.Record.serviceNumber
+            - jsonPath: $.Record.tenantId
+            - jsonPath: $.Record.module
+            - jsonPath: $.Record.businessService
+            - jsonPath: $.Record.serviceCode
+            - jsonPath: $.Record.workflowStatus
+            - jsonPath: $.Record.channel
+            - jsonPath: $.Record.applicant
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Record.fields
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Record.address
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Record.documents
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Record.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Record.data
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Record.status
+            - jsonPath: $.Record.isCurrent
+            - jsonPath: $.Record.createdAt
+            - jsonPath: $.Record.createdBy
+            - jsonPath: $.Record.updatedAt
+            - jsonPath: $.Record.updatedBy
+
+        # 2. Update previous record version (set is_current = false)
+        # Only executes if previousRecordId is not null (version > 1)
+        - query: >
+            UPDATE record
+            SET is_current = false, updated_at = ?, updated_by = ?
+            WHERE id = ?::uuid;
+          basePath: $.Record
+          jsonMaps:
+            - jsonPath: $.Record.createdAt
+            - jsonPath: $.Record.createdBy
+            - jsonPath: $.Record.previousRecordId
+
+        # 3. Update application with record_id reference
+        # Stores record_number as VARCHAR (not UUID)
+        - query: >
+            UPDATE application
+            SET record_id = ?, updated_at = to_timestamp(? / 1000)
+            WHERE id = ?::uuid;
+          basePath: $.Record
+          jsonMaps:
+            - jsonPath: $.Record.recordNumber
+            - jsonPath: $.Record.createdAt
+            - jsonPath: $.Record.applicationId
