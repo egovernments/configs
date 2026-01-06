@@ -9,8 +9,8 @@ serviceMaps:
         - query: >
             INSERT INTO application (
               id, tenant_id, module, business_service, status, channel, application_number, workflow_status, service_code,
-              service_details, additional_details, address, workflow, createdby, last_modifiedby, created_at, updated_at, version
-            ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000), ?);
+              record_number, service_details, additional_details, address, workflow, createdby, last_modifiedby, created_at, updated_at, version
+            ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000), ?);
           basePath: $.Application
           jsonMaps:
             - jsonPath: $.Application.id
@@ -22,6 +22,7 @@ serviceMaps:
             - jsonPath: $.Application.applicationNumber
             - jsonPath: $.Application.workflowStatus
             - jsonPath: $.Application.serviceCode
+            - jsonPath: $.Application.recordNumber
             - jsonPath: $.Application.serviceDetails
               type: JSON
               dbType: JSONB
@@ -116,7 +117,7 @@ serviceMaps:
       queryMaps:
         - query: >
             UPDATE application SET tenant_id = ?, module = ?, business_service = ?,
-            status = ?, channel = ?, workflow_status = ?,
+            status = ?, channel = ?, workflow_status = ?, record_number = ?,
                 service_details = ?, additional_details = ?, address = ?, workflow = ?, last_modifiedby = ?, updated_at = to_timestamp(? / 1000), version = ?
             WHERE id = ?::uuid;
           basePath: $.Application
@@ -127,6 +128,7 @@ serviceMaps:
             - jsonPath: $.Application.status
             - jsonPath: $.Application.channel
             - jsonPath: $.Application.workflowStatus
+            - jsonPath: $.Application.recordNumber
             - jsonPath: $.Application.serviceDetails
               type: JSON
               dbType: JSONB
@@ -385,11 +387,11 @@ serviceMaps:
             - jsonPath: $.Record.createdBy
             - jsonPath: $.Record.previousRecordId
 
-        # 3. Update application with record_id reference
-        # Stores record_number as VARCHAR (not UUID)
+        # 3. Update application with record_number reference
+        # Stores record_number string (e.g., "REC-2025-01-02-000001")
         - query: >
             UPDATE application
-            SET record_id = ?, updated_at = to_timestamp(? / 1000)
+            SET record_number = ?, updated_at = to_timestamp(? / 1000)
             WHERE id = ?::uuid;
           basePath: $.Record
           jsonMaps:
