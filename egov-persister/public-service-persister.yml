@@ -365,15 +365,12 @@ serviceMaps:
             - jsonPath: $.Record.additionalDetails
               type: JSON
               dbType: JSONB
-            - jsonPath: $.Record.data
-              type: JSON
-              dbType: JSONB
             - jsonPath: $.Record.status
             - jsonPath: $.Record.isCurrent
-            - jsonPath: $.Record.createdAt
-            - jsonPath: $.Record.createdBy
-            - jsonPath: $.Record.updatedAt
-            - jsonPath: $.Record.updatedBy
+            - jsonPath: $.Record.auditDetails.createdTime
+            - jsonPath: $.Record.auditDetails.createdBy
+            - jsonPath: $.Record.auditDetails.lastModifiedTime
+            - jsonPath: $.Record.auditDetails.lastModifiedBy
 
         # 2. Update previous record version (set is_current = false)
         # Only executes if previousRecordId is not null (version > 1)
@@ -383,8 +380,8 @@ serviceMaps:
             WHERE id = ?::uuid;
           basePath: $.Record
           jsonMaps:
-            - jsonPath: $.Record.createdAt
-            - jsonPath: $.Record.createdBy
+            - jsonPath: $.Record.auditDetails.createdTime
+            - jsonPath: $.Record.auditDetails.createdBy
             - jsonPath: $.Record.previousRecordId
 
         # 3. Update application with record_number reference
@@ -396,5 +393,5 @@ serviceMaps:
           basePath: $.Record
           jsonMaps:
             - jsonPath: $.Record.recordNumber
-            - jsonPath: $.Record.createdAt
+            - jsonPath: $.Record.auditDetails.createdTime
             - jsonPath: $.Record.applicationId
