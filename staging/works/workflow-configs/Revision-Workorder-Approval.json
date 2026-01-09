@@ -1,6 +1,6 @@
 {
   "RequestInfo": {
-    "apiId": "measurement-book-service",
+    "apiId": "contract-service",
     "action": "",
     "did": 1,
     "key": "",
@@ -16,56 +16,24 @@
   "BusinessServices": [
     {
       "tenantId": "pg",
-      "businessService": "MB",
-      "business": "measurement-book-service",
-      "businessServiceSla": 432000000,
+      "businessService": "CONTRACT-REVISION",
+      "business": "contract-service",
+      "businessServiceSla": 604800000,
       "states": [
         {
           "sla": null,
           "state": null,
           "applicationStatus": null,
-          "docUploadRequired": true,
+          "docUploadRequired": false,
           "isStartState": true,
           "isTerminateState": false,
           "isStateUpdatable": true,
           "actions": [
             {
-              "action": "SAVE_AS_DRAFT",
-              "nextState": "DRAFTED",
-              "roles": [
-                "MB_CREATOR"
-              ]
-            },
-            {
-              "action": "SUBMIT",
+              "action": "CREATE",
               "nextState": "PENDING_FOR_VERIFICATION",
               "roles": [
-                "MB_CREATOR"
-              ]
-            }
-          ]
-        },
-        {
-          "sla": null,
-          "state": "DRAFTED",
-          "applicationStatus": "DRAFTED",
-          "docUploadRequired": false,
-          "isStartState": false,
-          "isTerminateState": false,
-          "isStateUpdatable": true,
-          "actions": [
-            {
-              "action": "SUBMIT",
-              "nextState": "PENDING_FOR_VERIFICATION",
-              "roles": [
-                "MB_CREATOR"
-              ]
-            },
-            {
-              "action": "SAVE_AS_DRAFT",
-              "nextState": "DRAFTED",
-              "roles": [
-                "MB_CREATOR"
+                "WORK_ORDER_CREATOR", "ORG_ADMIN"
               ]
             }
           ]
@@ -73,7 +41,7 @@
         {
           "sla": 172800000,
           "state": "PENDING_FOR_VERIFICATION",
-          "applicationStatus": "SUBMITTED",
+          "applicationStatus": "INWORKFLOW",
           "docUploadRequired": false,
           "isStartState": false,
           "isTerminateState": false,
@@ -83,14 +51,14 @@
               "action": "VERIFY_AND_FORWARD",
               "nextState": "PENDING_FOR_APPROVAL",
               "roles": [
-                "MB_VERIFIER"
+                "WORK_ORDER_VERIFIER"
               ]
             },
             {
-              "action": "SENT_BACK",
+              "action": "SEND_BACK",
               "nextState": "PENDING_FOR_CORRECTION",
               "roles": [
-                "MB_VERIFIER"
+                "WORK_ORDER_VERIFIER"
               ]
             }
           ]
@@ -98,79 +66,91 @@
         {
           "sla": 86400000,
           "state": "PENDING_FOR_APPROVAL",
-          "applicationStatus": "VERIFIED",
+          "applicationStatus": "INWORKFLOW",
           "docUploadRequired": false,
           "isStartState": false,
           "isTerminateState": false,
           "isStateUpdatable": true,
           "actions": [
             {
-              "action": "SENT_BACK",
-              "nextState": "PENDING_FOR_VERIFICATION",
-              "roles": [
-                "MB_APPROVER"
-              ]
-            },
-            {
               "action": "APPROVE",
               "nextState": "APPROVED",
               "roles": [
-                "MB_APPROVER"
+                "WORK_ORDER_APPROVER"
+              ]
+            },
+            {
+              "action": "SEND_BACK",
+              "nextState": "PENDING_FOR_VERIFICATION",
+              "roles": [
+                "WORK_ORDER_APPROVER"
               ]
             },
             {
               "action": "REJECT",
               "nextState": "REJECTED",
               "roles": [
-                "MB_APPROVER"
+                "WORK_ORDER_APPROVER"
               ]
             },
             {
               "action": "SEND_BACK_TO_ORIGINATOR",
               "nextState": "PENDING_FOR_CORRECTION",
               "roles": [
-                "MB_APPROVER"
+                "WORK_ORDER_APPROVER"
+              ]
+            }
+          ]
+        },
+
+        {
+          "sla": 86400000,
+          "state": "PENDING_FOR_CORRECTION",
+          "applicationStatus": "INWORKFLOW",
+          "docUploadRequired": false,
+          "isStartState": true,
+          "isTerminateState": false,
+          "isStateUpdatable": true,
+          "actions": [
+            {
+              "action": "EDIT",
+              "nextState": "PENDING_FOR_VERIFICATION",
+              "roles": [
+                "WORK_ORDER_CREATOR","ORG_ADMIN"
+              ]
+            },
+            {
+              "action": "REJECT",
+              "nextState": "REJECTED",
+              "roles": [
+                "WORK_ORDER_CREATOR","ORG_ADMIN"
               ]
             }
           ]
         },
         {
-          "sla": 86400000,
-          "state": "PENDING_FOR_CORRECTION",
-          "applicationStatus": "SENT_BACK",
+          "sla": null,
+          "state": "APPROVED",
+          "applicationStatus": "ACTIVE",
           "docUploadRequired": false,
           "isStartState": false,
-          "isTerminateState": false,
-          "isStateUpdatable": true,
+          "isTerminateState": true,
+          "isStateUpdatable": false,
           "actions": [
-            {
-              "action": "EDIT/RE-SUBMIT",
-              "nextState": "PENDING_FOR_VERIFICATION",
-              "roles": [
-                "MB_CREATOR"
-              ]
-            }
+
           ]
         },
         {
           "sla": null,
           "state": "REJECTED",
-          "applicationStatus": "REJECTED",
+          "applicationStatus": "INACTIVE",
           "docUploadRequired": false,
           "isStartState": false,
           "isTerminateState": true,
           "isStateUpdatable": false,
-          "actions": null
-        },
-        {
-          "sla": null,
-          "state": "APPROVED",
-          "applicationStatus": "APPROVED",
-          "docUploadRequired": false,
-          "isStartState": false,
-          "isTerminateState": true,
-          "isStateUpdatable": false,
-          "actions": null
+          "actions": [
+
+          ]
         }
       ]
     }
