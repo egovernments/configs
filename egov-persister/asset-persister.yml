@@ -1,0 +1,38 @@
+serviceMaps:
+  serviceName: asset-service
+  mappings:
+    - version: 1.0
+      description: Persists asset data
+      fromTopic: save-asset
+      isTransaction: true
+      queryMaps:
+        - query: INSERT INTO asset (asset_id, tenant_id, system, facility_id, asset_type_id, serial_number, model_number, brand_id, asset_details, warranty_start_date, warranty_duration, warranty_end_date, wf_status, is_active, additional_details, created_by, last_modified_by, created_time, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.assetId
+            - jsonPath: $.tenantId
+            - jsonPath: $.system
+            - jsonPath: $.facilityID
+            - jsonPath: $.assetTypeID
+            - jsonPath: $.serialNumber
+            - jsonPath: $.modelNumber
+            - jsonPath: $.brandID
+            - jsonPath: $.assetDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.warrantyStartDate
+              type: DATE
+            - jsonPath: $.warrantyDuration
+            - jsonPath: $.warrantyEndDate
+              type: DATE
+            - jsonPath: $.wfStatus
+            - jsonPath: $.isActive
+            - jsonPath: $.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.auditDetails.createdBy
+            - jsonPath: $.auditDetails.lastModifiedBy
+            - jsonPath: $.auditDetails.createdTime
+              type: LONG
+            - jsonPath: $.auditDetails.lastModifiedTime
+              type: LONG
