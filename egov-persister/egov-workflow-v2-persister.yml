@@ -1,3 +1,4 @@
+
 serviceMaps:
   serviceName: egov-workflow-v2
   mappings:
@@ -284,3 +285,44 @@ serviceMaps:
             - jsonPath: $.BusinessServices.*.states.*.actions.*.auditDetails.lastModifiedBy
 
             - jsonPath: $.BusinessServices.*.states.*.actions.*.auditDetails.lastModifiedTime
+            
+    - version: 1.0
+      description: Deletes Business Services
+      fromTopic: delete-business-service-topic
+      isTransaction: true
+      queryMaps: 
+        - query: DELETE FROM eg_wf_action_v2 WHERE currentState IN (SELECT uuid FROM eg_wf_state_v2 WHERE businessserviceid = (SELECT uuid FROM eg_wf_businessservice_v2 WHERE tenantid = ? AND businessservice = ?))
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.tenantId
+            - jsonPath: $.businessService
+    
+        - query: DELETE FROM eg_wf_assignee_v2 WHERE processinstanceid IN (SELECT id FROM eg_wf_processinstance_v2 WHERE tenantid = ? AND businessService = ?)
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.tenantId
+            - jsonPath: $.businessService
+    
+        - query: DELETE FROM eg_wf_document_v2 WHERE processinstanceid IN (SELECT id FROM eg_wf_processinstance_v2 WHERE tenantid = ? AND businessService = ?)
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.tenantId
+            - jsonPath: $.businessService
+    
+        - query: DELETE FROM eg_wf_processinstance_v2 WHERE tenantid = ? AND businessService = ?
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.tenantId
+            - jsonPath: $.businessService
+        
+        - query: DELETE FROM eg_wf_state_v2 WHERE businessserviceid = (SELECT uuid FROM eg_wf_businessservice_v2 WHERE tenantid = ? AND businessservice = ?)
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.tenantId
+            - jsonPath: $.businessService
+        
+        - query: DELETE FROM eg_wf_businessservice_v2 WHERE tenantid = ? AND businessservice = ?
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.tenantId
+            - jsonPath: $.businessService
