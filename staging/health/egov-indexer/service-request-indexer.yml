@@ -1,21 +1,21 @@
 ServiceMaps:
-  serviceName: stock
+  serviceName: service-request
   version: 1.0.0
   mappings:
-    - topic: transformer-producer-bulk-stock-index-v1-health-topic
+    - topic: transformer-producer-service-request-index-v1-health-topic
       configKey: INDEX
       indexes:
-        - name: stock-index-v1
-          type: stock
+        - name: service-task-v1
+          type: service
           id: $.id
           isBulk: true
           jsonPath: $
           customJsonMapping:
-            indexMapping: { "Data": { } }
+            indexMapping: { "Data": {} }
             fieldMapping:
               - inJsonPath: $
                 outJsonPath: $.Data
-          timeStampField: $.lastModifiedTime
+          timeStampField: $.createdTime
         - name: user-sync-index-v1
           type: users
           id: $.id
@@ -24,7 +24,7 @@ ServiceMaps:
           customJsonMapping:
             indexMapping: { "Data": { } }
             fieldMapping:
-              - inJsonPath: $.lastModifiedBy
+              - inJsonPath: $.createdBy
                 outJsonPath: $.Data.syncedUserId
               - inJsonPath: $.createdTime
                 outJsonPath: $.Data.clientCreatedTime
@@ -38,14 +38,8 @@ ServiceMaps:
                 outJsonPath: $.Data.createdTime
               - inJsonPath: $.syncedTimeStamp
                 outJsonPath: $.Data.syncedTimeStamp
-              - inJsonPath: $.@timestamp
+              - inJsonPath: $.syncedTimeStamp
                 outJsonPath: $.Data.@timestamp
-              - inJsonPath: $.syncedDate
-                outJsonPath: $.Data.syncedDate
-              - inJsonPath: $.latitude
-                outJsonPath: $.Data.latitude
-              - inJsonPath: $.longitude
-                outJsonPath: $.Data.longitude
               - inJsonPath: $.nameOfUser
                 outJsonPath: $.Data.syncedNameOfUser
               - inJsonPath: $.projectId
@@ -58,17 +52,48 @@ ServiceMaps:
                 outJsonPath: $.Data.projectName
           timeStampField: $.createdTime
 
-    - topic: transformer-producer-stock-recon-index-v1-health-topic
+    - topic: transformer-producer-hfreferral-service-index-health-topic
       configKey: INDEX
       indexes:
-        - name: stock-reconciliation-index-v1
-          type: reconciliation
-          id: $.stockReconciliation.id
+        - name: hf-referral-service-task-v1
+          type: service
+          id: $.id
+          isBulk: true
+          jsonPath: $
+          customJsonMapping:
+            indexMapping: { "Data": {} }
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data
+          timeStampField: $.createdTime
+        - name: user-sync-index-v1
+          type: users
+          id: $.id
           isBulk: true
           jsonPath: $
           customJsonMapping:
             indexMapping: { "Data": { } }
             fieldMapping:
-              - inJsonPath: $
-                outJsonPath: $.Data
-          timeStampField: $.stockReconciliation.auditDetails.createdTime
+              - inJsonPath: $.createdBy
+                outJsonPath: $.Data.syncedUserId
+              - inJsonPath: $.userName
+                outJsonPath: $.Data.syncedUserName
+              - inJsonPath: $.role
+                outJsonPath: $.Data.role
+              - inJsonPath: $.boundaryHierarchy
+                outJsonPath: $.Data.boundaryHierarchy
+              - inJsonPath: $.createdTime
+                outJsonPath: $.Data.clientCreatedTime
+              - inJsonPath: $.syncedTime
+                outJsonPath: $.Data.createdTime
+              - inJsonPath: $.syncedTimeStamp
+                outJsonPath: $.Data.syncedTimeStamp
+              - inJsonPath: $.@timestamp
+                outJsonPath: $.Data.@timestamp
+              - inJsonPath: $.taskDates
+                outJsonPath: $.Data.taskDates
+              - inJsonPath: $.userAddress
+                outJsonPath: $.Data.userAddress
+              - inJsonPath: $.additionalDetails
+                outJsonPath: $.Data.additionalDetails
+          timeStampField: $.createdTime
