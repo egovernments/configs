@@ -7,7 +7,7 @@ serviceMaps:
       fromTopic: save-public-service-application
       queryMaps:
         - query: >
-            INSERT INTO application (
+            INSERT INTO studio.application (
               id, tenant_id, module, business_service, status, channel, application_number, workflow_status, service_code,
               record_number, service_details, additional_details, address, workflow, createdby, last_modifiedby, created_at, updated_at, version
             ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000), ?);
@@ -41,7 +41,7 @@ serviceMaps:
             - jsonPath: $.Application.auditDetails.lastModifiedTime
             - jsonPath: $.Application.version
         - query: >
-            INSERT INTO studio_address (
+            INSERT INTO studio.studio_address (
               id, tenant_id, latitude, longitude, address_number, address_line1, address_line2,
               landmark, city, pincode, properties, hierarchy_type, boundary_type, boundary_code,
               application_number, created_at, updated_at
@@ -68,7 +68,7 @@ serviceMaps:
             - jsonPath: $.Application.auditDetails.createdTime
             - jsonPath: $.Application.auditDetails.lastModifiedTime
         - query: |
-            INSERT INTO applicant (
+            INSERT INTO studio.applicant (
               id, type, application_id, user_id, prefix, active
             ) VALUES (?::uuid, ?, ?::uuid, ?, ?, ?);
           basePath: $.Application.applicants.*
@@ -80,7 +80,7 @@ serviceMaps:
             - jsonPath: $.Application.applicants.*.prefix
             - jsonPath: $.Application.applicants.*.active
         - query: >
-            INSERT INTO application_document (
+            INSERT INTO studio.application_document (
               id, application_number, document_type, file_store_id, document_uid, additional_details,  createdby, last_modifiedby, created_at, updated_at
             ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000));
           basePath: $.Application.documents.*
@@ -98,7 +98,7 @@ serviceMaps:
             - jsonPath: $.Application.documents.*.auditDetails.createdTime
             - jsonPath: $.Application.documents.*.auditDetails.lastModifiedTime
         - query: >
-            INSERT INTO reference (
+            INSERT INTO studio.reference (
               id, reference_type, module, tenant_id, reference_no, active, application_id
             ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?::uuid);
           basePath: $.Application.reference
@@ -186,7 +186,7 @@ serviceMaps:
           jsonMaps:
             - jsonPath: $.Application.applicationNumber
         - query: >
-            INSERT INTO application_document (
+            INSERT INTO studio.application_document (
               id, application_number, document_type, file_store_id, document_uid, additional_details, createdby, last_modifiedby, created_at, updated_at
             ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000));
           basePath: $.Application.documents.*
@@ -220,7 +220,7 @@ serviceMaps:
       fromTopic: save-public-service
       queryMaps:
         - query: >
-            INSERT INTO service (
+            INSERT INTO studio.service (
               id, tenant_id, module, business_service, status, service_code,
               additional_details, createdby, last_modifiedby, created_at, updated_at, version
             ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000), ?);
@@ -274,7 +274,7 @@ serviceMaps:
       fromTopic: save-public-service-process
       queryMaps:
         - query: >
-            INSERT INTO public_service_process (
+            INSERT INTO studio.public_service_process (
               id, process_name, business_service, module, createdby, created_time, success, failurereason
             ) VALUES (?::uuid, ?, ?, ?, ?, to_timestamp(? / 1000), ?, ?);
           basePath: $
@@ -295,7 +295,7 @@ serviceMaps:
       fromTopic: save-service-version-config-mapping
       queryMaps:
         - query: >
-            INSERT INTO service_version_config_mapping (
+            INSERT INTO studio.service_version_config_mapping (
               id, service_code, version, config, created_at, updated_at
             ) VALUES (?::uuid, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000));
           basePath: $
@@ -320,7 +320,7 @@ serviceMaps:
       queryMaps:
         # 1. Insert new record version
         - query: >
-            INSERT INTO record (
+            INSERT INTO studio.record (
               id, record_number, version, previous_record_id,
               application_id, application_number, service_number,
               tenant_id, module, business_service, service_code, workflow_status, channel,
