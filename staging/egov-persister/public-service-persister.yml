@@ -1,0 +1,397 @@
+serviceMaps:
+  serviceName: public Service
+  mappings:
+    - version: 1.0
+      name: public service application create
+      description: create public application
+      fromTopic: save-public-service-application
+      queryMaps:
+        - query: >
+            INSERT INTO studio.application (
+              id, tenant_id, module, business_service, status, channel, application_number, workflow_status, service_code,
+              record_number, service_details, additional_details, address, workflow, createdby, last_modifiedby, created_at, updated_at, version
+            ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000), ?);
+          basePath: $.Application
+          jsonMaps:
+            - jsonPath: $.Application.id
+            - jsonPath: $.Application.tenantId
+            - jsonPath: $.Application.module
+            - jsonPath: $.Application.businessService
+            - jsonPath: $.Application.status
+            - jsonPath: $.Application.channel
+            - jsonPath: $.Application.applicationNumber
+            - jsonPath: $.Application.workflowStatus
+            - jsonPath: $.Application.serviceCode
+            - jsonPath: $.Application.recordNumber
+            - jsonPath: $.Application.serviceDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Application.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Application.address
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Application.workflow
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Application.auditDetails.createdBy
+            - jsonPath: $.Application.auditDetails.lastModifiedBy
+            - jsonPath: $.Application.auditDetails.createdTime
+            - jsonPath: $.Application.auditDetails.lastModifiedTime
+            - jsonPath: $.Application.version
+        - query: >
+            INSERT INTO studio.studio_address (
+              id, tenant_id, latitude, longitude, address_number, address_line1, address_line2,
+              landmark, city, pincode, properties, hierarchy_type, boundary_type, boundary_code,
+              application_number, created_at, updated_at
+            ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000));
+          basePath: $.Application.address
+          jsonMaps:
+            - jsonPath: $.Application.address.id
+            - jsonPath: $.Application.address.tenantId
+            - jsonPath: $.Application.address.latitude
+            - jsonPath: $.Application.address.longitude
+            - jsonPath: $.Application.address.addressNumber
+            - jsonPath: $.Application.address.addressLine1
+            - jsonPath: $.Application.address.addressLine2
+            - jsonPath: $.Application.address.landmark
+            - jsonPath: $.Application.address.city
+            - jsonPath: $.Application.address.pincode
+            - jsonPath: $.Application.address.properties
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Application.address.hierarchyType
+            - jsonPath: $.Application.address.boundaryType
+            - jsonPath: $.Application.address.boundaryCode
+            - jsonPath: $.Application.applicationNumber
+            - jsonPath: $.Application.auditDetails.createdTime
+            - jsonPath: $.Application.auditDetails.lastModifiedTime
+        - query: |
+            INSERT INTO studio.applicant (
+              id, type, application_id, user_id, prefix, active
+            ) VALUES (?::uuid, ?, ?::uuid, ?, ?, ?);
+          basePath: $.Application.applicants.*
+          jsonMaps:
+            - jsonPath: $.Application.applicants.*.id
+            - jsonPath: $.Application.applicants.*.type
+            - jsonPath: $.Application.id
+            - jsonPath: $.Application.applicants.*.userId
+            - jsonPath: $.Application.applicants.*.prefix
+            - jsonPath: $.Application.applicants.*.active
+        - query: >
+            INSERT INTO studio.application_document (
+              id, application_number, document_type, file_store_id, document_uid, additional_details,  createdby, last_modifiedby, created_at, updated_at
+            ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000));
+          basePath: $.Application.documents.*
+          jsonMaps:
+            - jsonPath: $.Application.documents.*.id
+            - jsonPath: $.Application.applicationNumber
+            - jsonPath: $.Application.documents.*.documentType
+            - jsonPath: $.Application.documents.*.fileStoreId
+            - jsonPath: $.Application.documents.*.documentUid
+            - jsonPath: $.Application.documents.*.additional_details
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Application.documents.*.auditDetails.createdBy
+            - jsonPath: $.Application.documents.*.auditDetails.lastModifiedBy
+            - jsonPath: $.Application.documents.*.auditDetails.createdTime
+            - jsonPath: $.Application.documents.*.auditDetails.lastModifiedTime
+        - query: >
+            INSERT INTO studio.reference (
+              id, reference_type, module, tenant_id, reference_no, active, application_id
+            ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?::uuid);
+          basePath: $.Application.reference
+          jsonMaps:
+            - jsonPath: $.Application.reference.referenceId
+            - jsonPath: $.Application.reference.referenceType
+            - jsonPath: $.Application.reference.module
+            - jsonPath: $.Application.reference.tenantId
+            - jsonPath: $.Application.reference.referenceNo
+            - jsonPath: $.Application.reference.active
+            - jsonPath: $.Application.id
+    - version: 1.0
+      description: Updates a product variant
+      fromTopic: update-public-service-application
+      isTransaction: true
+      queryMaps:
+        - query: >
+            UPDATE application SET tenant_id = ?, module = ?, business_service = ?,
+            status = ?, channel = ?, workflow_status = ?, record_number = ?,
+                service_details = ?, additional_details = ?, address = ?, workflow = ?, last_modifiedby = ?, updated_at = to_timestamp(? / 1000), version = ?
+            WHERE id = ?::uuid;
+          basePath: $.Application
+          jsonMaps:
+            - jsonPath: $.Application.tenantId
+            - jsonPath: $.Application.module
+            - jsonPath: $.Application.businessService
+            - jsonPath: $.Application.status
+            - jsonPath: $.Application.channel
+            - jsonPath: $.Application.workflowStatus
+            - jsonPath: $.Application.recordNumber
+            - jsonPath: $.Application.serviceDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Application.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Application.address
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Application.workflow
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Application.auditDetails.lastModifiedBy
+            - jsonPath: $.Application.auditDetails.lastModifiedTime
+            - jsonPath: $.Application.version
+            - jsonPath: $.Application.id
+        - query: >
+            UPDATE studio_address SET
+              latitude = ?, longitude = ?, address_number = ?, address_line1 = ?, address_line2 = ?,
+              landmark = ?, city = ?, pincode = ?, properties = ?, hierarchy_type = ?,
+              boundary_type = ?, boundary_code = ?, updated_at = to_timestamp(? / 1000)
+            WHERE application_number = ? AND tenant_id = ?;
+          basePath: $.Application.address
+          jsonMaps:
+            - jsonPath: $.Application.address.latitude
+            - jsonPath: $.Application.address.longitude
+            - jsonPath: $.Application.address.addressNumber
+            - jsonPath: $.Application.address.addressLine1
+            - jsonPath: $.Application.address.addressLine2
+            - jsonPath: $.Application.address.landmark
+            - jsonPath: $.Application.address.city
+            - jsonPath: $.Application.address.pincode
+            - jsonPath: $.Application.address.properties
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Application.address.hierarchyType
+            - jsonPath: $.Application.address.boundaryType
+            - jsonPath: $.Application.address.boundaryCode
+            - jsonPath: $.Application.auditDetails.lastModifiedTime
+            - jsonPath: $.Application.applicationNumber
+            - jsonPath: $.Application.address.tenantId
+        - query: >
+            UPDATE applicant SET type = ?, user_id = ?, prefix = ?, active = ? WHERE
+            id = ?::uuid;
+          basePath: $.Application.applicants.*
+          jsonMaps:
+            - jsonPath: $.Application.applicants.*.type
+            - jsonPath: $.Application.applicants.*.userId
+            - jsonPath: $.Application.applicants.*.prefix
+            - jsonPath: $.Application.applicants.*.active
+            - jsonPath: $.Application.applicants.*.id
+        - query: |
+            DELETE FROM application_document WHERE application_number = ?;
+          basePath: $.Application
+          jsonMaps:
+            - jsonPath: $.Application.applicationNumber
+        - query: >
+            INSERT INTO studio.application_document (
+              id, application_number, document_type, file_store_id, document_uid, additional_details, createdby, last_modifiedby, created_at, updated_at
+            ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000));
+          basePath: $.Application.documents.*
+          jsonMaps:
+            - jsonPath: $.Application.documents.*.id
+            - jsonPath: $.Application.applicationNumber
+            - jsonPath: $.Application.documents.*.documentType
+            - jsonPath: $.Application.documents.*.fileStoreId
+            - jsonPath: $.Application.documents.*.documentUid
+            - jsonPath: $.Application.documents.*.additional_details
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Application.documents.*.auditDetails.createdBy
+            - jsonPath: $.Application.documents.*.auditDetails.lastModifiedBy
+            - jsonPath: $.Application.documents.*.auditDetails.createdTime
+            - jsonPath: $.Application.documents.*.auditDetails.lastModifiedTime
+        - query: >
+            UPDATE reference SET reference_type = ?, module = ?, tenant_id = ?,
+            reference_no = ?, active = ? WHERE id = ?::uuid;
+          basePath: $.Application.reference
+          jsonMaps:
+            - jsonPath: $.Application.reference.referenceType
+            - jsonPath: $.Application.reference.module
+            - jsonPath: $.Application.reference.tenantId
+            - jsonPath: $.Application.reference.referenceNo
+            - jsonPath: $.Application.reference.active
+            - jsonPath: $.Application.reference.referenceId
+    - version: 1.0
+      name: public service create
+      description: create public service
+      fromTopic: save-public-service
+      queryMaps:
+        - query: >
+            INSERT INTO studio.service (
+              id, tenant_id, module, business_service, status, service_code,
+              additional_details, createdby, last_modifiedby, created_at, updated_at, version
+            ) VALUES (?::uuid, ?, ?, ?, ?, ?, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000), ?);
+          basePath: $.Service
+          jsonMaps:
+            - jsonPath: $.Service.id
+            - jsonPath: $.Service.tenantId
+            - jsonPath: $.Service.module
+            - jsonPath: $.Service.businessService
+            - jsonPath: $.Service.status
+            - jsonPath: $.Service.serviceCode
+            - jsonPath: $.Service.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Service.auditDetails.createdBy
+            - jsonPath: $.Service.auditDetails.lastModifiedBy
+            - jsonPath: $.Service.auditDetails.createdTime
+            - jsonPath: $.Service.auditDetails.lastModifiedTime
+            - jsonPath: $.Service.version
+    - version: 1.0
+      name: public service update
+      description: update public service by serviceCode
+      fromTopic: update-public-service
+      queryMaps:
+        - query: |
+            UPDATE service SET tenant_id = ?,
+                module = ?,
+                business_service = ?,
+                status = ?,
+                additional_details = ?,
+                last_modifiedby = ?,
+                updated_at = to_timestamp(? / 1000.0),
+                version = ?
+            WHERE service_code = ?;
+          basePath: $.Service
+          jsonMaps:
+            - jsonPath: $.Service.tenantId
+            - jsonPath: $.Service.module
+            - jsonPath: $.Service.businessService
+            - jsonPath: $.Service.status
+            - jsonPath: $.Service.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Service.auditDetails.lastModifiedBy
+            - jsonPath: $.Service.auditDetails.lastModifiedTime
+            - jsonPath: $.Service.version
+            - jsonPath: $.Service.serviceCode
+    - version: 1.0
+      name: public service process create
+      description: save public service process
+      fromTopic: save-public-service-process
+      queryMaps:
+        - query: >
+            INSERT INTO studio.public_service_process (
+              id, process_name, business_service, module, createdby, created_time, success, failurereason
+            ) VALUES (?::uuid, ?, ?, ?, ?, to_timestamp(? / 1000), ?, ?);
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.id
+            - jsonPath: $.process_name
+            - jsonPath: $.businessService
+            - jsonPath: $.module
+            - jsonPath: $.createdBy
+            - jsonPath: $.createdTime
+            - jsonPath: $.success
+            - jsonPath: $.failureReason
+              type: JSON
+              dbType: JSONB
+    - version: 1.0
+      name: public service Config version Mapping
+      description: save service Config version Mapping
+      fromTopic: save-service-version-config-mapping
+      queryMaps:
+        - query: >
+            INSERT INTO studio.service_version_config_mapping (
+              id, service_code, version, config, created_at, updated_at
+            ) VALUES (?::uuid, ?, ?, ?, to_timestamp(? / 1000), to_timestamp(? / 1000));
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.id
+            - jsonPath: $.serviceCode
+            - jsonPath: $.version
+            - jsonPath: $.config
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.auditDetails.createdTime
+            - jsonPath: $.auditDetails.lastModifiedTime
+
+    # ========================================================================
+    # RECORD SYSTEM - Versioned Record Snapshots
+    # ========================================================================
+    - version: 1.0
+      name: public service record create
+      description: Create versioned record snapshot from application
+      fromTopic: save-public-service-record
+      isTransaction: true
+      queryMaps:
+        # 1. Insert new record version
+        - query: >
+            INSERT INTO studio.record (
+              id, record_number, version, previous_record_id,
+              application_id, application_number, service_number,
+              tenant_id, module, business_service, service_code, workflow_status, channel,
+              applicant, fields, address, documents, additional_details,
+              status, is_current,
+              created_at, created_by, updated_at, updated_by
+            ) VALUES (
+              ?::uuid, ?, ?::integer, ?::uuid,
+              ?::uuid, ?, ?,
+              ?, ?, ?, ?, ?, ?,
+              ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb, ?::jsonb,
+              ?, ?::boolean,
+              ?, ?, ?, ?
+            );
+          basePath: $.Record
+          jsonMaps:
+            - jsonPath: $.Record.id
+            - jsonPath: $.Record.recordNumber
+            - jsonPath: $.Record.version
+            - jsonPath: $.Record.previousRecordId
+            - jsonPath: $.Record.applicationId
+            - jsonPath: $.Record.applicationNumber
+            - jsonPath: $.Record.serviceNumber
+            - jsonPath: $.Record.tenantId
+            - jsonPath: $.Record.module
+            - jsonPath: $.Record.businessService
+            - jsonPath: $.Record.serviceCode
+            - jsonPath: $.Record.workflowStatus
+            - jsonPath: $.Record.channel
+            - jsonPath: $.Record.applicant
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Record.fields
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Record.address
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Record.documents
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Record.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.Record.status
+            - jsonPath: $.Record.isCurrent
+            - jsonPath: $.Record.auditDetails.createdTime
+            - jsonPath: $.Record.auditDetails.createdBy
+            - jsonPath: $.Record.auditDetails.lastModifiedTime
+            - jsonPath: $.Record.auditDetails.lastModifiedBy
+
+        # 2. Update previous record version (set is_current = false)
+        # Only executes if previousRecordId is not null (version > 1)
+        - query: >
+            UPDATE record
+            SET is_current = false, updated_at = ?, updated_by = ?
+            WHERE id = ?::uuid;
+          basePath: $.Record
+          jsonMaps:
+            - jsonPath: $.Record.auditDetails.createdTime
+            - jsonPath: $.Record.auditDetails.createdBy
+            - jsonPath: $.Record.previousRecordId
+
+        # 3. Update application with record_number reference
+        # Stores record_number string (e.g., "REC-2025-01-02-000001")
+        - query: >
+            UPDATE application
+            SET record_number = ?, updated_at = to_timestamp(? / 1000)
+            WHERE id = ?::uuid;
+          basePath: $.Record
+          jsonMaps:
+            - jsonPath: $.Record.recordNumber
+            - jsonPath: $.Record.auditDetails.createdTime
+            - jsonPath: $.Record.applicationId
