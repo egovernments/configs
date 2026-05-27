@@ -1,0 +1,27 @@
+serviceMaps:
+  serviceName: household
+  mappings:
+    - version: 1.0
+      description: Persists household.
+      fromTopic: save-hcm-report-metadata
+      isTransaction: true
+      isAuditEnabled: true
+      module: REPORTS
+      objecIdJsonPath: $.dag_run_id
+      tenantIdJsonPath: $.tenant_id
+      userUuidJsonPath: $.[0].auditDetails.createdBy
+      transactionCodeJsonPath: $.dag_run_id
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO health.REPORTS_METADATA(dagRunId, dagName, campaignIdentifier, reportName, triggerFrequency, fileStoreId, triggerTime, tenantId, reportRange) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.dag_run_id
+            - jsonPath: $.dag_name
+            - jsonPath: $.campaign_identifier
+            - jsonPath: $.report_name
+            - jsonPath: $.trigger_frequency
+            - jsonPath: $.file_store_id
+            - jsonPath: $.trigger_time
+            - jsonPath: $.tenant_id
+            - jsonPath: $.report_dates
