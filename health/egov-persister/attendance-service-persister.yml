@@ -13,7 +13,7 @@ serviceMaps:
    transactionCodeJsonPath: $.registerNumber
    auditAttributeBasePath: $.attendanceRegister.*
    queryMaps:
-    - query: INSERT INTO health.eg_wms_attendance_register(id,tenantid,registernumber,name,startdate,enddate,status,additionaldetails,createdby,lastmodifiedby,createdtime,lastmodifiedtime,referenceid,servicecode,localitycode,reviewstatus) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+    - query: INSERT INTO health.eg_wms_attendance_register(id,tenantid,registernumber,name,startdate,enddate,status,additionaldetails,createdby,lastmodifiedby,createdtime,lastmodifiedtime,referenceid,servicecode,localitycode,reviewstatus,campaignnumber) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
       basePath: $.attendanceRegister.*
       jsonMaps:
        - jsonPath: $.attendanceRegister.*.id
@@ -49,6 +49,8 @@ serviceMaps:
        - jsonPath: $.attendanceRegister.*.localityCode
 
        - jsonPath: $.attendanceRegister.*.reviewStatus
+
+       - jsonPath: $.attendanceRegister.*.campaignNumber
 
     - query: INSERT INTO health.eg_wms_attendance_staff(id,tenantid,individual_id,register_id,enrollment_date,deenrollment_date,additionaldetails,createdby,lastmodifiedby,createdtime,lastmodifiedtime,stafftype) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);
       basePath: $.attendanceRegister.*.staff.*
@@ -322,9 +324,9 @@ serviceMaps:
    transactionCodeJsonPath: $.registerNumber
    auditAttributeBasePath:  $.attendanceRegister.*
    queryMaps:
-      - query: UPDATE health.eg_wms_attendance_register set name=?, startdate=?, enddate=?, status=?,additionaldetails=?,lastmodifiedby=?, lastmodifiedtime=?, localitycode=?, reviewstatus=?, period_statuses=? where id=?;
+      - query: UPDATE health.eg_wms_attendance_register set name=?, startdate=?, enddate=?, status=?,additionaldetails=?,lastmodifiedby=?, lastmodifiedtime=?, localitycode=?, reviewstatus=?, period_statuses=?, campaignnumber=? where id=?;
         basePath: $.attendanceRegister.*
-        jsonMaps:           
+        jsonMaps:
           - jsonPath: $.attendanceRegister.*.name
 
           - jsonPath: $.attendanceRegister.*.startDate
@@ -344,11 +346,13 @@ serviceMaps:
           - jsonPath: $.attendanceRegister.*.localityCode
 
           - jsonPath: $.attendanceRegister.*.reviewStatus
-          
+
           - jsonPath: $.attendanceRegister.*.periodStatuses
             type: JSON
             dbType: JSONB
-              
+
+          - jsonPath: $.attendanceRegister.*.campaignNumber
+
           - jsonPath: $.attendanceRegister.*.id
 
  - version: 1.0
@@ -412,7 +416,77 @@ serviceMaps:
            dbType: JSONB
 
          - jsonPath: $.staff.*.auditDetails.lastModifiedBy
- 
+
          - jsonPath: $.staff.*.auditDetails.lastModifiedTime
 
          - jsonPath: $.staff.*.id
+
+ - version: 1.0
+   description: Soft-delete attendance register (sets status=INACTIVE, isdeleted=true)
+   fromTopic: delete-attendance-health
+   isTransaction: true
+   isAuditEnabled: true
+   module: ATND
+   objecIdJsonPath: $.id
+   tenantIdJsonPath: $.tenantId
+   transactionCodeJsonPath: $.registerNumber
+   auditAttributeBasePath: $.attendanceRegister.*
+   queryMaps:
+      - query: UPDATE health.eg_wms_attendance_register SET isdeleted=?, status=?, lastmodifiedby=?, lastmodifiedtime=? WHERE id=?;
+        basePath: $.attendanceRegister.*
+        jsonMaps:
+          - jsonPath: $.attendanceRegister.*.isDeleted
+
+          - jsonPath: $.attendanceRegister.*.status
+
+          - jsonPath: $.attendanceRegister.*.auditDetails.lastModifiedBy
+
+          - jsonPath: $.attendanceRegister.*.auditDetails.lastModifiedTime
+
+          - jsonPath: $.attendanceRegister.*.id
+
+ - version: 1.0
+   name: Face Auth Event
+   description: Persists face verification events in eg_wms_face_auth_event table
+   fromTopic: save-face-auth-event-health
+   isTransaction: true
+   isAuditEnabled: true
+   module: ATND
+   objecIdJsonPath: $.id
+   tenantIdJsonPath: $.tenantId
+   auditAttributeBasePath: $.faceAuthEvents.*
+   queryMaps:
+      - query: INSERT INTO health.eg_wms_face_auth_event(id,clientreferenceid,tenantid,individual_id,device_id,event_type,outcome,confidence,latitude,longitude,location_accuracy,event_timestamp,failed_attempt_count,popup_time,response_time,response_type,face_image,anomaly_flags,project_id,boundary_code,additionaldetails,createdby,lastmodifiedby,createdtime,lastmodifiedtime,clientcreatedby,clientlastmodifiedby,clientcreatedtime,clientlastmodifiedtime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+        basePath: $.faceAuthEvents.*
+        jsonMaps:
+          - jsonPath: $.faceAuthEvents.*.id
+          - jsonPath: $.faceAuthEvents.*.clientReferenceId
+          - jsonPath: $.faceAuthEvents.*.tenantId
+          - jsonPath: $.faceAuthEvents.*.individualId
+          - jsonPath: $.faceAuthEvents.*.deviceId
+          - jsonPath: $.faceAuthEvents.*.eventType
+          - jsonPath: $.faceAuthEvents.*.outcome
+          - jsonPath: $.faceAuthEvents.*.confidence
+          - jsonPath: $.faceAuthEvents.*.latitude
+          - jsonPath: $.faceAuthEvents.*.longitude
+          - jsonPath: $.faceAuthEvents.*.locationAccuracy
+          - jsonPath: $.faceAuthEvents.*.timestamp
+          - jsonPath: $.faceAuthEvents.*.failedAttemptCount
+          - jsonPath: $.faceAuthEvents.*.popupTime
+          - jsonPath: $.faceAuthEvents.*.responseTime
+          - jsonPath: $.faceAuthEvents.*.responseType
+          - jsonPath: $.faceAuthEvents.*.faceImage
+          - jsonPath: $.faceAuthEvents.*.anomalyFlags
+          - jsonPath: $.faceAuthEvents.*.projectId
+          - jsonPath: $.faceAuthEvents.*.boundaryCode
+          - jsonPath: $.faceAuthEvents.*.additionalDetails
+            type: JSON
+            dbType: JSONB
+          - jsonPath: $.faceAuthEvents.*.auditDetails.createdBy
+          - jsonPath: $.faceAuthEvents.*.auditDetails.lastModifiedBy
+          - jsonPath: $.faceAuthEvents.*.auditDetails.createdTime
+          - jsonPath: $.faceAuthEvents.*.auditDetails.lastModifiedTime
+          - jsonPath: $.faceAuthEvents.*.clientAuditDetails.createdBy
+          - jsonPath: $.faceAuthEvents.*.clientAuditDetails.lastModifiedBy
+          - jsonPath: $.faceAuthEvents.*.clientAuditDetails.createdTime
+          - jsonPath: $.faceAuthEvents.*.clientAuditDetails.lastModifiedTime
