@@ -7,57 +7,54 @@ ServiceMaps:
       indexes:
         - name: stock-index-v1
           type: stock
-          id: $.id
+          id: $.clientReferenceId,$.tenantId
           isBulk: true
           jsonPath: $
           customJsonMapping:
-            indexMapping: { "Data": { } }
+            indexMapping:
+              Data: {}
             fieldMapping:
               - inJsonPath: $
                 outJsonPath: $.Data
-          timeStampField: $.lastModifiedTime
+          timeStampField: $.createdTime
         - name: user-sync-index-v1
           type: users
-          id: $.id
+          id: $.id,$.tenantId,$.clientReferenceId
           isBulk: true
           jsonPath: $
           customJsonMapping:
-            indexMapping: { "Data": { } }
+            indexMapping:
+              Data: { additionalDetails: {} }
             fieldMapping:
-              - inJsonPath: $.lastModifiedBy
+              - inJsonPath: $.id
+                outJsonPath: $.Data.stockId
+              - inJsonPath: $.createdBy
                 outJsonPath: $.Data.syncedUserId
-              - inJsonPath: $.createdTime
-                outJsonPath: $.Data.clientCreatedTime
               - inJsonPath: $.userName
                 outJsonPath: $.Data.syncedUserName
               - inJsonPath: $.role
                 outJsonPath: $.Data.role
               - inJsonPath: $.boundaryHierarchy
                 outJsonPath: $.Data.boundaryHierarchy
+              - inJsonPath: $.createdTime
+                outJsonPath: $.Data.clientCreatedTime
               - inJsonPath: $.syncedTime
                 outJsonPath: $.Data.createdTime
               - inJsonPath: $.syncedTimeStamp
                 outJsonPath: $.Data.syncedTimeStamp
               - inJsonPath: $.@timestamp
                 outJsonPath: $.Data.@timestamp
+              - inJsonPath: $.taskDates
+                outJsonPath: $.Data.taskDates
               - inJsonPath: $.syncedDate
                 outJsonPath: $.Data.syncedDate
-              - inJsonPath: $.latitude
-                outJsonPath: $.Data.latitude
-              - inJsonPath: $.longitude
-                outJsonPath: $.Data.longitude
-              - inJsonPath: $.nameOfUser
-                outJsonPath: $.Data.syncedNameOfUser
-              - inJsonPath: $.projectId
-                outJsonPath: $.Data.projectId
-              - inJsonPath: $.projectType
-                outJsonPath: $.Data.projectType
-              - inJsonPath: $.projectTypeId
-                outJsonPath: $.Data.projectTypeId
-              - inJsonPath: $.projectName
-                outJsonPath: $.Data.projectName
+              - inJsonPath: $.campaignNumber
+                outJsonPath: $.Data.campaignNumber
+              - inJsonPath: $.campaignId
+                outJsonPath: $.Data.campaignId
+              - inJsonPath: $.additionalDetails.cycleIndex
+                outJsonPath: $.Data.additionalDetails.cycleIndex
           timeStampField: $.createdTime
-
     - topic: transformer-producer-stock-recon-index-v1-health-topic
       configKey: INDEX
       indexes:
@@ -67,7 +64,8 @@ ServiceMaps:
           isBulk: true
           jsonPath: $
           customJsonMapping:
-            indexMapping: { "Data": { } }
+            indexMapping:
+              Data: {}
             fieldMapping:
               - inJsonPath: $
                 outJsonPath: $.Data
