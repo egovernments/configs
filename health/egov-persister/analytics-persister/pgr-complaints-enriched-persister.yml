@@ -1,0 +1,80 @@
+serviceMaps:
+  serviceName: pgr-complaints-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched PGR complaints data into the downstream reporting table.
+      fromTopic: transformer-save-pgr-request
+      isTransaction: true
+      isAuditEnabled: true
+      module: PGR
+      objecIdJsonPath: $.service.id
+      tenantIdJsonPath: $.service.tenantId
+      userUuidJsonPath: $.[0].service.auditDetails.createdBy
+      transactionCodeJsonPath: $.service.serviceRequestId
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO pgr_complaints_enriched(id, tenant_id, service_code, service_request_id, description, account_id, rating, application_status, source, active, self_complaint, service_additional_detail, complainant_id, complainant_user_name, complainant_name, complainant_type, complainant_mobile_number, complainant_email_id, complainant_tenant_id, complainant_uuid, complainant_active, complainant_roles, address_id, address_locality, address_addition_details, address_geo_lat, address_geo_lon, address_geo_additional_details, created_by, last_modified_by, created_time, last_modified_time, user_name, name_of_user, role, user_address, country_code, region_code, district_code, health_facility_code, settlement_code, task_dates, locality_code, additional_details, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET service_code = EXCLUDED.service_code, service_request_id = EXCLUDED.service_request_id, description = EXCLUDED.description, account_id = EXCLUDED.account_id, rating = EXCLUDED.rating, application_status = EXCLUDED.application_status, active = EXCLUDED.active, self_complaint = EXCLUDED.self_complaint, service_additional_detail = EXCLUDED.service_additional_detail, complainant_id = EXCLUDED.complainant_id, complainant_user_name = EXCLUDED.complainant_user_name, complainant_name = EXCLUDED.complainant_name, complainant_type = EXCLUDED.complainant_type, complainant_mobile_number = EXCLUDED.complainant_mobile_number, complainant_email_id = EXCLUDED.complainant_email_id, complainant_tenant_id = EXCLUDED.complainant_tenant_id, complainant_uuid = EXCLUDED.complainant_uuid, complainant_active = EXCLUDED.complainant_active, complainant_roles = EXCLUDED.complainant_roles, address_locality = EXCLUDED.address_locality, address_addition_details = EXCLUDED.address_addition_details, address_geo_lat = EXCLUDED.address_geo_lat, address_geo_lon = EXCLUDED.address_geo_lon, address_geo_additional_details = EXCLUDED.address_geo_additional_details, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time, user_name = EXCLUDED.user_name, name_of_user = EXCLUDED.name_of_user, role = EXCLUDED.role, user_address = EXCLUDED.user_address, country_code = EXCLUDED.country_code, region_code = EXCLUDED.region_code, district_code = EXCLUDED.district_code, health_facility_code = EXCLUDED.health_facility_code, settlement_code = EXCLUDED.settlement_code, task_dates = EXCLUDED.task_dates, locality_code = EXCLUDED.locality_code, additional_details = EXCLUDED.additional_details, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.service.id
+            - jsonPath: $.*.service.tenantId
+            - jsonPath: $.*.service.serviceCode
+            - jsonPath: $.*.service.serviceRequestId
+            - jsonPath: $.*.service.description
+            - jsonPath: $.*.service.accountId
+            - jsonPath: $.*.service.rating
+            - jsonPath: $.*.service.applicationStatus
+            - jsonPath: $.*.service.source
+            - jsonPath: $.*.service.active
+            - jsonPath: $.*.service.selfComplaint
+            - jsonPath: $.*.service.additionalDetail
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.service.user.id
+            - jsonPath: $.*.service.user.userName
+            - jsonPath: $.*.service.user.name
+            - jsonPath: $.*.service.user.type
+            - jsonPath: $.*.service.user.mobileNumber
+            - jsonPath: $.*.service.user.emailId
+            - jsonPath: $.*.service.user.tenantId
+            - jsonPath: $.*.service.user.uuid
+            - jsonPath: $.*.service.user.active
+            - jsonPath: $.*.service.user.roles
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.service.address.id
+            - jsonPath: $.*.service.address.locality
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.service.address.additionDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.service.address.geoLocation.latitude
+            - jsonPath: $.*.service.address.geoLocation.longitude
+            - jsonPath: $.*.service.address.geoLocation.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.service.auditDetails.createdBy
+            - jsonPath: $.*.service.auditDetails.lastModifiedBy
+            - jsonPath: $.*.service.auditDetails.createdTime
+            - jsonPath: $.*.service.auditDetails.lastModifiedTime
+            - jsonPath: $.*.userName
+            - jsonPath: $.*.nameOfUser
+            - jsonPath: $.*.role
+            - jsonPath: $.*.userAddress
+            - jsonPath: $.*.boundaryHierarchyCode.country
+            - jsonPath: $.*.boundaryHierarchyCode.region
+            - jsonPath: $.*.boundaryHierarchyCode.district
+            - jsonPath: $.*.boundaryHierarchyCode.healthFacility
+            - jsonPath: $.*.boundaryHierarchyCode.settlement
+            - jsonPath: $.*.taskDates
+            - jsonPath: $.*.localityCode
+            - jsonPath: $.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.projectId
+            - jsonPath: $.*.projectType
+            - jsonPath: $.*.projectTypeId
+            - jsonPath: $.*.projectName
+            - jsonPath: $.*.campaignNumber
+            - jsonPath: $.*.campaignId

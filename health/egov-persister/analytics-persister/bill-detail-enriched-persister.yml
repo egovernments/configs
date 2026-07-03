@@ -1,0 +1,74 @@
+# NOTE: fromTopic is the kebab-case of the Spring property key "transformer.producer.billdetail.index.v1.topic"
+# (TransformerProperties.java, note: "billdetail" is one word in the property) — not found in any
+# deployed Helm values.yaml checked in this repo tree. Verify against your deployment before use.
+serviceMaps:
+  serviceName: bill-detail-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched bill detail data into the downstream reporting table.
+      fromTopic: transformer-producer-billdetail-index-v1-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: BILL
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.billDetail.tenantId
+      userUuidJsonPath: $.[0].billDetail.auditDetails.createdBy
+      transactionCodeJsonPath: $.id
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO bill_detail_enriched(id, tenant_id, bill_id, total_amount, total_paid_amount, reference_id, payment_status, status, from_period, to_period, worker_id, payee, line_items, payable_line_items, created_by, last_modified_by, created_time, last_modified_time, additional_details, total_attendance, wf_status, process_instance, bill_detail_edited, bill_wf_status_info, wf_status_info, user_name, name_of_user, role, country_code, region_code, district_code, health_facility_code, settlement_code, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET total_amount = EXCLUDED.total_amount, total_paid_amount = EXCLUDED.total_paid_amount, reference_id = EXCLUDED.reference_id, payment_status = EXCLUDED.payment_status, status = EXCLUDED.status, from_period = EXCLUDED.from_period, to_period = EXCLUDED.to_period, worker_id = EXCLUDED.worker_id, payee = EXCLUDED.payee, line_items = EXCLUDED.line_items, payable_line_items = EXCLUDED.payable_line_items, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time, additional_details = EXCLUDED.additional_details, total_attendance = EXCLUDED.total_attendance, wf_status = EXCLUDED.wf_status, process_instance = EXCLUDED.process_instance, bill_detail_edited = EXCLUDED.bill_detail_edited, bill_wf_status_info = EXCLUDED.bill_wf_status_info, wf_status_info = EXCLUDED.wf_status_info, user_name = EXCLUDED.user_name, name_of_user = EXCLUDED.name_of_user, role = EXCLUDED.role, country_code = EXCLUDED.country_code, region_code = EXCLUDED.region_code, district_code = EXCLUDED.district_code, health_facility_code = EXCLUDED.health_facility_code, settlement_code = EXCLUDED.settlement_code, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.id
+            - jsonPath: $.*.billDetail.tenantId
+            - jsonPath: $.*.billDetail.billId
+            - jsonPath: $.*.billDetail.totalAmount
+            - jsonPath: $.*.billDetail.totalPaidAmount
+            - jsonPath: $.*.billDetail.referenceId
+            - jsonPath: $.*.billDetail.paymentStatus
+            - jsonPath: $.*.billDetail.status
+            - jsonPath: $.*.billDetail.fromPeriod
+            - jsonPath: $.*.billDetail.toPeriod
+            - jsonPath: $.*.billDetail.workerId
+            - jsonPath: $.*.billDetail.payee
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.billDetail.lineItems
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.billDetail.payableLineItems
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.billDetail.auditDetails.createdBy
+            - jsonPath: $.*.billDetail.auditDetails.lastModifiedBy
+            - jsonPath: $.*.billDetail.auditDetails.createdTime
+            - jsonPath: $.*.billDetail.auditDetails.lastModifiedTime
+            - jsonPath: $.*.billDetail.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.billDetail.totalAttendance
+            - jsonPath: $.*.billDetail.wfStatus
+            - jsonPath: $.*.billDetail.processInstance
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.billDetailEdited
+            - jsonPath: $.*.billWfStatusInfo
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.wfStatusInfo
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.userName
+            - jsonPath: $.*.nameOfUser
+            - jsonPath: $.*.role
+            - jsonPath: $.*.boundaryHierarchyCode.country
+            - jsonPath: $.*.boundaryHierarchyCode.region
+            - jsonPath: $.*.boundaryHierarchyCode.district
+            - jsonPath: $.*.boundaryHierarchyCode.healthFacility
+            - jsonPath: $.*.boundaryHierarchyCode.settlement
+            - jsonPath: $.*.projectId
+            - jsonPath: $.*.projectType
+            - jsonPath: $.*.projectTypeId
+            - jsonPath: $.*.projectName
+            - jsonPath: $.*.campaignNumber
+            - jsonPath: $.*.campaignId

@@ -1,0 +1,49 @@
+# NOTE: the DDL's attendance_register_enriched table declares project_id/project_type/project_type_id/
+# project_name/campaign_number/campaign_id columns, but AttendanceRegisterIndexV1.java (the payload on
+# this topic) does not carry any project-association fields (it does not extend ProjectInfo, confirmed
+# by reading AttendeeTransformationService/AttendanceStaffTransformationService, the two producers of
+# this topic). Those columns are intentionally omitted from this INSERT and will remain NULL.
+serviceMaps:
+  serviceName: attendance-register-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched attendance register data into the downstream reporting table.
+      fromTopic: transformer-save-attendance-register
+      isTransaction: true
+      isAuditEnabled: true
+      module: ATTENDANCE
+      objecIdJsonPath: $.attendanceRegister.id
+      tenantIdJsonPath: $.attendanceRegister.tenantId
+      userUuidJsonPath: $.[0].attendanceRegister.auditDetails.createdBy
+      transactionCodeJsonPath: $.attendanceRegister.id
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO attendance_register_enriched(id, tenant_id, register_number, name, reference_id, service_code, start_date, end_date, status, staff, attendees, register_additional_details, created_by, last_modified_by, created_time, last_modified_time, attendees_info, transformer_time_stamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, start_date = EXCLUDED.start_date, end_date = EXCLUDED.end_date, status = EXCLUDED.status, staff = EXCLUDED.staff, attendees = EXCLUDED.attendees, register_additional_details = EXCLUDED.register_additional_details, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time, attendees_info = EXCLUDED.attendees_info, transformer_time_stamp = EXCLUDED.transformer_time_stamp;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.attendanceRegister.id
+            - jsonPath: $.*.attendanceRegister.tenantId
+            - jsonPath: $.*.attendanceRegister.registerNumber
+            - jsonPath: $.*.attendanceRegister.name
+            - jsonPath: $.*.attendanceRegister.referenceId
+            - jsonPath: $.*.attendanceRegister.serviceCode
+            - jsonPath: $.*.attendanceRegister.startDate
+            - jsonPath: $.*.attendanceRegister.endDate
+            - jsonPath: $.*.attendanceRegister.status
+            - jsonPath: $.*.attendanceRegister.staff
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.attendanceRegister.attendees
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.attendanceRegister.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.attendanceRegister.auditDetails.createdBy
+            - jsonPath: $.*.attendanceRegister.auditDetails.lastModifiedBy
+            - jsonPath: $.*.attendanceRegister.auditDetails.createdTime
+            - jsonPath: $.*.attendanceRegister.auditDetails.lastModifiedTime
+            - jsonPath: $.*.attendeesInfo
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.transformerTimeStamp

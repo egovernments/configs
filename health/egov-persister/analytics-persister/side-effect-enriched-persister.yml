@@ -1,0 +1,67 @@
+serviceMaps:
+  serviceName: side-effect-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched side effect data into the downstream reporting table.
+      fromTopic: transformer-producer-side-effect-index-v1-health-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: REFERRALMANAGEMENT
+      objecIdJsonPath: $.sideEffect.id
+      tenantIdJsonPath: $.sideEffect.tenantId
+      userUuidJsonPath: $.[0].sideEffect.auditDetails.createdBy
+      transactionCodeJsonPath: $.sideEffect.clientReferenceId
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO side_effect_enriched(id, client_reference_id, task_id, task_client_reference_id, project_beneficiary_id, project_beneficiary_client_reference_id, raw_symptoms, tenant_id, is_deleted, row_version, created_by, last_modified_by, created_time, last_modified_time, client_created_by, client_last_modified_by, client_created_time, client_last_modified_time, additional_fields, date_of_birth, age, country_code, region_code, district_code, health_facility_code, settlement_code, locality_code, individual_id, gender, symptoms, user_name, name_of_user, role, user_address, task_dates, synced_date, additional_details, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET task_id = EXCLUDED.task_id, task_client_reference_id = EXCLUDED.task_client_reference_id, project_beneficiary_id = EXCLUDED.project_beneficiary_id, project_beneficiary_client_reference_id = EXCLUDED.project_beneficiary_client_reference_id, raw_symptoms = EXCLUDED.raw_symptoms, tenant_id = EXCLUDED.tenant_id, is_deleted = EXCLUDED.is_deleted, row_version = EXCLUDED.row_version, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time, client_last_modified_by = EXCLUDED.client_last_modified_by, client_last_modified_time = EXCLUDED.client_last_modified_time, additional_fields = EXCLUDED.additional_fields, date_of_birth = EXCLUDED.date_of_birth, age = EXCLUDED.age, country_code = EXCLUDED.country_code, region_code = EXCLUDED.region_code, district_code = EXCLUDED.district_code, health_facility_code = EXCLUDED.health_facility_code, settlement_code = EXCLUDED.settlement_code, locality_code = EXCLUDED.locality_code, individual_id = EXCLUDED.individual_id, gender = EXCLUDED.gender, symptoms = EXCLUDED.symptoms, user_name = EXCLUDED.user_name, name_of_user = EXCLUDED.name_of_user, role = EXCLUDED.role, user_address = EXCLUDED.user_address, task_dates = EXCLUDED.task_dates, synced_date = EXCLUDED.synced_date, additional_details = EXCLUDED.additional_details, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.sideEffect.id
+            - jsonPath: $.*.sideEffect.clientReferenceId
+            - jsonPath: $.*.sideEffect.taskId
+            - jsonPath: $.*.sideEffect.taskClientReferenceId
+            - jsonPath: $.*.sideEffect.projectBeneficiaryId
+            - jsonPath: $.*.sideEffect.projectBeneficiaryClientReferenceId
+            - jsonPath: $.*.sideEffect.symptoms
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.sideEffect.tenantId
+            - jsonPath: $.*.sideEffect.isDeleted
+            - jsonPath: $.*.sideEffect.rowVersion
+            - jsonPath: $.*.sideEffect.auditDetails.createdBy
+            - jsonPath: $.*.sideEffect.auditDetails.lastModifiedBy
+            - jsonPath: $.*.sideEffect.auditDetails.createdTime
+            - jsonPath: $.*.sideEffect.auditDetails.lastModifiedTime
+            - jsonPath: $.*.sideEffect.clientAuditDetails.createdBy
+            - jsonPath: $.*.sideEffect.clientAuditDetails.lastModifiedBy
+            - jsonPath: $.*.sideEffect.clientAuditDetails.createdTime
+            - jsonPath: $.*.sideEffect.clientAuditDetails.lastModifiedTime
+            - jsonPath: $.*.sideEffect.additionalFields
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.dateOfBirth
+            - jsonPath: $.*.age
+            - jsonPath: $.*.boundaryHierarchyCode.country
+            - jsonPath: $.*.boundaryHierarchyCode.region
+            - jsonPath: $.*.boundaryHierarchyCode.district
+            - jsonPath: $.*.boundaryHierarchyCode.healthFacility
+            - jsonPath: $.*.boundaryHierarchyCode.settlement
+            - jsonPath: $.*.localityCode
+            - jsonPath: $.*.individualId
+            - jsonPath: $.*.gender
+            - jsonPath: $.*.symptoms
+            - jsonPath: $.*.userName
+            - jsonPath: $.*.nameOfUser
+            - jsonPath: $.*.role
+            - jsonPath: $.*.userAddress
+            - jsonPath: $.*.taskDates
+            - jsonPath: $.*.syncedDate
+            - jsonPath: $.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.projectId
+            - jsonPath: $.*.projectType
+            - jsonPath: $.*.projectTypeId
+            - jsonPath: $.*.projectName
+            - jsonPath: $.*.campaignNumber
+            - jsonPath: $.*.campaignId

@@ -1,0 +1,57 @@
+# NOTE: fromTopic is the Helm-deployed value of the "transformer.producer.service.task.index.v1.topic"
+# property (TransformerProperties.java, used by ServiceTaskTransformationService) — the deployed
+# value ("transformer-producer-service-request-index-v1-topic") differs from the property's own
+# name, confirmed via health-campaign-devops/config-as-code/helm/charts/health-services/transformer/values.yaml.
+serviceMaps:
+  serviceName: service-task-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched service task data into the downstream reporting table.
+      fromTopic: transformer-producer-service-request-index-v1-health-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: SERVICE-REQUEST
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      userUuidJsonPath: $.[0].createdBy
+      transactionCodeJsonPath: $.id
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO service_task_enriched(id, created_time, created_by, supervisor_level, checklist_name, service_definition_id, user_name, name_of_user, role, user_address, country_code, region_code, district_code, health_facility_code, settlement_code, tenant_id, user_id, attributes, client_reference_id, synced_time_stamp, synced_time, task_dates, additional_details, latitude, longitude, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET supervisor_level = EXCLUDED.supervisor_level, checklist_name = EXCLUDED.checklist_name, user_name = EXCLUDED.user_name, name_of_user = EXCLUDED.name_of_user, role = EXCLUDED.role, user_address = EXCLUDED.user_address, country_code = EXCLUDED.country_code, region_code = EXCLUDED.region_code, district_code = EXCLUDED.district_code, health_facility_code = EXCLUDED.health_facility_code, settlement_code = EXCLUDED.settlement_code, user_id = EXCLUDED.user_id, attributes = EXCLUDED.attributes, synced_time_stamp = EXCLUDED.synced_time_stamp, synced_time = EXCLUDED.synced_time, task_dates = EXCLUDED.task_dates, additional_details = EXCLUDED.additional_details, latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.id
+            - jsonPath: $.*.createdTime
+            - jsonPath: $.*.createdBy
+            - jsonPath: $.*.supervisorLevel
+            - jsonPath: $.*.checklistName
+            - jsonPath: $.*.serviceDefinitionId
+            - jsonPath: $.*.userName
+            - jsonPath: $.*.nameOfUser
+            - jsonPath: $.*.role
+            - jsonPath: $.*.userAddress
+            - jsonPath: $.*.boundaryHierarchyCode.country
+            - jsonPath: $.*.boundaryHierarchyCode.region
+            - jsonPath: $.*.boundaryHierarchyCode.district
+            - jsonPath: $.*.boundaryHierarchyCode.healthFacility
+            - jsonPath: $.*.boundaryHierarchyCode.settlement
+            - jsonPath: $.*.tenantId
+            - jsonPath: $.*.userId
+            - jsonPath: $.*.attributes
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.clientReferenceId
+            - jsonPath: $.*.syncedTimeStamp
+            - jsonPath: $.*.syncedTime
+            - jsonPath: $.*.taskDates
+            - jsonPath: $.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.geoPoint[0]
+            - jsonPath: $.*.geoPoint[1]
+            - jsonPath: $.*.projectId
+            - jsonPath: $.*.projectType
+            - jsonPath: $.*.projectTypeId
+            - jsonPath: $.*.projectName
+            - jsonPath: $.*.campaignNumber
+            - jsonPath: $.*.campaignId

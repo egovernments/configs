@@ -1,0 +1,59 @@
+serviceMaps:
+  serviceName: hf-referral-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched health facility referral data into the downstream reporting table.
+      fromTopic: transformer-producer-hfreferral-index-v1-health-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: REFERRALMANAGEMENT
+      objecIdJsonPath: $.hfReferral.id
+      tenantIdJsonPath: $.hfReferral.tenantId
+      userUuidJsonPath: $.[0].hfReferral.auditDetails.createdBy
+      transactionCodeJsonPath: $.hfReferral.clientReferenceId
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO hf_referral_enriched(id, client_reference_id, tenant_id, project_id, project_facility_id, symptom, symptom_survey_id, beneficiary_id, referral_code, national_level_id, is_deleted, row_version, created_by, last_modified_by, created_time, last_modified_time, client_created_by, client_last_modified_by, client_created_time, client_last_modified_time, additional_fields, user_name, role, user_address, country_code, region_code, district_code, health_facility_code, settlement_code, task_dates, synced_date, additional_details, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET client_reference_id = EXCLUDED.client_reference_id, tenant_id = EXCLUDED.tenant_id, project_id = EXCLUDED.project_id, project_facility_id = EXCLUDED.project_facility_id, symptom = EXCLUDED.symptom, symptom_survey_id = EXCLUDED.symptom_survey_id, beneficiary_id = EXCLUDED.beneficiary_id, referral_code = EXCLUDED.referral_code, national_level_id = EXCLUDED.national_level_id, is_deleted = EXCLUDED.is_deleted, row_version = EXCLUDED.row_version, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time, client_last_modified_by = EXCLUDED.client_last_modified_by, client_last_modified_time = EXCLUDED.client_last_modified_time, additional_fields = EXCLUDED.additional_fields, user_name = EXCLUDED.user_name, role = EXCLUDED.role, user_address = EXCLUDED.user_address, country_code = EXCLUDED.country_code, region_code = EXCLUDED.region_code, district_code = EXCLUDED.district_code, health_facility_code = EXCLUDED.health_facility_code, settlement_code = EXCLUDED.settlement_code, task_dates = EXCLUDED.task_dates, synced_date = EXCLUDED.synced_date, additional_details = EXCLUDED.additional_details, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.hfReferral.id
+            - jsonPath: $.*.hfReferral.clientReferenceId
+            - jsonPath: $.*.hfReferral.tenantId
+            - jsonPath: $.*.hfReferral.projectId
+            - jsonPath: $.*.hfReferral.projectFacilityId
+            - jsonPath: $.*.hfReferral.symptom
+            - jsonPath: $.*.hfReferral.symptomSurveyId
+            - jsonPath: $.*.hfReferral.beneficiaryId
+            - jsonPath: $.*.hfReferral.referralCode
+            - jsonPath: $.*.hfReferral.nationalLevelId
+            - jsonPath: $.*.hfReferral.isDeleted
+            - jsonPath: $.*.hfReferral.rowVersion
+            - jsonPath: $.*.hfReferral.auditDetails.createdBy
+            - jsonPath: $.*.hfReferral.auditDetails.lastModifiedBy
+            - jsonPath: $.*.hfReferral.auditDetails.createdTime
+            - jsonPath: $.*.hfReferral.auditDetails.lastModifiedTime
+            - jsonPath: $.*.hfReferral.clientAuditDetails.createdBy
+            - jsonPath: $.*.hfReferral.clientAuditDetails.lastModifiedBy
+            - jsonPath: $.*.hfReferral.clientAuditDetails.createdTime
+            - jsonPath: $.*.hfReferral.clientAuditDetails.lastModifiedTime
+            - jsonPath: $.*.hfReferral.additionalFields
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.userName
+            - jsonPath: $.*.role
+            - jsonPath: $.*.userAddress
+            - jsonPath: $.*.boundaryHierarchyCode.country
+            - jsonPath: $.*.boundaryHierarchyCode.region
+            - jsonPath: $.*.boundaryHierarchyCode.district
+            - jsonPath: $.*.boundaryHierarchyCode.healthFacility
+            - jsonPath: $.*.boundaryHierarchyCode.settlement
+            - jsonPath: $.*.taskDates
+            - jsonPath: $.*.syncedDate
+            - jsonPath: $.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.projectType
+            - jsonPath: $.*.projectTypeId
+            - jsonPath: $.*.projectName
+            - jsonPath: $.*.campaignNumber
+            - jsonPath: $.*.campaignId

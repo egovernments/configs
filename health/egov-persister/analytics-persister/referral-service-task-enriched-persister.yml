@@ -1,0 +1,56 @@
+# NOTE: the DDL declares extra columns (service_def_id, reference_id, account_id, client_id,
+# last_modified_by, last_modified_time, raw_attributes, additional_fields, additional_details_upstream)
+# with no corresponding field on ReferralServiceTaskIndexV1 (confirmed against the POJO and against
+# the already-working all-indexes-persister.yml mapping for this same table/topic) — they are omitted
+# here and will remain NULL, consistent with the precedent set for attendance_register_enriched.
+serviceMaps:
+  serviceName: referral-service-task-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched referral service task data into the downstream reporting table.
+      fromTopic: transformer-producer-service-index-v2-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: SERVICE-REQUEST
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      userUuidJsonPath: $.[0].createdBy
+      transactionCodeJsonPath: $.id
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO referral_service_task_enriched(id, age_group, tenant_id, created_by, created_time, supervisor_level, checklist_name, user_name, role, user_address, synced_time, synced_time_stamp, task_dates, children_presented_us, malaria_positive_us, malaria_negative_us, children_presented_ape, malaria_positive_ape, malaria_negative_ape, country_code, region_code, district_code, health_facility_code, settlement_code, additional_details, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id, age_group) DO UPDATE SET supervisor_level = EXCLUDED.supervisor_level, checklist_name = EXCLUDED.checklist_name, user_name = EXCLUDED.user_name, role = EXCLUDED.role, user_address = EXCLUDED.user_address, synced_time = EXCLUDED.synced_time, synced_time_stamp = EXCLUDED.synced_time_stamp, task_dates = EXCLUDED.task_dates, children_presented_us = EXCLUDED.children_presented_us, malaria_positive_us = EXCLUDED.malaria_positive_us, malaria_negative_us = EXCLUDED.malaria_negative_us, children_presented_ape = EXCLUDED.children_presented_ape, malaria_positive_ape = EXCLUDED.malaria_positive_ape, malaria_negative_ape = EXCLUDED.malaria_negative_ape, country_code = EXCLUDED.country_code, region_code = EXCLUDED.region_code, district_code = EXCLUDED.district_code, health_facility_code = EXCLUDED.health_facility_code, settlement_code = EXCLUDED.settlement_code, additional_details = EXCLUDED.additional_details, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.id
+            - jsonPath: $.*.ageGroup
+            - jsonPath: $.*.tenantId
+            - jsonPath: $.*.createdBy
+            - jsonPath: $.*.createdTime
+            - jsonPath: $.*.supervisorLevel
+            - jsonPath: $.*.checklistName
+            - jsonPath: $.*.userName
+            - jsonPath: $.*.role
+            - jsonPath: $.*.userAddress
+            - jsonPath: $.*.syncedTime
+            - jsonPath: $.*.syncedTimeStamp
+            - jsonPath: $.*.taskDates
+            - jsonPath: $.*.childrenPresentedUS
+            - jsonPath: $.*.malariaPositiveUS
+            - jsonPath: $.*.malariaNegativeUS
+            - jsonPath: $.*.childrenPresentedAPE
+            - jsonPath: $.*.malariaPositiveAPE
+            - jsonPath: $.*.malariaNegativeAPE
+            - jsonPath: $.*.boundaryHierarchyCode.country
+            - jsonPath: $.*.boundaryHierarchyCode.region
+            - jsonPath: $.*.boundaryHierarchyCode.district
+            - jsonPath: $.*.boundaryHierarchyCode.healthFacility
+            - jsonPath: $.*.boundaryHierarchyCode.settlement
+            - jsonPath: $.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.projectId
+            - jsonPath: $.*.projectType
+            - jsonPath: $.*.projectTypeId
+            - jsonPath: $.*.projectName
+            - jsonPath: $.*.campaignNumber
+            - jsonPath: $.*.campaignId

@@ -1,0 +1,46 @@
+serviceMaps:
+  serviceName: project-staff-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched project staff mapping data into the downstream reporting table.
+      fromTopic: transformer-producer-bulk-project-staff-index-v1-health-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: PROJECT
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      userUuidJsonPath: $.[0].createdBy
+      transactionCodeJsonPath: $.id
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO project_staff_enriched(id, tenant_id, user_id, user_name, name_of_user, user_address, role, locality_code, is_deleted, created_by, created_time, task_dates, additional_details, country_code, region_code, district_code, health_facility_code, settlement_code, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET user_id = EXCLUDED.user_id, user_name = EXCLUDED.user_name, name_of_user = EXCLUDED.name_of_user, user_address = EXCLUDED.user_address, role = EXCLUDED.role, locality_code = EXCLUDED.locality_code, is_deleted = EXCLUDED.is_deleted, task_dates = EXCLUDED.task_dates, additional_details = EXCLUDED.additional_details, country_code = EXCLUDED.country_code, region_code = EXCLUDED.region_code, district_code = EXCLUDED.district_code, health_facility_code = EXCLUDED.health_facility_code, settlement_code = EXCLUDED.settlement_code, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.id
+            - jsonPath: $.*.tenantId
+            - jsonPath: $.*.userId
+            - jsonPath: $.*.userName
+            - jsonPath: $.*.nameOfUser
+            - jsonPath: $.*.userAddress
+            - jsonPath: $.*.role
+            - jsonPath: $.*.localityCode
+            - jsonPath: $.*.isDeleted
+            - jsonPath: $.*.createdBy
+            - jsonPath: $.*.createdTime
+            - jsonPath: $.*.taskDates
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.boundaryHierarchyCode.country
+            - jsonPath: $.*.boundaryHierarchyCode.region
+            - jsonPath: $.*.boundaryHierarchyCode.district
+            - jsonPath: $.*.boundaryHierarchyCode.healthFacility
+            - jsonPath: $.*.boundaryHierarchyCode.settlement
+            - jsonPath: $.*.projectId
+            - jsonPath: $.*.projectType
+            - jsonPath: $.*.projectTypeId
+            - jsonPath: $.*.projectName
+            - jsonPath: $.*.campaignNumber
+            - jsonPath: $.*.campaignId

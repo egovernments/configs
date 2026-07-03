@@ -1,0 +1,74 @@
+# NOTE: the DDL stores the raw geo-point pair as a single "geo_point" JSONB column (the whole
+# List<Double> array), separate from the already-flat "latitude"/"longitude" columns that
+# ProjectTaskIndexV1 also carries directly — this differs from all-indexes-persister.yml's version
+# of this table, which drops "geo_point" and only keeps latitude/longitude. Kept per the DDL here.
+serviceMaps:
+  serviceName: project-task-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched project task data into the downstream reporting table.
+      fromTopic: transformer-producer-bulk-project-task-index-v1-health-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: PROJECT
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      userUuidJsonPath: $.[0].createdBy
+      transactionCodeJsonPath: $.clientReferenceId
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO project_task_enriched(id, task_id, task_type, status, tenant_id, administration_status, client_reference_id, task_client_reference_id, project_beneficiary_client_reference_id, created_by, last_modified_by, created_time, last_modified_time, product_variant, product_name, quantity, delivered_to, is_delivered, delivery_comments, household_id, member_count, individual_id, date_of_birth, user_name, name_of_user, role, user_address, latitude, longitude, location_accuracy, locality_code, geo_point, country_code, region_code, district_code, health_facility_code, settlement_code, synced_time_stamp, synced_date, synced_time, task_dates, additional_details, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET task_id = EXCLUDED.task_id, task_type = EXCLUDED.task_type, status = EXCLUDED.status, tenant_id = EXCLUDED.tenant_id, administration_status = EXCLUDED.administration_status, task_client_reference_id = EXCLUDED.task_client_reference_id, project_beneficiary_client_reference_id = EXCLUDED.project_beneficiary_client_reference_id, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time, product_variant = EXCLUDED.product_variant, product_name = EXCLUDED.product_name, quantity = EXCLUDED.quantity, delivered_to = EXCLUDED.delivered_to, is_delivered = EXCLUDED.is_delivered, delivery_comments = EXCLUDED.delivery_comments, household_id = EXCLUDED.household_id, member_count = EXCLUDED.member_count, individual_id = EXCLUDED.individual_id, date_of_birth = EXCLUDED.date_of_birth, user_name = EXCLUDED.user_name, name_of_user = EXCLUDED.name_of_user, role = EXCLUDED.role, user_address = EXCLUDED.user_address, latitude = EXCLUDED.latitude, longitude = EXCLUDED.longitude, location_accuracy = EXCLUDED.location_accuracy, locality_code = EXCLUDED.locality_code, geo_point = EXCLUDED.geo_point, country_code = EXCLUDED.country_code, region_code = EXCLUDED.region_code, district_code = EXCLUDED.district_code, health_facility_code = EXCLUDED.health_facility_code, settlement_code = EXCLUDED.settlement_code, synced_time_stamp = EXCLUDED.synced_time_stamp, synced_date = EXCLUDED.synced_date, synced_time = EXCLUDED.synced_time, task_dates = EXCLUDED.task_dates, additional_details = EXCLUDED.additional_details, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.id
+            - jsonPath: $.*.taskId
+            - jsonPath: $.*.taskType
+            - jsonPath: $.*.status
+            - jsonPath: $.*.tenantId
+            - jsonPath: $.*.administrationStatus
+            - jsonPath: $.*.clientReferenceId
+            - jsonPath: $.*.taskClientReferenceId
+            - jsonPath: $.*.projectBeneficiaryClientReferenceId
+            - jsonPath: $.*.createdBy
+            - jsonPath: $.*.lastModifiedBy
+            - jsonPath: $.*.createdTime
+            - jsonPath: $.*.lastModifiedTime
+            - jsonPath: $.*.productVariant
+            - jsonPath: $.*.productName
+            - jsonPath: $.*.quantity
+            - jsonPath: $.*.deliveredTo
+            - jsonPath: $.*.isDelivered
+            - jsonPath: $.*.deliveryComments
+            - jsonPath: $.*.householdId
+            - jsonPath: $.*.memberCount
+            - jsonPath: $.*.individualId
+            - jsonPath: $.*.dateOfBirth
+            - jsonPath: $.*.userName
+            - jsonPath: $.*.nameOfUser
+            - jsonPath: $.*.role
+            - jsonPath: $.*.userAddress
+            - jsonPath: $.*.latitude
+            - jsonPath: $.*.longitude
+            - jsonPath: $.*.locationAccuracy
+            - jsonPath: $.*.localityCode
+            - jsonPath: $.*.geoPoint
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.boundaryHierarchyCode.country
+            - jsonPath: $.*.boundaryHierarchyCode.region
+            - jsonPath: $.*.boundaryHierarchyCode.district
+            - jsonPath: $.*.boundaryHierarchyCode.healthFacility
+            - jsonPath: $.*.boundaryHierarchyCode.settlement
+            - jsonPath: $.*.syncedTimeStamp
+            - jsonPath: $.*.syncedDate
+            - jsonPath: $.*.syncedTime
+            - jsonPath: $.*.taskDates
+            - jsonPath: $.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.projectId
+            - jsonPath: $.*.projectType
+            - jsonPath: $.*.projectTypeId
+            - jsonPath: $.*.projectName
+            - jsonPath: $.*.campaignNumber
+            - jsonPath: $.*.campaignId
