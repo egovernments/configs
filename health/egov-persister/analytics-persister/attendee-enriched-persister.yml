@@ -1,0 +1,48 @@
+serviceMaps:
+  serviceName: attendee-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched attendee data into the downstream reporting table.
+      fromTopic: transformer-producer-attendee-index-v1-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: ATTENDANCE
+      objecIdJsonPath: $.attendee.id
+      tenantIdJsonPath: $.attendee.tenantId
+      userUuidJsonPath: $.[0].attendee.auditDetails.createdBy
+      transactionCodeJsonPath: $.attendee.id
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO attendee_enriched(id, tenant_id, register_id, individual_id, enrollment_date, denrollment_date, created_by, last_modified_by, created_time, last_modified_time, additional_details, user_name, name_of_user, role, register_service_code, register_name, register_number, country_code, region_code, district_code, health_facility_code, settlement_code, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET register_id = EXCLUDED.register_id, individual_id = EXCLUDED.individual_id, enrollment_date = EXCLUDED.enrollment_date, denrollment_date = EXCLUDED.denrollment_date, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time, additional_details = EXCLUDED.additional_details, user_name = EXCLUDED.user_name, name_of_user = EXCLUDED.name_of_user, role = EXCLUDED.role, register_service_code = EXCLUDED.register_service_code, register_name = EXCLUDED.register_name, register_number = EXCLUDED.register_number, country_code = EXCLUDED.country_code, region_code = EXCLUDED.region_code, district_code = EXCLUDED.district_code, health_facility_code = EXCLUDED.health_facility_code, settlement_code = EXCLUDED.settlement_code, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.attendee.id
+            - jsonPath: $.*.attendee.tenantId
+            - jsonPath: $.*.attendee.registerId
+            - jsonPath: $.*.attendee.individualId
+            - jsonPath: $.*.attendee.enrollmentDate
+            - jsonPath: $.*.attendee.denrollmentDate
+            - jsonPath: $.*.attendee.auditDetails.createdBy
+            - jsonPath: $.*.attendee.auditDetails.lastModifiedBy
+            - jsonPath: $.*.attendee.auditDetails.createdTime
+            - jsonPath: $.*.attendee.auditDetails.lastModifiedTime
+            - jsonPath: $.*.attendee.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.userName
+            - jsonPath: $.*.nameOfUser
+            - jsonPath: $.*.role
+            - jsonPath: $.*.registerServiceCode
+            - jsonPath: $.*.registerName
+            - jsonPath: $.*.registerNumber
+            - jsonPath: $.*.boundaryHierarchyCode.country
+            - jsonPath: $.*.boundaryHierarchyCode.region
+            - jsonPath: $.*.boundaryHierarchyCode.district
+            - jsonPath: $.*.boundaryHierarchyCode.healthFacility
+            - jsonPath: $.*.boundaryHierarchyCode.settlement
+            - jsonPath: $.*.projectId
+            - jsonPath: $.*.projectType
+            - jsonPath: $.*.projectTypeId
+            - jsonPath: $.*.projectName
+            - jsonPath: $.*.campaignNumber
+            - jsonPath: $.*.campaignId

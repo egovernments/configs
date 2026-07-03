@@ -1,0 +1,49 @@
+serviceMaps:
+  serviceName: bill-report-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched bill report data into the downstream reporting table.
+      fromTopic: transformer-producer-billreport-index-v1-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: BILL
+      objecIdJsonPath: $.billReport.id
+      tenantIdJsonPath: $.billReport.tenantId
+      userUuidJsonPath: $.[0].billReport.auditDetails.createdBy
+      transactionCodeJsonPath: $.billReport.id
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO bill_report_enriched(id, bill_id, bill_ids, tenant_id, type, status, file_store_id, error_details, created_by, last_modified_by, created_time, last_modified_time, bill_report_generation_time, user_name, name_of_user, role, country_code, region_code, district_code, health_facility_code, settlement_code, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET bill_ids = EXCLUDED.bill_ids, status = EXCLUDED.status, file_store_id = EXCLUDED.file_store_id, error_details = EXCLUDED.error_details, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time, bill_report_generation_time = EXCLUDED.bill_report_generation_time, user_name = EXCLUDED.user_name, name_of_user = EXCLUDED.name_of_user, role = EXCLUDED.role, country_code = EXCLUDED.country_code, region_code = EXCLUDED.region_code, district_code = EXCLUDED.district_code, health_facility_code = EXCLUDED.health_facility_code, settlement_code = EXCLUDED.settlement_code, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.billReport.id
+            - jsonPath: $.*.billReport.billId
+            - jsonPath: $.*.billReport.billIds
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.billReport.tenantId
+            - jsonPath: $.*.billReport.type
+            - jsonPath: $.*.billReport.status
+            - jsonPath: $.*.billReport.fileStoreId
+            - jsonPath: $.*.billReport.errorDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.billReport.auditDetails.createdBy
+            - jsonPath: $.*.billReport.auditDetails.lastModifiedBy
+            - jsonPath: $.*.billReport.auditDetails.createdTime
+            - jsonPath: $.*.billReport.auditDetails.lastModifiedTime
+            - jsonPath: $.*.billReportGenerationTime
+            - jsonPath: $.*.userName
+            - jsonPath: $.*.nameOfUser
+            - jsonPath: $.*.role
+            - jsonPath: $.*.boundaryHierarchyCode.country
+            - jsonPath: $.*.boundaryHierarchyCode.region
+            - jsonPath: $.*.boundaryHierarchyCode.district
+            - jsonPath: $.*.boundaryHierarchyCode.healthFacility
+            - jsonPath: $.*.boundaryHierarchyCode.settlement
+            - jsonPath: $.*.projectId
+            - jsonPath: $.*.projectType
+            - jsonPath: $.*.projectTypeId
+            - jsonPath: $.*.projectName
+            - jsonPath: $.*.campaignNumber
+            - jsonPath: $.*.campaignId

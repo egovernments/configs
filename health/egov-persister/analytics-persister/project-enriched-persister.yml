@@ -1,0 +1,52 @@
+serviceMaps:
+  serviceName: project-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched project data into the downstream reporting table.
+      fromTopic: transformer-producer-bulk-project-index-v1-health-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: PROJECT
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      userUuidJsonPath: $.[0].createdBy
+      transactionCodeJsonPath: $.id
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO project_enriched(id, tenant_id, project_number, reference_id, created_by, created_time, project_beneficiary_type, sub_project_type, overall_target, target_per_day, campaign_duration_in_days, start_date, end_date, product_variant, product_name, target_type, locality_code, country_code, region_code, district_code, health_facility_code, settlement_code, task_dates, additional_details, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id, target_type) DO UPDATE SET reference_id = EXCLUDED.reference_id, project_beneficiary_type = EXCLUDED.project_beneficiary_type, sub_project_type = EXCLUDED.sub_project_type, overall_target = EXCLUDED.overall_target, target_per_day = EXCLUDED.target_per_day, campaign_duration_in_days = EXCLUDED.campaign_duration_in_days, start_date = EXCLUDED.start_date, end_date = EXCLUDED.end_date, product_variant = EXCLUDED.product_variant, product_name = EXCLUDED.product_name, locality_code = EXCLUDED.locality_code, country_code = EXCLUDED.country_code, region_code = EXCLUDED.region_code, district_code = EXCLUDED.district_code, health_facility_code = EXCLUDED.health_facility_code, settlement_code = EXCLUDED.settlement_code, task_dates = EXCLUDED.task_dates, additional_details = EXCLUDED.additional_details, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.id
+            - jsonPath: $.*.tenantId
+            - jsonPath: $.*.projectNumber
+            - jsonPath: $.*.referenceID
+            - jsonPath: $.*.createdBy
+            - jsonPath: $.*.createdTime
+            - jsonPath: $.*.projectBeneficiaryType
+            - jsonPath: $.*.subProjectType
+            - jsonPath: $.*.overallTarget
+            - jsonPath: $.*.targetPerDay
+            - jsonPath: $.*.campaignDurationInDays
+            - jsonPath: $.*.startDate
+            - jsonPath: $.*.endDate
+            - jsonPath: $.*.productVariant
+            - jsonPath: $.*.productName
+            - jsonPath: $.*.targetType
+            - jsonPath: $.*.localityCode
+            - jsonPath: $.*.boundaryHierarchyCode.country
+            - jsonPath: $.*.boundaryHierarchyCode.region
+            - jsonPath: $.*.boundaryHierarchyCode.district
+            - jsonPath: $.*.boundaryHierarchyCode.healthFacility
+            - jsonPath: $.*.boundaryHierarchyCode.settlement
+            - jsonPath: $.*.taskDates
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.projectId
+            - jsonPath: $.*.projectType
+            - jsonPath: $.*.projectTypeId
+            - jsonPath: $.*.projectName
+            - jsonPath: $.*.campaignNumber
+            - jsonPath: $.*.campaignId

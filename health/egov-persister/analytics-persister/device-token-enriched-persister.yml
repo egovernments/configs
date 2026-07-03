@@ -1,0 +1,47 @@
+serviceMaps:
+  serviceName: device-token-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched device token data into the downstream reporting table.
+      fromTopic: transformer-producer-device-token-index-v1-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: DEVICE-TOKEN
+      objecIdJsonPath: $.deviceToken.id
+      tenantIdJsonPath: $.deviceToken.tenantId
+      userUuidJsonPath: $.[0].deviceToken.auditDetails.createdBy
+      transactionCodeJsonPath: $.deviceToken.id
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO device_token_enriched(id, user_id, device_token, device_type, tenant_id, facility_id, facility_ids, user_roles, created_by, last_modified_by, created_time, last_modified_time, user_name, role, country_code, region_code, district_code, health_facility_code, settlement_code, task_dates, synced_date, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET user_id = EXCLUDED.user_id, device_type = EXCLUDED.device_type, tenant_id = EXCLUDED.tenant_id, facility_ids = EXCLUDED.facility_ids, user_roles = EXCLUDED.user_roles, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time, user_name = EXCLUDED.user_name, role = EXCLUDED.role, country_code = EXCLUDED.country_code, region_code = EXCLUDED.region_code, district_code = EXCLUDED.district_code, health_facility_code = EXCLUDED.health_facility_code, settlement_code = EXCLUDED.settlement_code, task_dates = EXCLUDED.task_dates, synced_date = EXCLUDED.synced_date, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.deviceToken.id
+            - jsonPath: $.*.deviceToken.userId
+            - jsonPath: $.*.deviceToken.deviceToken
+            - jsonPath: $.*.deviceToken.deviceType
+            - jsonPath: $.*.deviceToken.tenantId
+            - jsonPath: $.*.deviceToken.facilityId
+            - jsonPath: $.*.deviceToken.facilityIds
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.deviceToken.userRoles
+            - jsonPath: $.*.deviceToken.auditDetails.createdBy
+            - jsonPath: $.*.deviceToken.auditDetails.lastModifiedBy
+            - jsonPath: $.*.deviceToken.auditDetails.createdTime
+            - jsonPath: $.*.deviceToken.auditDetails.lastModifiedTime
+            - jsonPath: $.*.userName
+            - jsonPath: $.*.role
+            - jsonPath: $.*.boundaryHierarchyCode.country
+            - jsonPath: $.*.boundaryHierarchyCode.region
+            - jsonPath: $.*.boundaryHierarchyCode.district
+            - jsonPath: $.*.boundaryHierarchyCode.healthFacility
+            - jsonPath: $.*.boundaryHierarchyCode.settlement
+            - jsonPath: $.*.taskDates
+            - jsonPath: $.*.syncedDate
+            - jsonPath: $.*.projectId
+            - jsonPath: $.*.projectType
+            - jsonPath: $.*.projectTypeId
+            - jsonPath: $.*.projectName
+            - jsonPath: $.*.campaignNumber
+            - jsonPath: $.*.campaignId

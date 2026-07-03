@@ -1,0 +1,69 @@
+serviceMaps:
+  serviceName: stock-reconciliation-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched stock reconciliation data into the downstream reporting table.
+      fromTopic: transformer-producer-stock-recon-index-v1-health-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: STOCK
+      objecIdJsonPath: $.stockReconciliation.id
+      tenantIdJsonPath: $.stockReconciliation.tenantId
+      userUuidJsonPath: $.[0].stockReconciliation.auditDetails.createdBy
+      transactionCodeJsonPath: $.stockReconciliation.clientReferenceId
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO stock_reconciliation_enriched(id, client_reference_id, tenant_id, facility_id, product_variant_id, reference_id, reference_id_type, physical_count, calculated_count, comments_on_reconciliation, date_of_reconciliation, additional_fields, is_deleted, row_version, created_by, last_modified_by, created_time, last_modified_time, client_created_by, client_last_modified_by, client_created_time, client_last_modified_time, facility_name, facility_target, facility_level, product_name, user_name, name_of_user, role, user_address, synced_time_stamp, synced_time, task_dates, synced_date, country_code, region_code, district_code, health_facility_code, settlement_code, locality_code, additional_details, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET tenant_id = EXCLUDED.tenant_id, facility_id = EXCLUDED.facility_id, product_variant_id = EXCLUDED.product_variant_id, reference_id = EXCLUDED.reference_id, reference_id_type = EXCLUDED.reference_id_type, physical_count = EXCLUDED.physical_count, calculated_count = EXCLUDED.calculated_count, comments_on_reconciliation = EXCLUDED.comments_on_reconciliation, date_of_reconciliation = EXCLUDED.date_of_reconciliation, additional_fields = EXCLUDED.additional_fields, is_deleted = EXCLUDED.is_deleted, row_version = EXCLUDED.row_version, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time, client_last_modified_by = EXCLUDED.client_last_modified_by, client_last_modified_time = EXCLUDED.client_last_modified_time, facility_name = EXCLUDED.facility_name, facility_target = EXCLUDED.facility_target, facility_level = EXCLUDED.facility_level, product_name = EXCLUDED.product_name, user_name = EXCLUDED.user_name, name_of_user = EXCLUDED.name_of_user, role = EXCLUDED.role, user_address = EXCLUDED.user_address, synced_time_stamp = EXCLUDED.synced_time_stamp, synced_time = EXCLUDED.synced_time, task_dates = EXCLUDED.task_dates, synced_date = EXCLUDED.synced_date, country_code = EXCLUDED.country_code, region_code = EXCLUDED.region_code, district_code = EXCLUDED.district_code, health_facility_code = EXCLUDED.health_facility_code, settlement_code = EXCLUDED.settlement_code, locality_code = EXCLUDED.locality_code, additional_details = EXCLUDED.additional_details, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.stockReconciliation.id
+            - jsonPath: $.*.stockReconciliation.clientReferenceId
+            - jsonPath: $.*.stockReconciliation.tenantId
+            - jsonPath: $.*.stockReconciliation.facilityId
+            - jsonPath: $.*.stockReconciliation.productVariantId
+            - jsonPath: $.*.stockReconciliation.referenceId
+            - jsonPath: $.*.stockReconciliation.referenceIdType
+            - jsonPath: $.*.stockReconciliation.physicalCount
+            - jsonPath: $.*.stockReconciliation.calculatedCount
+            - jsonPath: $.*.stockReconciliation.commentsOnReconciliation
+            - jsonPath: $.*.stockReconciliation.dateOfReconciliation
+            - jsonPath: $.*.stockReconciliation.additionalFields
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.stockReconciliation.isDeleted
+            - jsonPath: $.*.stockReconciliation.rowVersion
+            - jsonPath: $.*.stockReconciliation.auditDetails.createdBy
+            - jsonPath: $.*.stockReconciliation.auditDetails.lastModifiedBy
+            - jsonPath: $.*.stockReconciliation.auditDetails.createdTime
+            - jsonPath: $.*.stockReconciliation.auditDetails.lastModifiedTime
+            - jsonPath: $.*.stockReconciliation.clientAuditDetails.createdBy
+            - jsonPath: $.*.stockReconciliation.clientAuditDetails.lastModifiedBy
+            - jsonPath: $.*.stockReconciliation.clientAuditDetails.createdTime
+            - jsonPath: $.*.stockReconciliation.clientAuditDetails.lastModifiedTime
+            - jsonPath: $.*.facilityName
+            - jsonPath: $.*.facilityTarget
+            - jsonPath: $.*.facilityLevel
+            - jsonPath: $.*.productName
+            - jsonPath: $.*.userName
+            - jsonPath: $.*.nameOfUser
+            - jsonPath: $.*.role
+            - jsonPath: $.*.userAddress
+            - jsonPath: $.*.syncedTimeStamp
+            - jsonPath: $.*.syncedTime
+            - jsonPath: $.*.taskDates
+            - jsonPath: $.*.syncedDate
+            - jsonPath: $.*.boundaryHierarchyCode.country
+            - jsonPath: $.*.boundaryHierarchyCode.region
+            - jsonPath: $.*.boundaryHierarchyCode.district
+            - jsonPath: $.*.boundaryHierarchyCode.healthFacility
+            - jsonPath: $.*.boundaryHierarchyCode.settlement
+            - jsonPath: $.*.localityCode
+            - jsonPath: $.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.projectId
+            - jsonPath: $.*.projectType
+            - jsonPath: $.*.projectTypeId
+            - jsonPath: $.*.projectName
+            - jsonPath: $.*.campaignNumber
+            - jsonPath: $.*.campaignId

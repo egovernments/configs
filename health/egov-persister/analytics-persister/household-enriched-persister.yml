@@ -1,0 +1,66 @@
+serviceMaps:
+  serviceName: household-enriched-enrichment-service
+  mappings:
+    - version: 1.0
+      description: Persists enriched household data into the downstream reporting table.
+      fromTopic: transformer-producer-household-index-v1-health-topic
+      isTransaction: true
+      isAuditEnabled: true
+      module: HOUSEHOLD
+      objecIdJsonPath: $.household.id
+      tenantIdJsonPath: $.household.tenantId
+      userUuidJsonPath: $.[0].household.auditDetails.createdBy
+      transactionCodeJsonPath: $.household.clientReferenceId
+      auditAttributeBasePath: $.*
+      queryMaps:
+        - query: INSERT INTO household_enriched(id, tenant_id, client_reference_id, member_count, is_deleted, row_version, address_id, address_latitude, address_longitude, address_location_accuracy, address_type, address_locality, household_additional_fields, created_by, last_modified_by, created_time, last_modified_time, client_created_by, client_last_modified_by, client_created_time, client_last_modified_time, user_name, name_of_user, role, user_address, task_dates, synced_date, synced_time_stamp, country_code, region_code, district_code, health_facility_code, settlement_code, geo_point_lat, geo_point_lon, additional_details, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET tenant_id = EXCLUDED.tenant_id, client_reference_id = EXCLUDED.client_reference_id, member_count = EXCLUDED.member_count, is_deleted = EXCLUDED.is_deleted, row_version = EXCLUDED.row_version, address_id = EXCLUDED.address_id, address_latitude = EXCLUDED.address_latitude, address_longitude = EXCLUDED.address_longitude, address_location_accuracy = EXCLUDED.address_location_accuracy, address_type = EXCLUDED.address_type, address_locality = EXCLUDED.address_locality, household_additional_fields = EXCLUDED.household_additional_fields, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time, client_last_modified_by = EXCLUDED.client_last_modified_by, client_last_modified_time = EXCLUDED.client_last_modified_time, user_name = EXCLUDED.user_name, name_of_user = EXCLUDED.name_of_user, role = EXCLUDED.role, user_address = EXCLUDED.user_address, task_dates = EXCLUDED.task_dates, synced_date = EXCLUDED.synced_date, synced_time_stamp = EXCLUDED.synced_time_stamp, country_code = EXCLUDED.country_code, region_code = EXCLUDED.region_code, district_code = EXCLUDED.district_code, health_facility_code = EXCLUDED.health_facility_code, settlement_code = EXCLUDED.settlement_code, geo_point_lat = EXCLUDED.geo_point_lat, geo_point_lon = EXCLUDED.geo_point_lon, additional_details = EXCLUDED.additional_details, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.household.id
+            - jsonPath: $.*.household.tenantId
+            - jsonPath: $.*.household.clientReferenceId
+            - jsonPath: $.*.household.memberCount
+            - jsonPath: $.*.household.isDeleted
+            - jsonPath: $.*.household.rowVersion
+            - jsonPath: $.*.household.address.id
+            - jsonPath: $.*.household.address.latitude
+            - jsonPath: $.*.household.address.longitude
+            - jsonPath: $.*.household.address.locationAccuracy
+            - jsonPath: $.*.household.address.type
+            - jsonPath: $.*.household.address.locality
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.household.additionalFields
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.household.auditDetails.createdBy
+            - jsonPath: $.*.household.auditDetails.lastModifiedBy
+            - jsonPath: $.*.household.auditDetails.createdTime
+            - jsonPath: $.*.household.auditDetails.lastModifiedTime
+            - jsonPath: $.*.household.clientAuditDetails.createdBy
+            - jsonPath: $.*.household.clientAuditDetails.lastModifiedBy
+            - jsonPath: $.*.household.clientAuditDetails.createdTime
+            - jsonPath: $.*.household.clientAuditDetails.lastModifiedTime
+            - jsonPath: $.*.userName
+            - jsonPath: $.*.nameOfUser
+            - jsonPath: $.*.role
+            - jsonPath: $.*.userAddress
+            - jsonPath: $.*.taskDates
+            - jsonPath: $.*.syncedDate
+            - jsonPath: $.*.syncedTimeStamp
+            - jsonPath: $.*.boundaryHierarchyCode.country
+            - jsonPath: $.*.boundaryHierarchyCode.region
+            - jsonPath: $.*.boundaryHierarchyCode.district
+            - jsonPath: $.*.boundaryHierarchyCode.healthFacility
+            - jsonPath: $.*.boundaryHierarchyCode.settlement
+            - jsonPath: $.*.geoPoint[0]
+            - jsonPath: $.*.geoPoint[1]
+            - jsonPath: $.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.projectId
+            - jsonPath: $.*.projectType
+            - jsonPath: $.*.projectTypeId
+            - jsonPath: $.*.projectName
+            - jsonPath: $.*.campaignNumber
+            - jsonPath: $.*.campaignId
