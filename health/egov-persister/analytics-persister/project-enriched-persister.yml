@@ -1,17 +1,3 @@
-# NOTE: per explicit instruction, this ignores the DDL's single-column "id" PRIMARY KEY on
-# project_enriched, since the transformer emits one ProjectIndexV1 event per campaign target, all
-# sharing the same project id. Instead of a plain append-only insert, this upserts on a composite key
-# (id, target_type) — target_type is the field that varies per target-event, and the DDL's own
-# per-target metrics (project_beneficiary_type, overall_target, target_per_day, product_variant,
-# product_name) group naturally under it, mirroring project_target.beneficiaryType in the real OLTP
-# schema (project-persister.yml). ASSUMPTION: two targets on the same project never share the same
-# target_type — if they can (e.g. same type, different product_variant), this composite key is not
-# sufficient and product_variant would need to join it. This also assumes a composite unique
-# constraint on (id, target_type) is added to the deployed table in place of the current single-column
-# PK. The DO UPDATE SET exclusion list (id, target_type, tenant_id, project_number, created_by,
-# created_time) mirrors project-persister.yml's real "Projects" update mapping (topic
-# update-project-health, line 337-388) — parent/projectHierarchy are also excluded there but have no
-# equivalent column in this DDL.
 serviceMaps:
   serviceName: project-enriched-enrichment-service
   mappings:
