@@ -1,0 +1,23 @@
+ServiceMaps:
+  serviceName: Gateway Error Log Service
+  version: 1.0.0
+  mappings:
+    # ── INDEX: Save gateway error event to Elasticsearch ──
+    - topic: springGateway-errorlog
+      configKey: INDEX
+      indexes:
+        - name: gateway-error-log-index-v1
+          type: general
+          id: $.id
+          isBulk: false
+          jsonPath: $
+          timeStampField: $.timestamp
+
+    # ── REINDEX: Re-index from Elasticsearch ──
+    - topic: gateway-error-log-index-v1
+      configKey: REINDEX
+      indexes:
+        - name: gateway-error-log-index-v1
+          type: general
+          jsonPath: $.hits
+          timeStampField: $.timestamp
