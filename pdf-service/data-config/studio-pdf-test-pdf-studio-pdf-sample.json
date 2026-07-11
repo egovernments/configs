@@ -1,6 +1,6 @@
 {
   "DataConfigs": {
-    "serviceName": "rainmaker-studio",
+    "serviceName": "public-services",
     "version": "1.0.0",
     "baseKeyPath": "$.PublicService.*.Application.*",
     "entityIdPath": "$.id",
@@ -36,7 +36,12 @@
                 "value": {
                   "path": "$.workflowStatus"
                 },
-                "type": "setEmpty"
+                "type": "setEmpty",
+                "localisation": {
+                  "required": true,
+                  "prefix": null,
+                  "module": "rainmaker-studio"
+                }
               },
               {
                 "variable": "applicationDate",
@@ -44,6 +49,26 @@
                   "path": "$.auditDetails.createdTime"
                 },
                 "type": "date"
+              }
+            ]
+          },
+          {
+            "externalAPI": [
+              {
+                "path": "http://egov-mdms-service:8080/egov-mdms-service/v1/_get",
+                "queryParam": "moduleName=tenant\u0026masterName=tenants\u0026tenantId=$.tenantId\u0026filter=[?(@.code=='{$.tenantId}')]",
+                "apiRequest": null,
+                "responseMapping": [
+                  {
+                    "variable": "tenantName",
+                    "value": "$.MdmsRes.tenant.tenants[0].name",
+                    "localisation": {
+                      "required": true,
+                      "prefix": null,
+                      "module": "rainmaker-studio"
+                    }
+                  }
+                ]
               }
             ]
           },
