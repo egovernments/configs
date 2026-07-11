@@ -43,6 +43,21 @@ serviceMaps:
             - jsonPath: $.deviceTokens.*.deviceToken
             - jsonPath: $.deviceTokens.*.tenantId
             - jsonPath: $.deviceTokens.*.facilityId
+        # Rescue for facility-less deletes: a message with facilityId=null binds
+        # 'facilityid = NULL' above, which matches nothing (silent no-op). This query
+        # fires ONLY when the message's facilityId bind IS NULL (?::varchar IS NULL guard)
+        # and then removes all facility rows for the user+token+tenant — the producer's
+        # documented intent. When facilityId is present it is a guaranteed 0-row no-op,
+        # so the two queries are disjoint on the bound value's nullness.
+        - query: >-
+            DELETE FROM eg_push_device_tokens
+            WHERE userid = ? AND devicetoken = ? AND tenantid = ? AND ?::varchar IS NULL
+          basePath: $.deviceTokens.*
+          jsonMaps:
+            - jsonPath: $.deviceTokens.*.userId
+            - jsonPath: $.deviceTokens.*.deviceToken
+            - jsonPath: $.deviceTokens.*.tenantId
+            - jsonPath: $.deviceTokens.*.facilityId
 
     - version: 1.0
       description: Unregister device token (delete all rows for userId+deviceToken, regardless of facilityId)
