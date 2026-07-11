@@ -279,6 +279,34 @@ serviceMaps:
             - jsonPath: $.*.skills.*.auditDetails.lastModifiedTime
             - jsonPath: $.*.skills.*.isDeleted
             - jsonPath: $.*.skills.*.id
+        # Rescue sweeps for FULL individual deletes: the per-child updates above key on
+        # client-supplied sub-entity ids, which can be null (delete enrichment never assigns
+        # them and null-id sub-entities skip existence validation) or simply omitted from the
+        # payload — leaving active child rows pointing at a soft-deleted individual.
+        # Each sweep is scoped by the parent's individualId, touches only still-active rows,
+        # and is guarded by the PARENT's isDeleted bind (?=true): on sub-entity-only deletes
+        # (parent isDeleted=false) it is a guaranteed 0-row no-op, so it never over-deletes.
+        - query: UPDATE individual_address SET lastModifiedBy=?, lastModifiedTime=?, isDeleted=true WHERE individualId=? AND isDeleted=false AND ?=true;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.auditDetails.lastModifiedBy
+            - jsonPath: $.*.auditDetails.lastModifiedTime
+            - jsonPath: $.*.id
+            - jsonPath: $.*.isDeleted
+        - query: UPDATE individual_identifier SET lastModifiedBy=?, lastModifiedTime=?, isDeleted=true WHERE individualId=? AND isDeleted=false AND ?=true;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.auditDetails.lastModifiedBy
+            - jsonPath: $.*.auditDetails.lastModifiedTime
+            - jsonPath: $.*.id
+            - jsonPath: $.*.isDeleted
+        - query: UPDATE individual_skill SET lastModifiedBy=?, lastModifiedTime=?, isDeleted=true WHERE individualId=? AND isDeleted=false AND ?=true;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.auditDetails.lastModifiedBy
+            - jsonPath: $.*.auditDetails.lastModifiedTime
+            - jsonPath: $.*.id
+            - jsonPath: $.*.isDeleted
 
     - version: 1.0
       description: Updates userId and userUuid received from user-service into an individual

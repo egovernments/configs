@@ -182,6 +182,19 @@ serviceMaps:
               type: JSON
               dbType: JSONB
             - jsonPath: $.*.id
+        # Rescue sweep for FULL task deletes: the resource update above keys on the
+        # client-supplied resource id, which can be null or the resource omitted from the
+        # delete payload — leaving active TASK_RESOURCE rows under a soft-deleted task.
+        # Scoped by the parent taskId, only still-active rows, guarded by the PARENT's
+        # isDeleted bind (?=true): a resource-only delete (parent isDeleted=false) is a
+        # guaranteed 0-row no-op.
+        - query: UPDATE TASK_RESOURCE SET lastModifiedBy = ?, lastModifiedTime = ?, isDeleted = true WHERE taskId = ? AND isDeleted = false AND ?=true;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.auditDetails.lastModifiedBy
+            - jsonPath: $.*.auditDetails.lastModifiedTime
+            - jsonPath: $.*.id
+            - jsonPath: $.*.isDeleted
 
     - version: 1.0
       description: Saves a adverse event
