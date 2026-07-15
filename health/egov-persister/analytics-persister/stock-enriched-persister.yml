@@ -1,67 +1,70 @@
 serviceMaps:
-  serviceName: stock-enriched-enrichment-service
+  serviceName: stock-reconciliation-enriched-enrichment-service
   mappings:
     - version: 1.0
-      description: Persists enriched stock transaction data into the downstream reporting table.
-      fromTopic: transformer-producer-bulk-stock-index-v1-health-topic
+      description: Persists enriched stock reconciliation data into the downstream reporting table.
+      fromTopic: transformer-producer-stock-recon-index-v1-health-topic
       isTransaction: true
       isAuditEnabled: true
       module: STOCK
-      objecIdJsonPath: $.id
-      tenantIdJsonPath: $.tenantId
-      userUuidJsonPath: $.[0].createdBy
-      transactionCodeJsonPath: $.clientReferenceId
+      objecIdJsonPath: $.stockReconciliation.id
+      tenantIdJsonPath: $.stockReconciliation.tenantId
+      userUuidJsonPath: $.[0].stockReconciliation.auditDetails.createdBy
+      transactionCodeJsonPath: $.stockReconciliation.clientReferenceId
       auditAttributeBasePath: $.*
       queryMaps:
-        - query: INSERT INTO "analytics-test".stock_enriched(id, facility_id, transacting_facility_id, facility_name, transacting_facility_name, product_variant, product_name, physical_count, event_type, reason, user_name, name_of_user, role, user_address, date_of_entry, country_code, province_code, district_code, post_administrative_code, locality_code, village_code, created_by, last_modified_by, created_time, last_modified_time, synced_time_stamp, synced_time, additional_fields, client_reference_id, tenant_id, facility_type, transacting_facility_type, facility_level, transacting_facility_level, facility_target, task_dates, synced_date, additional_details, waybill_number, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::timestamptz, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::date, ?::date, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET facility_id = EXCLUDED.facility_id, transacting_facility_id = EXCLUDED.transacting_facility_id, facility_name = EXCLUDED.facility_name, transacting_facility_name = EXCLUDED.transacting_facility_name, product_variant = EXCLUDED.product_variant, product_name = EXCLUDED.product_name, physical_count = EXCLUDED.physical_count, event_type = EXCLUDED.event_type, reason = EXCLUDED.reason, user_name = EXCLUDED.user_name, name_of_user = EXCLUDED.name_of_user, role = EXCLUDED.role, user_address = EXCLUDED.user_address, date_of_entry = EXCLUDED.date_of_entry, country_code = EXCLUDED.country_code, province_code = EXCLUDED.province_code, district_code = EXCLUDED.district_code, post_administrative_code = EXCLUDED.post_administrative_code, locality_code = EXCLUDED.locality_code, village_code = EXCLUDED.village_code, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time, synced_time_stamp = EXCLUDED.synced_time_stamp, synced_time = EXCLUDED.synced_time, additional_fields = EXCLUDED.additional_fields, tenant_id = EXCLUDED.tenant_id, facility_type = EXCLUDED.facility_type, transacting_facility_type = EXCLUDED.transacting_facility_type, facility_level = EXCLUDED.facility_level, transacting_facility_level = EXCLUDED.transacting_facility_level, facility_target = EXCLUDED.facility_target, task_dates = EXCLUDED.task_dates, synced_date = EXCLUDED.synced_date, additional_details = EXCLUDED.additional_details, waybill_number = EXCLUDED.waybill_number, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
+        - query: INSERT INTO "analytics-test".stock_reconciliation_enriched(id, client_reference_id, tenant_id, facility_id, product_variant_id, reference_id, reference_id_type, physical_count, calculated_count, comments_on_reconciliation, date_of_reconciliation, additional_fields, is_deleted, row_version, created_by, last_modified_by, created_time, last_modified_time, client_created_by, client_last_modified_by, client_created_time, client_last_modified_time, facility_name, facility_target, facility_level, product_name, user_name, name_of_user, role, user_address, synced_time_stamp, synced_time, task_dates, synced_date, country_code, province_code, district_code, post_administrative_code, locality_code, village_code, boundary_code, additional_details, project_id, project_type, project_type_id, project_name, campaign_number, campaign_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?::timestamptz, ?, ?::date, ?::date, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET tenant_id = EXCLUDED.tenant_id, facility_id = EXCLUDED.facility_id, product_variant_id = EXCLUDED.product_variant_id, reference_id = EXCLUDED.reference_id, reference_id_type = EXCLUDED.reference_id_type, physical_count = EXCLUDED.physical_count, calculated_count = EXCLUDED.calculated_count, comments_on_reconciliation = EXCLUDED.comments_on_reconciliation, date_of_reconciliation = EXCLUDED.date_of_reconciliation, additional_fields = EXCLUDED.additional_fields, is_deleted = EXCLUDED.is_deleted, row_version = EXCLUDED.row_version, last_modified_by = EXCLUDED.last_modified_by, last_modified_time = EXCLUDED.last_modified_time, client_last_modified_by = EXCLUDED.client_last_modified_by, client_last_modified_time = EXCLUDED.client_last_modified_time, facility_name = EXCLUDED.facility_name, facility_target = EXCLUDED.facility_target, facility_level = EXCLUDED.facility_level, product_name = EXCLUDED.product_name, user_name = EXCLUDED.user_name, name_of_user = EXCLUDED.name_of_user, role = EXCLUDED.role, user_address = EXCLUDED.user_address, synced_time_stamp = EXCLUDED.synced_time_stamp, synced_time = EXCLUDED.synced_time, task_dates = EXCLUDED.task_dates, synced_date = EXCLUDED.synced_date, country_code = EXCLUDED.country_code, province_code = EXCLUDED.province_code, district_code = EXCLUDED.district_code, post_administrative_code = EXCLUDED.post_administrative_code, locality_code = EXCLUDED.locality_code, village_code = EXCLUDED.village_code, boundary_code = EXCLUDED.boundary_code, additional_details = EXCLUDED.additional_details, project_id = EXCLUDED.project_id, project_type = EXCLUDED.project_type, project_type_id = EXCLUDED.project_type_id, project_name = EXCLUDED.project_name, campaign_number = EXCLUDED.campaign_number, campaign_id = EXCLUDED.campaign_id;
           basePath: $.*
           jsonMaps:
-            - jsonPath: $.*.id
-            - jsonPath: $.*.facilityId
-            - jsonPath: $.*.transactingFacilityId
+            - jsonPath: $.*.stockReconciliation.id
+            - jsonPath: $.*.stockReconciliation.clientReferenceId
+            - jsonPath: $.*.stockReconciliation.tenantId
+            - jsonPath: $.*.stockReconciliation.facilityId
+            - jsonPath: $.*.stockReconciliation.productVariantId
+            - jsonPath: $.*.stockReconciliation.referenceId
+            - jsonPath: $.*.stockReconciliation.referenceIdType
+            - jsonPath: $.*.stockReconciliation.physicalCount
+            - jsonPath: $.*.stockReconciliation.calculatedCount
+            - jsonPath: $.*.stockReconciliation.commentsOnReconciliation
+            - jsonPath: $.*.stockReconciliation.dateOfReconciliation
+            - jsonPath: $.*.stockReconciliation.additionalFields
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.stockReconciliation.isDeleted
+            - jsonPath: $.*.stockReconciliation.rowVersion
+            - jsonPath: $.*.stockReconciliation.auditDetails.createdBy
+            - jsonPath: $.*.stockReconciliation.auditDetails.lastModifiedBy
+            - jsonPath: $.*.stockReconciliation.auditDetails.createdTime
+            - jsonPath: $.*.stockReconciliation.auditDetails.lastModifiedTime
+            - jsonPath: $.*.stockReconciliation.clientAuditDetails.createdBy
+            - jsonPath: $.*.stockReconciliation.clientAuditDetails.lastModifiedBy
+            - jsonPath: $.*.stockReconciliation.clientAuditDetails.createdTime
+            - jsonPath: $.*.stockReconciliation.clientAuditDetails.lastModifiedTime
             - jsonPath: $.*.facilityName
-            - jsonPath: $.*.transactingFacilityName
-            - jsonPath: $.*.productVariant
+            - jsonPath: $.*.facilityTarget
+            - jsonPath: $.*.facilityLevel
             - jsonPath: $.*.productName
-            - jsonPath: $.*.physicalCount
-            - jsonPath: $.*.eventType
-            - jsonPath: $.*.reason
             - jsonPath: $.*.userName
             - jsonPath: $.*.nameOfUser
             - jsonPath: $.*.role
             - jsonPath: $.*.userAddress
-            - jsonPath: $.*.dateOfEntry
+            - jsonPath: $.*.syncedTimeStamp
+              dbType: STRING
+            - jsonPath: $.*.syncedTime
+            - jsonPath: $.*.taskDates
+              dbType: STRING
+            - jsonPath: $.*.syncedDate
+              dbType: STRING
             - jsonPath: $.*.boundaryHierarchyCode.country
             - jsonPath: $.*.boundaryHierarchyCode.province
             - jsonPath: $.*.boundaryHierarchyCode.district
             - jsonPath: $.*.boundaryHierarchyCode.POSTADMINISTRATIVE
             - jsonPath: $.*.boundaryHierarchyCode.locality
             - jsonPath: $.*.boundaryHierarchyCode.village
-            - jsonPath: $.*.createdBy
-            - jsonPath: $.*.lastModifiedBy
-            - jsonPath: $.*.createdTime
-            - jsonPath: $.*.lastModifiedTime
-            - jsonPath: $.*.syncedTimeStamp
-              dbType: STRING
-            - jsonPath: $.*.syncedTime
-            - jsonPath: $.*.additionalFields
-              type: JSON
-              dbType: JSONB
-            - jsonPath: $.*.clientReferenceId
-            - jsonPath: $.*.tenantId
-            - jsonPath: $.*.facilityType
-            - jsonPath: $.*.transactingFacilityType
-            - jsonPath: $.*.facilityLevel
-            - jsonPath: $.*.transactingFacilityLevel
-            - jsonPath: $.*.facilityTarget
-            - jsonPath: $.*.taskDates
-              dbType: STRING
-            - jsonPath: $.*.syncedDate
-              dbType: STRING
+            - jsonPath: $.*.localityCode
             - jsonPath: $.*.additionalDetails
               type: JSON
               dbType: JSONB
-            - jsonPath: $.*.waybillNumber
             - jsonPath: $.*.projectId
             - jsonPath: $.*.projectType
             - jsonPath: $.*.projectTypeId
