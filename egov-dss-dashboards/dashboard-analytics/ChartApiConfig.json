@@ -63778,5 +63778,439 @@
       "transactingStockTransformer"
     ],
     "_comment": "Two queries: facilityId and transactingFacilityId, with status for rejection detection"
+  },
+  "user_sync_status_estimate": {
+    "chartName": "DSS_HEALTH_USER_SYNC_STATUS_ESTIMATE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.lastModifiedTime",
+        "requestQueryMap": "{\"campaignNumber\": \"Data.campaignNumber.keyword\", \"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "transformData": "linearAggregation",
+        "aggrQuery": "{\"size\": 0, \"aggs\": {\"estimatedCount\": {\"cardinality\": {\"field\": \"Data.userName.keyword\", \"precision_threshold\": 40000}}}}",
+        "select": {
+          "estimatedCount": "estimatedCount.value"
+        }
+      }
+    ],
+    "chartType": "rawResponse",
+    "merges": [
+      {
+        "mergeType": "linear",
+        "mergeKey": "estimatedCount",
+        "flatten": true,
+        "datasets": [],
+        "outputMappings": []
+      }
+    ],
+    "isCumulative": false,
+    "valueType": "number",
+    "showLabel": true,
+    "drillChart": "none",
+    "filterKeys": [
+      {
+        "key": "campaignNumber"
+      },
+      {
+        "key": "projectTypeId"
+      }
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "estimatedCount"
+    ],
+    "cardsList": [
+      {
+        "id": "estimatedCount",
+        "labelKey": "DSS_HEALTH_USER_SYNC_STATUS_ESTIMATE",
+        "valuePath": "estimatedCount",
+        "valueType": "NUMBER",
+        "descriptionParams": {
+          "count": "estimatedCount"
+        },
+        "colorRules": {
+          "type": "constant",
+          "color": "#0B4B66"
+        }
+      }
+    ],
+    "insight": {},
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "_comment": "expectedRows estimate for user_sync_status report - distinct CDD/user count (approximation: assumes a user is not active at more than one HF in the window)."
+  },
+  "spaq_approved_hf_estimate": {
+    "chartName": "DSS_HEALTH_SPAQ_APPROVED_HF_ESTIMATE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"campaignNumber\": \"Data.campaignNumber.keyword\", \"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "stock-index-updated-v1",
+        "transformData": "linearAggregation",
+        "aggrQuery": "{\"size\": 0, \"aggs\": {\"estimatedCount\": {\"filter\": {\"bool\": {\"must\": [{\"term\": {\"Data.additionalDetails.status.keyword\": \"ACCEPTED\"}}, {\"term\": {\"Data.facilityType.keyword\": \"STAFF\"}}, {\"term\": {\"Data.transactingFacilityType.keyword\": \"Health Facility\"}}]}}, \"aggs\": {\"distinctUsers\": {\"cardinality\": {\"field\": \"Data.userName.keyword\", \"precision_threshold\": 40000}}}}}}",
+        "select": {
+          "estimatedCount": "estimatedCount.distinctUsers.value"
+        }
+      }
+    ],
+    "chartType": "rawResponse",
+    "merges": [
+      {
+        "mergeType": "linear",
+        "mergeKey": "estimatedCount",
+        "flatten": true,
+        "datasets": [],
+        "outputMappings": []
+      }
+    ],
+    "isCumulative": false,
+    "valueType": "number",
+    "showLabel": true,
+    "drillChart": "none",
+    "filterKeys": [
+      {
+        "key": "campaignNumber"
+      },
+      {
+        "key": "projectTypeId"
+      }
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "estimatedCount"
+    ],
+    "cardsList": [
+      {
+        "id": "estimatedCount",
+        "labelKey": "DSS_HEALTH_SPAQ_APPROVED_HF_ESTIMATE",
+        "valuePath": "estimatedCount",
+        "valueType": "NUMBER",
+        "descriptionParams": {
+          "count": "estimatedCount"
+        },
+        "colorRules": {
+          "type": "constant",
+          "color": "#0B4B66"
+        }
+      }
+    ],
+    "insight": {},
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "_comment": "expectedRows estimate for spaq_approved_hf report - distinct OIC/userName count among ACCEPTED stock-updated docs at Health Facility-type staff (approximation: assumes one user per HF)."
+  },
+  "hf_stock_summary_estimate": {
+    "chartName": "DSS_HEALTH_HF_STOCK_SUMMARY_ESTIMATE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.createdTime",
+        "requestQueryMap": "{\"campaignNumber\": \"Data.campaignNumber.keyword\", \"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "stock-index-v1,stock-index-updated-v1",
+        "transformData": "linearAggregation",
+        "aggrQuery": "{\"size\": 0, \"aggs\": {\"estimatedCount\": {\"filter\": {\"terms\": {\"Data.productName.keyword\": [\"SPAQ 1\", \"SPAQ 2\"]}}, \"aggs\": {\"distinctHf\": {\"cardinality\": {\"field\": \"Data.boundaryHierarchyCode.healthFacility.keyword\", \"precision_threshold\": 40000}}}}}}",
+        "select": {
+          "estimatedCount": "estimatedCount.distinctHf.value"
+        }
+      }
+    ],
+    "chartType": "rawResponse",
+    "merges": [
+      {
+        "mergeType": "linear",
+        "mergeKey": "estimatedCount",
+        "flatten": true,
+        "datasets": [],
+        "outputMappings": []
+      }
+    ],
+    "isCumulative": false,
+    "valueType": "number",
+    "showLabel": true,
+    "drillChart": "none",
+    "filterKeys": [
+      {
+        "key": "campaignNumber"
+      },
+      {
+        "key": "projectTypeId"
+      }
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "estimatedCount"
+    ],
+    "cardsList": [
+      {
+        "id": "estimatedCount",
+        "labelKey": "DSS_HEALTH_HF_STOCK_SUMMARY_ESTIMATE",
+        "valuePath": "estimatedCount",
+        "valueType": "NUMBER",
+        "descriptionParams": {
+          "count": "estimatedCount"
+        },
+        "colorRules": {
+          "type": "constant",
+          "color": "#0B4B66"
+        }
+      }
+    ],
+    "insight": {},
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "_comment": "expectedRows estimate for hf_stock_summary report - distinct Health Facility count (SPAQ 1/2 only) across both stock indexes in one multi-index query. Approximate: the real report's HF->State/CDD->HF categories require a cross-index ID join this can't replicate, so this likely undercounts vs the true row total."
+  },
+  "smc_referral_report_estimate": {
+    "chartName": "DSS_HEALTH_SMC_REFERRAL_REPORT_ESTIMATE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.hfReferral.auditDetails.lastModifiedTime",
+        "requestQueryMap": "{\"campaignNumber\": \"Data.campaignNumber.keyword\", \"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "hf-referral-index-v1",
+        "transformData": "linearAggregation",
+        "aggrQuery": "{\"size\": 0, \"aggs\": {\"estimatedCount\": {\"filter\": {\"match_all\": {}}}}}",
+        "select": {
+          "estimatedCount": "estimatedCount.doc_count"
+        }
+      }
+    ],
+    "chartType": "rawResponse",
+    "merges": [
+      {
+        "mergeType": "linear",
+        "mergeKey": "estimatedCount",
+        "flatten": true,
+        "datasets": [],
+        "outputMappings": []
+      }
+    ],
+    "isCumulative": false,
+    "valueType": "number",
+    "showLabel": true,
+    "drillChart": "none",
+    "filterKeys": [
+      {
+        "key": "campaignNumber"
+      },
+      {
+        "key": "projectTypeId"
+      }
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "estimatedCount"
+    ],
+    "cardsList": [
+      {
+        "id": "estimatedCount",
+        "labelKey": "DSS_HEALTH_SMC_REFERRAL_REPORT_ESTIMATE",
+        "valuePath": "estimatedCount",
+        "valueType": "NUMBER",
+        "descriptionParams": {
+          "count": "estimatedCount"
+        },
+        "colorRules": {
+          "type": "constant",
+          "color": "#0B4B66"
+        }
+      }
+    ],
+    "insight": {},
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "_comment": "expectedRows estimate for smc_referral_report - exact match: the real report is a 1:1 doc-to-row mapping with no aggregation, so a plain filtered doc count under the same campaign+date filters equals the real row count."
+  },
+  "beneficiary_visit_list_estimate": {
+    "chartName": "DSS_HEALTH_BENEFICIARY_VISIT_LIST_ESTIMATE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.lastModifiedTime",
+        "requestQueryMap": "{\"campaignNumber\": \"Data.campaignNumber.keyword\", \"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "transformData": "linearAggregation",
+        "aggrQuery": "{\"size\": 0, \"aggs\": {\"estimatedCount\": {\"filter\": {\"terms\": {\"Data.administrationStatus.keyword\": [\"ADMINISTRATION_SUCCESS\", \"INELIGIBLE\", \"BENEFICIARY_REFERRED\", \"BENEFICIARY_REFUSED\", \"BENEFICIARY_DIED\", \"BENEFICIARY_ABSENT\", \"VISITED\", \"BENEFICIARY_MIGRATED\"]}}}}}",
+        "select": {
+          "estimatedCount": "estimatedCount.doc_count"
+        }
+      }
+    ],
+    "chartType": "rawResponse",
+    "merges": [
+      {
+        "mergeType": "linear",
+        "mergeKey": "estimatedCount",
+        "flatten": true,
+        "datasets": [],
+        "outputMappings": []
+      }
+    ],
+    "isCumulative": false,
+    "valueType": "number",
+    "showLabel": true,
+    "drillChart": "none",
+    "filterKeys": [
+      {
+        "key": "campaignNumber"
+      },
+      {
+        "key": "projectTypeId"
+      }
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "estimatedCount"
+    ],
+    "cardsList": [
+      {
+        "id": "estimatedCount",
+        "labelKey": "DSS_HEALTH_BENEFICIARY_VISIT_LIST_ESTIMATE",
+        "valuePath": "estimatedCount",
+        "valueType": "NUMBER",
+        "descriptionParams": {
+          "count": "estimatedCount"
+        },
+        "colorRules": {
+          "type": "constant",
+          "color": "#0B4B66"
+        }
+      }
+    ],
+    "insight": {},
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "_comment": "expectedRows estimate for beneficiary_visit_list - raw document count (not deduplicated by individualId, per explicit product decision) filtered to all 8 RELEVANT_STATUSES the real script matches on."
+  },
+  "daily_hf_summary_report_estimate": {
+    "chartName": "DSS_HEALTH_DAILY_HF_SUMMARY_REPORT_ESTIMATE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.lastModifiedTime",
+        "requestQueryMap": "{\"campaignNumber\": \"Data.campaignNumber.keyword\", \"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "transformData": "linearAggregation",
+        "aggrQuery": "{\"size\": 0, \"aggs\": {\"estimatedCount\": {\"cardinality\": {\"script\": {\"source\": \"doc['Data.boundaryHierarchyCode.healthFacility.keyword'].value + '_' + doc['Data.userName.keyword'].value + '_' + (doc['Data.taskDates'].value.toInstant().toEpochMilli() / 86400000)\"}, \"precision_threshold\": 40000}}}}",
+        "select": {
+          "estimatedCount": "estimatedCount.value"
+        }
+      }
+    ],
+    "chartType": "rawResponse",
+    "merges": [
+      {
+        "mergeType": "linear",
+        "mergeKey": "estimatedCount",
+        "flatten": true,
+        "datasets": [],
+        "outputMappings": []
+      }
+    ],
+    "isCumulative": false,
+    "valueType": "number",
+    "showLabel": true,
+    "drillChart": "none",
+    "filterKeys": [
+      {
+        "key": "campaignNumber"
+      },
+      {
+        "key": "projectTypeId"
+      }
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "estimatedCount"
+    ],
+    "cardsList": [
+      {
+        "id": "estimatedCount",
+        "labelKey": "DSS_HEALTH_DAILY_HF_SUMMARY_REPORT_ESTIMATE",
+        "valuePath": "estimatedCount",
+        "valueType": "NUMBER",
+        "descriptionParams": {
+          "count": "estimatedCount"
+        },
+        "colorRules": {
+          "type": "constant",
+          "color": "#0B4B66"
+        }
+      }
+    ],
+    "insight": {},
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "_comment": "expectedRows estimate for daily_hf_summary_report - cardinality on a scripted composite (healthFacility|userName|day) key, i.e. sum over users of their distinct active days. NEEDS LIVE VERIFICATION: assumes Data.taskDates is mapped as an ES date field so doc value scripting (.toInstant()) works - adjust the script if the mapping differs."
+  },
+  "cumulative_daily_summary_form_estimate": {
+    "chartName": "DSS_HEALTH_CUMULATIVE_DAILY_SUMMARY_FORM_ESTIMATE",
+    "queries": [
+      {
+        "module": "COMMON",
+        "dateRefField": "Data.lastModifiedTime",
+        "requestQueryMap": "{\"campaignNumber\": \"Data.campaignNumber.keyword\", \"projectTypeId\": \"Data.projectTypeId.keyword\"}",
+        "indexName": "project-task-index-v1",
+        "transformData": "linearAggregation",
+        "aggrQuery": "{\"size\": 0, \"aggs\": {\"estimatedCount\": {\"cardinality\": {\"script\": {\"source\": \"doc['Data.boundaryHierarchyCode.healthFacility.keyword'].value + '_' + doc['Data.userName.keyword'].value + '_' + (doc['Data.taskDates'].value.toInstant().toEpochMilli() / 86400000)\"}, \"precision_threshold\": 40000}}}}",
+        "select": {
+          "estimatedCount": "estimatedCount.value"
+        }
+      }
+    ],
+    "chartType": "rawResponse",
+    "merges": [
+      {
+        "mergeType": "linear",
+        "mergeKey": "estimatedCount",
+        "flatten": true,
+        "datasets": [],
+        "outputMappings": []
+      }
+    ],
+    "isCumulative": false,
+    "valueType": "number",
+    "showLabel": true,
+    "drillChart": "none",
+    "filterKeys": [
+      {
+        "key": "campaignNumber"
+      },
+      {
+        "key": "projectTypeId"
+      }
+    ],
+    "documentType": "_doc",
+    "action": "",
+    "aggregationPaths": [
+      "estimatedCount"
+    ],
+    "cardsList": [
+      {
+        "id": "estimatedCount",
+        "labelKey": "DSS_HEALTH_CUMULATIVE_DAILY_SUMMARY_FORM_ESTIMATE",
+        "valuePath": "estimatedCount",
+        "valueType": "NUMBER",
+        "descriptionParams": {
+          "count": "estimatedCount"
+        },
+        "colorRules": {
+          "type": "constant",
+          "color": "#0B4B66"
+        }
+      }
+    ],
+    "insight": {},
+    "hideInsights": true,
+    "hideHeaderDenomination": true,
+    "_comment": "expectedRows estimate for cumulative_daily_summary_form - same composite (healthFacility|userName|day) cardinality approach as daily_hf_summary_report_estimate. NEEDS LIVE VERIFICATION: assumes Data.taskDates is mapped as an ES date field."
   }
 }
