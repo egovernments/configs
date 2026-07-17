@@ -1,27 +1,43 @@
 serviceMaps:
-  serviceName: household
+  serviceName: reports
   mappings:
     - version: 1.0
-      description: Persists household.
+      description: Persists report generation status/lifecycle events and final metadata.
       fromTopic: save-hcm-report-metadata
       isTransaction: true
       isAuditEnabled: true
       module: REPORTS
-      objecIdJsonPath: $.dag_run_id
+      objecIdJsonPath: $.event_id
       tenantIdJsonPath: $.tenant_id
       userUuidJsonPath: $.[0].auditDetails.createdBy
       transactionCodeJsonPath: $.dag_run_id
       auditAttributeBasePath: $.*
       queryMaps:
-        - query: INSERT INTO health.REPORTS_METADATA(tenantId, dagRunId, dagName, campaignIdentifier, reportName, triggerFrequency, triggerTime, fileStoreId, reportRange) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO health.REPORTS_METADATA(eventId, tenantId, campaignIdentifier, identifierType, reportName, triggerFrequency, fileStoreId, triggerTime, reportTriggeredTimeMs, reportTriggeredTime, dagRunId, dagName, status, statusOrder, errorMessage, errorType, fileSizeBytes, reportGenerationTimeSeconds, rowCount, reportRange, eventTimestamp, eventTimestampMs, expectedRows, expectedGenerationTimeSeconds, secondsSinceTriggered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (eventId) DO NOTHING;
           basePath: $
           jsonMaps:
+            - jsonPath: $.event_id
             - jsonPath: $.tenant_id
-            - jsonPath: $.dag_run_id
-            - jsonPath: $.dag_name
             - jsonPath: $.campaign_identifier
+            - jsonPath: $.identifier_type
             - jsonPath: $.report_name
             - jsonPath: $.trigger_frequency
-            - jsonPath: $.trigger_time
             - jsonPath: $.file_store_id
+            - jsonPath: $.trigger_time
+            - jsonPath: $.report_triggered_time_ms
+            - jsonPath: $.report_triggered_time
+            - jsonPath: $.dag_run_id
+            - jsonPath: $.dag_name
+            - jsonPath: $.status
+            - jsonPath: $.status_order
+            - jsonPath: $.error_message
+            - jsonPath: $.error_type
+            - jsonPath: $.file_size_bytes
+            - jsonPath: $.report_generation_time_seconds
+            - jsonPath: $.row_count
             - jsonPath: $.report_dates
+            - jsonPath: $.timestamp
+            - jsonPath: $.timestamp_ms
+            - jsonPath: $.expected_rows
+            - jsonPath: $.expected_generation_time_seconds
+            - jsonPath: $.seconds_since_triggered
