@@ -94,7 +94,11 @@ serviceMaps:
       transactionCodeJsonPath: $.clientReferenceId
       auditAttributeBasePath: $.*
       queryMaps:
-        - query: UPDATE health.PROJECT_TASK SET tenantId = ?, projectId = ?, projectBeneficiaryId = ?, projectBeneficiaryClientReferenceId = ?, addressId = ?, plannedStartDate = ?, plannedEndDate = ?, actualStartDate = ?, actualEndDate = ?, status = ?, additionalDetails = ?, lastModifiedBy = ?, lastModifiedTime = ?, rowVersion = ?, isDeleted = ?, clientLastModifiedTime = ?, clientLastModifiedBy = ? WHERE ID = ?;
+        # Optimistic-lock guard (proven live in DI-L06): without a version predicate a stale or
+        # out-of-order replay silently overwrote a newer row. rowVersion <= ? applies the write only
+        # if the stored version is not ahead of the incoming one; a stale message now affects 0 rows,
+        # which the affected-rows classifier surfaces instead of losing the write.
+        - query: UPDATE health.PROJECT_TASK SET tenantId = ?, projectId = ?, projectBeneficiaryId = ?, projectBeneficiaryClientReferenceId = ?, addressId = ?, plannedStartDate = ?, plannedEndDate = ?, actualStartDate = ?, actualEndDate = ?, status = ?, additionalDetails = ?, lastModifiedBy = ?, lastModifiedTime = ?, rowVersion = ?, isDeleted = ?, clientLastModifiedTime = ?, clientLastModifiedBy = ? WHERE ID = ? AND rowVersion <= ?;
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.tenantId
@@ -117,10 +121,13 @@ serviceMaps:
             - jsonPath: $.*.clientAuditDetails.lastModifiedTime
             - jsonPath: $.*.clientAuditDetails.lastModifiedBy
             - jsonPath: $.*.id
+            - jsonPath: $.*.rowVersion
 
-        - query: UPDATE health.ADDRESS SET tenantId = ?, doorno = ?, latitude = ?, longitude = ?, locationAccuracy = ?, type = ?, addressline1 = ?, addressline2 = ?, landmark = ?, city = ?, pincode = ?, buildingName = ?, street = ?, localityCode = ? WHERE ID = ?;
+        - query: INSERT INTO health.ADDRESS(id, clientReferenceId, tenantid, doorno, latitude, longitude, locationAccuracy, type, addressline1, addressline2, landmark, city, pincode, buildingName, street, localityCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET tenantid = ?, doorno = ?, latitude = ?, longitude = ?, locationAccuracy = ?, type = ?, addressline1 = ?, addressline2 = ?, landmark = ?, city = ?, pincode = ?, buildingName = ?, street = ?, localityCode = ?;
           basePath: $.*.address
           jsonMaps:
+            - jsonPath: $.*.address.id
+            - jsonPath: $.*.address.clientReferenceId
             - jsonPath: $.*.address.tenantId
             - jsonPath: $.*.address.doorNo
             - jsonPath: $.*.address.latitude
@@ -135,7 +142,20 @@ serviceMaps:
             - jsonPath: $.*.address.buildingName
             - jsonPath: $.*.address.street
             - jsonPath: $.*.address.locality.code
-            - jsonPath: $.*.address.id
+            - jsonPath: $.*.address.tenantId
+            - jsonPath: $.*.address.doorNo
+            - jsonPath: $.*.address.latitude
+            - jsonPath: $.*.address.longitude
+            - jsonPath: $.*.address.locationAccuracy
+            - jsonPath: $.*.address.type
+            - jsonPath: $.*.address.addressLine1
+            - jsonPath: $.*.address.addressLine2
+            - jsonPath: $.*.address.landmark
+            - jsonPath: $.*.address.city
+            - jsonPath: $.*.address.pincode
+            - jsonPath: $.*.address.buildingName
+            - jsonPath: $.*.address.street
+            - jsonPath: $.*.address.locality.code
 
         - query: INSERT INTO health.TASK_RESOURCE(id, clientReferenceId, tenantid, productvariantid, taskid, quantity, isDelivered, reasonIfNotDelivered, createdBy, createdTime, lastModifiedBy, lastModifiedTime, isDeleted, additionalDetails) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET tenantid = ?, taskid = ?, productvariantid = ?, quantity = ?, isDelivered = ?, reasonIfNotDelivered = ?, lastModifiedBy = ?, lastModifiedTime = ?, additionalDetails = ?;
           basePath: $.*.resources.*
@@ -180,7 +200,11 @@ serviceMaps:
       transactionCodeJsonPath: $.clientReferenceId
       auditAttributeBasePath: $.*
       queryMaps:
-        - query: UPDATE health.PROJECT_TASK SET lastModifiedBy = ?, lastModifiedTime = ?, clientLastModifiedTime = ?, clientLastModifiedBy = ?, rowVersion = ?, isDeleted = ?, additionalDetails=? WHERE ID = ?;
+        # Optimistic-lock guard (proven live in DI-L06): without a version predicate a stale or
+        # out-of-order replay silently overwrote a newer row. rowVersion <= ? applies the write only
+        # if the stored version is not ahead of the incoming one; a stale message now affects 0 rows,
+        # which the affected-rows classifier surfaces instead of losing the write.
+        - query: UPDATE health.PROJECT_TASK SET lastModifiedBy = ?, lastModifiedTime = ?, clientLastModifiedTime = ?, clientLastModifiedBy = ?, rowVersion = ?, isDeleted = ?, additionalDetails=? WHERE ID = ? AND rowVersion <= ?;
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.auditDetails.lastModifiedBy
@@ -193,6 +217,7 @@ serviceMaps:
               type: JSON
               dbType: JSONB
             - jsonPath: $.*.id
+            - jsonPath: $.*.rowVersion
         - query: UPDATE health.TASK_RESOURCE SET lastModifiedBy = ?, lastModifiedTime = ?, isDeleted = ?, additionalDetails = ? WHERE ID = ?;
           basePath: $.*.resources.*
           jsonMaps:
@@ -262,7 +287,11 @@ serviceMaps:
       transactionCodeJsonPath: $.clientReferenceId
       auditAttributeBasePath: $.*
       queryMaps:
-        - query: UPDATE health.ADVERSE_EVENT SET tenantId = ?, taskId = ?, taskClientReferenceId = ?, symptoms = ?, reAttempts = ?, lastModifiedBy = ?, lastModifiedTime = ?, clientLastModifiedTime = ?, rowVersion = ?, isDeleted = ? WHERE ID = ?;
+        # Optimistic-lock guard (proven live in DI-L06): without a version predicate a stale or
+        # out-of-order replay silently overwrote a newer row. rowVersion <= ? applies the write only
+        # if the stored version is not ahead of the incoming one; a stale message now affects 0 rows,
+        # which the affected-rows classifier surfaces instead of losing the write.
+        - query: UPDATE health.ADVERSE_EVENT SET tenantId = ?, taskId = ?, taskClientReferenceId = ?, symptoms = ?, reAttempts = ?, lastModifiedBy = ?, lastModifiedTime = ?, clientLastModifiedTime = ?, rowVersion = ?, isDeleted = ? WHERE ID = ? AND rowVersion <= ?;
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.tenantId
@@ -278,6 +307,7 @@ serviceMaps:
             - jsonPath: $.*.rowVersion
             - jsonPath: $.*.isDeleted
             - jsonPath: $.*.id
+            - jsonPath: $.*.rowVersion
 
     - version: 1.0
       description: Deletes a adverse event
@@ -291,7 +321,11 @@ serviceMaps:
       transactionCodeJsonPath: $.clientReferenceId
       auditAttributeBasePath: $.*
       queryMaps:
-        - query: UPDATE health.ADVERSE_EVENT SET lastModifiedBy = ?, lastModifiedTime = ?, clientLastModifiedTime = ?, rowVersion = ?, isDeleted = ? WHERE ID = ?;
+        # Optimistic-lock guard (proven live in DI-L06): without a version predicate a stale or
+        # out-of-order replay silently overwrote a newer row. rowVersion <= ? applies the write only
+        # if the stored version is not ahead of the incoming one; a stale message now affects 0 rows,
+        # which the affected-rows classifier surfaces instead of losing the write.
+        - query: UPDATE health.ADVERSE_EVENT SET lastModifiedBy = ?, lastModifiedTime = ?, clientLastModifiedTime = ?, rowVersion = ?, isDeleted = ? WHERE ID = ? AND rowVersion <= ?;
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.auditDetails.lastModifiedBy
@@ -300,3 +334,4 @@ serviceMaps:
             - jsonPath: $.*.rowVersion
             - jsonPath: $.*.isDeleted
             - jsonPath: $.*.id
+            - jsonPath: $.*.rowVersion

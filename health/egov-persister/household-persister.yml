@@ -13,7 +13,13 @@ serviceMaps:
       transactionCodeJsonPath: $.clientReferenceId
       auditAttributeBasePath: $.*
       queryMaps:
-        - query: INSERT INTO health.HOUSEHOLD(id, tenantId, clientReferenceId, householdType, numberOfMembers, addressId, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted, clientCreatedTime, clientLastModifiedTime, clientCreatedBy, clientLastModifiedBy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        # householdType is DEFAULT 'FAMILY' NOT NULL (V20241114114225), but naming the column here and
+        # binding an explicit NULL defeats the DEFAULT and raises 23502, which parks the record.
+        # COALESCE restores the column default as a second layer of defence: the service-side
+        # validator rejects nulls with a visible per-record error, and this backstop only exists so
+        # that any OTHER producer to the topic (DLQ replay, a future service, a validator regression)
+        # lands a row instead of parking it.
+        - query: INSERT INTO health.HOUSEHOLD(id, tenantId, clientReferenceId, householdType, numberOfMembers, addressId, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime, rowVersion, isDeleted, clientCreatedTime, clientLastModifiedTime, clientCreatedBy, clientLastModifiedBy) VALUES (?, ?, ?, COALESCE(CAST(? AS varchar), 'FAMILY'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.id
@@ -67,7 +73,11 @@ serviceMaps:
       transactionCodeJsonPath: $.clientReferenceId
       auditAttributeBasePath: $.*
       queryMaps:
-        - query: UPDATE health.HOUSEHOLD SET tenantId = ?, clientReferenceId = ?, numberOfMembers = ?, addressId = ?, additionalDetails = ?, lastModifiedBy = ?, lastModifiedTime = ?, rowVersion = ?, isDeleted = ?, clientLastModifiedTime = ?, clientLastModifiedBy = ? WHERE ID = ?;
+        # Optimistic-lock guard (proven live in DI-L06): without a version predicate a stale or
+        # out-of-order replay silently overwrote a newer row. rowVersion <= ? applies the write only
+        # if the stored version is not ahead of the incoming one; a stale message now affects 0 rows,
+        # which the affected-rows classifier surfaces instead of losing the write.
+        - query: UPDATE health.HOUSEHOLD SET tenantId = ?, clientReferenceId = ?, numberOfMembers = ?, addressId = ?, additionalDetails = ?, lastModifiedBy = ?, lastModifiedTime = ?, rowVersion = ?, isDeleted = ?, clientLastModifiedTime = ?, clientLastModifiedBy = ? WHERE ID = ? AND rowVersion <= ?;
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.tenantId
@@ -84,6 +94,7 @@ serviceMaps:
             - jsonPath: $.*.clientAuditDetails.lastModifiedTime
             - jsonPath: $.*.clientAuditDetails.lastModifiedBy
             - jsonPath: $.*.id
+            - jsonPath: $.*.rowVersion
         - query: INSERT INTO health.ADDRESS(id, clientReferenceId, tenantid, doorno, latitude, longitude, locationAccuracy, type, addressline1, addressline2, landmark, city, pincode, buildingName, street, localityCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET tenantId = ?, doorno = ?, latitude = ?, longitude = ?, locationAccuracy = ?, type = ?, addressline1 = ?, addressline2 = ?, landmark = ?, city = ?, pincode = ?, buildingName = ?, street = ?, localityCode = ?;
           basePath: $.*.address
           jsonMaps:
@@ -130,7 +141,11 @@ serviceMaps:
       transactionCodeJsonPath: $.clientReferenceId
       auditAttributeBasePath: $.*
       queryMaps:
-        - query: UPDATE health.HOUSEHOLD SET lastModifiedBy = ?, lastModifiedTime = ?, clientLastModifiedTime = ?, clientLastModifiedBy = ?,  rowVersion = ?, isDeleted = ?, additionalDetails=? WHERE ID = ?;
+        # Optimistic-lock guard (proven live in DI-L06): without a version predicate a stale or
+        # out-of-order replay silently overwrote a newer row. rowVersion <= ? applies the write only
+        # if the stored version is not ahead of the incoming one; a stale message now affects 0 rows,
+        # which the affected-rows classifier surfaces instead of losing the write.
+        - query: UPDATE health.HOUSEHOLD SET lastModifiedBy = ?, lastModifiedTime = ?, clientLastModifiedTime = ?, clientLastModifiedBy = ?,  rowVersion = ?, isDeleted = ?, additionalDetails=? WHERE ID = ? AND rowVersion <= ?;
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.auditDetails.lastModifiedBy
@@ -143,6 +158,7 @@ serviceMaps:
               type: JSON
               dbType: JSONB
             - jsonPath: $.*.id
+            - jsonPath: $.*.rowVersion
 
     - version: 1.0
       description: Persists household member.
@@ -180,6 +196,36 @@ serviceMaps:
             - jsonPath: $.*.clientAuditDetails.lastModifiedTime
             - jsonPath: $.*.clientAuditDetails.createdBy
             - jsonPath: $.*.clientAuditDetails.lastModifiedBy
+        # The bare INSERT left idempotency to the exception path: a Kafka redelivery of this create
+        # raises 23505, DbExceptionClassifier maps it to BENIGN and the listener counts it as an
+        # idempotent success - but only after the unique_violation has aborted the whole aggregated
+        # batch insert, forcing PersisterBatchListner to re-drive every message, then every record
+        # within the offending message, one at a time. ON CONFLICT makes the no-op declarative so the
+        # batch never aborts. DO NOTHING, not DO UPDATE: on the CREATE topic the replayed payload is
+        # the row that was already written, so there is nothing to update, and DO UPDATE would let a
+        # redelivered stale create overwrite values a later update-household-member-topic message had
+        # already applied. Arbiter is the id PRIMARY KEY (V20250327022035).
+        - query: INSERT INTO health.HOUSEHOLD_MEMBER_RELATIONSHIP(id, clientReferenceId, tenantId, selfId, selfClientReferenceId, relativeId, relativeClientReferenceId, relationshipType, createdBy, lastModifiedBy, createdTime, lastModifiedTime, clientCreatedBy, clientLastModifiedBy, clientCreatedTime, clientLastModifiedTime, rowVersion, isDeleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO NOTHING;
+          basePath: $.*.memberRelationships.*
+          jsonMaps:
+            - jsonPath: $.*.memberRelationships.*.id
+            - jsonPath: $.*.memberRelationships.*.clientReferenceId
+            - jsonPath: $.*.memberRelationships.*.tenantId
+            - jsonPath: $.*.memberRelationships.*.selfId
+            - jsonPath: $.*.memberRelationships.*.selfClientReferenceId
+            - jsonPath: $.*.memberRelationships.*.relativeId
+            - jsonPath: $.*.memberRelationships.*.relativeClientReferenceId
+            - jsonPath: $.*.memberRelationships.*.relationshipType
+            - jsonPath: $.*.memberRelationships.*.auditDetails.createdBy
+            - jsonPath: $.*.memberRelationships.*.auditDetails.lastModifiedBy
+            - jsonPath: $.*.memberRelationships.*.auditDetails.createdTime
+            - jsonPath: $.*.memberRelationships.*.auditDetails.lastModifiedTime
+            - jsonPath: $.*.memberRelationships.*.clientAuditDetails.createdBy
+            - jsonPath: $.*.memberRelationships.*.clientAuditDetails.lastModifiedBy
+            - jsonPath: $.*.memberRelationships.*.clientAuditDetails.createdTime
+            - jsonPath: $.*.memberRelationships.*.clientAuditDetails.lastModifiedTime
+            - jsonPath: $.*.memberRelationships.*.rowVersion
+            - jsonPath: $.*.memberRelationships.*.isDeleted
     - version: 1.0
       description: Update household member.
       fromTopic: update-household-member-health-topic
@@ -192,7 +238,7 @@ serviceMaps:
       transactionCodeJsonPath: $.clientReferenceId
       auditAttributeBasePath: $.*
       queryMaps:
-        - query: UPDATE health.HOUSEHOLD_MEMBER SET isHeadOfHousehold=?, clientReferenceId = ?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, clientLastModifiedTime = ?, clientLastModifiedBy = ? WHERE individualId=? AND householdId=? AND isDeleted=false;
+        - query: UPDATE health.HOUSEHOLD_MEMBER SET isHeadOfHousehold=?, clientReferenceId = ?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, clientLastModifiedTime = ?, clientLastModifiedBy = ?, householdId = COALESCE(CAST(? AS varchar), householdId) WHERE id = ? AND isDeleted=false;
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.isHeadOfHousehold
@@ -206,28 +252,47 @@ serviceMaps:
             - jsonPath: $.*.isDeleted
             - jsonPath: $.*.clientAuditDetails.lastModifiedTime
             - jsonPath: $.*.clientAuditDetails.lastModifiedBy
-            - jsonPath: $.*.individualId
             - jsonPath: $.*.householdId
-        # Rescue for rows persisted with individualId=NULL (legitimate when
-        # household.member.relationship.validation=false defers individual resolution):
-        # the query above binds NULL and matches 0 rows, silently dropping the update.
-        # This query keys those rows by their server id. The two WHERE clauses are
-        # mutually exclusive (individualId NULL vs not), so exactly one applies per row.
-        - query: UPDATE health.HOUSEHOLD_MEMBER SET isHeadOfHousehold=?, clientReferenceId = ?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, clientLastModifiedTime = ?, clientLastModifiedBy = ? WHERE id=? AND individualId IS NULL AND isDeleted=false;
-          basePath: $.*
-          jsonMaps:
-            - jsonPath: $.*.isHeadOfHousehold
-            - jsonPath: $.*.clientReferenceId
-            - jsonPath: $.*.additionalFields
-              type: JSON
-              dbType: JSONB
-            - jsonPath: $.*.auditDetails.lastModifiedBy
-            - jsonPath: $.*.auditDetails.lastModifiedTime
-            - jsonPath: $.*.rowVersion
-            - jsonPath: $.*.isDeleted
-            - jsonPath: $.*.clientAuditDetails.lastModifiedTime
-            - jsonPath: $.*.clientAuditDetails.lastModifiedBy
             - jsonPath: $.*.id
+        # selfId and tenantId are NOT NULL (V20250411022035). On the update path the service only
+        # re-enriches relationships that have NO id yet; an already-identified relationship keeps
+        # whatever the device sent, and HmRelativeExistentValidator tolerates a null selfId
+        # (existsAndNotEquals returns false when either side is empty). So a partial update payload
+        # can reach here without them. Fall back to the stored row's values, keyed on the id we are
+        # upserting, rather than inserting a NULL. Same COALESCE(CAST(? AS varchar), ...) shape as the
+        # member householdId repair above.
+        - query: INSERT INTO health.HOUSEHOLD_MEMBER_RELATIONSHIP(id, clientReferenceId, tenantId, selfId, selfClientReferenceId, relativeId, relativeClientReferenceId, relationshipType, createdBy, lastModifiedBy, createdTime, lastModifiedTime, clientCreatedBy, clientLastModifiedBy, clientCreatedTime, clientLastModifiedTime, rowVersion, isDeleted) VALUES (?, ?, COALESCE(CAST(? AS varchar), (SELECT r.tenantId FROM health.HOUSEHOLD_MEMBER_RELATIONSHIP r WHERE r.id = ?)), COALESCE(CAST(? AS varchar), (SELECT r.selfId FROM health.HOUSEHOLD_MEMBER_RELATIONSHIP r WHERE r.id = ?)), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET relationshipType = ?, relativeId = ?, relativeClientReferenceId = ?, lastModifiedBy = ?, lastModifiedTime = ?, clientLastModifiedBy = ?, clientLastModifiedTime = ?, rowVersion = ?, isDeleted = ?;
+          basePath: $.*.memberRelationships.*
+          jsonMaps:
+            - jsonPath: $.*.memberRelationships.*.id
+            - jsonPath: $.*.memberRelationships.*.clientReferenceId
+            - jsonPath: $.*.memberRelationships.*.tenantId
+            - jsonPath: $.*.memberRelationships.*.id
+            - jsonPath: $.*.memberRelationships.*.selfId
+            - jsonPath: $.*.memberRelationships.*.id
+            - jsonPath: $.*.memberRelationships.*.selfClientReferenceId
+            - jsonPath: $.*.memberRelationships.*.relativeId
+            - jsonPath: $.*.memberRelationships.*.relativeClientReferenceId
+            - jsonPath: $.*.memberRelationships.*.relationshipType
+            - jsonPath: $.*.memberRelationships.*.auditDetails.createdBy
+            - jsonPath: $.*.memberRelationships.*.auditDetails.lastModifiedBy
+            - jsonPath: $.*.memberRelationships.*.auditDetails.createdTime
+            - jsonPath: $.*.memberRelationships.*.auditDetails.lastModifiedTime
+            - jsonPath: $.*.memberRelationships.*.clientAuditDetails.createdBy
+            - jsonPath: $.*.memberRelationships.*.clientAuditDetails.lastModifiedBy
+            - jsonPath: $.*.memberRelationships.*.clientAuditDetails.createdTime
+            - jsonPath: $.*.memberRelationships.*.clientAuditDetails.lastModifiedTime
+            - jsonPath: $.*.memberRelationships.*.rowVersion
+            - jsonPath: $.*.memberRelationships.*.isDeleted
+            - jsonPath: $.*.memberRelationships.*.relationshipType
+            - jsonPath: $.*.memberRelationships.*.relativeId
+            - jsonPath: $.*.memberRelationships.*.relativeClientReferenceId
+            - jsonPath: $.*.memberRelationships.*.auditDetails.lastModifiedBy
+            - jsonPath: $.*.memberRelationships.*.auditDetails.lastModifiedTime
+            - jsonPath: $.*.memberRelationships.*.clientAuditDetails.lastModifiedBy
+            - jsonPath: $.*.memberRelationships.*.clientAuditDetails.lastModifiedTime
+            - jsonPath: $.*.memberRelationships.*.rowVersion
+            - jsonPath: $.*.memberRelationships.*.isDeleted
     - version: 1.0
       description: Deletes household Member.
       fromTopic: delete-household-member-health-topic
@@ -240,7 +305,28 @@ serviceMaps:
       transactionCodeJsonPath: $.clientReferenceId
       auditAttributeBasePath: $.*
       queryMaps:
-        - query: UPDATE health.HOUSEHOLD_MEMBER SET lastModifiedBy = ?, lastModifiedTime = ?, clientLastModifiedTime = ?, clientLastModifiedBy = ?, rowVersion = ?, isDeleted = ?, additionalDetails=? WHERE ID = ?;
+        # REVERTED to `WHERE ID = ?`. The clientReferenceId fallback that was briefly here -
+        #   WHERE (id = ? OR (CAST(? AS varchar) IS NULL AND clientReferenceId = ? AND tenantId = ?))
+        # - is correct in principle but must NOT ship on its own, and it does not fix a live API defect:
+        #  1. No uniqueness backstop exists yet. No tracked migration puts a unique constraint or a
+        #     unique index on household_member.clientReferenceId - V20231103055800 only adds the column
+        #     and SET NOT NULL, and V20250603132035's idx_householdMember_clientReferenceId_tenantId is
+        #     a plain lookup index. With duplicate live rows - the realistic case being one device or
+        #     batch redelivered inside a SINGLE tenant, which tenant scoping does not separate - one
+        #     delete message would soft-delete several members. The partial unique index that closes
+        #     that hole is staged and NOT deployed:
+        #     migrations-staged/V20260728093000__household_member_client_reference_id_unique_ddl.sql.
+        #     Re-apply this mapping in the SAME change as that migration, migration FIRST.
+        #  2. The API delete path cannot put a null server id on this topic anyway. HmNullIdValidator
+        #     is registered on isApplicableForDelete (HouseholdMemberService.java line 97) and
+        #     CommonUtils.validateForNullId flags every null-id record, which notHavingErrors() then
+        #     filters out before HouseholdMemberRepository.save publishes. The fallback is therefore
+        #     defence-in-depth for a DLQ replay or another producer, not a /_delete path fix.
+        # Optimistic-lock guard (proven live in DI-L06): without a version predicate a stale or
+        # out-of-order replay silently overwrote a newer row. rowVersion <= ? applies the write only
+        # if the stored version is not ahead of the incoming one; a stale message now affects 0 rows,
+        # which the affected-rows classifier surfaces instead of losing the write.
+        - query: UPDATE health.HOUSEHOLD_MEMBER SET lastModifiedBy = ?, lastModifiedTime = ?, clientLastModifiedTime = ?, clientLastModifiedBy = ?, rowVersion = ?, isDeleted = ?, additionalDetails=? WHERE ID = ? AND rowVersion <= ?;
           basePath: $.*
           jsonMaps:
             - jsonPath: $.*.auditDetails.lastModifiedBy
@@ -253,3 +339,51 @@ serviceMaps:
               type: JSON
               dbType: JSONB
             - jsonPath: $.*.id
+            - jsonPath: $.*.rowVersion
+        # DELIBERATELY keyed on the MEMBER (selfId), not on the relationship's own id: this is the
+        # member-delete CASCADE. HouseholdMemberEnrichmentService.delete only enriches the
+        # relationships present in the request payload and never hydrates the member's stored
+        # relationship set, so keying this on the relationship id would leave any stored relationship
+        # the payload omitted still isDeleted=false, pointing at a soft-deleted member. Only the
+        # NULL-selfId hole is closed here, via the selfClientReferenceId fallback - the breadth of
+        # the cascade is intentional. The CAST(? AS varchar) guard lets Postgres infer the parameter
+        # type in `IS NULL` and keeps the two branches mutually exclusive.
+        # THAT selfClientReferenceId FALLBACK IS TENANT-SCOPED (`AND tenantId = ?`), and must stay so. It
+        # has no uniqueness backstop and cannot be given one: selfClientReferenceId is the MEMBER's
+        # clientReferenceId copied onto every relationship row of that member, so it is non-unique BY
+        # DESIGN and a unique constraint on it would be wrong - none is staged and none should be. The only
+        # indexes on it are plain lookup indexes: idx_householdMemberRelationship_selfClientReferenceId
+        # (V20250411032035, later dropped) and the composite (selfClientReferenceId, tenantId) in
+        # V20250603132035, which also serves this new predicate. Without the tenant predicate this branch
+        # matched that column alone across the WHOLE table, so with two tenants each holding a member with
+        # the same clientReferenceId, one tenant's delete would soft-delete the other tenant's relationship
+        # rows. tenantId is the only discriminator available here and it closes that cross-tenant hole
+        # completely. Binding it is safe on the API path: Relationship.tenantId is @NotNull (inherited from
+        # EgovModel) and /member/v1/_delete and /member/v1/bulk/_delete both take @Valid bodies that cascade
+        # through the @Valid memberRelationships list, so a live delete cannot omit it. A hand-built DLQ
+        # replay omitting BOTH selfId and tenantId would now match no rows instead of matching another
+        # tenant's rows - a narrowing of an unsafe wildcard, with branch 1, the normal path, untouched.
+        # Branch 1 is deliberately NOT tenant-scoped: selfId is a globally unique server uuid, so a tenant
+        # predicate there could only narrow the member-scoped cascade this statement exists to perform.
+        # PARTIAL RELATIONSHIP DELETE IS UNSUPPORTED BECAUSE THIS STATEMENT IS MEMBER-SCOPED, and the
+        # service side is written to match. basePath is $.*.memberRelationships.*, so the persister emits
+        # ONE all-of-this-member's-relationships UPDATE PER RELATIONSHIP on the payload, all in a single
+        # ordered batchUpdate: on a mixed batch (one relationship isDeleted=true, another false) the last
+        # row wins and the outcome flips with array order - either the requested delete is silently
+        # reverted behind a 202, or every relationship is deleted anyway. HouseholdMemberEnrichmentService
+        # .delete therefore cascades isDeleted=true to EVERY relationship on the payload and never enriches
+        # just the flagged subset. Supporting a partial delete needs BOTH halves changed together: re-key
+        # this statement on the relationship's own id (with a clientReferenceId fallback) AND make that
+        # service method hydrate the member's full stored relationship set, so a member delete still
+        # reaches rows the payload omitted. Do not change either half on its own.
+        - query: UPDATE health.HOUSEHOLD_MEMBER_RELATIONSHIP SET lastModifiedBy = ?, lastModifiedTime = ?, rowVersion = ?, isDeleted = ? WHERE (selfId = ? OR (CAST(? AS varchar) IS NULL AND selfClientReferenceId = ? AND tenantId = ?));
+          basePath: $.*.memberRelationships.*
+          jsonMaps:
+            - jsonPath: $.*.memberRelationships.*.auditDetails.lastModifiedBy
+            - jsonPath: $.*.memberRelationships.*.auditDetails.lastModifiedTime
+            - jsonPath: $.*.memberRelationships.*.rowVersion
+            - jsonPath: $.*.memberRelationships.*.isDeleted
+            - jsonPath: $.*.memberRelationships.*.selfId
+            - jsonPath: $.*.memberRelationships.*.selfId
+            - jsonPath: $.*.memberRelationships.*.selfClientReferenceId
+            - jsonPath: $.*.memberRelationships.*.tenantId

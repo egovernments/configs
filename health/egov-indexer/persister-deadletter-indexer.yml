@@ -1,0 +1,302 @@
+# ===============================================================================================
+# egov-persister error topics -> Elasticsearch
+#
+# Indexes every failure egov-persister publishes to its two error topics, so a failure is
+# searchable instead of being visible only in a pod log that rotates away.
+#
+#   egov-persister-deadletter            (property tracer.errorsTopic)
+#       -> a record that failed to persist and still has retry budget left.
+#   egov-persister-deadletter-processed  (property persister.dead-letter.reprocess.error-topic)
+#       -> TERMINAL PARK. No further retry will happen; a human has to look at it.
+#
+# ONE file, TWO mappings: ServiceMaps.mappings is a list, and the shipped error-queue.yml already
+# uses that to declare two mappings in one file, so only ONE entry has to be appended to
+# `egov-indexer-yaml-repo-path` per environment instead of two.
+# TWO separate ES indexes on purpose: "still retrying" and "given up" are different operational
+# states and an operator must be able to tell them apart without applying a filter.
+#
+# -----------------------------------------------------------------------------------------------
+# 1. DEPLOYMENT ORDER - HARD SAFETY CONSTRAINT. Read this before touching any helm value.
+# -----------------------------------------------------------------------------------------------
+# THIS FILE MUST ALREADY BE MERGED ON THE BRANCH AN ENVIRONMENT'S egov-indexer git-sync PULLS
+# BEFORE THAT ENVIRONMENT'S `egov-indexer-yaml-repo-path` IS UPDATED. Never the other way round,
+# and never both in the same deploy window.
+#
+# Why: IndexerApplicationRunnerImpl.readFiles() walks every comma-separated entry of that
+# variable. An entry that does not resolve sets failed=true, and after the loop the runner calls
+# SpringApplication.exit(applicationContext) followed by System.exit(1). That kills the WHOLE
+# egov-indexer pod - not just this config. Every index the environment has stops being written and
+# the pod crash-loops until either the variable is reverted or the file appears. Both ways of
+# missing land there: a directory entry that does not exist throws "Folder doesn't exists" out of
+# getFilesInFolder, and a *.yml entry that does not exist is handed to the ResourceLoader and
+# throws on getInputStream inside the per-file try, which sets the same flag.
+#
+# Environment            devops repo                where THIS FILE must land FIRST
+#   health-dev           health-campaign-devops     egovernments/health-campaign-config @ DEV
+#   health-qa            health-campaign-devops     egovernments/health-campaign-config @ QA
+#   health-demo          health-campaign-devops     egovernments/health-campaign-config @ DEMO
+#   unified-uat          DIGIT-DevOps               egovernments/configs                @ UNIFIED-UAT
+#   unified-dev          DIGIT-DevOps               egovernments/configs                @ UNIFIED-DEV
+#
+# -----------------------------------------------------------------------------------------------
+# SECOND PRECONDITION - SEED THE CONSUMER OFFSETS BEFORE THE FIRST ROLLOUT.
+#
+# CoreIndexConsumerConfig sets ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest" in code; it is
+# NOT a property and cannot be overridden per environment. egov-indexer-consumer-grp has no committed
+# offset for a topic it has never subscribed to, so on the first roll it starts at the OLDEST RETAINED
+# record of both topics and indexes the entire backlog in one burst. That backlog was written before
+# the persister began redacting failure text, so it still carries PostgreSQL's
+#   Detail: Failing row contains (<every column value>)
+# for the NOT-NULL class, i.e. the beneficiary row - into a long-lived, broadly readable index.
+# On one cluster that topic stood at order 3.3M records.
+#
+# So before the helm path entry is rolled for an environment, reset egov-indexer-consumer-grp to the
+# END of BOTH egov-persister-deadletter and egov-persister-deadletter-processed. Index the backlog
+# deliberately, or not at all - do not let the default do it.
+#
+# -----------------------------------------------------------------------------------------------
+# 2. VERSION DEPENDENCY - this config is only correct against a FIXED egov-indexer image.
+# -----------------------------------------------------------------------------------------------
+# Both topics carry MORE THAN ONE envelope shape (section 3), so some keys listed under
+# fieldMapping are absent on some messages. That is only safe on an egov-indexer in which
+# DataTransformationService.buildCustomJsonForIndex takes a COPY of the configured indexMapping
+# per message.
+#
+# On an UNFIXED image it does `indexMap = customJsonMappings.getIndexMapping()` and then
+# `JsonPath.parse(indexMap)`; JsonPath.parse(Object) aliases rather than clones, and that
+# indexMapping is one map instance held for the lifetime of the process in the runner's static
+# mappingMaps. Every put therefore mutates the loaded config, so a fieldMapping whose inJsonPath
+# is absent does NOT leave the key out of the document - it leaves THE PREVIOUS MESSAGE'S VALUE.
+# Measured on that code path with these exact fieldMappings: a terminal recoverer envelope that
+# carries no attempts and no correlationId was indexed as attempts=5 with the correlationId of an
+# unrelated earlier record. Attributing another record's retry count and correlation id to a
+# poison record is worse than not indexing it, so DO NOT deploy this file against an unfixed
+# egov-indexer.
+#
+# With the per-message copy in place, a fieldMapping whose inJsonPath is absent is logged and
+# skipped, the key is simply not present on that document, and the rest of the document is still
+# indexed. That is what lets one config cover every shape.
+#
+# -----------------------------------------------------------------------------------------------
+# 3. THE ENVELOPE SHAPES THIS CONFIG HAS TO READ
+# -----------------------------------------------------------------------------------------------
+# The target contract for messages published from the FIXED persister image is
+#     { correlationId, source, body, message, attempts, ts }
+# with every key ALWAYS PRESENT on both topics from every producer INSIDE egov-persister; `attempts`
+# is numeric when the record went through bounded retry and JSON null when it did not.
+#
+# That contract applies to NEW messages only. Both topics have retention and already hold messages
+# in the older shapes, so this config must keep reading them. Labels used below (the manual replay
+# runbook letters them A/B/C; names are used here so the two documents cannot be confused):
+#   LISTENER    PersisterMessageListener.dlqPayload / PersisterBatchListner
+#               {source, body, attempts, ts, message, correlationId}
+#   RECOVERER   the container error handler's recoverer in PersisterProducerConfig, HISTORICAL form
+#               {source, body, error, ts} - no attempts, no correlationId, failure text under
+#               `error`, and `body` is null for a record that could not even be deserialised.
+#   TRACER      the tracer library (egov-persister sets tracer.errorsPublish=true against the
+#               dead-letter topic; ErrorQueueContract)
+#               {id, source, body, ts, errorRes, exception[], message, correlationId}
+#   NORMALISED  the contract above, written by every producer in egov-persister's OWN code on the
+#               fixed image (PersisterMessageListener, PersisterBatchListner, the recoverer).
+# Both `message` and `error` are mapped onto the same output field so all of them index usefully.
+#
+# TRACER IS NOT NORMALISED AND WILL NOT BE. ExceptionAdvise/ErrorQueueProducer live in the tracer
+# LIBRARY, not in egov-persister, so they do not go through ErrorEnvelope. Their shape keeps its own
+# keys (`id`, `errorRes`, `exception[]`) and its `message` is `ex.getMessage()` verbatim. So the
+# dead-letter topic still carries more than one shape even after the persister fix, which is why this
+# config maps keys defensively rather than assuming six. On the park topic
+# (egov-persister-deadletter-processed) the tracer does not publish at all.
+#
+# -----------------------------------------------------------------------------------------------
+# 4. _id CONSTRUCTION - why it is `$['@timestamp'],$.source` and what that costs
+# -----------------------------------------------------------------------------------------------
+# IndexerUtils.buildIndexId splits `id` on commas and assigns each component STRAIGHT INTO A
+# String (`String fieldVaue = JsonPath.read(...)`). Verified by running that method's logic
+# against each shape above:
+#   * a component whose value is a JSON NUMBER  -> ClassCastException
+#   * a component whose key is ABSENT           -> PathNotFoundException
+#   In both cases buildIndexId returns null, appendIdToJson then returns null, and the document is
+#   never appended to the bulk body: it is dropped, with only an error log. So every component
+#   must be a String AND must exist on EVERY shape.
+#   * a component that is present with a JSON null returns null and is skipped; the id is built
+#     from the remaining components and the document is still indexed.
+#
+# `@timestamp` is the ISO-8601 STRING the indexer itself writes at the root of the message from
+# timeStampField. It is written before the id is built - constructArrayForBulkIndex calls
+# transformData -> addTimeStamp, and buildJsonForIndex only calls buildIndexId on what
+# constructArrayForBulkIndex returned. `source` is a String on every shape above.
+#
+# REJECTED, with the reason measured rather than assumed:
+#   $.ts / $.attempts        numeric -> ClassCastException -> document dropped.
+#   $.correlationId          absent on the historical RECOVERER shape, so adding it would DROP
+#                            every such envelope already on both topics. It also buys nothing where it
+#                            would matter: the tracer's MdcRecordInterceptor sets the MDC
+#                            correlation id once per ConsumerRecord, and when
+#                            PersisterMessageListener.persistRecordsIndividually splits that one
+#                            record and parks several of its rows, dlqPayload reads that same MDC
+#                            value for each. All envelopes of a split batch therefore carry an
+#                            IDENTICAL correlationId - i.e. it adds zero entropy in exactly the
+#                            same-millisecond case below. Confirmed by building the id for three
+#                            envelopes split out of one message: all three came out identical
+#                            with and without correlationId appended.
+#   $.message / $.error      absent on some shapes, and an exception message can exceed the ES
+#                            512-byte _id limit, which would turn a drop into a bulk rejection.
+#
+# RESIDUAL LIMITS - real, and not closable from config:
+#   (a) SAME-MILLISECOND COLLAPSE. Two envelopes with the same `source` in the same millisecond
+#       get the same _id and the second replaces the first. This is not hypothetical: the
+#       record-level isolation loop parks several rows of one message in a tight loop.
+#       DETECTION: the ES `index` action replaces the document and increments `_version`, so any
+#       document in these indexes with `_version` greater than 1 is the survivor of a collapsed
+#       group and `_version` is how many envelopes were written to that _id. Sort by `_version`
+#       descending to find them. (That is the documented behaviour of the index action; it was
+#       not measured here.) The full record set always remains on the Kafka topic until its
+#       retention expires - the index is a view, never the system of record.
+#   (b) An envelope whose `ts` is absent or is not a JSON number makes addTimeStamp throw, so no
+#       `@timestamp` is added, so the id build hits PathNotFoundException and the document is
+#       DROPPED with only an error log. The same happens to an envelope with no `source` key at
+#       all. Every producer named in section 3 writes ts as System.currentTimeMillis() and source
+#       as the origin topic, and the target contract requires both, so this bites only on a
+#       malformed or hand-produced message - but it IS a silent drop, so if a count on these
+#       indexes is short against the topic, look for "No id found at the given jsonpath" in the
+#       egov-indexer log before concluding the messages were never produced.
+#
+# -----------------------------------------------------------------------------------------------
+# 5. PII
+# -----------------------------------------------------------------------------------------------
+# `body` carries the ORIGINAL failed record. For the health topics that is beneficiary names,
+# ages, addresses and GPS; for entries published by the tracer library it is the raw failed
+# request body. No fieldMapping below lists $.body, and the indexed document is built ONLY from
+# the fieldMappings listed here, so the payload is not copied into Elasticsearch. What is indexed
+# is the diagnostics: which topic, which failure text, how many attempts, when, and the
+# correlation id. (This holds on an unfixed indexer too - the leak described in section 2 is
+# between messages of THIS mapping, and no message of this mapping ever puts a body value into
+# the map. It is still not a reason to deploy against an unfixed image.)
+#
+# `errorMessage` IS NOT GUARANTEED FREE OF ROW VALUES, so do not treat these indexes as
+# non-sensitive. PostgreSQL puts the failing row's own column values into the text it returns -
+# the 23505 DETAIL line, the "Failing row contains (...)" of a not-null/check violation, and the
+# bound parameters that JdbcTemplate.batchUpdate substitutes into a BatchUpdateException message.
+# The persister's FailureMessageSanitizer strips the forms it knows about before publishing, but
+# its own contract states that this is best-effort redaction of known value-bearing forms and NOT
+# a proof that no value can appear - a server message it does not know, or a non-English
+# lc_messages with no reachable PSQLException, can still carry one. Historical messages already on
+# the topics were written BEFORE that sanitizer existed and are unredacted. Apply the same
+# read-ACL discipline to these two indexes as to any index holding beneficiary data.
+#
+# THE SANITIZER'S REACH IS NARROWER THAN "ALL NEW MESSAGES". It runs inside egov-persister, so it
+# only covers the shapes egov-persister itself publishes. Messages the TRACER shape puts on
+# egov-persister-deadletter are built by the tracer library from ex.getMessage() verbatim and are
+# never sanitised, before or after this work.
+#
+# SECOND SINK - these two indexes also get a Kafka copy. egov-indexer ships topic.push.enabled=true
+# in its application.properties, and neither devops repo overrides it in the chart values.yaml or in
+# any environment file (checked in health-campaign-devops and DIGIT-DevOps). IndexerUtils.pushToKafka
+# therefore publishes the same custom JSON to `<indexName>-enriched` for every index whose name
+# contains neither "collection" nor "payment" - i.e. adding these two mappings also creates the topics
+# persister-deadletter-index-v1-enriched and persister-deadletter-processed-index-v1-enriched. `body`
+# still does not reach them (only the fieldMappings below are pushed, and none of them is $.body), but
+# `errorMessage` gets a second copy that sits on Kafka OUTSIDE the Elasticsearch read-ACL above. Either
+# accept that or set topic.push.enabled=false for egov-indexer in the environment - note that turning it
+# off is environment-wide and affects every other index in that environment too.
+# ===============================================================================================
+ServiceMaps:
+  serviceName: egov-persister-deadletter
+  version: 1.0.0
+  mappings:
+
+    # ------------------------------------------------------------------------------------------
+    # Retryable failures: dead-lettered, retry budget not yet spent. LISTENER, TRACER and
+    # NORMALISED shapes reach this topic; the RECOVERER writes only to the park topic.
+    # ------------------------------------------------------------------------------------------
+    - topic: egov-persister-deadletter
+      configKey: INDEX
+      indexes:
+        - name: persister-deadletter-index-v1
+          type: errors
+          # See header section 4 before changing this line.
+          id: $['@timestamp'],$.source
+          isBulk: false
+          jsonPath: $
+          timeStampField: $.ts
+          customJsonMapping:
+            indexMapping: {}
+            fieldMapping:
+              - inJsonPath: $.source
+                outJsonPath: $.sourceTopic
+              - inJsonPath: $.ts
+                outJsonPath: $.ts
+              # Re-map the @timestamp the indexer added to the source message; without this line
+              # it would stay on the source object and never reach the indexed document.
+              - inJsonPath: $['@timestamp']
+                outJsonPath: $.@timestamp
+              # Numeric on the LISTENER and TRACER shapes. On a NORMALISED envelope written by
+              # the recoverer it is present and JSON null, and indexes as null - deliberately NOT
+              # 0, because a missing or non-numeric attempts is what ParkedRecordReplayService
+              # reads as "do not replay blindly". Absent altogether on the historical RECOVERER
+              # shape; that document still indexes, just without this field.
+              - inJsonPath: $.attempts
+                outJsonPath: $.attempts
+              - inJsonPath: $.correlationId
+                outJsonPath: $.correlationId
+              # `error` (historical RECOVERER shape) and `message` (LISTENER, TRACER and
+              # NORMALISED shapes) are folded into ONE searchable field, so a query does not have
+              # to know which producer wrote the record.
+              # ORDER IS DEFENSIVE, not currently load-bearing: no producer in the tree writes
+              # both keys, but the fieldMappings are applied in order and each put overwrites the
+              # previous value at the same outJsonPath, so `message` is listed LAST and would win
+              # if a future producer emitted `error` alongside it.
+              - inJsonPath: $.error
+                outJsonPath: $.errorMessage
+              - inJsonPath: $.message
+                outJsonPath: $.errorMessage
+              # Present only on the TRACER shape.
+              - inJsonPath: $.id
+                outJsonPath: $.tracerErrorId
+              # To ALSO index the original failing payload, uncomment the two lines below.
+              # PREREQUISITES, both required before enabling: (a) a retention / ILM policy on this
+              # index, because the payload is personal data and this index is long-lived;
+              # (b) read-ACLs on the index narrowed to the operators who actually need raw
+              # payloads. Request envelopes in this stack have been observed to carry
+              # authentication material in addition to beneficiary data.
+              # - inJsonPath: $.body
+              #   outJsonPath: $.body
+
+    # ------------------------------------------------------------------------------------------
+    # Terminal park: retry budget spent, or the record is permanently un-persistable. LISTENER,
+    # RECOVERER and NORMALISED shapes reach this topic. A RECOVERER poison record whose `body` is
+    # null still indexes: only `@timestamp` and `source` are needed for the _id, and the keys it
+    # does not have are skipped one by one without dropping the document (given the section-2
+    # indexer fix).
+    # ------------------------------------------------------------------------------------------
+    - topic: egov-persister-deadletter-processed
+      configKey: INDEX
+      indexes:
+        - name: persister-deadletter-processed-index-v1
+          type: errors
+          # Same constraints and same residual limits as above; see header section 4.
+          id: $['@timestamp'],$.source
+          isBulk: false
+          jsonPath: $
+          timeStampField: $.ts
+          customJsonMapping:
+            indexMapping: {}
+            fieldMapping:
+              - inJsonPath: $.source
+                outJsonPath: $.sourceTopic
+              - inJsonPath: $.ts
+                outJsonPath: $.ts
+              - inJsonPath: $['@timestamp']
+                outJsonPath: $.@timestamp
+              - inJsonPath: $.attempts
+                outJsonPath: $.attempts
+              - inJsonPath: $.correlationId
+                outJsonPath: $.correlationId
+              # `message` last, for the reason given on the dead-letter index above.
+              - inJsonPath: $.error
+                outJsonPath: $.errorMessage
+              - inJsonPath: $.message
+                outJsonPath: $.errorMessage
+              # Same PII prerequisites as on the dead-letter index above.
+              # - inJsonPath: $.body
+              #   outJsonPath: $.body
