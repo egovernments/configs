@@ -1,0 +1,33 @@
+
+serviceMaps:
+  serviceName: dst-report-automation
+  mappings:
+    - version: 1.0
+      description: Persists DST campaign report run outcomes
+      fromTopic: save-dst-report-metadata
+      isTransaction: true
+      queryMaps:
+        - query: >
+            INSERT INTO dst_report_metadata
+            (event_id, tenant_id, state_name, campaign_identifier, cycle_index,
+             deployment_group, mode, day, slot_date, slot_time, dag_run_id,
+             status, step_failed, drive_folder_url, timestamp_ms)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT (event_id) DO NOTHING;
+          basePath: $
+          jsonMaps:
+            - jsonPath: $.event_id
+            - jsonPath: $.tenant_id
+            - jsonPath: $.state_name
+            - jsonPath: $.campaign_identifier
+            - jsonPath: $.cycle_index
+            - jsonPath: $.deployment_group
+            - jsonPath: $.mode
+            - jsonPath: $.day
+            - jsonPath: $.slot_date
+            - jsonPath: $.slot_time
+            - jsonPath: $.dag_run_id
+            - jsonPath: $.status
+            - jsonPath: $.step_failed
+            - jsonPath: $.drive_folder_url
+            - jsonPath: $.timestamp_ms
