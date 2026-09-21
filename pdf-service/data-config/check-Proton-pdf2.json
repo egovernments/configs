@@ -1,0 +1,94 @@
+{
+  "DataConfigs": {
+    "serviceName": "rainmaker-studio",
+    "version": "1.0.0",
+    "baseKeyPath": "$.PublicService.*",
+    "entityIdPath": "$.Application[0].id",
+    "isCommonTableBorderRequired": true,
+    "mappings": [
+      {
+        "mappings": [
+          {
+            "direct": [
+              {
+                "variable": "backgroundImage1",
+                "type": "image",
+                "url": "https://egovfilestoreunifieduat.blob.core.windows.net/unified-uat-filestore/st/DigitStudio/September/21/1789972663880jXtiuKfnGM.jpeg"
+              },
+              {
+                "variable": "applicationNumber",
+                "value": {
+                  "path": "$.Application[0].applicationNumber"
+                },
+                "type": "setEmpty"
+              },
+              {
+                "variable": "applicationStatus",
+                "value": {
+                  "path": "$.Application[0].workflowStatus"
+                },
+                "type": "setEmpty",
+                "localisation": {
+                  "required": true,
+                  "prefix": "PROTON_PROTON_CHECK_V1_STATE",
+                  "module": "rainmaker-studio-proton"
+                }
+              },
+              {
+                "variable": "submissionDate",
+                "value": {
+                  "path": "$.Application[0].auditDetails.createdTime"
+                },
+                "type": "date"
+              },
+              {
+                "variable": "serviceCode",
+                "value": {
+                  "path": "$.Application[0].serviceCode"
+                },
+                "type": "setEmpty"
+              },
+              {
+                "variable": "qrUUID",
+                "value": {
+                  "path": "$.qrUUID"
+                },
+                "type": "setEmpty"
+              }
+            ]
+          },
+          {
+            "externalAPI": [
+              {
+                "path": "http://egov-workflow-v2.egov:8080/egov-workflow-v2/health",
+                "queryParam": "tenantId={$.tenantId}",
+                "requesttype": "GET",
+                "apiRequest": null,
+                "responseMapping": [
+                  {
+                    "variable": "serviceHealth",
+                    "value": "$",
+                    "localisation": {
+                      "required": true,
+                      "prefix": "STUDIO",
+                      "module": "rainmaker-studio-proton"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "qrcodeConfig": [
+              {
+                "variable": "qr_code_image",
+                "value": "https://unified-uat.digit.org/digit-studio/citizen/publicservices/scan?pdf-id={{qrUUID}}"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "key": "check-Proton-pdf2"
+}
