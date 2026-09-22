@@ -107,11 +107,12 @@ serviceMaps:
       transactionCodeJsonPath: $.id
       auditAttributeBasePath: $.PlanConfiguration
       queryMaps:
-        - query: UPDATE health.plan_configuration SET tenant_id = ?, name = ?, status = ?, last_modified_by = ?, last_modified_time = ?, additional_details = ? WHERE id = ?;
+        - query: UPDATE health.plan_configuration SET tenant_id = ?, name = ?, campaign_id = ?, status = ?, last_modified_by = ?, last_modified_time = ?, additional_details = ? WHERE id = ?;
           basePath: $.PlanConfiguration
           jsonMaps:
             - jsonPath: $.PlanConfiguration.tenantId
             - jsonPath: $.PlanConfiguration.name
+            - jsonPath: $.PlanConfiguration.campaignId
             - jsonPath: $.PlanConfiguration.status
             - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
             - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
@@ -119,6 +120,7 @@ serviceMaps:
               type: JSON
               dbType: JSONB
             - jsonPath: $.PlanConfiguration.id
+
 
         - query: INSERT INTO health.plan_configuration_files(id, plan_configuration_id, filestore_id, input_file_type, template_identifier,  active, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET filestore_id =?, input_file_type = ?, template_identifier = ?, active = ?, last_modified_by = ?, last_modified_time = ?;
           basePath: $.PlanConfiguration.files.*
@@ -223,6 +225,9 @@ serviceMaps:
             - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedBy
             - jsonPath: $.PlanConfiguration.auditDetails.lastModifiedTime
 
+
+
+
     - version: 1.0
       description: Persists the plan employee assignment details
       fromTopic: plan-employee-assignment-create-topic
@@ -232,35 +237,22 @@ serviceMaps:
           basePath: $.PlanEmployeeAssignment
           jsonMaps:
             - jsonPath: $.PlanEmployeeAssignment.id
-
             - jsonPath: $.PlanEmployeeAssignment.tenantId
-
             - jsonPath: $.PlanEmployeeAssignment.planConfigurationId
-
             - jsonPath: $.PlanEmployeeAssignment.planConfigurationName
-
             - jsonPath: $.PlanEmployeeAssignment.employeeId
-
             - jsonPath: $.PlanEmployeeAssignment.role
-
             - jsonPath: $.PlanEmployeeAssignment.hierarchyLevel
-
             - jsonPath: $.PlanEmployeeAssignment.jurisdiction
-
             - jsonPath: $.PlanEmployeeAssignment.additionalDetails
               type: JSON
               dbType: JSONB
 
             - jsonPath: $.PlanEmployeeAssignment.active
-
             - jsonPath: $.PlanEmployeeAssignment.auditDetails.createdBy
-
             - jsonPath: $.PlanEmployeeAssignment.auditDetails.createdTime
-
             - jsonPath: $.PlanEmployeeAssignment.auditDetails.lastModifiedBy
-
             - jsonPath: $.PlanEmployeeAssignment.auditDetails.lastModifiedTime
-
 
     - version: 1.0
       description: Updates the plan employee assignment details
@@ -271,19 +263,13 @@ serviceMaps:
           basePath: $.PlanEmployeeAssignment
           jsonMaps:
             - jsonPath: $.PlanEmployeeAssignment.jurisdiction
-
             - jsonPath: $.PlanEmployeeAssignment.hierarchyLevel
-
             - jsonPath: $.PlanEmployeeAssignment.additionalDetails
               type: JSON
               dbType: JSONB
-
             - jsonPath: $.PlanEmployeeAssignment.active
-
             - jsonPath: $.PlanEmployeeAssignment.auditDetails.lastModifiedBy
-
             - jsonPath: $.PlanEmployeeAssignment.auditDetails.lastModifiedTime
-
             - jsonPath: $.PlanEmployeeAssignment.id
 
     - version: 1.0.0
@@ -421,13 +407,20 @@ serviceMaps:
         - query: INSERT INTO health.plan_additional_field(id, plan_id, key, value, show_on_ui, editable, "order") VALUES (?, ?, ?, ?, ?, ?, ?);
           basePath: $.Plan.additionalFields.*
           jsonMaps:
-            - jsonPath: $.Plan.additionalFields.*.id
-            - jsonPath: $.Plan.id
-            - jsonPath: $.Plan.additionalFields.*.key
-            - jsonPath: $.Plan.additionalFields.*.value
-            - jsonPath: $.Plan.additionalFields.*.showOnUi
-            - jsonPath: $.Plan.additionalFields.*.editable
-            - jsonPath: $.Plan.additionalFields.*.order
+
+              - jsonPath: $.Plan.additionalFields.*.id
+
+              - jsonPath: $.Plan.id
+
+              - jsonPath: $.Plan.additionalFields.*.key
+
+              - jsonPath: $.Plan.additionalFields.*.value
+
+              - jsonPath: $.Plan.additionalFields.*.showOnUi
+
+              - jsonPath: $.Plan.additionalFields.*.editable
+
+              - jsonPath: $.Plan.additionalFields.*.order
 
     - version: 1.0.0
       description: Updates the plan
@@ -550,16 +543,27 @@ serviceMaps:
         - query: INSERT INTO health.plan_additional_field(id, plan_id, key, value, show_on_ui, editable, "order") VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET value = ?, show_on_ui = ?, editable = ?, "order" = ?;
           basePath: $.Plan.additionalFields.*
           jsonMaps:
+
             - jsonPath: $.Plan.additionalFields.*.id
+
             - jsonPath: $.Plan.id
+
             - jsonPath: $.Plan.additionalFields.*.key
+
             - jsonPath: $.Plan.additionalFields.*.value
+
             - jsonPath: $.Plan.additionalFields.*.showOnUi
+
             - jsonPath: $.Plan.additionalFields.*.editable
+
             - jsonPath: $.Plan.additionalFields.*.order
+
             - jsonPath: $.Plan.additionalFields.*.value
+
             - jsonPath: $.Plan.additionalFields.*.showOnUi
+
             - jsonPath: $.Plan.additionalFields.*.editable
+
             - jsonPath: $.Plan.additionalFields.*.order
 
     - version: 1.0.0

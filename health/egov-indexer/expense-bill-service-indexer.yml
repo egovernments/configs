@@ -1,0 +1,51 @@
+ServiceMaps:
+  serviceName: Billing Service
+  version: 1.0.0
+  mappings:
+    - topic: transformer-bill-index-topic
+      configKey: INDEX
+      indexes:
+        - name: transform-bill-index-v1
+          type: bill
+          id: $.bill.id
+          isBulk: false
+          jsonPath: $
+          customJsonMapping:
+            indexMapping:
+              Data: {}
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data
+          timeStampField: $.bill.auditDetails.lastModifiedTime
+
+    - topic: transformer-billdetail-index-topic
+      configKey: INDEX
+      indexes:
+        - name: transform-billdetail-index-v1
+          type: billdetail
+          id: $.id
+          isBulk: true
+          jsonPath: $
+          customJsonMapping:
+            indexMapping:
+              Data: { }
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data
+          timeStampField: $.billDetail.auditDetails.lastModifiedTime
+
+    - topic: transformer-billreport-index-topic
+      configKey: INDEX
+      indexes:
+        - name: transform-billreport-index-v1
+          type: billreport
+          id: $.billReport.id
+          isBulk: false
+          jsonPath: $
+          customJsonMapping:
+            indexMapping:
+              Data: { }
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data
+          timeStampField: $.billReport.auditDetails.lastModifiedTime

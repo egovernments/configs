@@ -7,26 +7,28 @@ serviceMaps:
       fromTopic: create-resource-details
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO health.eg_cm_resource_details(id, "status", tenantId, fileStoreId,processedFileStoreId,"action", campaignId,"type", createdBy, createdTime, lastModifiedBy, lastModifiedTime, additionalDetails, hierarchytype) VALUES (?, ?,?, ?,?,?, ?, ?, ?, ?, ?, ?, ?, ?);
+        - query: INSERT INTO health.eg_cm_resource_details (id, tenantId, campaignId, "type", parentresourceid, fileStoreId, processedFileStoreId, filename, "status", "action", isactive, hierarchytype, additionalDetails, createdBy, lastModifiedBy, createdTime, lastModifiedTime) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
           basePath: $.ResourceDetails
           jsonMaps:
             - jsonPath: $.ResourceDetails.id
-            - jsonPath: $.ResourceDetails.status
             - jsonPath: $.ResourceDetails.tenantId
-            - jsonPath: $.ResourceDetails.fileStoreId
-            - jsonPath: $.ResourceDetails.processedFileStoreId
-            - jsonPath: $.ResourceDetails.action
             - jsonPath: $.ResourceDetails.campaignId
             - jsonPath: $.ResourceDetails.type
-            - jsonPath: $.ResourceDetails.auditDetails.createdBy
-            - jsonPath: $.ResourceDetails.auditDetails.createdTime
-            - jsonPath: $.ResourceDetails.auditDetails.lastModifiedBy
-            - jsonPath: $.ResourceDetails.auditDetails.lastModifiedTime
+            - jsonPath: $.ResourceDetails.parentResourceId
+            - jsonPath: $.ResourceDetails.fileStoreId
+            - jsonPath: $.ResourceDetails.processedFileStoreId
+            - jsonPath: $.ResourceDetails.filename
+            - jsonPath: $.ResourceDetails.status
+            - jsonPath: $.ResourceDetails.action
+            - jsonPath: $.ResourceDetails.isActive
+            - jsonPath: $.ResourceDetails.hierarchyType
             - jsonPath: $.ResourceDetails.additionalDetails
               type: JSON
               dbType: JSONB
-            - jsonPath: $.ResourceDetails.hierarchyType
-
+            - jsonPath: $.ResourceDetails.auditDetails.createdBy
+            - jsonPath: $.ResourceDetails.auditDetails.lastModifiedBy
+            - jsonPath: $.ResourceDetails.auditDetails.createdTime
+            - jsonPath: $.ResourceDetails.auditDetails.lastModifiedTime
 
 
     - version: 1.0
@@ -35,16 +37,21 @@ serviceMaps:
       fromTopic: update-resource-details
       isTransaction: true
       queryMaps:
-        - query: UPDATE health.eg_cm_resource_details SET "status" = ?, processedFileStoreId = ?, lastModifiedBy = ?, lastModifiedTime = ?,additionalDetails = ? WHERE id = ?;
+        - query: UPDATE health.eg_cm_resource_details SET "status" = ?, "action" = ?, isactive = ?, fileStoreId = ?, processedFileStoreId = ?, filename = ?, hierarchyType = ?, additionaldetails = ?, lastModifiedBy = ?, lastModifiedTime = ? WHERE id = ?;
           basePath: $.ResourceDetails
           jsonMaps:
             - jsonPath: $.ResourceDetails.status
+            - jsonPath: $.ResourceDetails.action
+            - jsonPath: $.ResourceDetails.isActive
+            - jsonPath: $.ResourceDetails.fileStoreId
             - jsonPath: $.ResourceDetails.processedFileStoreId
-            - jsonPath: $.ResourceDetails.auditDetails.lastModifiedBy
-            - jsonPath: $.ResourceDetails.auditDetails.lastModifiedTime
+            - jsonPath: $.ResourceDetails.filename
+            - jsonPath: $.ResourceDetails.hierarchyType
             - jsonPath: $.ResourceDetails.additionalDetails
               type: JSON
               dbType: JSONB
+            - jsonPath: $.ResourceDetails.auditDetails.lastModifiedBy
+            - jsonPath: $.ResourceDetails.auditDetails.lastModifiedTime
             - jsonPath: $.ResourceDetails.id
 
 
@@ -226,7 +233,7 @@ serviceMaps:
               type: JSON
               dbType: JSONB
 
-    - version: 1.0  
+    - version: 1.0
       name: UpdateProcessTrack
       description: Update process track in the eg_cm_campaign_process table
       fromTopic: update-process-track
@@ -255,7 +262,7 @@ serviceMaps:
       fromTopic: save-sheet-data
       isTransaction: true
       queryMaps:
-        - query: INSERT INTO health.eg_cm_campaign_data(campaignnumber, "type",uniqueidentifier,data,uniqueidafterprocess, "status") VALUES (?,?,?,?,?,?);
+        - query: INSERT INTO health.eg_cm_campaign_data(campaignnumber, "type",uniqueidentifier,data,uniqueidafterprocess, "status",isdeleted) VALUES (?,?,?,?,?,?,?);
           basePath: datas.*
           jsonMaps:
             - jsonPath: $.datas.*.campaignNumber
@@ -266,6 +273,7 @@ serviceMaps:
               dbType: JSONB
             - jsonPath: $.datas.*.uniqueIdAfterProcess
             - jsonPath: $.datas.*.status
+            - jsonPath: $.datas.*.isDeleted
 
 
     - version: 1.0
@@ -274,7 +282,7 @@ serviceMaps:
       fromTopic: update-sheet-data
       isTransaction: true
       queryMaps:
-        - query: UPDATE health.eg_cm_campaign_data SET data = ?,uniqueidafterprocess = ?, "status" = ? WHERE uniqueidentifier = ? AND "type" = ? AND campaignnumber = ?;
+        - query: UPDATE health.eg_cm_campaign_data SET data = ?,uniqueidafterprocess = ?, "status" = ?,isdeleted = ? WHERE uniqueidentifier = ? AND "type" = ? AND campaignnumber = ?;
           basePath: datas.*
           jsonMaps:
             - jsonPath: $.datas.*.data
@@ -282,6 +290,7 @@ serviceMaps:
               dbType: JSONB
             - jsonPath: $.datas.*.uniqueIdAfterProcess
             - jsonPath: $.datas.*.status
+            - jsonPath: $.datas.*.isDeleted
             - jsonPath: $.datas.*.uniqueIdentifier
             - jsonPath: $.datas.*.type
             - jsonPath: $.datas.*.campaignNumber
