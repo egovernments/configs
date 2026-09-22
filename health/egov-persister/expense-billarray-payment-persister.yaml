@@ -1,0 +1,471 @@
+serviceMaps:
+  serviceName: expense Service
+  mappings:
+    - version: 1.0
+      name: bill create
+      description: create bill in health.eg_expense_bill
+      fromTopic: save-expense-bill-db
+      isAuditEnabled: true
+      module: BILL
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      transactionCodeJsonPath: $.billNumber
+      auditAttributeBasePath: $.bills.*
+      queryMaps:
+        - query: INSERT into health.eg_expense_bill (id, tenantid, localitycode, billdate, duedate,
+            billnumber, totalamount, totalPaidAmount, businessservice, referenceId,
+            fromperiod, toperiod, status, paymentStatus, createdby, createdTime, lastmodifiedby,
+            lastModifiedTime, additionalDetails) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+          basePath: $.bills.*
+          jsonMaps:
+            - jsonPath: $.bills.*.id
+            - jsonPath: $.bills.*.tenantId
+            - jsonPath: $.bills.*.localityCode
+            - jsonPath: $.bills.*.billDate
+            - jsonPath: $.bills.*.dueDate
+            - jsonPath: $.bills.*.billNumber
+            - jsonPath: $.bills.*.totalAmount
+            - jsonPath: $.bills.*.totalPaidAmount
+            - jsonPath: $.bills.*.businessService
+            - jsonPath: $.bills.*.referenceId
+            - jsonPath: $.bills.*.fromPeriod
+            - jsonPath: $.bills.*.toPeriod
+            - jsonPath: $.bills.*.status
+            - jsonPath: $.bills.*.paymentStatus
+            - jsonPath: $.bills.*.auditDetails.createdBy
+            - jsonPath: $.bills.*.auditDetails.createdTime
+            - jsonPath: $.bills.*.auditDetails.lastModifiedBy
+            - jsonPath: $.bills.*.auditDetails.lastModifiedTime
+            - jsonPath: $.bills.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+        - query: INSERT into health.eg_expense_party (id, tenantid, type, identifier, parentId,
+            status, createdby, createdTime, lastmodifiedby, lastModifiedTime) values(?,?,?,?,?,?,?,?,?,?)
+          basePath: $.bills.*.payer
+          jsonMaps:
+            - jsonPath: $.bills.*.payer.id
+            - jsonPath: $.bills.*.payer.tenantId
+            - jsonPath: $.bills.*.payer.type
+            - jsonPath: $.bills.*.payer.identifier
+            - jsonPath: $.bills[?({id} in @.payer.id)].id
+            - jsonPath: $.bills.*.payer.status
+            - jsonPath: $.bills.*.payer.auditDetails.createdBy
+            - jsonPath: $.bills.*.payer.auditDetails.createdTime
+            - jsonPath: $.bills.*.payer.auditDetails.lastModifiedBy
+            - jsonPath: $.bills.*.payer.auditDetails.lastModifiedTime
+        - query: INSERT into health.eg_expense_billdetail (id, tenantid, billid, referenceId,
+            totalAmount, totalPaidAmount, status, paymentStatus, fromperiod, toperiod,
+            workerid, totalattendance, createdby, createdTime, lastModifiedby, lastModifiedTime,
+            additionalDetails) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);
+          basePath: $.bills.*.billDetails.*
+          jsonMaps:
+            - jsonPath: $.bills.*.billDetails.*.id
+            - jsonPath: $.bills.*.billDetails.*.tenantId
+            - jsonPath: $.bills[?({id} in @.billDetails[*].id)].id
+            - jsonPath: $.bills.*.billDetails.*.referenceId
+            - jsonPath: $.bills.*.billDetails.*.totalAmount
+            - jsonPath: $.bills.*.billDetails.*.totalPaidAmount
+            - jsonPath: $.bills.*.billDetails.*.status
+            - jsonPath: $.bills.*.billDetails.*.paymentStatus
+            - jsonPath: $.bills.*.billDetails.*.fromPeriod
+            - jsonPath: $.bills.*.billDetails.*.toPeriod
+            - jsonPath: $.bills.*.billDetails.*.workerId
+            - jsonPath: $.bills.*.billDetails.*.totalAttendance
+            - jsonPath: $.bills.*.billDetails.*.auditDetails.createdBy
+            - jsonPath: $.bills.*.billDetails.*.auditDetails.createdTime
+            - jsonPath: $.bills.*.billDetails.*.auditDetails.lastModifiedBy
+            - jsonPath: $.bills.*.billDetails.*.auditDetails.lastModifiedTime
+            - jsonPath: $.bills.*.billDetails.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+        - query: INSERT into health.eg_expense_party (id, tenantid, type, identifier, parentId,
+            status, paymentprovider, payeename, payeephonenumber, bankaccount, bankcode,
+            beneficiarycode, additionalDetails, createdby, createdTime, lastmodifiedby, lastModifiedTime)
+            values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+          basePath: $.bills.*.billDetails.*.payee
+          jsonMaps:
+            - jsonPath: $.bills.*.billDetails.*.payee.id
+            - jsonPath: $.bills.*.billDetails.*.payee.tenantId
+            - jsonPath: $.bills.*.billDetails.*.payee.type
+            - jsonPath: $.bills.*.billDetails.*.payee.identifier
+            - jsonPath: $.bills[*].billDetails[?({id} in @.payee.id)].id
+            - jsonPath: $.bills.*.billDetails.*.payee.status
+            - jsonPath: $.bills.*.billDetails.*.payee.paymentProvider
+            - jsonPath: $.bills.*.billDetails.*.payee.payeeName
+            - jsonPath: $.bills.*.billDetails.*.payee.payeePhoneNumber
+            - jsonPath: $.bills.*.billDetails.*.payee.bankAccount
+            - jsonPath: $.bills.*.billDetails.*.payee.bankCode
+            - jsonPath: $.bills.*.billDetails.*.payee.beneficiaryCode
+            - jsonPath: $.bills.*.billDetails.*.payee.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.bills.*.billDetails.*.payee.auditDetails.createdBy
+            - jsonPath: $.bills.*.billDetails.*.payee.auditDetails.createdTime
+            - jsonPath: $.bills.*.billDetails.*.payee.auditDetails.lastModifiedBy
+            - jsonPath: $.bills.*.billDetails.*.payee.auditDetails.lastModifiedTime
+        - query: INSERT into health.eg_expense_lineitem (id, tenantid, billDetailId, headCode,
+            amount, paidAmount, type, status, paymentStatus, islineitempayable, createdby,
+            createdTime, lastmodifiedby, lastModifiedTime, additionalDetails) values(?,?,?,?,?,?,?,?,?,false,?,?,?,?,?)
+            ON CONFLICT (id,tenantid) DO UPDATE SET headcode=EXCLUDED.headcode, amount=EXCLUDED.amount,
+            paidamount=EXCLUDED.paidamount, type=EXCLUDED.type, status=EXCLUDED.status,
+            islineitempayable=EXCLUDED.islineitempayable, lastmodifiedby=EXCLUDED.lastmodifiedby,
+            lastmodifiedtime=EXCLUDED.lastmodifiedtime, additionaldetails=EXCLUDED.additionaldetails;
+          basePath: $.bills.*.billDetails.*.lineItems.*
+          jsonMaps:
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.id
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.tenantId
+            - jsonPath: $.bills[*].billDetails[?({id} in @.lineItems[*].id)].id
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.headCode
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.amount
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.paidAmount
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.type
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.status
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.paymentStatus
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.auditDetails.createdBy
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.auditDetails.createdTime
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.auditDetails.lastModifiedBy
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.auditDetails.lastModifiedTime
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+        - query: INSERT into health.eg_expense_lineitem (id, tenantid, billDetailId, headCode,
+            amount, paidAmount, type, status, paymentStatus, islineitempayable, createdby,
+            createdTime, lastmodifiedby, lastModifiedTime, additionalDetails) values(?,?,?,?,?,?,?,?,?,true,?,?,?,?,?)
+            ON CONFLICT (id,tenantid) DO UPDATE SET headcode=EXCLUDED.headcode, amount=EXCLUDED.amount,
+            paidamount=EXCLUDED.paidamount, type=EXCLUDED.type, status=EXCLUDED.status,
+            paymentStatus=EXCLUDED.paymentStatus, islineitempayable=EXCLUDED.islineitempayable,
+            lastmodifiedby=EXCLUDED.lastmodifiedby, lastmodifiedtime=EXCLUDED.lastmodifiedtime,
+            additionaldetails=EXCLUDED.additionaldetails;
+          basePath: $.bills.*.billDetails.*.payableLineItems.*
+          jsonMaps:
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.id
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.tenantId
+            - jsonPath: $.bills[*].billDetails[?({id} in @.payableLineItems[*].id)].id
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.headCode
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.amount
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.paidAmount
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.type
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.status
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.paymentStatus
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.auditDetails.createdBy
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.auditDetails.createdTime
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.auditDetails.lastModifiedBy
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.auditDetails.lastModifiedTime
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+    - version: 1.0
+      name: bill update
+      description: update bill in health.eg_expense_bill
+      fromTopic: update-expense-bill-db
+      isAuditEnabled: true
+      module: BILL
+      objecIdJsonPath: $.id
+      tenantIdJsonPath: $.tenantId
+      transactionCodeJsonPath: $.billNumber
+      auditAttributeBasePath: $.bills.*
+      queryMaps:
+        - query: UPDATE health.eg_expense_bill SET billdate=?, duedate=?, totalAmount=?, totalPaidAmount=?,
+            businessservice=?, referenceid=?, fromperiod=?, toperiod=?, status=?, paymentstatus=?,
+            lastmodifiedby=?, lastmodifiedtime=?, additionaldetails=? WHERE id=? AND tenantid=?;
+          basePath: $.bills.*
+          jsonMaps:
+            - jsonPath: $.bills.*.billDate
+            - jsonPath: $.bills.*.dueDate
+            - jsonPath: $.bills.*.totalAmount
+            - jsonPath: $.bills.*.totalPaidAmount
+            - jsonPath: $.bills.*.businessService
+            - jsonPath: $.bills.*.referenceId
+            - jsonPath: $.bills.*.fromPeriod
+            - jsonPath: $.bills.*.toPeriod
+            - jsonPath: $.bills.*.status
+            - jsonPath: $.bills.*.paymentStatus
+            - jsonPath: $.bills.*.auditDetails.lastModifiedBy
+            - jsonPath: $.bills.*.auditDetails.lastModifiedTime
+            - jsonPath: $.bills.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.bills.*.id
+            - jsonPath: $.bills.*.tenantId
+        - query: UPDATE health.eg_expense_party SET type=?, identifier=?, parentid=?, status=?,
+            lastmodifiedby=?, lastmodifiedtime=? WHERE id=? AND tenantid=?;
+          basePath: $.bills.*
+          jsonMaps:
+            - jsonPath: $.bills.*.payer.type
+            - jsonPath: $.bills.*.payer.identifier
+            - jsonPath: $.bills.*.id
+            - jsonPath: $.bills.*.payer.status
+            - jsonPath: $.bills.*.payer.auditDetails.lastModifiedBy
+            - jsonPath: $.bills.*.payer.auditDetails.lastModifiedTime
+            - jsonPath: $.bills.*.payer.id
+            - jsonPath: $.bills.*.tenantId
+        - query: INSERT into health.eg_expense_billdetail (id, tenantid, billid, totalamount,
+            totalpaidamount, status, referenceId, paymentStatus, fromperiod, toperiod,
+            workerid, totalattendance, createdby, createdTime, lastModifiedby, lastModifiedTime,
+            additionalDetails) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            ON CONFLICT(id, tenantid) DO UPDATE SET referenceid=EXCLUDED.referenceid,
+            paymentstatus=EXCLUDED.paymentstatus, status=EXCLUDED.status,
+            totalamount=EXCLUDED.totalamount, totalpaidamount=EXCLUDED.totalpaidamount,
+            fromperiod=EXCLUDED.fromperiod, toperiod=EXCLUDED.toperiod,
+            workerid=EXCLUDED.workerid, totalattendance=EXCLUDED.totalattendance,
+            lastmodifiedby=EXCLUDED.lastmodifiedby,
+            lastmodifiedtime=EXCLUDED.lastmodifiedtime, additionaldetails=EXCLUDED.additionaldetails;
+          basePath: $.bills.*.billDetails.*
+          jsonMaps:
+            - jsonPath: $.bills.*.billDetails.*.id
+            - jsonPath: $.bills.*.billDetails.*.tenantId
+            - jsonPath: $.bills[?({id} in @.billDetails[*].id)].id
+            - jsonPath: $.bills.*.billDetails.*.totalAmount
+            - jsonPath: $.bills.*.billDetails.*.totalPaidAmount
+            - jsonPath: $.bills.*.billDetails.*.status
+            - jsonPath: $.bills.*.billDetails.*.referenceId
+            - jsonPath: $.bills.*.billDetails.*.paymentStatus
+            - jsonPath: $.bills.*.billDetails.*.fromPeriod
+            - jsonPath: $.bills.*.billDetails.*.toPeriod
+            - jsonPath: $.bills.*.billDetails.*.workerId
+            - jsonPath: $.bills.*.billDetails.*.totalAttendance
+            - jsonPath: $.bills.*.billDetails.*.auditDetails.createdBy
+            - jsonPath: $.bills.*.billDetails.*.auditDetails.createdTime
+            - jsonPath: $.bills.*.billDetails.*.auditDetails.lastModifiedBy
+            - jsonPath: $.bills.*.billDetails.*.auditDetails.lastModifiedTime
+            - jsonPath: $.bills.*.billDetails.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+        - query: INSERT into health.eg_expense_party (id, tenantid, type, identifier, parentId,
+            status, paymentprovider, payeename, payeephonenumber, bankaccount, bankcode,
+            beneficiarycode, additionalDetails, createdby, createdTime, lastmodifiedby, lastModifiedTime)
+            values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT (id, tenantid) DO UPDATE SET
+            type=EXCLUDED.type, identifier=EXCLUDED.identifier, parentid=EXCLUDED.parentid,
+            status=EXCLUDED.status, paymentprovider=EXCLUDED.paymentprovider,
+            payeename=EXCLUDED.payeename, payeephonenumber=EXCLUDED.payeephonenumber,
+            bankaccount=EXCLUDED.bankaccount, bankcode=EXCLUDED.bankcode,
+            beneficiarycode=EXCLUDED.beneficiarycode, lastmodifiedby=EXCLUDED.lastmodifiedby,
+            lastmodifiedtime=EXCLUDED.lastmodifiedtime, additionaldetails=EXCLUDED.additionaldetails
+          basePath: $.bills.*.billDetails.*.payee
+          jsonMaps:
+            - jsonPath: $.bills.*.billDetails.*.payee.id
+            - jsonPath: $.bills.*.billDetails.*.payee.tenantId
+            - jsonPath: $.bills.*.billDetails.*.payee.type
+            - jsonPath: $.bills.*.billDetails.*.payee.identifier
+            - jsonPath: $.bills[*].billDetails[?({id} in @.payee.id)].id
+            - jsonPath: $.bills.*.billDetails.*.payee.status
+            - jsonPath: $.bills.*.billDetails.*.payee.paymentProvider
+            - jsonPath: $.bills.*.billDetails.*.payee.payeeName
+            - jsonPath: $.bills.*.billDetails.*.payee.payeePhoneNumber
+            - jsonPath: $.bills.*.billDetails.*.payee.bankAccount
+            - jsonPath: $.bills.*.billDetails.*.payee.bankCode
+            - jsonPath: $.bills.*.billDetails.*.payee.beneficiaryCode
+            - jsonPath: $.bills.*.billDetails.*.payee.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.bills.*.billDetails.*.payee.auditDetails.createdBy
+            - jsonPath: $.bills.*.billDetails.*.payee.auditDetails.createdTime
+            - jsonPath: $.bills.*.billDetails.*.payee.auditDetails.lastModifiedBy
+            - jsonPath: $.bills.*.billDetails.*.payee.auditDetails.lastModifiedTime
+        - query: INSERT into health.eg_expense_lineitem (id, tenantid, billDetailId, headCode,
+            amount, paidAmount, type, status, islineitempayable, createdby, createdTime,
+            lastmodifiedby, lastModifiedTime, additionalDetails) values(?,?,?,?,?,?,?,?,false,?,?,?,?,?)
+            ON CONFLICT (id,tenantid) DO UPDATE SET headcode=EXCLUDED.headcode, amount=EXCLUDED.amount,
+            paidamount=EXCLUDED.paidamount, type=EXCLUDED.type, status=EXCLUDED.status,
+            islineitempayable=EXCLUDED.islineitempayable, lastmodifiedby=EXCLUDED.lastmodifiedby,
+            lastmodifiedtime=EXCLUDED.lastmodifiedtime, additionaldetails=EXCLUDED.additionaldetails;
+          basePath: $.bills.*.billDetails.*.lineItems.*
+          jsonMaps:
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.id
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.tenantId
+            - jsonPath: $.bills[*].billDetails[?({id} in @.lineItems[*].id)].id
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.headCode
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.amount
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.paidAmount
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.type
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.status
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.auditDetails.createdBy
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.auditDetails.createdTime
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.auditDetails.lastModifiedBy
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.auditDetails.lastModifiedTime
+            - jsonPath: $.bills.*.billDetails.*.lineItems.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+        - query: INSERT into health.eg_expense_lineitem (id, tenantid, billDetailId, headCode,
+            amount, paidAmount, type, status, paymentStatus, islineitempayable, createdby,
+            createdTime, lastmodifiedby, lastModifiedTime, additionalDetails) values(?,?,?,?,?,?,?,?,?,true,?,?,?,?,?)
+            ON CONFLICT (id,tenantid) DO UPDATE SET headcode=EXCLUDED.headcode, amount=EXCLUDED.amount,
+            paidamount=EXCLUDED.paidamount, type=EXCLUDED.type, status=EXCLUDED.status,
+            paymentStatus=EXCLUDED.paymentStatus, islineitempayable=EXCLUDED.islineitempayable,
+            lastmodifiedby=EXCLUDED.lastmodifiedby, lastmodifiedtime=EXCLUDED.lastmodifiedtime,
+            additionaldetails=EXCLUDED.additionaldetails;
+          basePath: $.bills.*.billDetails.*.payableLineItems.*
+          jsonMaps:
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.id
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.tenantId
+            - jsonPath: $.bills[*].billDetails[?({id} in @.payableLineItems[*].id)].id
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.headCode
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.amount
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.paidAmount
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.type
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.status
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.paymentStatus
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.auditDetails.createdBy
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.auditDetails.createdTime
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.auditDetails.lastModifiedBy
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.auditDetails.lastModifiedTime
+            - jsonPath: $.bills.*.billDetails.*.payableLineItems.*.additionalDetails
+              type: JSON
+              dbType: JSONB
+    - version: 1.0
+      name: Payment create
+      description: create payment in health.eg_expense_payment
+      fromTopic: save-expense-payment-db
+      queryMaps:
+        - query: INSERT INTO health.eg_expense_payment(id, tenantid, netpayableamount, netpaidamount,
+            paymentnumber, status, referencestatus, createdby, createdtime, lastmodifiedby,
+            lastmodifiedtime, additionaldetails) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.payment
+          jsonMaps:
+            - jsonPath: $.payment.id
+            - jsonPath: $.payment.tenantId
+            - jsonPath: $.payment.netPayableAmount
+            - jsonPath: $.payment.netPaidAmount
+            - jsonPath: $.payment.paymentNumber
+            - jsonPath: $.payment.status
+            - jsonPath: $.payment.referenceStatus
+            - jsonPath: $.payment.auditDetails.createdBy
+            - jsonPath: $.payment.auditDetails.createdTime
+            - jsonPath: $.payment.auditDetails.lastModifiedBy
+            - jsonPath: $.payment.auditDetails.lastModifiedTime
+            - jsonPath: $.payment.additionalDetails
+              type: JSON
+              dbType: JSONB
+        - query: INSERT INTO health.eg_expense_payment_bill(id, tenantid, paymentid, billid,
+            totalamount, totalpaidamount, status, createdby, createdtime, lastmodifiedby,
+            lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.payment.bills.*
+          jsonMaps:
+            - jsonPath: $.payment.bills.*.id
+            - jsonPath: $.payment.tenantId
+            - jsonPath: $.payment.id
+            - jsonPath: $.payment.bills.*.billId
+            - jsonPath: $.payment.bills.*.totalAmount
+            - jsonPath: $.payment.bills.*.totalPaidAmount
+            - jsonPath: $.payment.bills.*.status
+            - jsonPath: $.payment.auditDetails.createdBy
+            - jsonPath: $.payment.auditDetails.createdTime
+            - jsonPath: $.payment.auditDetails.lastModifiedBy
+            - jsonPath: $.payment.auditDetails.lastModifiedTime
+        - query: INSERT INTO health.eg_expense_payment_billdetail(id, tenantid, billdetailid,
+            paymentbillid, totalamount, totalpaidamount, status, createdby, createdtime,
+            lastmodifiedby, lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.payment.bills.*.billDetails.*
+          jsonMaps:
+            - jsonPath: $.payment.bills.*.billDetails.*.id
+            - jsonPath: $.payment.tenantId
+            - jsonPath: $.payment.bills.*.billDetails.*.billDetailId
+            - jsonPath: $.payment.bills[?({id} in @.billDetails[*].id)].id
+            - jsonPath: $.payment.bills.*.billDetails.*.totalAmount
+            - jsonPath: $.payment.bills.*.billDetails.*.totalPaidAmount
+            - jsonPath: $.payment.bills.*.billDetails.*.status
+            - jsonPath: $.payment.auditDetails.createdBy
+            - jsonPath: $.payment.auditDetails.createdTime
+            - jsonPath: $.payment.auditDetails.lastModifiedBy
+            - jsonPath: $.payment.auditDetails.lastModifiedTime
+        - query: INSERT INTO health.eg_expense_payment_lineitem(id, tenantid, paymentbilldetailid,
+            lineitemid, paidamount, status, createdby, createdtime, lastmodifiedby,
+            lastmodifiedtime) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+          basePath: $.payment.bills.*.billDetails.*.payableLineItems.*
+          jsonMaps:
+            - jsonPath: $.payment.bills.*.billDetails.*.payableLineItems.*.id
+            - jsonPath: $.payment.tenantId
+            - jsonPath: $.payment.bills.*.billDetails[?({id} in @.payableLineItems[*].id)].id
+            - jsonPath: $.payment.bills.*.billDetails.*.payableLineItems.*.lineItemId
+            - jsonPath: $.payment.bills.*.billDetails.*.payableLineItems.*.paidAmount
+            - jsonPath: $.payment.bills.*.billDetails.*.payableLineItems.*.status
+            - jsonPath: $.payment.auditDetails.createdBy
+            - jsonPath: $.payment.auditDetails.createdTime
+            - jsonPath: $.payment.auditDetails.lastModifiedBy
+            - jsonPath: $.payment.auditDetails.lastModifiedTime
+    - version: 1.0
+      name: Payment update
+      description: update payment status in health.eg_expense_payment
+      fromTopic: update-expense-payment-db
+      queryMaps:
+        - query: UPDATE health.eg_expense_payment SET status=?, referencestatus=?, lastmodifiedby=?,
+            lastmodifiedtime=?, additionaldetails=? WHERE id=? AND tenantid=?;
+          basePath: $.payment
+          jsonMaps:
+            - jsonPath: $.payment.status
+            - jsonPath: $.payment.referenceStatus
+            - jsonPath: $.payment.auditDetails.lastModifiedBy
+            - jsonPath: $.payment.auditDetails.lastModifiedTime
+            - jsonPath: $.payment.additionalDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.payment.id
+            - jsonPath: $.payment.tenantId
+        - query: UPDATE health.eg_expense_payment_bill SET status=?, lastmodifiedby=?, lastmodifiedtime=?
+            WHERE id=? AND paymentid=? AND tenantid=?;
+          basePath: $.payment.bills.*
+          jsonMaps:
+            - jsonPath: $.payment.bills.*.status
+            - jsonPath: $.payment.auditDetails.lastModifiedBy
+            - jsonPath: $.payment.auditDetails.lastModifiedTime
+            - jsonPath: $.payment.bills.*.id
+            - jsonPath: $.payment.id
+            - jsonPath: $.payment.tenantId
+        - query: UPDATE health.eg_expense_payment_billdetail SET status=?, lastmodifiedby=?,
+            lastmodifiedtime=? WHERE id=? AND paymentbillid=? AND tenantid=?;
+          basePath: $.payment.bills.*.billDetails.*
+          jsonMaps:
+            - jsonPath: $.payment.bills.*.billDetails.*.status
+            - jsonPath: $.payment.auditDetails.lastModifiedBy
+            - jsonPath: $.payment.auditDetails.lastModifiedTime
+            - jsonPath: $.payment.bills.*.billDetails.*.id
+            - jsonPath: $.payment.bills[?({id} in @.billDetails[*].id)].id
+            - jsonPath: $.payment.tenantId
+        - query: UPDATE health.eg_expense_payment_lineitem SET status=?, lastmodifiedby=?,
+            lastmodifiedtime=? WHERE id=? AND paymentbilldetailid=? AND tenantid=?;
+          basePath: $.payment.bills.*.billDetails.*.payableLineItems.*
+          jsonMaps:
+            - jsonPath: $.payment.bills.*.billDetails.*.payableLineItems.*.status
+            - jsonPath: $.payment.auditDetails.lastModifiedBy
+            - jsonPath: $.payment.auditDetails.lastModifiedTime
+            - jsonPath: $.payment.bills.*.billDetails.*.payableLineItems.*.id
+            - jsonPath: $.payment.bills.*.billDetails[?({id} in @.payableLineItems[*].id)].id
+            - jsonPath: $.payment.tenantId
+    - version: 1.0
+      name: Bill Transaction Report Save
+      description: create bill transaction report in health.eg_expense_bill_transaction_report
+      fromTopic: expense-bill-transaction-report-save
+      queryMaps:
+        - query: INSERT INTO health.eg_expense_bill_transaction_report (id, bill_id, tenant_id, type, status, file_store_id, error_details, created_by, created_time, last_modified_by, last_modified_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (id, tenant_id) DO NOTHING;
+          basePath: $.billTransactionReport
+          jsonMaps:
+            - jsonPath: $.billTransactionReport.id
+            - jsonPath: $.billTransactionReport.billId
+            - jsonPath: $.billTransactionReport.tenantId
+            - jsonPath: $.billTransactionReport.type
+            - jsonPath: $.billTransactionReport.status
+            - jsonPath: $.billTransactionReport.fileStoreId
+            - jsonPath: $.billTransactionReport.errorDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.billTransactionReport.auditDetails.createdBy
+            - jsonPath: $.billTransactionReport.auditDetails.createdTime
+            - jsonPath: $.billTransactionReport.auditDetails.lastModifiedBy
+            - jsonPath: $.billTransactionReport.auditDetails.lastModifiedTime
+    - version: 1.0
+      name: Bill Transaction Report Update
+      description: update bill transaction report in health.eg_expense_bill_transaction_report
+      fromTopic: expense-bill-transaction-report-update
+      queryMaps:
+        - query: UPDATE health.eg_expense_bill_transaction_report SET status=?, file_store_id=?, error_details=?, last_modified_by=?, last_modified_time=? WHERE id=? AND tenant_id=?;
+          basePath: $.billTransactionReport
+          jsonMaps:
+            - jsonPath: $.billTransactionReport.status
+            - jsonPath: $.billTransactionReport.fileStoreId
+            - jsonPath: $.billTransactionReport.errorDetails
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.billTransactionReport.auditDetails.lastModifiedBy
+            - jsonPath: $.billTransactionReport.auditDetails.lastModifiedTime
+            - jsonPath: $.billTransactionReport.id
+            - jsonPath: $.billTransactionReport.tenantId

@@ -2,29 +2,25 @@ ServiceMaps:
   serviceName: household
   version: 1.0.0
   mappings:
-    - topic: save-household-member-health-topic
+    - topic: transformer-producer-household-member-index-v1-health-topic
       configKey: INDEX
       indexes:
         - name: household-member-index-v1
-          type: household
-          id: $.id
+          type: _doc
+          id: $.householdMember.id
           isBulk: true
           jsonPath: $.*
-          timeStampField: $.auditDetails.createdTime
-    - topic: update-household-member-health-topic
-      configKey: INDEX
-      indexes:
-        - name: household-member-index-v1
-          type: household
-          id: $.id
-          isBulk: true
-          jsonPath: $.*
-          timeStampField: $.auditDetails.lastModifiedTime
+          customJsonMapping:
+            indexMapping: { "Data": { } }
+            fieldMapping:
+              - inJsonPath: $
+                outJsonPath: $.Data
+          timeStampField: $.householdMember.clientAuditDetails.lastModifiedTime
     - topic: delete-household-member-health-topic
       configKey: INDEX
       indexes:
         - name: household-member-index-v1
-          type: household
+          type: _doc
           id: $.id
           isBulk: true
           jsonPath: $.*

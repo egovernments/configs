@@ -229,6 +229,26 @@ serviceMaps:
             - jsonPath: $.*.clientAuditDetails.lastModifiedBy
             - jsonPath: $.*.individualId
             - jsonPath: $.*.householdId
+        # Rescue for rows persisted with individualId=NULL (legitimate when
+        # household.member.relationship.validation=false defers individual resolution):
+        # the query above binds NULL and matches 0 rows, silently dropping the update.
+        # This query keys those rows by their server id. The two WHERE clauses are
+        # mutually exclusive (individualId NULL vs not), so exactly one applies per row.
+        - query: UPDATE health.HOUSEHOLD_MEMBER SET isHeadOfHousehold=?, clientReferenceId = ?, additionalDetails=?, lastModifiedBy=?, lastModifiedTime=?, rowVersion=?, isDeleted=?, clientLastModifiedTime = ?, clientLastModifiedBy = ? WHERE id=? AND individualId IS NULL AND isDeleted=false;
+          basePath: $.*
+          jsonMaps:
+            - jsonPath: $.*.isHeadOfHousehold
+            - jsonPath: $.*.clientReferenceId
+            - jsonPath: $.*.additionalFields
+              type: JSON
+              dbType: JSONB
+            - jsonPath: $.*.auditDetails.lastModifiedBy
+            - jsonPath: $.*.auditDetails.lastModifiedTime
+            - jsonPath: $.*.rowVersion
+            - jsonPath: $.*.isDeleted
+            - jsonPath: $.*.clientAuditDetails.lastModifiedTime
+            - jsonPath: $.*.clientAuditDetails.lastModifiedBy
+            - jsonPath: $.*.id
         - query: UPDATE health.HOUSEHOLD_MEMBER_RELATIONSHIP SET relationshipType=?, relativeId=?, relativeClientReferenceId=?, lastModifiedBy=?, lastModifiedTime=?, clientLastModifiedBy=?, clientLastModifiedTime=?, rowVersion=?, isDeleted=? WHERE selfId=? AND isDeleted=false;
           basePath: $.*.memberRelationships.*
           jsonMaps:
