@@ -9,5 +9,21 @@ ServiceMaps:
           type: facility
           id: $.id
           isBulk: true
-          jsonPath: $.*
+          jsonPath: "$[?(@.additionalFields.schema != 'Post')]"
           timeStampField: $.auditDetails.createdTime
+        # Outside household sites (facilities marked additionalFields.schema = Post) get their own index
+        - name: outside-household-index-v1
+          type: outside-household
+          id: $.id
+          isBulk: true
+          jsonPath: "$[?(@.additionalFields.schema == 'Post')]"
+          timeStampField: $.auditDetails.createdTime
+    - topic: update-facility-health-topic
+      configKey: INDEX
+      indexes:
+        - name: outside-household-index-v1
+          type: outside-household
+          id: $.id
+          isBulk: true
+          jsonPath: "$[?(@.additionalFields.schema == 'Post')]"
+          timeStampField: $.auditDetails.lastModifiedTime
