@@ -9,14 +9,14 @@ ServiceMaps:
           type: facility
           id: $.id
           isBulk: true
-          jsonPath: "$[?(@.additionalFields.schema != 'OutsideHousehold')]"
+          jsonPath: "$[?(@.usage nin ['OUTSIDE_HOUSEHOLD_PLACES','TRANSIT_POST'])]"
           timeStampField: $.auditDetails.createdTime
-        # Outside household sites (facilities marked additionalFields.schema = OutsideHousehold) get their own index
+        # Outside household sites (facilities whose usage is a site type of MDMS HCM.OUTSIDE_HOUSEHOLD_TYPES; keep this list in step with it) get their own index
         - name: outside-household-index-v1
           type: outside-household
           id: $.id
           isBulk: true
-          jsonPath: "$[?(@.additionalFields.schema == 'OutsideHousehold')]"
+          jsonPath: "$[?(@.usage in ['OUTSIDE_HOUSEHOLD_PLACES','TRANSIT_POST'])]"
           timeStampField: $.auditDetails.createdTime
     - topic: update-facility-health-topic
       configKey: INDEX
@@ -25,5 +25,5 @@ ServiceMaps:
           type: outside-household
           id: $.id
           isBulk: true
-          jsonPath: "$[?(@.additionalFields.schema == 'OutsideHousehold')]"
+          jsonPath: "$[?(@.usage in ['OUTSIDE_HOUSEHOLD_PLACES','TRANSIT_POST'])]"
           timeStampField: $.auditDetails.lastModifiedTime
